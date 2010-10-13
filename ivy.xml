@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+
+<ivy-module version="2.0">
+  <info organisation="org.battlecode" module="${ant.project.name}">
+    <ivyauthor name="Battlecode" url="http://battlecode.mit.edu"/>
+    <description>Battlecode</description>
+  </info>
+
+  <dependencies>
+    <dependency org="net.sf.proguard" name="proguard" rev="4.4">
+		<!-- This module isn't in the Maven repository (due to license
+			 restrictions I think).  As far as I know, we don't use
+			 it anyway. -->
+		<exclude module="kenv"/>
+	</dependency>
+    <dependency org="junit" name="junit" rev="4.4" />
+	<!-- we only use WeakIdentityHashMap which doesn't depend on anything-->
+  </dependencies>
+</ivy-module>
