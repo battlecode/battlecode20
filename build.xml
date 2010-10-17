@@ -129,7 +129,7 @@
             description="Build the jar (with dependencies included)."
             depends="compile">
         <jar jarfile="${pkg.build.jar}" basedir="${pkg.build.dir}"
-			includes="${release.players}">
+			includes="${release.players}/**/*">
         </jar>
     </target>
 
