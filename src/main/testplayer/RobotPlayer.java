@@ -38,8 +38,8 @@ public class RobotPlayer implements Runnable {
 
 	public void run() {
 		try {
-			if(myRC.senseNearbyAirRobots().length>1)
-				myRC.suicide();
+			//if(myRC.senseNearbyAirRobots().length>1)
+			//	myRC.suicide();
 			Object o = new Object();
 			Object p = new Object();
 			Object q = new Object();
