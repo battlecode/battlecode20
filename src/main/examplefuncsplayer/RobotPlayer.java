@@ -31,12 +31,13 @@ public class RobotPlayer implements Runnable {
 		while (true) {
             try {
 
+				myRC.yield();
+
 				if(!motor.canMove(myRC.getDirection()))
 					motor.setDirection(myRC.getDirection().rotateRight());
 				else if(myRC.getTeamResources()>=Chassis.MEDIUM.cost)
 					builder.build(Chassis.MEDIUM,myRC.getLocation().add(myRC.getDirection()));
 
-                /*** end of main loop ***/
             } catch (Exception e) {
                 System.out.println("caught exception:");
                 e.printStackTrace();
