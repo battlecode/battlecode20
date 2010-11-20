@@ -5,28 +5,26 @@ import static battlecode.common.GameConstants.*;
 
 public class RobotPlayer implements Runnable {
 
-    private MovementController motor;
-	private BuilderController builder;
 	private final RobotController myRC;
 
     public RobotPlayer(RobotController rc) {
         myRC = rc;
-		for(ComponentController comp : myRC.newComponents()) {
-			if(comp instanceof MovementController)
-				motor = (MovementController) comp;
-			else if(comp instanceof BuilderController)
-				builder = (BuilderController) comp;
-		}
     }
 
 	public void run() {
+		ComponentController [] components = myRC.newComponents();
+		System.out.println(java.util.Arrays.toString(components));
 		if(myRC.getChassis()==Chassis.BUILDING)
-			runBuilder();
+			runBuilder((MovementController)components[0],(BuilderController)components[1]);
 		else
-			runMotor();
+			runMotor((MovementController)components[0]);
 	}
 
-	public void runBuilder() {
+	public void testit(MovementController m) {
+		m.withinRange(myRC.getLocation());
+	}
+
+	public void runBuilder(MovementController motor, BuilderController builder) {
 	
 		while (true) {
             try {
@@ -35,7 +33,7 @@ public class RobotPlayer implements Runnable {
 
 				if(!motor.canMove(myRC.getDirection()))
 					motor.setDirection(myRC.getDirection().rotateRight());
-				else if(myRC.getTeamResources()>=Chassis.MEDIUM.cost)
+				else if(myRC.getTeamResources()>=2*Chassis.MEDIUM.cost)
 					builder.build(Chassis.MEDIUM,myRC.getLocation().add(myRC.getDirection()));
 
             } catch (Exception e) {
@@ -45,7 +43,7 @@ public class RobotPlayer implements Runnable {
         }
 	}
 
-    public void runMotor() {
+    public void runMotor(MovementController motor) {
         
         while (true) {
             try {
@@ -55,12 +53,11 @@ public class RobotPlayer implements Runnable {
                 }
 
                 if (motor.canMove(myRC.getDirection())) {
-                    System.out.println("about to move");
+                    //System.out.println("about to move");
                     motor.moveForward();
                 } else {
                     motor.setDirection(myRC.getDirection().rotateRight());
                 }
-                myRC.yield();
 
                 /*** end of main loop ***/
             } catch (Exception e) {
