@@ -14,8 +14,9 @@ public class RobotPlayer implements Runnable {
 	public void run() {
 		ComponentController [] components = myRC.newComponents();
 		System.out.println(java.util.Arrays.toString(components));
+		System.out.flush();
 		if(myRC.getChassis()==Chassis.BUILDING)
-			runBuilder((MovementController)components[0],(BuilderController)components[1]);
+			runBuilder((MovementController)components[0],(BuilderController)components[2]);
 		else
 			runMotor((MovementController)components[0]);
 	}
@@ -33,8 +34,8 @@ public class RobotPlayer implements Runnable {
 
 				if(!motor.canMove(myRC.getDirection()))
 					motor.setDirection(myRC.getDirection().rotateRight());
-				else if(myRC.getTeamResources()>=2*Chassis.MEDIUM.cost)
-					builder.build(Chassis.MEDIUM,myRC.getLocation().add(myRC.getDirection()));
+				else if(myRC.getTeamResources()>=2*Chassis.LIGHT.cost)
+					builder.build(Chassis.LIGHT,myRC.getLocation().add(myRC.getDirection()));
 
             } catch (Exception e) {
                 System.out.println("caught exception:");
