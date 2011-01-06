@@ -1,12 +1,15 @@
 package hardplayer
 
 import hardplayer.Static._
+import hardplayer.goal.MineSpawnGoal
+import hardplayer.goal.Goal
 
 import battlecode.common.RobotController
 
 class MinePlayer(myRC : RobotController) extends BasePlayer(myRC) {
 
-	override def runloop() {
+	def setGoals {
+		goals = Array[Goal](new MineSpawnGoal())
 	}
 
 }

@@ -52,6 +52,8 @@ public abstract class Static {
 
 	public static Sensor sensorAI;
 
+	public static int seenConstructor;
+
 	public static void checkComponents() {
 		for(ComponentController c : myRC.newComponents()) {
 			if(c instanceof SensorController)
