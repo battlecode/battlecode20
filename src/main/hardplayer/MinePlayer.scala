@@ -8,8 +8,6 @@ import battlecode.common.RobotController
 
 class MinePlayer(myRC : RobotController) extends BasePlayer(myRC) {
 
-	def setGoals {
-		goals = Array[Goal](new MineSpawnGoal())
-	}
+	var goals = asArray(new MineSpawnGoal())
 
 }

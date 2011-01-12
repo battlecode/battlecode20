@@ -6,6 +6,7 @@ import hardplayer.navigation.QueuedAction;
 import hardplayer.sensor.Sensor;
 import hardplayer.message.*;
 import battlecode.common.*;
+import hardplayer.goal.Goal;
 
 public abstract class Static {
 
@@ -49,6 +50,7 @@ public abstract class Static {
 	public static BroadcastController radio;
 	public static MovementController motor;
 	public static SensorController sensor;
+	public static BuilderController builder;
 
 	public static Sensor sensorAI;
 
@@ -138,4 +140,9 @@ public abstract class Static {
 		}
 		queued=a;
 	}
+
+	public static Goal [] asArray(Goal... goals) {
+		return goals;
+	}
+
 }
