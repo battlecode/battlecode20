@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="Battlecode"
+<project name="Battlecode Player"
         xmlns:ivy="antlib:org.apache.ivy.ant"
         default="compile">
 
@@ -118,7 +118,7 @@
 			</classpath>
 		</taskdef>
 		
-		<fsc encoding="${build.encoding}"
+		<scalac encoding="${build.encoding}"
                 srcdir="${src.dir}"
                 destdir="${pkg.build.dir}"
                 target="jvm-1.5"
@@ -126,7 +126,7 @@
 				classpathref="classpath-libs">
 			<include name="**/*.scala"/>
 			<include name="**/*.java"/>
-		</fsc>
+		</scalac>
 
         <javac encoding="${build.encoding}"
                 srcdir="${src.dir}"
