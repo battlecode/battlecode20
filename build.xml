@@ -110,6 +110,7 @@
     <target name="compile"
             description="Compile Battlecode classes."
             depends="init">
+		<!--
 		<taskdef resource="scala/tools/ant/antlib.xml">
 			<classpath>
 				<fileset dir="${lib.dir}">
@@ -117,7 +118,7 @@
 				</fileset>
 			</classpath>
 		</taskdef>
-		
+	
 		<scalac encoding="${build.encoding}"
                 srcdir="${src.dir}"
                 destdir="${pkg.build.dir}"
@@ -127,6 +128,7 @@
 			<include name="**/*.scala"/>
 			<include name="**/*.java"/>
 		</scalac>
+		-->
 
         <javac encoding="${build.encoding}"
                 srcdir="${src.dir}"
