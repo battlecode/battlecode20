@@ -147,8 +147,8 @@
     <target name="jar"
             description="Build the jar (with dependencies included)."
             depends="compile">
-        <jar jarfile="${pkg.build.jar}" basedir="${pkg.build.dir}"
-			includes="${release.players}/**/*">
+        <jar jarfile="${pkg.build.jar}" basedir="${pkg.build.dir}" includes="${release.players}">
+			<zipgroupfileset dir="${lib.dir}" includes="scala-*, jline-*"/>
         </jar>
     </target>
 

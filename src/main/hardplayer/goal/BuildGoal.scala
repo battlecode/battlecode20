@@ -9,6 +9,9 @@ class BuildGoal extends Goal {
 
 	var avg100 = 0.;
 
+	def priority() = 0
+	def maxPriority() = 0
+
 	def executeChassis() {
 		avg100*=.99
 		var resources = myRC.getTeamResources()

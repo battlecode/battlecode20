@@ -1,29 +1,33 @@
 package hardplayer
 
 import battlecode.common._
-import Static._
+import hardplayer.Static._
+import hardplayer.goal.Goal
 
 abstract class BasePlayer(myRC : RobotController) extends Static {
 
 	init(myRC)
 
+	var goals : Array[Goal]
+
 	def runloop() {
 		sensorAI.sense()
-		/*
-		for(g <- goals) {
-			g.execute()	
-		}
-		*/
+		goals.foreach { g => g.execute() }
 	}
+
+	def repurpose() : Boolean = false
 
 	def run() {
 		while(true) {
 			try {
-				runloop()	
+				runloop()
+				if(repurpose())
+					return
 			} catch {
 				case e : Exception => { debug_stackTrace(e) }
 			}
 		}
+		myRC.`yield`()
 	}
 
 }
