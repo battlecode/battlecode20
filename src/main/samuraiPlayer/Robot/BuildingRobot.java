@@ -64,6 +64,7 @@ public class BuildingRobot extends NavRobot {
 	}
 	
 	protected void runFactory() throws GameActionException {
+		
 		//Factories build samurai. by which I mean heavies.
 		if(!moveController.canMove(myDirection)){
 			//We have to turn.
@@ -71,10 +72,11 @@ public class BuildingRobot extends NavRobot {
 		}
 		
 		//Otherwise we can try building
-		else if(!buildController.isActive() && myFlux > Chassis.BUILDING.cost*1.5 && (lastFactoryBuildRound == 0 || myCurrentRound - lastFactoryBuildRound > 500)){
+		else if((factoryBuildCount < 1 || myDeltaFlux > 5.0 || myFlux > 1000) && !buildController.isActive() && myRC.getTeamResources() > Chassis.BUILDING.cost*1.5 && (lastFactoryBuildRound == 0 || myCurrentRound - lastFactoryBuildRound > 10)){
 			factoryBuildCount++;
 			lastFactoryBuildRound = myCurrentRound;
 			buildController.build(Chassis.HEAVY, myLocation.add(myDirection));	
+			
 			//else{
 				//buildController.build(Chassis.MEDIUM, myLocation.add(myDirection));	
 			//}
@@ -92,6 +94,15 @@ public class BuildingRobot extends NavRobot {
 				ComponentType[] rComponents = rInfo.components;
 				
 				switch(rInfo.chassis){
+					case BUILDING:
+						for(ComponentType c : rComponents){
+							if(c.equals(ComponentType.ARMORY)){
+								MapLocation armoryLocation = rInfo.location;
+								if(!rInfo.on && myLocation.isAdjacentTo(armoryLocation))myRC.turnOn(armoryLocation, RobotLevel.ON_GROUND);
+								
+							}
+						}
+						break;
 					case LIGHT:
 						break;
 					case MEDIUM:
@@ -186,6 +197,15 @@ public class BuildingRobot extends NavRobot {
 				ComponentType[] rComponents = rInfo.components;
 				
 				switch(rInfo.chassis){
+					case BUILDING:
+						for(ComponentType c : rComponents){
+							if(c.equals(ComponentType.FACTORY)){
+								MapLocation factoryLocation = rInfo.location;
+								
+								if(!rInfo.on && myLocation.isAdjacentTo(factoryLocation))myRC.turnOn(factoryLocation, RobotLevel.ON_GROUND);
+							}
+						}
+						break;
 					case LIGHT:
 						break;
 					case MEDIUM:
@@ -265,7 +285,7 @@ public class BuildingRobot extends NavRobot {
 	
 	protected void buildComponent(ComponentType cType, MapLocation location) throws GameActionException{
 		//We assume that the buildController is not active, and that we're building on the ground
-		if(myFlux > cType.cost){
+		if(!buildController.isActive() && myRC.getTeamResources() > cType.cost){
 			buildController.build(cType, location, RobotLevel.ON_GROUND);
 		}
 	}
@@ -294,8 +314,12 @@ public class BuildingRobot extends NavRobot {
 						for(ComponentType c : rComponents){
 							if(c.equals(ComponentType.FACTORY)){
 								factoryLocation = rInfo.location;
+								
+								if(!rInfo.on && myLocation.isAdjacentTo(factoryLocation))myRC.turnOn(factoryLocation, RobotLevel.ON_GROUND);
 							}else if(c.equals(ComponentType.ARMORY)){
 								armoryLocation = rInfo.location;
+								if(!rInfo.on && myLocation.isAdjacentTo(armoryLocation))myRC.turnOn(armoryLocation, RobotLevel.ON_GROUND);
+								
 							}
 						}
 						break;
@@ -304,85 +328,88 @@ public class BuildingRobot extends NavRobot {
 					case MEDIUM:
 						break;
 					case HEAVY:
-						//Lessee.
-						//We will build different things based on what they have.
-						/*
-						 * Samurai have:
-						 * 1 jump
-						 * 1 radar
-						 * 4 blasters
-						 * 
-						 * Conquistadors have:
-						 * 1 jump
-						 * 1 smg
-						 * 1 radar
-						 * 1 constructor
-						 * 
-						 * Disciples have:
-						 * 2 jump
-						 * 1 radar
-						 * 1 medic
-						 * 
-						 */
+							//Lessee.
+							//We will build different things based on what they have.
+							/*
+							 * Samurai have:
+							 * 1 jump
+							 * 1 radar
+							 * 4 blasters
+							 * 
+							 * Conquistadors have:
+							 * 1 jump
+							 * 1 smg
+							 * 1 radar
+							 * 1 constructor
+							 * 
+							 * Disciples have:
+							 * 2 jump
+							 * 1 radar
+							 * 1 medic
+							 * 
+							 */
+							
+							int blasterCount = 0;
+							int jumpCount = 0;
+							int smgCount = 0;
+							int medicCount = 0;
+							
+							boolean haveRadar = false;
+							boolean haveConstructor = false;
+							
+							for(ComponentType c : rComponents){
+								if(c.equals(ComponentType.RADAR)){
+									haveRadar = true;
+								}else if(c.equals(ComponentType.CONSTRUCTOR)){
+									haveConstructor = true;
+								}
+								else if(c.equals(ComponentType.SMG)){
+									smgCount++;
+								}
+								else if(c.equals(ComponentType.JUMP)){
+									jumpCount++;
+								}
+								else if(c.equals(ComponentType.MEDIC)){
+									medicCount++;
+								}
+								else if(c.equals(ComponentType.BLASTER)){
+									blasterCount++;
+								}
+							}
+							
+							
+							if(haveConstructor){
+								//Conquistador has a constructor
+								if(!haveRadar)buildComponent(ComponentType.RADAR, rInfo.location);
+								else if(smgCount == 0)buildComponent(ComponentType.SMG, rInfo.location);
+							}else if(blasterCount > 0){
+								//Samurai have blasters
+								if(!haveRadar)buildComponent(ComponentType.RADAR, rInfo.location);
+								else if(blasterCount < 4)buildComponent(ComponentType.BLASTER, rInfo.location);
+							}else if(haveRadar){
+								//It's important that this is last, as the others also have a radar
+								//However, disciples have a radar and not the other two
+								//Haha. Turns out disciple grabs stuff from the armory and factory.
+							}else{
+								//The unit probably doesn't have much. So, we can start adding to it.
+								//Decide what to make it by using our equip count
+								int modCount = recyclerEquipCount % 4;
+								if(recyclerEquipCount < 4){
+									//Make conquistadors first
+									buildComponent(ComponentType.CONSTRUCTOR, rInfo.location);
+								}else if(modCount == 0){
+									//Every so often afterwards, make a conquistador
+									buildComponent(ComponentType.CONSTRUCTOR, rInfo.location);
+								}else if(modCount < 3){
+									//Build more samurai than disciples
+									buildComponent(ComponentType.BLASTER, rInfo.location);
+								}else if(modCount == 3){
+									//Build a disciple
+									buildComponent(ComponentType.RADAR, rInfo.location);
+								}
+								recyclerEquipCount++;
+							}
 						
-						int blasterCount = 0;
-						int jumpCount = 0;
-						int smgCount = 0;
-						int medicCount = 0;
-						
-						boolean haveRadar = false;
-						boolean haveConstructor = false;
-						
-						for(ComponentType c : rComponents){
-							if(c.equals(ComponentType.RADAR)){
-								haveRadar = true;
-							}else if(c.equals(ComponentType.CONSTRUCTOR)){
-								haveConstructor = true;
-							}
-							else if(c.equals(ComponentType.SMG)){
-								smgCount++;
-							}
-							else if(c.equals(ComponentType.JUMP)){
-								jumpCount++;
-							}
-							else if(c.equals(ComponentType.MEDIC)){
-								medicCount++;
-							}
-							else if(c.equals(ComponentType.BLASTER)){
-								blasterCount++;
-							}
-						}
-						
-						
-						if(haveConstructor){
-							//Conquistador has a constructor
-							if(!haveRadar)buildComponent(ComponentType.RADAR, rInfo.location);
-							else if(smgCount == 0)buildComponent(ComponentType.SMG, rInfo.location);
-						}else if(blasterCount > 0){
-							//Samurai have blasters
-							if(blasterCount < 4)buildComponent(ComponentType.BLASTER, rInfo.location);
-						}else if(haveRadar){
-							//It's important that this is last, as the others also have a radar
-							//However, disciples have a radar and not the other two
-							//Haha. Turns out disciple grabs stuff from the armory and factory.
-						}else{
-							//The unit probably doesn't have much. So, we can start adding to it.
-							//Decide what to make it by using our equip count
-							int modCount = recyclerEquipCount % 4;
-							if(recyclerEquipCount < 4){
-								//Make conquistadors first
-								buildComponent(ComponentType.CONSTRUCTOR, rInfo.location);
-							}else if(modCount == 0){
-								//Every so often afterwards, make a conquistador
-								buildComponent(ComponentType.CONSTRUCTOR, rInfo.location);
-							}else if(modCount < 3){
-								//Build more samurai than disciples
-								buildComponent(ComponentType.BLASTER, rInfo.location);
-							}else if(modCount == 3){
-								//Build a disciple
-								buildComponent(ComponentType.RADAR, rInfo.location);
-							}
-						}
 						
 						break;
 					default:
@@ -394,12 +421,14 @@ public class BuildingRobot extends NavRobot {
 			}
 		}
 		
+		boolean shouldBroadcast = !factoryLocation.equals(new MapLocation(0,0)) || !armoryLocation.equals(new MapLocation(0,0));
+		
 		//See if we need to build a broadcaster
-		if(broadcastController == null){
-			if(!buildController.isActive()){
+		if(broadcastController == null && shouldBroadcast){
+			if(!buildController.isActive() && myRC.getTeamResources() > ComponentType.ANTENNA.cost){
 				buildController.build(ComponentType.ANTENNA, myLocation, RobotLevel.ON_GROUND);
 			}
-		}else if(!broadcastController.isActive()){
+		}else if(shouldBroadcast && !broadcastController.isActive() && myRC.getTeamResources() > 10){
 			
 			
 			Message echoMsg = new Message();

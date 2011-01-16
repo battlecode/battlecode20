@@ -76,6 +76,7 @@ public class LightRobot extends NavRobot {
 		Mine[] nearbyMines;
 		Direction buildDirection;
 		Direction randDirection;
+		boolean foundEmptyMine;
 		myRC.setIndicatorString(0, "Current state: " + currentConstructorState);
 		switch(currentConstructorState){
 			case FIND_EQUIPMENT:
@@ -88,11 +89,11 @@ public class LightRobot extends NavRobot {
 				//First, check to see if we can see any mines without recyclers. If so, break out
 				//And go into moving to mine mode
 				nearbyMines = senseController.senseNearbyGameObjects(Mine.class);
-				boolean foundEmptyMine = false;
+				foundEmptyMine = false;
 				for(Mine m : nearbyMines){
 					MapLocation mineLocation = m.getLocation();
 					GameObject obj = senseController.senseObjectAtLocation(mineLocation, RobotLevel.ON_GROUND);
-					if(obj == null || !obj.getTeam().equals(myTeam)){
+					if(obj == null){
 						foundEmptyMine = true;
 						buildMineLocation = mineLocation;
 					}
@@ -123,6 +124,18 @@ public class LightRobot extends NavRobot {
 					break;
 				}
 				
+				nearbyMines = senseController.senseNearbyGameObjects(Mine.class);
+				foundEmptyMine = false;
+				for(Mine m : nearbyMines){
+					MapLocation mineLocation = m.getLocation();
+					GameObject obj = senseController.senseObjectAtLocation(mineLocation, RobotLevel.ON_GROUND);
+					if(obj == null){
+						foundEmptyMine = true;
+						buildMineLocation = mineLocation;
+					}
+					
+				}
+				
 				if(myLocation.isAdjacentTo(buildMineLocation)){
 					currentConstructorState = ConstructorState.BUILDING_RECYCLER;
 					break;
@@ -135,6 +148,23 @@ public class LightRobot extends NavRobot {
 				if(!myLocation.isAdjacentTo(buildMineLocation)){
 					currentConstructorState = ConstructorState.MOVING_TO_MINE;
 					break;
+				}
+				
+				Direction directionToMine = myLocation.directionTo(buildMineLocation);
+				//We should check to see if the recycler is the enemy's, and if so, destroy it.
+				if(!myDirection.equals(directionToMine)){
+					if(!moveController.isActive())moveController.setDirection(directionToMine);
+					break;
+				}else{
+					Robot[] rs = senseController.senseNearbyGameObjects(Robot.class);
+					GameObject mine = senseController.senseObjectAtLocation(buildMineLocation, RobotLevel.ON_GROUND);
+					
+					if(mine != null){
+						//there's a frackin' mine in the way :(
+						
+						currentConstructorState = ConstructorState.EXPLORING;
+						//Go back to explorin' the frontier.
+					}
 				}
 				
 				//We should check to see if the recycler is the enemy's, and if so, destroy it.
@@ -153,8 +183,12 @@ public class LightRobot extends NavRobot {
 				}
 				
 				if(!buildController.isActive() && myFlux > ComponentType.RECYCLER.cost){
-					buildController.build(ComponentType.RECYCLER, buildMineLocation, RobotLevel.ON_GROUND);
-					currentConstructorState = ConstructorState.BUILDING_ARMORY;
+					try{
+						buildController.build(ComponentType.RECYCLER, buildMineLocation, RobotLevel.ON_GROUND);
+						currentConstructorState = ConstructorState.BUILDING_ARMORY;
+					}catch(Exception e){
+						currentConstructorState = ConstructorState.BUILDING_ARMORY;
+					}
 					break;
 				}
 				break;
@@ -176,73 +210,35 @@ public class LightRobot extends NavRobot {
 					recycleMessage = myRC.getNextMessage();
 				}
 				//Find a factory location (nearby empty spot)
-				/*
-				if(buildLocation == null){
-					buildDirection = myDirection;
-					
-					//Try building where we are
-					buildLocation = myLocation.add(buildDirection);
-					nearbyMines = senseController.senseNearbyGameObjects(Mine.class);
-					for(Mine m : nearbyMines){
-						MapLocation mineLocation = m.getLocation();
-						if(mineLocation.equals(buildLocation)){
-							buildDirection = buildDirection.rotateLeft();
-							buildLocation = myLocation.add(buildDirection);
-						}
-					}
-					GameObject obj = senseController.senseObjectAtLocation(buildLocation, RobotLevel.ON_GROUND);
-					TerrainTile factoryLocationTile = myRC.senseTerrainTile(buildLocation);
-					//Keep changing the location until we have an open spot
-					while(factoryLocationTile == null || obj != null || !factoryLocationTile.equals(TerrainTile.LAND) ){
-						if(factoryLocationTile == null)break;
-						buildDirection = buildDirection.rotateLeft();
-						//TODO: make this less likely to take a billion byte code? - Done
-						buildLocation = myLocation.add(buildDirection);
-						obj = senseController.senseObjectAtLocation(buildLocation, RobotLevel.ON_GROUND);
-						factoryLocationTile = myRC.senseTerrainTile(buildLocation);
-					}
-				}else{
-					buildDirection = myLocation.directionTo(buildLocation);
-					
-				}
+				if(buildLocation == null)buildLocation = buildMineLocation.add(getRandomDirection());
 				
 				
-				
-				//Now we have a buildlocation, presumably.
-				//So, let's build a factory if we can.
 				if(!myLocation.isAdjacentTo(buildLocation)){
-					//TODO: do a validation and move elsewhere if we can't get to this spot.
-					moveTo(buildLocation.add(buildDirection.opposite()));
+					moveTo(buildLocation.add(getRandomDirection()));
+					break;
+				}
+				resetBug();
+				
+				Direction directionToBuild = myLocation.directionTo(buildLocation);
+				
+				if(!myDirection.equals(directionToBuild)){
+					if(!moveController.isActive())moveController.setDirection(directionToBuild);
 					break;
 				}
 				
-			
-				
-				GameObject obj = senseController.senseObjectAtLocation(buildLocation, RobotLevel.ON_GROUND);
-				
-				while(obj != null){
-					buildDirection = buildDirection.rotateLeft();
-					buildLocation = myLocation.add(buildDirection);
-					obj = senseController.senseObjectAtLocation(buildLocation, RobotLevel.ON_GROUND);
-					
-				}
-				myRC.setIndicatorString(1, "Location: " + myLocation);
-				myRC.setIndicatorString(2, "Build location: " + buildLocation);
-				if(!buildController.isActive() && myFlux > Chassis.BUILDING.cost){
-					buildController.build(Chassis.BUILDING, buildLocation);
-					currentConstructorState = currentConstructorState == ConstructorState.BUILDING_FACTORY ? ConstructorState.EQUIPPING_FACTORY : ConstructorState.EQUIPPING_ARMORY;
+				if(senseController.senseObjectAtLocation(buildLocation, RobotLevel.MINE) != null){
+					buildLocation = buildMineLocation.add(getRandomDirection());
 					break;
 				}
-				*/
-				if(!moveController.canMove(myDirection)){
-					//We have to turn.
-					moveController.setDirection(myDirection.rotateLeft());
+				
+				if(!moveController.canMove(directionToBuild)){
+					//Find a new build location
+					buildLocation = buildMineLocation.add(getRandomDirection());
 					break;
 				}
 				
 				//Otherwise we can try building
-				if(!buildController.isActive() && myFlux > Chassis.BUILDING.cost*1.5){
-					buildLocation = myLocation.add(myDirection);
+				if(!buildController.isActive() && myFlux > Chassis.BUILDING.cost){
 					buildController.build(Chassis.BUILDING, buildLocation);
 					currentConstructorState = currentConstructorState == ConstructorState.BUILDING_FACTORY ? ConstructorState.EQUIPPING_FACTORY : ConstructorState.EQUIPPING_ARMORY;
 					break;
@@ -259,6 +255,7 @@ public class LightRobot extends NavRobot {
 				if(!buildController.isActive() && myFlux > ComponentType.FACTORY.cost){
 					buildController.build(ComponentType.FACTORY, buildLocation, RobotLevel.ON_GROUND);
 					currentConstructorState = ConstructorState.EXPLORING;
+					buildLocation = null;
 					
 					break;
 				}
@@ -273,6 +270,7 @@ public class LightRobot extends NavRobot {
 					buildController.build(ComponentType.ARMORY, buildLocation, RobotLevel.ON_GROUND);
 					currentConstructorState = ConstructorState.BUILDING_FACTORY;
 					buildLocation = null;
+					
 					break;
 				}
 			default:
