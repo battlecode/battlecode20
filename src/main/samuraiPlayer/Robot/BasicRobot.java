@@ -9,6 +9,7 @@ public class BasicRobot {
 	protected double myFlux;
 	protected MapLocation myLocation;
 	protected Direction myDirection;
+	protected double myDeltaFlux;
 	protected SensorController senseController;
 	protected Team myTeam;
 	protected int myCurrentRound = 0;//Time since birth.
@@ -29,7 +30,11 @@ public class BasicRobot {
 				//Because in the case of buildings, they don't move.
 				myLocation = myRC.getLocation();
 				myDirection = myRC.getDirection();
-				myFlux = myRC.getTeamResources();
+				double newFlux = myRC.getTeamResources();
+				double newDeltaFlux = newFlux - myFlux;
+				myDeltaFlux = newDeltaFlux;
+				myFlux = newFlux;
+					
 				myTeam = myRC.getTeam();
 				myCurrentRound++;
 				

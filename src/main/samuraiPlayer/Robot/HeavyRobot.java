@@ -1,27 +1,30 @@
 package samuraiPlayer.Robot;
 
+import java.util.ArrayList;
+
 import battlecode.common.*;
 
 public class HeavyRobot extends NavRobot {
 	
 	
 	private enum ConquistadorState{
-		GATHERING_EQUIPMENT,
+		SUIT_UP,
 		EXPLORING,
 		BUILDING_RECYCLER,
 		EQUIPPING_RECYCLER;
 	}
 	
 	private enum DiscipleState{
-		GATHERING_EQUIPMENT,
+		SUIT_UP,
 		QUESTING,
 		RUNNING;
 	
 	}
 	
 	private enum SamuraiState{
-		GATHERING_EQUIPMENT,
-		QUESTING;
+		SUIT_UP,
+		QUESTING,
+		DUELING;
 	
 	}
 	
@@ -29,11 +32,14 @@ public class HeavyRobot extends NavRobot {
 	private Direction exploreDirection;
 	private MapLocation factoryLocation, recyclerLocation, armoryLocation, buildMineLocation;
 	private BuilderController buildController;
-	private WeaponController attackController;
-	private WeaponController healController;
-	private ConquistadorState currentConquistadorState = ConquistadorState.GATHERING_EQUIPMENT;
-	private DiscipleState currentDiscipleState = DiscipleState.GATHERING_EQUIPMENT;
-	private SamuraiState currentSamuraiState = SamuraiState.GATHERING_EQUIPMENT;
+//	private WeaponController attackController;
+	private WeaponController[] healControllers = new WeaponController[10];
+	private int numHeals = 0;
+	private WeaponController[] attackControllers = new WeaponController[10];
+	private int numAttacks = 0;
+	private ConquistadorState currentConquistadorState = ConquistadorState.SUIT_UP;
+	private DiscipleState currentDiscipleState = DiscipleState.SUIT_UP;
+	private SamuraiState currentSamuraiState = SamuraiState.SUIT_UP;
 	private HeavyRobotType myType = HeavyRobotType.NONE;
 
 	public HeavyRobot(RobotController rc) {
@@ -45,6 +51,10 @@ public class HeavyRobot extends NavRobot {
 	protected void myRun() throws GameActionException{	
 
 		myRC.yield();
+		
+		numAttacks = 0;
+		numHeals = 0;
+		
 		//So, depending on what we have, change our robottype
 		for(ComponentController c : myRC.components()){
 			if(c.componentClass().equals(ComponentClass.MOTOR)){
@@ -64,18 +74,18 @@ public class HeavyRobot extends NavRobot {
 			}else if(c.type().equals(ComponentType.JUMP)){
 				jumpController = (JumpController)(c);
 			}else if(c.type().equals(ComponentType.SMG)){
-				attackController = (WeaponController)(c);
-				
+				attackControllers[numAttacks] = ((WeaponController)(c));
+				numAttacks++;
 			}else if(c.type().equals(ComponentType.BLASTER)){
-				attackController = (WeaponController)(c);
-				
+				attackControllers[numAttacks] = ((WeaponController)(c));
+				numAttacks++;
 				//We are a samurai if we have a blaster.
 				myType = HeavyRobotType.SAMURAI;
 			}else if(c.type().equals(ComponentType.MEDIC)){
-				healController = (WeaponController)(c);
+				healControllers[numHeals] = ((WeaponController)(c));
+				numHeals++;
 				
-				//We are a samurai if we have a blaster.
-				myType = HeavyRobotType.SAMURAI;
+				
 			}
 			
 		}
@@ -108,7 +118,9 @@ public class HeavyRobot extends NavRobot {
 				if(recycleMessage.ints != null && recycleMessage.ints[0] == 1277){//oh wtf magic numbers
 					if(recycleMessage.locations != null && recycleMessage.locations.length >= 3){
 						recyclerLocation = recycleMessage.locations[0];
-						armoryLocation = recycleMessage.locations[2];
+
+						MapLocation aLocation = recycleMessage.locations[2];
+						if(!aLocation.equals(new MapLocation(0,0)))armoryLocation = aLocation;
 					}
 					
 				}
@@ -116,36 +128,74 @@ public class HeavyRobot extends NavRobot {
 			}
 		}
 		
+
+		
 		if(recyclerLocation != null){
 			if(!myLocation.isAdjacentTo(recyclerLocation)){
+				if(myLocation.distanceSquaredTo(recyclerLocation) > 16)resetBug(); 
 				moveTo(recyclerLocation.add(getRandomDirection()));
+				
 			}
 		}
 		
 		
 	}
 	
+	private WeaponController getAttackController(){
+		WeaponController returnController = null;
+		for(int i = 0; i < numAttacks; i++){
+			WeaponController weapon = attackControllers[i];
+			if(!weapon.isActive()){
+				returnController = weapon;
+				break;
+			}
+			
+		}
+		
+		return returnController;
+		
+	}
+	
+	private WeaponController getHealController(){
+		WeaponController returnController = null;
+		for(int i = 0; i < numHeals; i++){
+			WeaponController weapon = healControllers[i];
+			if(!weapon.isActive()){
+				returnController = weapon;
+				break;
+			}
+			
+		}
+		
+		return returnController;
+		
+	}
+	
 	private void runConquistador() throws GameActionException{
 		
 
-		myRC.setIndicatorString(0, "Conquistador: " + currentConquistadorState+"");
-		
+		myRC.setIndicatorString(0, "Conquistador: " + currentConquistadorState+" " + myLocation);
 		if(recyclerLocation == null){
 			Message recycleMessage = myRC.getNextMessage();
 			while(recycleMessage != null){
 				if(recycleMessage.ints != null && recycleMessage.ints[0] == 1277){//oh wtf magic numbers
 					if(recycleMessage.locations != null && recycleMessage.locations.length >= 3){
 						recyclerLocation = recycleMessage.locations[0];
-						factoryLocation = recycleMessage.locations[1];
-						armoryLocation = recycleMessage.locations[2];
+						MapLocation fLocation = recycleMessage.locations[1];
+						if(!fLocation.equals(new MapLocation(0,0)))factoryLocation = fLocation;
+						
+						MapLocation aLocation = recycleMessage.locations[2];
+						if(!aLocation.equals(new MapLocation(0,0)))armoryLocation = aLocation;
 					}
 					
 				}
 				recycleMessage = myRC.getNextMessage();
 			}
 		}
+		WeaponController attackController = null;
+		
 		switch(currentConquistadorState){
-			case GATHERING_EQUIPMENT:
+			case SUIT_UP:
 				//We want a jump, constructor, and radar
 				//Jump from armory, radar from recycler, and constructor from recycler.
 				
@@ -155,6 +205,7 @@ public class HeavyRobot extends NavRobot {
 				if(senseController == null){
 					if(recyclerLocation != null){
 						if(!myLocation.isAdjacentTo(recyclerLocation)){
+							if(myLocation.distanceSquaredTo(recyclerLocation) > 16)resetBug(); 
 							moveTo(recyclerLocation.add(getRandomDirection()));
 						}
 					}
@@ -175,9 +226,14 @@ public class HeavyRobot extends NavRobot {
 				}*/
 				
 				//Then get attack
+				attackController = getAttackController();
+				
+				
 				if(attackController == null){
+					
 					if(recyclerLocation != null){
 						if(!moveTo(recyclerLocation)){
+							if(myLocation.distanceSquaredTo(recyclerLocation) > 16)resetBug(); 
 							moveTo(recyclerLocation.add(Direction.NORTH));
 						}
 					}
@@ -189,6 +245,7 @@ public class HeavyRobot extends NavRobot {
 				if(jumpController == null){
 					if(armoryLocation != null){
 						if(!myLocation.isAdjacentTo(armoryLocation)){
+							if(myLocation.distanceSquaredTo(armoryLocation) > 16)resetBug(); 
 							moveTo(armoryLocation.add(getRandomDirection()));
 						}
 					}
@@ -233,13 +290,11 @@ public class HeavyRobot extends NavRobot {
 				}
 				break;
 			case BUILDING_RECYCLER:
-				myRC.setIndicatorString(2, myLocation +  " 0 " + buildMineLocation + " " + myCurrentRound);
 				
 				if(!myLocation.isAdjacentTo(buildMineLocation)){
 					moveTo(buildMineLocation.add(getRandomDirection()));//TODO: add the direction that would be to our base.
 					break;
 				}
-				myRC.setIndicatorString(2, myLocation +  " 1 " + buildMineLocation + " " + myCurrentRound);
 				
 				
 				Direction directionToMine = myLocation.directionTo(buildMineLocation);
@@ -250,12 +305,12 @@ public class HeavyRobot extends NavRobot {
 				}else{
 					Robot[] rs = senseController.senseNearbyGameObjects(Robot.class);
 					GameObject mine = senseController.senseObjectAtLocation(buildMineLocation, RobotLevel.ON_GROUND);
-					myRC.setIndicatorString(2, myLocation +  " 2 " + buildMineLocation + " " + myCurrentRound);
-					if(mine!= null)myRC.setIndicatorString(2, mine+ " " + mine.getTeam());
+				
+					attackController = getAttackController();
 					
 					if(mine != null){
 						if(!mine.getTeam().equals(myTeam)){
-							if(!attackController.isActive())attackController.attackSquare(buildMineLocation, RobotLevel.ON_GROUND);
+							if(attackController != null)attackController.attackSquare(buildMineLocation, RobotLevel.ON_GROUND);
 							break;
 						}else{
 							currentConquistadorState = ConquistadorState.EXPLORING;
@@ -264,7 +319,7 @@ public class HeavyRobot extends NavRobot {
 					}
 				}
 				
-				if(!buildController.isActive() && myFlux > Chassis.BUILDING.cost*1.5){
+				if(!buildController.isActive() && myRC.getTeamResources() > Chassis.BUILDING.cost){
 					buildController.build(Chassis.BUILDING, buildMineLocation);
 					currentConquistadorState = ConquistadorState.EQUIPPING_RECYCLER;
 					break;
@@ -277,7 +332,21 @@ public class HeavyRobot extends NavRobot {
 					break;
 				}
 				
-				if(!buildController.isActive() && myFlux > ComponentType.RECYCLER.cost){
+				Direction directionToBuild = myLocation.directionTo(buildMineLocation);
+				if(!myDirection.equals(directionToBuild)){
+					if(!moveController.isActive()){
+						moveController.setDirection(directionToBuild);
+					}
+					break;
+				}
+				GameObject obj = senseController.senseObjectAtLocation(buildMineLocation, RobotLevel.ON_GROUND);
+				if(obj == null || !obj.getTeam().equals(myTeam)){
+					currentConquistadorState = ConquistadorState.EXPLORING;
+					break;
+					
+				}
+				
+				if(!buildController.isActive() && myRC.getTeamResources() > ComponentType.RECYCLER.cost){
 					buildController.build(ComponentType.RECYCLER, buildMineLocation, RobotLevel.ON_GROUND);
 					currentConquistadorState = ConquistadorState.EXPLORING;
 					break;
@@ -288,7 +357,7 @@ public class HeavyRobot extends NavRobot {
 	}
 	
 	private void runDisciple() throws GameActionException{
-		myRC.setIndicatorString(0, "Disciple: " + currentDiscipleState+"");
+		myRC.setIndicatorString(0, "Disciple: " + currentDiscipleState+" " + myLocation);
 		
 		if(recyclerLocation == null){
 			Message recycleMessage = myRC.getNextMessage();
@@ -296,16 +365,21 @@ public class HeavyRobot extends NavRobot {
 				if(recycleMessage.ints != null && recycleMessage.ints[0] == 1277){//oh wtf magic numbers
 					if(recycleMessage.locations != null && recycleMessage.locations.length >= 3){
 						recyclerLocation = recycleMessage.locations[0];
-						factoryLocation = recycleMessage.locations[1];
-						armoryLocation = recycleMessage.locations[2];
+						MapLocation fLocation = recycleMessage.locations[1];
+						if(!fLocation.equals(new MapLocation(0,0)))factoryLocation = fLocation;
+						
+						MapLocation aLocation = recycleMessage.locations[2];
+						if(!aLocation.equals(new MapLocation(0,0)))armoryLocation = aLocation;
 					}
 				}
 				recycleMessage = myRC.getNextMessage();
 			}
 		}
 		
+		WeaponController healController = null;
+		
 		switch(currentDiscipleState){
-			case GATHERING_EQUIPMENT:
+			case SUIT_UP:
 				//We want a jump, radar, and medic
 				
 				/*
@@ -348,6 +422,7 @@ public class HeavyRobot extends NavRobot {
 				if(jumpController == null){
 					if(armoryLocation != null){
 						if(!myLocation.isAdjacentTo(armoryLocation)){
+							if(myLocation.distanceSquaredTo(armoryLocation) > 16)resetBug(); 
 							moveTo(armoryLocation.add(getRandomDirection()));
 						}
 					}
@@ -355,9 +430,10 @@ public class HeavyRobot extends NavRobot {
 				}
 				
 				//Then get heal
-				if(healController == null){
+				if(numHeals < 1){
 					if(factoryLocation != null){
 						if(!myLocation.isAdjacentTo(factoryLocation)){
+							if(myLocation.distanceSquaredTo(factoryLocation) > 16)resetBug(); 
 							moveTo(factoryLocation.add(getRandomDirection()));
 						}
 					}
@@ -369,12 +445,51 @@ public class HeavyRobot extends NavRobot {
 				currentDiscipleState = DiscipleState.QUESTING;
 				break;
 			case QUESTING:
+//Roam around and kill shite
+				
+				Robot robots[] = senseController.senseNearbyGameObjects(Robot.class);
+				healController = getHealController();
+				boolean healed = false;
+				for(Robot r : robots){
+					RobotInfo rInfo = senseController.senseRobotInfo(r);
+					if(r.getTeam().equals(myTeam) && rInfo.hitpoints < rInfo.maxHp){
+						MapLocation rLocation = rInfo.location;
+						
+						int healCount = 0;
+						while(healController != null && healCount < numHeals){
+							
+							if(healController.withinRange(rLocation)){
+								healController.attackSquare(rLocation, r.getRobotLevel());
+								healed = true;
+							}
+							healController = getAttackController();
+							healCount++;
+						}
+						if(healed){
+							//Stay here.
+							break;
+						}
+					}
+				}
+				
+				if(!healed){//Stay if we're healing
+					if(exploreLocation == null){
+						exploreDirection = getRandomDirection();
+						exploreLocation = myLocation.add(exploreDirection, 30);
+					}
+					if(!moveTo(exploreLocation)){
+						exploreDirection = getRandomDirection();
+						exploreLocation = myLocation.add(exploreDirection, 30);
+					}
+				}
+				
+				
 				break;
 		}
 	}
 	
 	private void runSamurai() throws GameActionException{
-		myRC.setIndicatorString(0, "Samurai: " + currentSamuraiState+"");
+		myRC.setIndicatorString(0, "Samurai: " + currentSamuraiState+" " + myLocation);
 		
 		if(recyclerLocation == null){
 			Message recycleMessage = myRC.getNextMessage();
@@ -382,8 +497,11 @@ public class HeavyRobot extends NavRobot {
 				if(recycleMessage.ints != null && recycleMessage.ints[0] == 1277){//oh wtf magic numbers
 					if(recycleMessage.locations != null && recycleMessage.locations.length >= 3){
 						recyclerLocation = recycleMessage.locations[0];
-						factoryLocation = recycleMessage.locations[1];
-						armoryLocation = recycleMessage.locations[2];
+						MapLocation fLocation = recycleMessage.locations[1];
+						if(!fLocation.equals(new MapLocation(0,0)))factoryLocation = fLocation;
+						
+						MapLocation aLocation = recycleMessage.locations[2];
+						if(!aLocation.equals(new MapLocation(0,0)))armoryLocation = aLocation;
 					}
 					
 				}
@@ -391,11 +509,12 @@ public class HeavyRobot extends NavRobot {
 			}
 		}
 		
+		WeaponController attackController = null;
 		switch(currentSamuraiState){
-			case GATHERING_EQUIPMENT:
+			case SUIT_UP:
 				//We want a jump, radar, and blasters
 				
-				/*
+				
 				
 				//Get sensor first
 				if(senseController == null){
@@ -408,7 +527,7 @@ public class HeavyRobot extends NavRobot {
 					break;
 				}
 				
-				
+				/*
 				//Then get Constructor.
 				if(buildController == null){
 					myRC.setIndicatorString(2, "Looking for build");
@@ -419,43 +538,88 @@ public class HeavyRobot extends NavRobot {
 					}
 					break;
 				}
+				*/
 				
 				//Then get attack
-				if(attackController == null){
+				if(numAttacks < 4){
 					if(recyclerLocation != null){
 						if(!moveTo(recyclerLocation)){
-							moveTo(recyclerLocation.add(Direction.NORTH));
+							moveTo(recyclerLocation.add(getRandomDirection()));
+						}
+					}
+					break;
+				}
+				
+				
+				//Then get jump
+				if(jumpController == null){
+					if(armoryLocation != null){
+						if(!myLocation.isAdjacentTo(armoryLocation)){
+							if(myLocation.distanceSquaredTo(armoryLocation) > 16)resetBug(); 
+							moveTo(armoryLocation.add(getRandomDirection()));
+						}
+					}
+					break;
+				}
+				/*
+				//Then get 
+				if(healController == null){
+					if(factoryLocation != null){
+						if(!myLocation.isAdjacentTo(factoryLocation)){
+							if(myLocation.distanceSquaredTo(factoryLocation) > 16)resetBug(); 
+							moveTo(factoryLocation.add(getRandomDirection()));
 						}
 					}
 					break;
 				}
 				*/
 				
-				//Then get jump
-				if(jumpController == null){
-					if(armoryLocation != null){
-						if(!myLocation.isAdjacentTo(armoryLocation)){
-							moveTo(armoryLocation.add(getRandomDirection()));
-						}
-					}
-					break;
-				}
-				
-				//Then get heal
-				if(healController == null){
-					if(factoryLocation != null){
-						if(!myLocation.isAdjacentTo(factoryLocation)){
-							moveTo(factoryLocation.add(getRandomDirection()));
-						}
-					}
-					break;
-				}
-				
-				
 				//Otherwise, we're fully equipped, so start questing
 				currentSamuraiState = SamuraiState.QUESTING;
 				break;
 			case QUESTING:
+				//Roam around and kill shite
+				
+				Robot robots[] = senseController.senseNearbyGameObjects(Robot.class);
+				attackController = getAttackController();
+				boolean attacked = false;
+				for(Robot r : robots){
+					RobotInfo rInfo = senseController.senseRobotInfo(r);
+					if(r.getTeam().equals(myTeam.opponent()) ){
+						MapLocation rLocation = rInfo.location;
+						
+						int attackCount = 0;
+						while(attackController != null && attackCount < numAttacks){
+							
+							if(attackController.withinRange(rLocation)){
+								attackController.attackSquare(rLocation, r.getRobotLevel());
+								attacked = true;
+							}
+							attackController = getAttackController();
+							attackCount++;
+						}
+						if(attacked){
+							if(exploreDirection != null)moveTo(myLocation.add(exploreDirection.opposite(), 30));
+							break;
+						}
+					}
+				}
+				
+				if(!attacked){
+					if(exploreLocation == null){
+						exploreDirection = getRandomDirection();
+						exploreLocation = myLocation.add(exploreDirection, 30);
+					}
+					if(!moveTo(exploreLocation)){
+						exploreDirection = getRandomDirection();
+						exploreLocation = myLocation.add(exploreDirection, 30);
+					}
+				}
+				
+				
+				break;
+			case DUELING:
+				
 				break;
 		}
 	

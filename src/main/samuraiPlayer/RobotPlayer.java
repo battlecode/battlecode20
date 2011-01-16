@@ -14,8 +14,8 @@ public class RobotPlayer implements Runnable {
 
 	public void run() {
 		ComponentController [] components = myRC.newComponents();
-		System.out.println(java.util.Arrays.toString(components));
-		System.out.flush();
+		//System.out.println(java.util.Arrays.toString(components));
+		//System.out.flush();
 		
 		BasicRobot robot;
 		
