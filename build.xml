@@ -110,6 +110,7 @@
     <target name="compile"
             description="Compile Battlecode classes."
             depends="init">
+		<!--
 		<taskdef resource="scala/tools/ant/antlib.xml">
 			<classpath>
 				<fileset dir="${lib.dir}">
@@ -117,8 +118,8 @@
 				</fileset>
 			</classpath>
 		</taskdef>
-		
-		<fsc encoding="${build.encoding}"
+	
+		<scalac encoding="${build.encoding}"
                 srcdir="${src.dir}"
                 destdir="${pkg.build.dir}"
                 target="jvm-1.5"
@@ -126,7 +127,8 @@
 				classpathref="classpath-libs">
 			<include name="**/*.scala"/>
 			<include name="**/*.java"/>
-		</fsc>
+		</scalac>
+		-->
 
         <javac encoding="${build.encoding}"
                 srcdir="${src.dir}"
@@ -147,8 +149,8 @@
     <target name="jar"
             description="Build the jar (with dependencies included)."
             depends="compile">
-        <jar jarfile="${pkg.build.jar}" basedir="${pkg.build.dir}"
-			includes="${release.players}/**/*">
+        <jar jarfile="${pkg.build.jar}" basedir="${pkg.build.dir}" includes="${release.players}">
+			<zipgroupfileset dir="${lib.dir}" includes="scala-*, jline-*"/>
         </jar>
     </target>
 

@@ -1,7 +1,6 @@
 package testplayer;
 
-import battlecode.common.Robot;
-import battlecode.common.RobotController;
+import battlecode.common.*;
 
 import java.util.Random;
 
@@ -58,6 +57,14 @@ public class RobotPlayer implements Runnable {
 			_assert_equal(r.nextInt(),s.nextInt());
 			// class
 			_assert_equal(RobotPlayer.class,getClass());
+			if(myRC.getChassis()==Chassis.LIGHT) {
+				myRC.turnOff();
+				System.out.println("Hello!");
+			}
+			else {
+				myRC.yield();
+				myRC.turnOn(myRC.getLocation().add(Direction.SOUTH),RobotLevel.ON_GROUND);
+			}
 			if(failures==0)
 				System.out.println("Success!");
 			else

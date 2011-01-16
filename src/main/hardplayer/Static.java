@@ -6,6 +6,7 @@ import hardplayer.navigation.QueuedAction;
 import hardplayer.sensor.Sensor;
 import hardplayer.message.*;
 import battlecode.common.*;
+import hardplayer.goal.Goal;
 
 public abstract class Static {
 
@@ -13,21 +14,16 @@ public abstract class Static {
 	public static Navigation myNav;
 	public static QueuedAction queued;
 
-	public static FastList alliedAir;
-	public static FastList alliedGround;
 
-	public static FastList [] alliedUnits = new FastList [] { null, alliedGround, alliedAir };
+	public static FastList allies = new FastList(400);
 
-	public static FastList enemyAir;
-	public static FastList enemyGround;
+	public static FastList enemies = new FastList(400);
 
-	public static FastList [] enemyUnits = new FastList [] { null, enemyGround, enemyAir };
+	public static FastList debris = new FastList(400);
 
-	public static FastList mines;
+	public static FastList [] allUnits;
 
-	public static FastList [] neutralObjects = new FastList [] { mines, null, null };
-
-	public static FastList [][] allUnits;
+	public static Mine [] mines;
 
 	public static Team myTeam;
 	public static Chassis myType;
@@ -42,6 +38,7 @@ public abstract class Static {
 	public static MapLocation myLoc;
 	
 	// for profiling only
+	public static int roundTimer;
 	public static int timer;
 	
 	public static SuperMessageStack enemyUnitMessages = new SuperMessageStack();
@@ -49,19 +46,11 @@ public abstract class Static {
 	public static BroadcastController radio;
 	public static MovementController motor;
 	public static SensorController sensor;
+	public static BuilderController builder;
 
 	public static Sensor sensorAI;
 
-	public static void checkComponents() {
-		for(ComponentController c : myRC.newComponents()) {
-			if(c instanceof SensorController)
-				sensor = (SensorController)c;
-			else if(c instanceof MovementController)
-				motor = (MovementController)c;
-			else if(c instanceof BroadcastController)
-				radio = (BroadcastController)c;
-		}
-	}
+	public static int seenConstructor;
 
 	public static void init(RobotController RC) {
 		myRC = RC;
@@ -71,10 +60,10 @@ public abstract class Static {
 		myRobot = myRC.getRobot();
 		myID = myRobot.getID();
 		if(myTeam==Team.A) {
-			allUnits = new FastList [][] { alliedUnits, enemyUnits };
+			allUnits = new FastList [] { allies, enemies, debris };
 		}
 		else {
-			allUnits = new FastList [][] { enemyUnits, alliedUnits };
+			allUnits = new FastList [] { enemies, allies, debris };
 		}
 		mySender = new MessageSender();
 		handlers[MessageSender.messageTypeEnemyUnits] = enemyUnitMessages;
@@ -82,7 +71,7 @@ public abstract class Static {
 	}
 
 	public static void debug_stackTrace(Exception e) {
-		System.out.println("CAUGHT EXCEPTION:");
+		System.err.println("CAUGHT EXCEPTION:");
 		e.printStackTrace();
 	}
 
@@ -103,11 +92,13 @@ public abstract class Static {
 	}
 
 	public static void debug_startTiming() {
-		timer=6000*Clock.getRoundNum()+Clock.getBytecodeNum();
+		roundTimer=Clock.getRoundNum();
+		timer=Clock.getBytecodeNum();
 	}
 
 	public static void debug_stopTiming() {
-		System.out.println(6000*Clock.getRoundNum()+Clock.getBytecodeNum()-timer);
+		int bytecodes = (Clock.getRoundNum()-roundTimer)*Clock.getBytecodeLimit()+(Clock.getBytecodeNum()-timer);
+		System.out.println(bytecodes);
 	}
 
 	public static void debug_stopTiming(String s) {
@@ -136,4 +127,9 @@ public abstract class Static {
 		}
 		queued=a;
 	}
+
+	public static Goal [] asArray(Goal... goals) {
+		return goals;
+	}
+
 }
