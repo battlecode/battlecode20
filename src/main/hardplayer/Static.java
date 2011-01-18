@@ -8,6 +8,8 @@ import hardplayer.message.*;
 import battlecode.common.*;
 import hardplayer.goal.Goal;
 
+import java.util.Random;
+
 public abstract class Static {
 
 	public static RobotController myRC;
@@ -16,8 +18,10 @@ public abstract class Static {
 
 
 	public static FastList allies = new FastList(400);
+	public static RobotInfo [] alliedInfos = allies.robotInfos;
 
 	public static FastList enemies = new FastList(400);
+	public static RobotInfo [] enemyInfos = enemies.robotInfos;
 
 	public static FastList debris = new FastList(400);
 
@@ -40,17 +44,23 @@ public abstract class Static {
 	// for profiling only
 	public static int roundTimer;
 	public static int timer;
-	
+
+	public static Random rnd;
+
 	public static SuperMessageStack enemyUnitMessages = new SuperMessageStack();
 
 	public static BroadcastController radio;
 	public static MovementController motor;
 	public static SensorController sensor;
 	public static BuilderController builder;
+	public static WeaponController [] weapons = new WeaponController [0];
 
 	public static Sensor sensorAI;
 
 	public static int seenConstructor;
+
+	public static double resourcesLastRound;
+	public static boolean resourcesIncreased;
 
 	public static void init(RobotController RC) {
 		myRC = RC;
@@ -59,6 +69,7 @@ public abstract class Static {
 		myType = myRC.getChassis();
 		myRobot = myRC.getRobot();
 		myID = myRobot.getID();
+		rnd = new Random(myID);
 		if(myTeam==Team.A) {
 			allUnits = new FastList [] { allies, enemies, debris };
 		}
@@ -68,6 +79,22 @@ public abstract class Static {
 		mySender = new MessageSender();
 		handlers[MessageSender.messageTypeEnemyUnits] = enemyUnitMessages;
 		sensorAI = new Sensor();
+	}
+
+	public static RobotInfo closestEnemy() {
+		int i = enemies.size;
+		RobotInfo info;
+		RobotInfo best = null;
+		int bestd = 99999;
+		while(--i>=0) {
+			info = enemyInfos[i];
+			int d = myLoc.distanceSquaredTo(info.location);
+			if(d<bestd) {
+				bestd = d;
+				best = info;
+			}
+		}
+		return best;
 	}
 
 	public static void debug_stackTrace(Exception e) {
@@ -120,12 +147,43 @@ public abstract class Static {
 		else
 			myRC.setIndicatorString(n,null);
 	}
+
+	public static void debug_stackTrace() {
+		debug_stackTrace(new Exception());
+	}
 	
 	public static void setQueued(QueuedAction a) {
 		if(queued!=null) {
 			debug_println("Warning: action already queued");
 		}
 		queued=a;
+	}
+
+	public static boolean canBuild(MapLocation loc, RobotLevel level) throws GameActionException {
+		return sensor.senseObjectAtLocation(loc,level)==null&&myRC.senseTerrainTile(loc).isTraversableAtHeight(level);
+	}
+
+	public static void buildIfPossible(ComponentType t, MapLocation loc, RobotLevel l) {
+		if(resourcesIncreased&&myRC.getTeamResources()>=t.cost+1)
+			try {
+				builder.build(t,loc,l);
+			} catch(Exception e) {
+				debug_stackTrace(e);
+			}
+	}
+
+	public static void moveAdjacentTo(MapLocation target) {
+		try {
+			int d = target.distanceSquaredTo(myLoc);
+			if(d>2)
+				myNav.moveToForward(target);
+			else if(d>0)
+				motor.setDirection(myLoc.directionTo(target));
+			else
+				myNav.moveToForward(target.add(Direction.NORTH_EAST));
+		} catch(Exception e) {
+			debug_stackTrace(e);
+		}
 	}
 
 	public static Goal [] asArray(Goal... goals) {

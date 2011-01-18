@@ -158,6 +158,7 @@ public class BugNavigation extends Navigation {
 		 */
 		if (motor.isActive()) {
 			debug_println("Trying to move while active!");
+			debug_stackTrace();
 			return null;
 		}
 		

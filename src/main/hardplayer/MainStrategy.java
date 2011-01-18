@@ -19,8 +19,11 @@ class MainStrategy extends Static implements Strategy {
 							new MinePlayer(myRC).run();
 							break chooseplayer;
 						}
+						else if(c.type()==ComponentType.BLASTER) {
+							new DefensePlayer(myRC).run();
+							break chooseplayer;
+						}
 					}
-					myRC.suicide();
 					break;
 				case LIGHT:
 					for(ComponentController c: comp) {
@@ -29,12 +32,10 @@ class MainStrategy extends Static implements Strategy {
 							break chooseplayer;
 						}
 					}
-					new LarvaPlayer(myRC).run();
 					break;
-				default:
-					myRC.suicide();
 				}
 			} catch(Exception e) { debug_stackTrace(e); }
+			myRC.yield();
 		}
 	
 	}

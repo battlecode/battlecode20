@@ -27,19 +27,20 @@ public class BuildMineGoal extends Static implements Goal {
 
 
 	public void execute() {
+		//System.out.println(motor.roundsUntilIdle());
 		try {
 			Mine target = findtarget(mines);
 			if(target!=null) {
-				int d = target.getLocation().distanceSquaredTo(myLoc);
-				if(d>2)
-					myNav.moveToForward(target.getLocation());
-				else if(d>0)
-					motor.setDirection(myLoc.directionTo(target.getLocation()));
-				else
-					myNav.moveToForward(target.getLocation().add(Direction.NORTH_EAST));
+				moveAdjacentTo(target.getLocation());
 			}
 			else {
-				myNav.moveToForward(myLoc.add(myRC.getDirection(),6));
+				int z = rnd.nextInt()%10;
+				if(z==0)
+					motor.setDirection(myRC.getDirection().rotateLeft());
+				else if(z==1)
+					motor.setDirection(myRC.getDirection().rotateRight());
+				else
+					myNav.moveToForward(myLoc.add(myRC.getDirection(),6));
 			}
 		} catch(Exception e) {
 			debug_stackTrace(e);

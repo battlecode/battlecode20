@@ -4,6 +4,7 @@ import battlecode.common.*;
 
 import hardplayer.goal.Goal;
 import hardplayer.component.ComponentAI;
+import hardplayer.sensor.UnitSensor;
 
 import java.util.ArrayList;
 
@@ -17,13 +18,20 @@ abstract class BasePlayer extends Static {
 	}
 
 	public void pollComponent(ComponentController c) {
-		if(c instanceof SensorController)
+		if(c instanceof SensorController) {
 			sensor = (SensorController)c;
+		}
 		else if(c instanceof MovementController)
 			motor = (MovementController)c;
 	}
 
 	public void tryBestGoal() {
+		if(queued!=null) {
+			debug_setIndicatorStringObject(0,"queued");
+			queued.doAction();
+			queued = null;
+			return;
+		}
 		int bestPriority = 0;
 		Goal best = null;
 		int priority = 0;
@@ -36,17 +44,20 @@ abstract class BasePlayer extends Static {
 				bestPriority = priority;
 			}
 		}
+		debug_setIndicatorStringObject(0,best);	
 		if(best!=null)
 			best.execute();
 	}
 
-	public void runloop() {
+	public void runloop() throws GameActionException {
 		for(ComponentController c : myRC.newComponents())
 			pollComponent(c);
 		myLoc = myRC.getLocation();
 		sensorAI.sense();
 		if(!motor.isActive())
 			tryBestGoal();
+		for(ComponentAI ai : ais)
+			ai.execute();
 	}
 
 	public boolean repurpose() { return false; }
@@ -56,6 +67,9 @@ abstract class BasePlayer extends Static {
 		myRC.newComponents();
 		for(ComponentController c : myRC.components())
 			pollComponent(c);
+		double resources = myRC.getTeamResources();
+		resourcesIncreased = resources>resourcesLastRound;
+		resourcesLastRound = resources;
 		while(true) {
 			try {
 				runloop();
