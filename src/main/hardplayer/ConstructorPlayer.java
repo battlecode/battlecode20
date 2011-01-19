@@ -4,6 +4,7 @@ import hardplayer.goal.BuildConstructorGoal;
 import hardplayer.goal.BuildMineGoal;
 import hardplayer.goal.ConstructorAttackGoal;
 import hardplayer.goal.Goal;
+import hardplayer.goal.WanderGoal;
 import hardplayer.sensor.MineSensor;
 import hardplayer.component.Blaster;
 import hardplayer.component.Constructor;
@@ -17,7 +18,7 @@ public class ConstructorPlayer extends BasePlayer {
 
 	public ConstructorPlayer(RobotController rc) {
 		super(rc);
-		goals = new Goal [] { new BuildConstructorGoal(), new BuildMineGoal() };
+		goals = new Goal [] { new BuildConstructorGoal(), new BuildMineGoal(), new WanderGoal() };
 		sensorAI = new MineSensor();
 	}
 
@@ -28,7 +29,7 @@ public class ConstructorPlayer extends BasePlayer {
 		}
 		else if(c instanceof WeaponController) {
 			ais.add(new Blaster((WeaponController)c));
-			goals = new Goal [] { new BuildConstructorGoal(), new ConstructorAttackGoal(), new BuildMineGoal() };
+			goals = new Goal [] { new BuildConstructorGoal(), new ConstructorAttackGoal(), new BuildMineGoal(), new WanderGoal() };
 		}
 		else {
 			super.pollComponent(c);

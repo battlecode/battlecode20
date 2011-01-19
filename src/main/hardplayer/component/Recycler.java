@@ -15,11 +15,11 @@ public class Recycler extends Static implements ComponentAI {
 		if(builder.isActive()) return;
 		int l = myRC.components().length;
 		try {
-			if(l==3) {
-				if(myRC.getTeamResources()>=ComponentType.SIGHT.cost+1)
-					builder.build(ComponentType.SIGHT,myLoc,RobotLevel.ON_GROUND);
+			if(l==3&&Clock.getRoundNum()>=500) {
+				if(myRC.getTeamResources()>=ComponentType.RADAR.cost+1)
+					builder.build(ComponentType.RADAR,myLoc,RobotLevel.ON_GROUND);
 			}
-			else if(l==4) {
+			else if(l==4&&Clock.getRoundNum()>=500) {
 				if(myRC.getTeamResources()>=ComponentType.BLASTER.cost+1)
 					builder.build(ComponentType.BLASTER,myLoc,RobotLevel.ON_GROUND);
 			}
@@ -51,20 +51,20 @@ public class Recycler extends Static implements ComponentAI {
 							buildIfPossible(ComponentType.RADAR,info.location,RobotLevel.ON_GROUND);
 							return;
 						}
-						else if(cl<=6) {
+						else if(cl<=7) {
 							buildIfPossible(ComponentType.BLASTER,info.location,RobotLevel.ON_GROUND);
 							return;
 						}
-						else if(cl<=11) {
+						else if(cl<=12) {
 							buildIfPossible(ComponentType.SHIELD,info.location,RobotLevel.ON_GROUND);
 							return;
 						}
-						else if(cl<=13) {
+						else if(cl<=14) {
 							buildIfPossible(ComponentType.SMG,info.location,RobotLevel.ON_GROUND);
 						}
 					}
 				}
-				if(myRC.getTeamResources()>=3*Chassis.BUILDING.cost&&rnd.nextInt()%((int)(sensor.senseIncome(myRC.getRobot())*Clock.getRoundNum()/40))==0) {
+				if(myRC.getTeamResources()>=3*Chassis.BUILDING.cost&&rnd.nextInt()%((int)(sensor.senseIncome(myRC.getRobot())*Clock.getRoundNum()/20))==0) {
 					MapLocation frontLoc = myRC.getLocation().add(myRC.getDirection());
 					if(canBuild(frontLoc,RobotLevel.ON_GROUND))
 						builder.build(Chassis.LIGHT,frontLoc);

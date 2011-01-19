@@ -164,7 +164,7 @@ public abstract class Static {
 	}
 
 	public static void buildIfPossible(ComponentType t, MapLocation loc, RobotLevel l) {
-		if(resourcesIncreased&&myRC.getTeamResources()>=t.cost+1)
+		if(resourcesIncreased&&myRC.getTeamResources()>=t.cost+2)
 			try {
 				builder.build(t,loc,l);
 			} catch(Exception e) {

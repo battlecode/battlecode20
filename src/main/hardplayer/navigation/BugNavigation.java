@@ -1,5 +1,6 @@
 package hardplayer.navigation;
 
+import battlecode.common.Clock;
 import battlecode.common.Direction;
 import battlecode.common.MapLocation;
 import battlecode.common.TerrainTile;
@@ -8,7 +9,6 @@ import battlecode.common.RobotController;
 public class BugNavigation extends Navigation {
 	MapLocation dest;
 	Direction lastDir;
-	int turns;
 
 	public BugNavigation() {
 		lastDir=myRC.getDirection();
@@ -40,6 +40,7 @@ public class BugNavigation extends Navigation {
 		MapLocation myLoc=myRC.getLocation();
 		// Is this the right condition?	 -Dan
 		if(!equalOrAdjacent(myLoc.directionTo(loc),myLoc.directionTo(dest))){
+			myRC.setIndicatorString(1,"reset because loc changed "+Clock.getRoundNum());
 			rotationDirection = 0;
 		}
 		dest = loc;
@@ -181,6 +182,7 @@ public class BugNavigation extends Navigation {
 			// disappeared.	 If we are bugging left then it should
 			// be on the right or right and behind.
 			if(motor.canMove(lastDir.opposite().rotateLeft())&&motor.canMove(lastDir.rotateRight().rotateRight())) {
+				myRC.setIndicatorString(1,"reset because obstacle disappeared left"+Clock.getRoundNum());
 				rotationDirection=0;
 			}
 			// Also check if we are bugging around the outside of
@@ -188,6 +190,7 @@ public class BugNavigation extends Navigation {
 			// Check in front and to the side instead of just
 			// in front because snipers can't see directly
 			// to the side.  (It takes fewer bytecodes anyway.)
+			/*
 			else  {
 				Direction myDir=myRC.getDirection();
 				if((myRC.senseTerrainTile(myLoc.add(myDir.rotateRight())).getType()==TerrainTile.OFF_MAP||
@@ -196,11 +199,14 @@ public class BugNavigation extends Navigation {
 					rotationDirection=0;
 				}
 			}
+			*/
 		}
 		else if(rotationDirection==RIGHT) {
 			if(motor.canMove(lastDir.opposite().rotateRight())&&motor.canMove(lastDir.rotateLeft().rotateLeft())) {
+				myRC.setIndicatorString(1,"reset because obstacle disappeared right"+Clock.getRoundNum());
 				rotationDirection=0;
 			}
+			/*
 			else  {
 				Direction myDir=myRC.getDirection();
 				if((myRC.senseTerrainTile(myLoc.add(myDir.rotateRight())).getType()==TerrainTile.OFF_MAP||
@@ -209,6 +215,7 @@ public class BugNavigation extends Navigation {
 					rotationDirection=0;
 				}
 			}
+			*/
 		}
 
 		if(rotationDirection==0) {
@@ -218,7 +225,6 @@ public class BugNavigation extends Navigation {
 			if(motor.canMove(secondaryDir)) {
 				return secondaryDir;
 			}
-			turns=0;
 			Direction leftTurn=dir.rotateLeft();
 			while(!motor.canMove(leftTurn)) {
 				leftTurn=leftTurn.rotateLeft();
@@ -241,13 +247,15 @@ public class BugNavigation extends Navigation {
 				return rightTurn;
 			}
 		}
-		else if(turns>0||myLoc.distanceSquaredTo(dest)<=bugStartLoc.distanceSquaredTo(dest)) {
+		else if(myLoc.distanceSquaredTo(dest)<=bugStartLoc.distanceSquaredTo(dest)) {
 			if(motor.canMove(dir)) {
+				myRC.setIndicatorString(1,"reset because closer "+Clock.getRoundNum());
 				rotationDirection=0;
 				return dir;
 			}
 			else {
 				if(motor.canMove(secondaryDir)) {
+					myRC.setIndicatorString(1,"reset because closer "+Clock.getRoundNum());
 					rotationDirection=0;
 					return secondaryDir;
 				}
@@ -256,11 +264,10 @@ public class BugNavigation extends Navigation {
 		if (rotationDirection == RIGHT) { // have been turning right to avoid walls
 			newDir=lastDir.rotateLeft().rotateLeft();
 			Direction stop=newDir;
-			turns+=2;
 			while(!motor.canMove(newDir)) {
 				newDir=newDir.rotateRight();
-				turns--;
 				if(stop==newDir) {
+					myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
 					rotationDirection=0;
 					return null;
 				}
@@ -270,11 +277,10 @@ public class BugNavigation extends Navigation {
 		else {
 			newDir=lastDir.rotateRight().rotateRight();
 			Direction stop=newDir;
-			turns+=2;
 			while(!motor.canMove(newDir)) {
 				newDir=newDir.rotateLeft();
-				turns--;
 				if(stop==newDir) {
+					myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
 					rotationDirection=0;
 					return null;
 				}

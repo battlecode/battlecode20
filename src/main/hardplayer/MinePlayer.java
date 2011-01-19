@@ -2,7 +2,7 @@ package hardplayer;
 
 import hardplayer.component.Blaster;
 import hardplayer.component.Recycler;
-import hardplayer.goal.BuildingSpinGoal;
+import hardplayer.goal.DefenseSpinGoal;
 import hardplayer.goal.Goal;
 import hardplayer.sensor.UnitSensor;
 
@@ -32,7 +32,7 @@ public class MinePlayer extends BasePlayer {
 			ais.add(new Recycler());
 		}
 		else if(c instanceof WeaponController) {
-			goals = new Goal [] { new BuildingSpinGoal() };
+			goals = new Goal [] { new DefenseSpinGoal() };
 			ais.add(new Blaster((WeaponController)c));
 		}
 		else {

@@ -15,15 +15,23 @@ public class Blaster extends Static implements ComponentAI {
 
 	public void execute() {
 		if(weapon.isActive()) return;
-		RobotInfo info;
-		if(enemies.size>0)
-			info = enemyInfos[0];
-		else if(debris.size>0)
-			info = debris.robotInfos[0];
-		else
-			return;
 		try {
-			weapon.attackSquare(info.location,info.chassis.level);
+			int i=enemies.size;
+			while(--i>=0) {
+				RobotInfo info = enemyInfos[i];
+				if(weapon.withinRange(info.location)) {
+					weapon.attackSquare(info.location,info.chassis.level);
+					return;
+				}
+			}
+			i=debris.size;
+			while(--i>=0) {
+				RobotInfo info = debris.robotInfos[i];
+				if(weapon.withinRange(info.location)) {
+					weapon.attackSquare(info.location,info.chassis.level);
+					return;
+				}
+			}
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}

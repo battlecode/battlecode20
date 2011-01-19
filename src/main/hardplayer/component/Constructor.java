@@ -25,11 +25,11 @@ public class Constructor extends Static implements ComponentAI {
 					if(sensor.senseObjectAtLocation(frontLoc,RobotLevel.MINE) != null) {
 						builder.build(Chassis.BUILDING, frontLoc);
 					}
-					else if(rnd.nextInt()%(Clock.getRoundNum()/300+1)==0) {
+					else if(rnd.nextInt()%(Clock.getRoundNum()/200+1)==0) {
 						int i = allies.size;
 						while(--i>0) {
 							RobotInfo info = alliedInfos[i];
-							if(info.chassis == Chassis.BUILDING && info.components.length >= 3 && info.components[2] == ComponentType.RECYCLER && frontLoc.distanceSquaredTo(info.location)<=2) {
+							if(info.chassis == Chassis.BUILDING && info.on && info.components.length >= 3 && info.components[2] == ComponentType.RECYCLER && frontLoc.distanceSquaredTo(info.location)<=2) {
 								builder.build(Chassis.BUILDING, frontLoc);
 								return;
 							}	
@@ -38,7 +38,7 @@ public class Constructor extends Static implements ComponentAI {
 				}
 			}
 			else {
-				if(myRC.getTeamResources() > ComponentType.RECYCLER.cost) {
+				if(myRC.getTeamResources() > ComponentType.RECYCLER.cost + 1.) {
 					RobotInfo info = sensor.senseRobotInfo(frontRobot);
 					if(info.chassis!=Chassis.BUILDING) return;
 					if(sensor.senseObjectAtLocation(frontLoc,RobotLevel.MINE)==null) return;

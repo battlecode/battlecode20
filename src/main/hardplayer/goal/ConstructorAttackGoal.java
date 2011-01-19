@@ -12,21 +12,12 @@ public class ConstructorAttackGoal extends Static implements Goal {
 	}
 
 	public int priority() {
-		int i = enemies.size;
-		if(i==0)
+		if(enemies.size>0)
+			return CONSTRUCTOR_ATTACK;
+		//else if(debris.size>0)
+		//	return ATTACK_DEBRIS;
+		else
 			return 0;
-		try {
-			/*
-			while(--i>=0) {
-				if(enemyInfos[0].chassis!=Chassis.BUILDING||sensor.senseObjectAtLocation(enemyInfos[0].location,RobotLevel.MINE)==null)
-					return 0;
-			}
-			*/
-		} catch(Exception e) {
-			debug_stackTrace(e);
-			return 0;
-		}
-		return CONSTRUCTOR_ATTACK;
 	}
 
 	public void execute() {}

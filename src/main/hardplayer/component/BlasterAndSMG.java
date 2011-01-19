@@ -27,7 +27,15 @@ public class BlasterAndSMG extends Static implements ComponentAI {
 						continue iterweapons;
 					}
 				}
-			}
+				i = debris.size;
+				while(--i>=0) {
+					info = debris.robotInfos[i];
+					if(weapon.withinRange(info.location)) {
+						weapon.attackSquare(info.location,info.chassis.level);
+						continue iterweapons;
+					}
+				}
+}
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}
