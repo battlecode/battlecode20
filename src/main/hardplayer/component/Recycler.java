@@ -8,13 +8,28 @@ import battlecode.common.ComponentType;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotLevel;
+import battlecode.common.Team;
 
 public class Recycler extends Static implements ComponentAI {
-	
+
+	public static int CONSTRUCTOR_MAX = 500;
+
+	public static boolean attackMode = false;
+
+	public static ComponentType weaponToBuild = ComponentType.BLASTER;
+
 	public void execute() {
 		if(builder.isActive()) return;
 		int l = myRC.components().length;
 		try {
+			if(myRC.getTeamResources()>1000) {
+				attackMode = true;
+				CONSTRUCTOR_MAX = 50;
+			}
+			else if(myRC.getTeamResources()<750) {
+				attackMode = false;
+				CONSTRUCTOR_MAX = 500;
+			}
 			if(l==3&&Clock.getRoundNum()>=500) {
 				if(myRC.getTeamResources()>=ComponentType.RADAR.cost+1)
 					builder.build(ComponentType.RADAR,myLoc,RobotLevel.ON_GROUND);
@@ -32,15 +47,32 @@ public class Recycler extends Static implements ComponentAI {
 					int cl = info.components.length;
 					if(info.chassis==Chassis.LIGHT) {
 						if(cl==1) {
-							buildIfPossible(ComponentType.SIGHT,info.location,RobotLevel.ON_GROUND);
+							if(attackMode)
+								buildIfPossible(ComponentType.RADAR,info.location,RobotLevel.ON_GROUND);
+							else
+								buildIfPossible(ComponentType.SIGHT,info.location,RobotLevel.ON_GROUND);
 							return;
 						}
 						else if(cl==2) {
-							buildIfPossible(ComponentType.CONSTRUCTOR,info.location,RobotLevel.ON_GROUND);
+							if(info.components[1]==ComponentType.RADAR) {
+									buildIfPossible(weaponToBuild,info.location,RobotLevel.ON_GROUND);
+									weaponToBuild = (rnd.nextInt(2)==0) ? ComponentType.BLASTER : ComponentType.SMG;
+							}
+							else
+								buildIfPossible(ComponentType.CONSTRUCTOR,info.location,RobotLevel.ON_GROUND);
 							return;
 						}
 						else if(cl==3) {
-							buildIfPossible(ComponentType.SMG,info.location,RobotLevel.ON_GROUND);
+							if(info.components[2]==ComponentType.BLASTER)
+								buildIfPossible(ComponentType.SHIELD,info.location,RobotLevel.ON_GROUND);
+							else if(info.components[2]==ComponentType.SMG)
+								buildIfPossible(ComponentType.SMG,info.location,RobotLevel.ON_GROUND);
+							else
+								buildIfPossible(ComponentType.SMG,info.location,RobotLevel.ON_GROUND);
+							return;
+						}
+						else if(cl==4&&info.components[2]==ComponentType.SMG) {
+							buildIfPossible(ComponentType.SHIELD,info.location,RobotLevel.ON_GROUND);
 							return;
 						}
 					}
@@ -64,9 +96,9 @@ public class Recycler extends Static implements ComponentAI {
 						}
 					}
 				}
-				if(myRC.getTeamResources()>=3*Chassis.BUILDING.cost&&rnd.nextInt()%((int)(sensor.senseIncome(myRC.getRobot())*Clock.getRoundNum()/20))==0) {
+				if(myRC.getTeamResources()>=3*Chassis.BUILDING.cost&&rnd.nextInt(Math.min((int)(sensor.senseIncome(myRC.getRobot())*Clock.getRoundNum()/20),CONSTRUCTOR_MAX))==0) {
 					MapLocation frontLoc = myRC.getLocation().add(myRC.getDirection());
-					if(canBuild(frontLoc,RobotLevel.ON_GROUND))
+					if(builder.canBuild(Chassis.LIGHT,frontLoc))
 						builder.build(Chassis.LIGHT,frontLoc);
 				}
 			}

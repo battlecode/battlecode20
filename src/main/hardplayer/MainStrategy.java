@@ -31,6 +31,10 @@ class MainStrategy extends Static implements Strategy {
 							new ConstructorPlayer(myRC).run();
 							break chooseplayer;
 						}
+						if(c.type()==ComponentType.SHIELD) {
+							new AttackPlayer(myRC).run();
+							break chooseplayer;
+						}
 					}
 					break;
 				}

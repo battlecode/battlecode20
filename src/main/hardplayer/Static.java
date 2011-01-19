@@ -81,6 +81,23 @@ public abstract class Static {
 		sensorAI = new Sensor();
 	}
 
+	public static RobotInfo closest(FastList fl) {
+		int i = fl.size;
+		RobotInfo [] infos = fl.robotInfos;
+		RobotInfo info;
+		RobotInfo best = null;
+		int bestd = 99999;
+		while(--i>=0) {
+			info = infos[i];
+			int d = myLoc.distanceSquaredTo(info.location);
+			if(d<bestd) {
+				bestd = d;
+				best = info;
+			}
+		}
+		return best;
+}
+
 	public static RobotInfo closestEnemy() {
 		int i = enemies.size;
 		RobotInfo info;
@@ -164,7 +181,7 @@ public abstract class Static {
 	}
 
 	public static void buildIfPossible(ComponentType t, MapLocation loc, RobotLevel l) {
-		if(resourcesIncreased&&myRC.getTeamResources()>=t.cost+2)
+		if(myRC.getTeamResources()>=t.cost+2)
 			try {
 				builder.build(t,loc,l);
 			} catch(Exception e) {

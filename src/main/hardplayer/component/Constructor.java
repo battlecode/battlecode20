@@ -9,6 +9,7 @@ import battlecode.common.MapLocation;
 import battlecode.common.Robot;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotLevel;
+import battlecode.common.TerrainTile;
 
 public class Constructor extends Static implements ComponentAI {
 
@@ -22,6 +23,7 @@ public class Constructor extends Static implements ComponentAI {
 			Robot frontRobot = (Robot)sensor.senseObjectAtLocation(frontLoc,RobotLevel.ON_GROUND);
 			if(frontRobot==null) {
 				if(myRC.getTeamResources() > BUILDING_MIN_RESOURCES) {
+					if(myRC.senseTerrainTile(frontLoc)!=TerrainTile.LAND) return;
 					if(sensor.senseObjectAtLocation(frontLoc,RobotLevel.MINE) != null) {
 						builder.build(Chassis.BUILDING, frontLoc);
 					}

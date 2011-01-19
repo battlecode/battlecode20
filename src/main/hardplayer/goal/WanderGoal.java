@@ -17,6 +17,7 @@ public class WanderGoal extends Static implements Goal {
 		int height = MineSensor.top - MineSensor.bot + 1;
 		int width = MineSensor.right - MineSensor.left + 1;
 		target = new MapLocation(rnd.nextInt(width)+MineSensor.left,rnd.nextInt(height)+MineSensor.bot);
+		debug_setIndicatorStringObject(2,target);
 	}
 
 	public int maxPriority() {
