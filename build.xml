@@ -146,12 +146,18 @@
 
     </target>
 
+	<!--target name="proguard" depends="compile">
+		<taskdef resource="proguard/ant/task.properties"
+			classpath="${lib.dir}/proguard-4.4.jar"/>
+		<proguard configuration="refplayer.pro"/>
+	</target-->
 
     <target name="jar"
             description="Build the jar (with dependencies included)."
             depends="compile">
         <jar jarfile="${pkg.build.jar}" basedir="${pkg.build.dir}" includes="${release.players}">
 			<zipgroupfileset dir="${lib.dir}" includes="scala-*, jline-*"/>
+			<zipgroupfileset dir="." includes="refplayer.jar"/>
         </jar>
     </target>
 
