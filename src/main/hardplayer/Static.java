@@ -116,8 +116,23 @@ public abstract class Static {
 		return best;
 	}
 
+	public static MapLocation closest(MapLocation [] locs) {
+		int i = locs.length-1, d;
+		int bestd = 99999;
+		MapLocation best=null, loc;
+		while(--i>=0) {
+			loc = locs[i];
+			d = myLoc.distanceSquaredTo(loc);
+			if(d<bestd) {
+				bestd = d;
+				best = loc;
+			}
+		}
+		return best;
+	}
+
 	public static void debug_stackTrace(Exception e) {
-		System.err.println("CAUGHT EXCEPTION:");
+		System.out.println("CAUGHT EXCEPTION:");
 		e.printStackTrace();
 	}
 

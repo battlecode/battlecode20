@@ -47,6 +47,8 @@ public class ArchonPlayer extends BasePlayer {
 		RobotInfo r;
 		double transferAmount;
 		double freeFlux=myRC.getFlux()-MIN_FLUX;
+		//System.out.println("Flux: "+freeFlux);
+		//System.out.println("Allies: "+allies.size);
 		if(freeFlux<=0)
 			return;
 		try {
@@ -54,10 +56,11 @@ public class ArchonPlayer extends BasePlayer {
 				r=alliedInfos[i];
 				if(r.type!=RobotType.ARCHON&&myLoc.isAdjacentTo(r.location)) {
 					transferAmount=Math.min(r.type.maxFlux-r.flux,freeFlux);
-					if(transferAmount>0)
+					if(transferAmount>0) {
 						myRC.transferFlux(r.location,r.type.level,transferAmount);
-					freeFlux-=transferAmount;
-					if(freeFlux<=0) return;
+						freeFlux-=transferAmount;
+						if(freeFlux<=0) return;
+					}
 				}
 			}
 		} catch(Exception e) {

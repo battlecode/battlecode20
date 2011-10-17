@@ -36,8 +36,10 @@ public class MakeArmyGoal extends Static implements Goal {
 				myRC.spawn(typeToSpawn);
 			else {
 				for(int i=7;i>=0;i--) {
-					if(canSpawn(typeToSpawn.level,Direction.values()[i]))
+					if(canSpawn(typeToSpawn.level,Direction.values()[i])) {
 						myRC.setDirection(Direction.values()[i]);
+						return;
+					}
 				}
 			}
 		} catch(Exception e) {

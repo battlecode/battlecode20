@@ -12,7 +12,7 @@ class MainStrategy extends Static implements Strategy {
 						new ArchonPlayer(myRC).run();
 						break;
 					case SOLDIER:
-						//new SoldierPlayer(myRC).run();
+						new SoldierPlayer(myRC).run();
 						break;
 					default:
 						debug_println("I don't know what kind of robot I am!");

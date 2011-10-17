@@ -15,7 +15,7 @@ public abstract class BasePlayer extends Static {
 	}
 
 	public void tryBestGoal() {
-		if(myRC.isMovementActive())
+		if(myRC.isMovementActive()||myRC.getFlux()<myType.moveCost)
 			return;
 		if(queued!=null) {
 			queued.doAction();
@@ -49,6 +49,7 @@ public abstract class BasePlayer extends Static {
 		myLoc = myRC.getLocation();
 		myDir = myRC.getDirection();
 		senseNearbyRobots();
+		//System.out.println("Allies: "+allies.size);
 		shoot();
 		transferFlux();
 		tryBestGoal();
@@ -71,9 +72,6 @@ public abstract class BasePlayer extends Static {
 				fl = allUnits[robot.getTeam().ordinal()];
 				fl.robotInfos[++fl.size] = myRC.senseRobotInfo(robots[i]);
 			}
-			allies.size++;
-			enemies.size++;
-			debris.size++;
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}
