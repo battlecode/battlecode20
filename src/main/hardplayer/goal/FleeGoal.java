@@ -12,7 +12,7 @@ public class FleeGoal extends Static implements Goal {
 	}
 
 	static long xsum, ysum, n;
-	static public final int [] fear = new int [] { 0, 6 };
+	static public final long [] fear = new long [] { 0, 6, 3 };
 
 	public static final double RETREAT_STAYPUT_VALUE = -.127;
 	public static final double RETREAT_EDGE_PENALTY = .06;
@@ -30,9 +30,10 @@ public class FleeGoal extends Static implements Goal {
 		n = 0;
 		xsum = 0;
 		ysum = 0;
-		int i, w;
+		int i;
+		long w;
 		RobotInfo info;
-		for(i=enemies.size-1;i>=0;i--) {
+		for(i=enemies.size;i>=0;i--) {
 			info = enemyInfos[i];
 			if(myLoc.distanceSquaredTo(info.location)>18)
 				continue;
@@ -41,6 +42,7 @@ public class FleeGoal extends Static implements Goal {
 			xsum+=w;
 			ysum+=w;
 		}
+		//myRC.setIndicatorString(2,Long.toString(n));
 		if(n>=6)
 			return FLEE;
 		else
@@ -69,8 +71,8 @@ public class FleeGoal extends Static implements Goal {
 					edge[i]=true;
 					numEdges++;
 				}
-				if(t<retreatForbiddenTimeout[i])
-					forbidden[i]=true;
+				if(t<retreatForbiddenTimeout[i]) {}
+					//forbidden[i]=true;
 			}
 			boolean twoEdges=(numEdges>=2);
 			edge[8]=edge[0];
