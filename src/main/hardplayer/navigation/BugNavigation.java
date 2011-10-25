@@ -40,7 +40,7 @@ public class BugNavigation extends Navigation {
 		MapLocation myLoc=myRC.getLocation();
 		// Is this the right condition?	 -Dan
 		if(!equalOrAdjacent(myLoc.directionTo(loc),myLoc.directionTo(dest))){
-			myRC.setIndicatorString(1,"reset because loc changed "+Clock.getRoundNum());
+			//myRC.setIndicatorString(1,"reset because loc changed "+Clock.getRoundNum());
 			rotationDirection = 0;
 		}
 		dest = loc;
@@ -182,7 +182,7 @@ public class BugNavigation extends Navigation {
 			// disappeared.	 If we are bugging left then it should
 			// be on the right or right and behind.
 			if(myRC.canMove(lastDir.opposite().rotateLeft())&&myRC.canMove(lastDir.rotateRight().rotateRight())) {
-				myRC.setIndicatorString(1,"reset because obstacle disappeared left"+Clock.getRoundNum());
+				//myRC.setIndicatorString(1,"reset because obstacle disappeared left"+Clock.getRoundNum());
 				rotationDirection=0;
 			}
 			// Also check if we are bugging around the outside of
@@ -203,7 +203,7 @@ public class BugNavigation extends Navigation {
 		}
 		else if(rotationDirection==RIGHT) {
 			if(myRC.canMove(lastDir.opposite().rotateRight())&&myRC.canMove(lastDir.rotateLeft().rotateLeft())) {
-				myRC.setIndicatorString(1,"reset because obstacle disappeared right"+Clock.getRoundNum());
+				//myRC.setIndicatorString(1,"reset because obstacle disappeared right"+Clock.getRoundNum());
 				rotationDirection=0;
 			}
 			/*
@@ -249,13 +249,13 @@ public class BugNavigation extends Navigation {
 		}
 		else if(myLoc.distanceSquaredTo(dest)<=bugStartLoc.distanceSquaredTo(dest)) {
 			if(myRC.canMove(dir)) {
-				myRC.setIndicatorString(1,"reset because closer "+Clock.getRoundNum());
+				//myRC.setIndicatorString(1,"reset because closer "+Clock.getRoundNum());
 				rotationDirection=0;
 				return dir;
 			}
 			else {
 				if(myRC.canMove(secondaryDir)) {
-					myRC.setIndicatorString(1,"reset because closer "+Clock.getRoundNum());
+					//myRC.setIndicatorString(1,"reset because closer "+Clock.getRoundNum());
 					rotationDirection=0;
 					return secondaryDir;
 				}
@@ -267,7 +267,7 @@ public class BugNavigation extends Navigation {
 			while(!myRC.canMove(newDir)) {
 				newDir=newDir.rotateRight();
 				if(stop==newDir) {
-					myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
+					//myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
 					rotationDirection=0;
 					return null;
 				}
@@ -280,7 +280,7 @@ public class BugNavigation extends Navigation {
 			while(!myRC.canMove(newDir)) {
 				newDir=newDir.rotateLeft();
 				if(stop==newDir) {
-					myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
+					//myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
 					rotationDirection=0;
 					return null;
 				}

@@ -14,6 +14,7 @@ public interface Goal {
 	static public final int EXPLORE = 30;
 
 	// Non-archon goals
+	static public final int ATTACK = 90;
 	static public final int FIND_NODE = 30;
 
 }

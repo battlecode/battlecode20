@@ -27,6 +27,9 @@ public class FleeGoal extends Static implements Goal {
 	static int [] retreatForbiddenTimeout = new int [8];
 
 	public int priority() {
+		n = 0;
+		xsum = 0;
+		ysum = 0;
 		int i, w;
 		RobotInfo info;
 		for(i=enemies.size-1;i>=0;i--) {
@@ -38,7 +41,7 @@ public class FleeGoal extends Static implements Goal {
 			xsum+=w;
 			ysum+=w;
 		}
-		if(n>=12)
+		if(n>=6)
 			return FLEE;
 		else
 			return 0;

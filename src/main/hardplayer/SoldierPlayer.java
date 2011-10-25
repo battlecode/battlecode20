@@ -2,8 +2,7 @@ package hardplayer;
 
 import battlecode.common.RobotController;
 
-import hardplayer.goal.FindNodeGoal;
-import hardplayer.goal.Goal;
+import hardplayer.goal.*;
 
 public class SoldierPlayer extends BasePlayer {
 
@@ -31,6 +30,7 @@ public class SoldierPlayer extends BasePlayer {
 	public void setGoals() {
 
 		goals = new Goal [] {
+			new SoldierAttackGoal(),
 			new FindNodeGoal()
 		};
 
