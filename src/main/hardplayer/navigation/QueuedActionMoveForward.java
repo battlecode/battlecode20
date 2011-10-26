@@ -2,7 +2,6 @@ package hardplayer.navigation;
 
 import hardplayer.Static;
 import battlecode.common.GameActionException;
-import battlecode.common.MovementController;
 import battlecode.common.RobotController;
 
 public class QueuedActionMoveForward extends Static implements QueuedAction {
