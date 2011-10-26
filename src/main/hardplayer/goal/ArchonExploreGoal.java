@@ -23,7 +23,7 @@ public class ArchonExploreGoal extends Static implements Goal {
 
 	public void chooseTarget() {
 		int d, dmin = 99999;
-		MapLocation [] adjacent = myRC.senseAdjacentPowerNodes();
+		MapLocation [] adjacent = myRC.senseCapturablePowerNodes();
 		for(MapLocation l : adjacent) {
 			if(l.equals(target))
 				return;

@@ -7,7 +7,7 @@ import hardplayer.Static;
 
 public class SoldierAttackGoal extends Static implements Goal {
 	
-	static public final int [] priorities = new int [] { -100, 0 };
+	static public final int [] priorities = new int [] { -100, 0, 0, 0, 0, 0 };
 
 	public int maxPriority() { return ATTACK; }
 

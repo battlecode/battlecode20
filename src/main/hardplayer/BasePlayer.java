@@ -62,15 +62,17 @@ public abstract class BasePlayer extends Static {
 		try {
 			Robot [] robots = myRC.senseNearbyGameObjects(Robot.class);
 			Robot robot;
+			RobotInfo info;
 			FastList fl;
 			int i=robots.length;
 			allies.size = -1;
 			enemies.size = -1;
 			debris.size = -1;
 			while(--i>=0) {
-				robot = robots[i]; 
-				fl = allUnits[robot.getTeam().ordinal()];
-				fl.robotInfos[++fl.size] = myRC.senseRobotInfo(robots[i]);
+				robot = robots[i];
+				info = myRC.senseRobotInfo(robots[i]);
+				fl = allUnits[info.team.ordinal()];
+				fl.robotInfos[++fl.size] = info;
 			}
 		} catch(Exception e) {
 			debug_stackTrace(e);

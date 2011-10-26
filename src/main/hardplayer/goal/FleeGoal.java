@@ -12,7 +12,7 @@ public class FleeGoal extends Static implements Goal {
 	}
 
 	static long xsum, ysum, n;
-	static public final long [] fear = new long [] { 0, 6, 3 };
+	static public final long [] fear = new long [] { 0, 6, 3, 6, 6, 0 };
 
 	public static final double RETREAT_STAYPUT_VALUE = -.127;
 	public static final double RETREAT_EDGE_PENALTY = .06;
@@ -89,7 +89,7 @@ public class FleeGoal extends Static implements Goal {
 					r=(Robot)myRC.senseObjectAtLocation(myLoc.add(dir),RobotLevel.IN_AIR);
 					if(r==null) continue;
 					info=myRC.senseRobotInfo((Robot)r);
-					if(r.getTeam()!=myTeam) continue;
+					if(info.team!=myTeam) continue;
 					dxn=dx+dX[i];
 					dyn=dy+dY[i];
 					val=(Math.sqrt(dxn*dxn+dyn*dyn)-dist)/6.-RETREAT_WAIT_FOR_ARCHON_PENALTY;
@@ -111,7 +111,7 @@ public class FleeGoal extends Static implements Goal {
 					r=(Robot)myRC.senseObjectAtLocation(myLoc.add(dir),RobotLevel.IN_AIR);
 					if(r==null) continue;
 					info=myRC.senseRobotInfo(r);
-					if(r.getTeam()!=myTeam) continue;
+					if(info.team!=myTeam) continue;
 					dxn=dx+dX[i];
 					dyn=dy+dY[i];
 					val=(Math.sqrt(dxn*dxn+dyn*dyn)-dist)/8.-RETREAT_WAIT_FOR_ARCHON_PENALTY;
