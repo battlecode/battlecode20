@@ -9,7 +9,7 @@ public class FindNodeGoal extends Static implements Goal {
 	public int maxPriority() { return FIND_NODE; }
 
 	public int priority() {
-		if(enemies.size<0)
+		if((allies.size>=0||!myRC.canMove(myDir.opposite())))
 			return FIND_NODE;
 		else
 			return 0;

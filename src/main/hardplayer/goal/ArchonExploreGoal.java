@@ -41,13 +41,22 @@ public class ArchonExploreGoal extends Static implements Goal {
 		debug_setIndicatorStringObject(1,myLoc);
 		int i, d = myLoc.distanceSquaredTo(target);
 		RobotInfo info;
+		int closer = 0;
 		for(i=allies.size;i>=0;i--) {
 			info = alliedInfos[i];
-			if(info.type!=RobotType.ARCHON&&info.location.distanceSquaredTo(target)<d) {
-				myNav.moveToASAPPreferFwd(target);
-				return;
+			if(info.location.distanceSquaredTo(target)<d) {
+				closer += threatWeights[info.type.ordinal()];
+				if(closer>=2) {
+					myNav.moveToASAPPreferFwd(target);
+					return;
+				}
 			}
 		}
+		MapLocation archon = closest(myRC.senseAlliedArchons());
+		if(myLoc.distanceSquaredTo(archon)>52)
+			myNav.moveToASAPPreferFwd(archon);
+		else
+			myNav.moveToASAP(awayFrom(myLoc,archon));
 	}
 
 }

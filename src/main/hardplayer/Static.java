@@ -49,6 +49,8 @@ public abstract class Static {
 
 	public static SuperMessageStack enemyUnitMessages = new SuperMessageStack();
 
+	public static int [] threatWeights = new int [] { 0, 2, 1, 3, 4, 0 };
+
 	public static void init(RobotController RC) {
 		myRC = RC;
 		myNav = new BugNavigation();
@@ -131,7 +133,7 @@ public abstract class Static {
 		return best;
 	}
 
-	public static void debug_stackTrace(Exception e) {
+	public static void debug_stackTrace(Throwable e) {
 		System.out.println("CAUGHT EXCEPTION:");
 		e.printStackTrace();
 	}
@@ -205,6 +207,10 @@ public abstract class Static {
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}
+	}
+
+	public static MapLocation awayFrom(MapLocation from, MapLocation to) {
+		return new MapLocation(2*from.x-to.x,2*from.y-to.y);
 	}
 
 }

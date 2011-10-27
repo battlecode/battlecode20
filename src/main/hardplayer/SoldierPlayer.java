@@ -23,7 +23,10 @@ public class SoldierPlayer extends BasePlayer {
 				}
 			}
 		} catch(Exception e) {
-			debug_stackTrace(e);
+			if(e.getCause()!=null)
+				debug_stackTrace(e.getCause());
+			else
+				debug_stackTrace(e);
 		}
 	}
 
@@ -31,7 +34,8 @@ public class SoldierPlayer extends BasePlayer {
 
 		goals = new Goal [] {
 			new SoldierAttackGoal(),
-			new FindNodeGoal()
+			new FindNodeGoal(),
+			new SeekFluxGoal()
 		};
 
 	}
