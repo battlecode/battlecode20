@@ -39,10 +39,10 @@ public class FleeGoal extends Static implements Goal {
 				continue;
 			w=fear[info.type.ordinal()];
 			n+=w;
-			xsum+=w;
-			ysum+=w;
+			xsum+=w*info.location.x;
+			ysum+=w*info.location.y;
 		}
-		//myRC.setIndicatorString(2,Long.toString(n));
+		myRC.setIndicatorString(2,Long.toString(n));
 		if(n>=6)
 			return FLEE;
 		else
@@ -52,8 +52,8 @@ public class FleeGoal extends Static implements Goal {
 	public void execute() {
 		try {
 			int i;
-			long dx = xsum - n * myLoc.getX();
-			long dy = ysum - n * myLoc.getY();
+			double dx = -(double)xsum/n + myLoc.getX();
+			double dy = -(double)ysum/n + myLoc.getY();
 			double dxn, dyn;
 			boolean [] edge = new boolean [9]; // we don't actually use the odd ones
 			boolean [] forbidden = new boolean [9];
