@@ -3,6 +3,7 @@ package hardplayer;
 import battlecode.common.RobotController;
 
 import hardplayer.goal.*;
+import hardplayer.message.MessageSender;
 
 public class SoldierPlayer extends BasePlayer {
 
@@ -32,11 +33,18 @@ public class SoldierPlayer extends BasePlayer {
 
 	public void setGoals() {
 
+		FindNodeGoal fng = new FindNodeGoal();
+		FindEnemyGoal feg = new FindEnemyGoal();
+
 		goals = new Goal [] {
 			new SoldierAttackGoal(),
-			new FindNodeGoal(),
+			feg,
+			fng,
 			new SeekFluxGoal()
 		};
+
+		handlers[MessageSender.MSG_EXPLORE] = fng;
+		handlers[MessageSender.MSG_ENEMY] = feg;
 
 	}
 

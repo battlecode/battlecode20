@@ -3,6 +3,7 @@ package hardplayer;
 import battlecode.common.*;
 
 import hardplayer.goal.Goal;
+import hardplayer.message.MessageSender;
 
 import java.util.ArrayList;
 
@@ -48,6 +49,7 @@ public abstract class BasePlayer extends Static {
 	public void runloop() throws GameActionException {
 		myLoc = myRC.getLocation();
 		myDir = myRC.getDirection();
+		sortMessages();
 		senseNearbyRobots();
 		//System.out.println("Allies: "+allies.size);
 		shoot();
@@ -90,6 +92,26 @@ public abstract class BasePlayer extends Static {
 				debug_stackTrace(e);
 			}
 			myRC.yield();
+		}
+	}
+	
+	public void sortMessages() {
+		mySender.updateRoundNum();
+		// Using Clock.getRoundNum() could prove problematic if we ever go
+		// over the bytecode limit
+		Message [] newMessages=myRC.getAllMessages();
+		int [] ints;
+		int type;
+		int i;
+		for(i=0;i<newMessages.length;i++) {
+			ints=newMessages[i].ints;
+			if(ints==null||
+			   ints.length<3||
+			   (type=ints[0])<0||
+			   type>=MessageSender.numTypes||
+			   handlers[type]==null||
+			   !mySender.isValid(newMessages[i])) continue;
+			handlers[type].receivedMessage(newMessages[i]);
 		}
 	}
 

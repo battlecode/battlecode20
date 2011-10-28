@@ -42,7 +42,7 @@ public class FleeGoal extends Static implements Goal {
 			xsum+=w*info.location.x;
 			ysum+=w*info.location.y;
 		}
-		myRC.setIndicatorString(2,Long.toString(n));
+		//myRC.setIndicatorString(2,Long.toString(n));
 		if(n>=6)
 			return FLEE;
 		else

@@ -34,8 +34,10 @@ public class ArchonPlayer extends BasePlayer {
 		
 		goals = new Goal [] {
 			new FleeGoal(),
-			new MakeArmyGoal(),
+			// ArchonExploreGoal needs to go before MakeArmyGoal
+			// because of chooseTarget
 			new ArchonExploreGoal(),
+			new MakeArmyGoal(),
 			//new ArchonFindEnemyGoal(),
 			//new StayTogetherGoal()
 		};
@@ -65,6 +67,16 @@ public class ArchonPlayer extends BasePlayer {
 			}
 		} catch(Exception e) {
 			debug_stackTrace(e);
+		}
+	}
+
+	public void broadcast() {
+		if(enemies.size>=0) {
+			MapLocation enemyLoc = closest(enemies,base).location;
+			mySender.sendEnemy(enemyLoc);
+		}
+		else if(ArchonExploreGoal.target!=null) {
+			mySender.sendExplore(ArchonExploreGoal.target);
 		}
 	}
 

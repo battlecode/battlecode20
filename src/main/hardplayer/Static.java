@@ -50,6 +50,7 @@ public abstract class Static {
 	public static SuperMessageStack enemyUnitMessages = new SuperMessageStack();
 
 	public static int [] threatWeights = new int [] { 0, 2, 1, 3, 4, 0 };
+	public static MapLocation base;
 
 	public static void init(RobotController RC) {
 		myRC = RC;
@@ -59,6 +60,7 @@ public abstract class Static {
 		myRobot = myRC.getRobot();
 		myID = myRobot.getID();
 		rnd = new Random(myID);
+		base = myRC.sensePowerCore().getLocation();
 		if(myTeam==Team.A) {
 			allUnits = new FastList [] { allies, enemies, debris };
 		}
@@ -66,37 +68,45 @@ public abstract class Static {
 			allUnits = new FastList [] { enemies, allies, debris };
 		}
 		mySender = new MessageSender();
-		handlers[MessageSender.messageTypeEnemyUnits] = enemyUnitMessages;
 	}
 
-	public static RobotInfo closest(FastList fl) {
-		int i = fl.size;
+	public static RobotInfo closest(FastList fl, MapLocation otherLoc) {
+		int i = fl.size+1;
 		RobotInfo [] infos = fl.robotInfos;
 		RobotInfo info;
 		RobotInfo best = null;
 		int bestd = 99999;
 		while(--i>=0) {
 			info = infos[i];
-			int d = myLoc.distanceSquaredTo(info.location);
+			int d = otherLoc.distanceSquaredTo(info.location);
 			if(d<bestd) {
 				bestd = d;
 				best = info;
 			}
 		}
 		return best;
-}
+	}
+
+	public static RobotInfo closest(FastList fl) {
+		return closest(fl,myLoc);
+	}
 
 	public static RobotInfo closestEnemy() {
-		int i = enemies.size;
-		RobotInfo info;
-		RobotInfo best = null;
+		return closest(enemies,myLoc);
+	}
+
+	public static PowerNode closestAlliedNode() {
 		int bestd = 99999;
+		MapLocation loc;
+		PowerNode best = null;
+		PowerNode [] nodes = myRC.senseAlliedPowerNodes();
+		int i = nodes.length-1, d;
 		while(--i>=0) {
-			info = enemyInfos[i];
-			int d = myLoc.distanceSquaredTo(info.location);
+			loc = nodes[i].getLocation();
+			d = myLoc.distanceSquaredTo(loc);
 			if(d<bestd) {
 				bestd = d;
-				best = info;
+				best = nodes[i];
 			}
 		}
 		return best;

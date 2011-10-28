@@ -22,21 +22,10 @@ public class MessageSender extends Static {
 	// Use random message numbers to decrease the chance of
 	// having to checksum an enemy message.
 	// Make sure these are all different and less than numTypes!
-	static public final int messageTypeSuicide=78;
-	static public final int messageTypeEnemyUnits=116;
-	static public final int messageTypeScoutSawEnemy=72;
-	static public final int messageTypeScoutSawEnemyRebroadcast=92;
-	static public final int messageTypeEvolve=28;
-	static public final int messageTypeBanish=32;
-	static public final int messageTypeFindEnemy=115;
-	static public final int messageTypeIShotThat=36;
-	static public final int messageTypeGoInThisDirection=86;
-	static public final int messageTypeGoTheWrongWay=58;
-	static public final int messageTypeTeleport=91;
-	static public final int messageTypeTeleporters=9;
-	static public final int messageTypeStopCamping=43;
-
-	static public final int numTypes=117;
+	static public final int MSG_ENEMY=112;
+	static public final int MSG_EXPLORE=53;
+	
+	static public final int numTypes=113;
 	
 	static public final int broadcastRange=64;
 	
@@ -89,10 +78,29 @@ public class MessageSender extends Static {
 		ints[ints.length-1]=myIDEncoded+roundNum;
 		m.locations[0]=myLoc;
 		try {
-			myRC.broadcast(m);
+			if(myRC.getFlux()>=m.getFluxCost())
+				myRC.broadcast(m);
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}
+	}
+
+	public static void sendEnemy(MapLocation loc) {
+		Message m = new Message();
+		m.ints = new int [3];
+		m.ints[0] = MSG_ENEMY;
+		m.locations = new MapLocation [2];
+		m.locations[1] = loc;
+		send(m);
+	}
+	
+	public static void sendExplore(MapLocation loc) {
+		Message m = new Message();
+		m.ints = new int [3];
+		m.ints[0] = MSG_EXPLORE;
+		m.locations = new MapLocation [2];
+		m.locations[1] = loc;
+		send(m);
 	}
 
 }

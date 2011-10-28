@@ -10,7 +10,10 @@ public class MakeArmyGoal extends Static implements Goal {
 	private static RobotType typeToSpawn;
 
 	public RobotType chooseTypeToSpawn() {
-		return RobotType.SOLDIER;
+		if(ArchonExploreGoal.target!=null&&myLoc.distanceSquaredTo(ArchonExploreGoal.target)<=2)
+			return RobotType.TOWER;
+		else
+			return RobotType.SOLDIER;
 	}
 
 	public int maxPriority() {
@@ -32,6 +35,16 @@ public class MakeArmyGoal extends Static implements Goal {
 
 	public void execute() {
 		try {
+			if(typeToSpawn==RobotType.TOWER) {
+				Direction d=myLoc.directionTo(ArchonExploreGoal.target);
+				if(d!=myDir) {
+					moveAdjacentTo(ArchonExploreGoal.target);
+					return;
+				}
+				if(canSpawn(typeToSpawn.level,myDir))
+					myRC.spawn(typeToSpawn);
+				return;
+			}
 			if(canSpawn(typeToSpawn.level,myDir))
 				myRC.spawn(typeToSpawn);
 			else {
