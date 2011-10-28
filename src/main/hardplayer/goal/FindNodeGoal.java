@@ -4,14 +4,17 @@ import hardplayer.Static;
 import hardplayer.message.MessageHandler;
 
 import battlecode.common.Clock;
+import battlecode.common.Direction;
 import battlecode.common.MapLocation;
 import battlecode.common.Message;
 
 public class FindNodeGoal extends Static implements Goal, MessageHandler {
 
+	static MapLocation archonLoc;
 	static MapLocation requestLoc;
 	static int requestTime;
 	static int archonDist;
+	static int requestDist;
 
 	public int maxPriority() { return FIND_NODE; }
 
@@ -23,15 +26,17 @@ public class FindNodeGoal extends Static implements Goal, MessageHandler {
 	}
 
 	public void execute() {
-		myNav.moveToForward(requestLoc);
+		Direction d = archonLoc.directionTo(requestLoc);
+		myNav.moveToForward(myLoc.add(d,4));
 	}
 
 	public void receivedMessage(Message m) {
 		//System.out.println("got message");
 		int d = myLoc.distanceSquaredTo(m.locations[0]);
-		if(d>=archonDist&&Clock.getRoundNum()<=requestTime)
+		if(d>=archonDist&&Clock.getRoundNum()<=requestTime+1)
 			return;
-		requestLoc = m.locations[0].add(m.locations[0].directionTo(m.locations[1]),4);
+		archonLoc = m.locations[0];
+		requestLoc = m.locations[1];
 		requestTime = Clock.getRoundNum();
 		archonDist = d;
 	}

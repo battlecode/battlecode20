@@ -35,7 +35,7 @@ public class ArchonExploreGoal extends Static implements Goal {
 			//	return;
 			d = myLoc.distanceSquaredTo(l);
 			if(d<dmin) {
-				d=dmin;
+				dmin=d;
 				target=l;
 			}
 		}
@@ -43,6 +43,7 @@ public class ArchonExploreGoal extends Static implements Goal {
 
 	public void moveToTarget() {
 		moveAdjacentTo(target);
+		//myRC.setIndicatorString(2,"TARGET");
 	}
 
 	public void spreadOut() {
@@ -51,19 +52,23 @@ public class ArchonExploreGoal extends Static implements Goal {
 			myNav.moveToASAPPreferFwd(archon);
 		else
 			myNav.moveToASAP(awayFrom(myLoc,archon));
+		//myRC.setIndicatorString(2,"SPREAD");
 	}
 
 	public void execute() {
 		chooseTarget();
 		int dist = myLoc.distanceSquaredTo(target); 
+		//debug_setIndicatorStringObject(1,target);
 		for(MapLocation l : myRC.senseAlliedArchons()) {
 			if(l.distanceSquaredTo(target)<dist) {
 				spreadOut();
 				return;
 			}
 		}
+		moveToTarget();
 		//debug_setIndicatorStringObject(0,target);
 		//debug_setIndicatorStringObject(1,myLoc);
+		/*
 		if(myLoc.distanceSquaredTo(target)<=36&&enemies.size<0) {
 			// if we can see the target and we don't see enemies,
 			// it's probably safe
@@ -89,6 +94,7 @@ public class ArchonExploreGoal extends Static implements Goal {
 				}
 			}
 		}
+		*/
 	}
 
 }

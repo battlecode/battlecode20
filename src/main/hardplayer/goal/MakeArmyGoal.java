@@ -10,7 +10,7 @@ public class MakeArmyGoal extends Static implements Goal {
 	private static RobotType typeToSpawn;
 
 	public RobotType chooseTypeToSpawn() {
-		if(ArchonExploreGoal.target!=null&&myLoc.distanceSquaredTo(ArchonExploreGoal.target)<=2)
+		if(enemies.size<0&&ArchonExploreGoal.target!=null&&myLoc.distanceSquaredTo(ArchonExploreGoal.target)<=2)
 			return RobotType.TOWER;
 		else
 			return RobotType.SOLDIER;

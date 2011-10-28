@@ -28,7 +28,7 @@ public class FindEnemyGoal extends Static implements Goal, MessageHandler {
 
 	public void receivedMessage(Message m) {
 		int d = myLoc.distanceSquaredTo(m.locations[1]);
-		if(d>=enemyDist&&Clock.getRoundNum()<=requestTime)
+		if(d>=enemyDist&&Clock.getRoundNum()<=requestTime+1)
 			return;
 		enemyLoc = m.locations[1];
 		requestTime = Clock.getRoundNum();

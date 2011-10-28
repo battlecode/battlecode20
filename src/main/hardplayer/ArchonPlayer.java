@@ -49,6 +49,8 @@ public class ArchonPlayer extends BasePlayer {
 		RobotInfo r;
 		double transferAmount;
 		double freeFlux=myRC.getFlux()-MIN_FLUX;
+		if(enemies.size<0&&ArchonExploreGoal.target!=null&&myLoc.distanceSquaredTo(ArchonExploreGoal.target)<=2)
+			freeFlux-=RobotType.TOWER.spawnCost;
 		//System.out.println("Flux: "+freeFlux);
 		//System.out.println("Allies: "+allies.size);
 		if(freeFlux<=0)
