@@ -19,12 +19,31 @@ public abstract class Static {
 	public static FastList allies = new FastList(400);
 	public static RobotInfo [] alliedInfos = allies.robotInfos;
 
+	public static FastList alliedArchons = new FastList(400);
+	public static FastList alliedSoldiers = new FastList(400);
+	public static FastList alliedScouts = new FastList(400);
+	public static FastList alliedDisrupters = new FastList(400);
+	public static FastList alliedScorchers = new FastList(400);
+	public static FastList alliedTowers = new FastList(400);
+
+	public static RobotInfo [] alliedArchonInfos = alliedArchons.robotInfos;
+
+	public static FastList [] alliesByType = new FastList [] { alliedArchons, alliedSoldiers, alliedScouts, alliedDisrupters, alliedScorchers, alliedTowers };
+
 	public static FastList enemies = new FastList(400);
 	public static RobotInfo [] enemyInfos = enemies.robotInfos;
 
-	public static FastList debris = new FastList(400);
+	public static FastList enemyArchons = new FastList(400);
+	public static FastList enemySoldiers = new FastList(400);
+	public static FastList enemyScouts = new FastList(400);
+	public static FastList enemyDisrupters = new FastList(400);
+	public static FastList enemyScorchers = new FastList(400);
+	public static FastList enemyTowers = new FastList(400);
+
+	public static FastList [] enemiesByType = new FastList [] { enemyArchons, enemySoldiers, enemyScouts, enemyDisrupters, enemyScorchers, enemyTowers };
 
 	public static FastList [] allUnits;
+	public static FastList [][] unitsByType;
 
 	public static Team myTeam;
 	public static RobotType myType;
@@ -49,8 +68,16 @@ public abstract class Static {
 
 	public static SuperMessageStack enemyUnitMessages = new SuperMessageStack();
 
-	public static int [] threatWeights = new int [] { 0, 2, 1, 3, 4, 0 };
+	public static final int [] threatWeights = new int [] { 0, 2, 1, 3, 4, 0 };
+	public static final boolean [] isFighter = new boolean [] { false, true, false, true, true, false };
+
 	public static MapLocation base;
+
+	public static final int ENEMY_PURSUE_TIME = 75;
+
+	public static boolean atWar;
+	public static boolean justNowAtWar;
+	public static int lastKnownEnemyTime = -200;
 
 	public static void init(RobotController RC) {
 		myRC = RC;
@@ -62,10 +89,12 @@ public abstract class Static {
 		rnd = new Random(myID);
 		base = myRC.sensePowerCore().getLocation();
 		if(myTeam==Team.A) {
-			allUnits = new FastList [] { allies, enemies, debris };
+			allUnits = new FastList [] { allies, enemies };
+			unitsByType = new FastList [][] { alliesByType, enemiesByType };
 		}
 		else {
-			allUnits = new FastList [] { enemies, allies, debris };
+			allUnits = new FastList [] { enemies, allies };
+			unitsByType = new FastList [][] { enemiesByType, alliesByType };
 		}
 		mySender = new MessageSender();
 	}
@@ -87,12 +116,35 @@ public abstract class Static {
 		return best;
 	}
 
+	public static RobotInfo closestNoTower(FastList fl, MapLocation otherLoc) {
+		int i = fl.size+1;
+		RobotInfo [] infos = fl.robotInfos;
+		RobotInfo info;
+		RobotInfo best = null;
+		int bestd = 99999;
+		while(--i>=0) {
+			info = infos[i];
+			if(info.type==RobotType.TOWER)
+				continue;
+			int d = otherLoc.distanceSquaredTo(info.location);
+			if(d<bestd) {
+				bestd = d;
+				best = info;
+			}
+		}
+		return best;
+	}
+
 	public static RobotInfo closest(FastList fl) {
 		return closest(fl,myLoc);
 	}
 
 	public static RobotInfo closestEnemy() {
 		return closest(enemies,myLoc);
+	}
+
+	public static int armySize() {
+		return threatWeights[1]*(alliedSoldiers.size+1)+threatWeights[2]*(alliedScouts.size+1)+threatWeights[3]*(alliedDisrupters.size+1)+threatWeights[4]*(alliedScorchers.size+1);
 	}
 
 	public static PowerNode closestAlliedNode() {
@@ -141,6 +193,16 @@ public abstract class Static {
 			}
 		}
 		return best;
+	}
+
+	public static boolean senseConnected(MapLocation loc) {
+		try {
+			PowerNode p = (PowerNode)myRC.senseObjectAtLocation(loc,RobotLevel.MINE);
+			return myRC.senseConnected(p);
+		} catch(Exception e) {
+			debug_stackTrace(e);
+		}
+		return false;
 	}
 
 	public static void debug_stackTrace(Throwable e) {
@@ -217,6 +279,22 @@ public abstract class Static {
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}
+	}
+
+	public static void checkAtWar() {
+		justNowAtWar = false;
+		if(enemies.size>=0) {
+			if(!atWar)
+				justNowAtWar = true;
+			setAtWar();
+		}
+		else
+			atWar = (Clock.getRoundNum() - lastKnownEnemyTime) <= ENEMY_PURSUE_TIME;
+	}
+
+	public static void setAtWar() {
+		atWar = true;
+		lastKnownEnemyTime = Clock.getRoundNum();
 	}
 
 	public static MapLocation awayFrom(MapLocation from, MapLocation to) {

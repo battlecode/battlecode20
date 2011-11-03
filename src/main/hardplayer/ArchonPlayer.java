@@ -1,9 +1,8 @@
 package hardplayer;
 
-import hardplayer.goal.ArchonExploreGoal;
-import hardplayer.goal.FleeGoal;
-import hardplayer.goal.Goal;
-import hardplayer.goal.MakeArmyGoal;
+import hardplayer.goal.*;
+
+import hardplayer.message.MessageSender;
 
 import battlecode.common.Clock;
 import battlecode.common.Direction;
@@ -31,11 +30,14 @@ public class ArchonPlayer extends BasePlayer {
 	}
 
 	public void setGoals() {
-		
+	
+		ArchonFindEnemyGoal afeg = new ArchonFindEnemyGoal();
+
 		goals = new Goal [] {
 			new FleeGoal(),
 			// ArchonExploreGoal needs to go before MakeArmyGoal
 			// because of chooseTarget
+			afeg,
 			new ArchonExploreGoal(),
 			new MakeArmyGoal(),
 			//new ArchonFindEnemyGoal(),
@@ -74,8 +76,9 @@ public class ArchonPlayer extends BasePlayer {
 
 	public void broadcast() {
 		if(enemies.size>=0) {
-			MapLocation enemyLoc = closest(enemies,base).location;
-			mySender.sendEnemy(enemyLoc);
+			RobotInfo enemyInfo = closestNoTower(enemies,base);
+			if(enemyInfo!=null)
+				mySender.sendFindEnemy(enemyInfo.location,enemies.size+1);
 		}
 		else if(ArchonExploreGoal.target!=null) {
 			mySender.sendExplore(ArchonExploreGoal.target);

@@ -6,9 +6,9 @@ import battlecode.common.RobotController;
 import hardplayer.goal.*;
 import hardplayer.message.MessageSender;
 
-public class SoldierPlayer extends BasePlayer {
+public class ScorcherPlayer extends BasePlayer {
 
-	public SoldierPlayer(RobotController RC) {
+	public ScorcherPlayer(RobotController RC) {
 		super(RC);
 	}
 
@@ -17,13 +17,8 @@ public class SoldierPlayer extends BasePlayer {
 			return;
 		int i;
 		try {
-			for(i=enemies.size;i>=0;i--) {
-				if(myRC.canAttackSquare(enemyInfos[i].location)) {
-					//System.out.println("shooting");
-					myRC.attackSquare(enemyInfos[i].location,enemyInfos[i].type.level);
-					return;
-				}
-			}
+			if(enemies.size>allies.size)
+				myRC.attackSquare(null,null);
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}
@@ -42,11 +37,14 @@ public class SoldierPlayer extends BasePlayer {
 		FindEnemyGoal feg = new FindEnemyGoal();
 
 		goals = new Goal [] {
-			new SoldierAttackGoal(),
+			new ScorcherAttackGoal(),
 			feg,
 			fng,
 			new SeekFluxGoal()
 		};
+
+		handlers[MessageSender.MSG_EXPLORE] = fng;
+		handlers[MessageSender.MSG_ENEMY_2] = feg;
 
 	}
 

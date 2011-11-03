@@ -2,6 +2,7 @@ package hardplayer.goal;
 
 import hardplayer.Static;
 import hardplayer.message.MessageHandler;
+import hardplayer.message.MessageSender;
 
 import battlecode.common.Clock;
 import battlecode.common.Direction;
@@ -15,6 +16,10 @@ public class FindNodeGoal extends Static implements Goal, MessageHandler {
 	static int requestTime;
 	static int archonDist;
 	static int requestDist;
+
+	public FindNodeGoal() {
+		handlers[MessageSender.MSG_EXPLORE]=this;
+	}
 
 	public int maxPriority() { return FIND_NODE; }
 

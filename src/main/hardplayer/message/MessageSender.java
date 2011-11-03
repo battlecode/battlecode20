@@ -24,7 +24,9 @@ public class MessageSender extends Static {
 	// Make sure these are all different and less than numTypes!
 	static public final int MSG_ENEMY=112;
 	static public final int MSG_EXPLORE=53;
-	
+	static public final int MSG_ENEMY_2=57;
+	static public final int MSG_GO_THIS_WAY=86;
+
 	static public final int numTypes=113;
 	
 	static public final int broadcastRange=64;
@@ -93,6 +95,16 @@ public class MessageSender extends Static {
 		m.locations[1] = loc;
 		send(m);
 	}
+
+	public static void sendFindEnemy(MapLocation loc, int enemies) {
+		Message m = new Message();
+		m.ints = new int [4];
+		m.ints[0] = MSG_ENEMY_2;
+		m.ints[1] = enemies;
+		m.locations = new MapLocation [2];
+		m.locations[1] = loc;
+		send(m);
+	}
 	
 	public static void sendExplore(MapLocation loc) {
 		Message m = new Message();
@@ -100,6 +112,16 @@ public class MessageSender extends Static {
 		m.ints[0] = MSG_EXPLORE;
 		m.locations = new MapLocation [2];
 		m.locations[1] = loc;
+		send(m);
+	}
+
+	public static void sendGoThisWay(int dx, int dy) {
+		Message m = new Message();
+		m.ints = new int [5];
+		m.locations = new MapLocation [1];
+		m.ints[0] = MSG_GO_THIS_WAY;
+		m.ints[1] = dx;
+		m.ints[2] = dy;
 		send(m);
 	}
 

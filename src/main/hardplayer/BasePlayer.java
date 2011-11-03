@@ -2,6 +2,7 @@ package hardplayer;
 
 import battlecode.common.*;
 
+import hardplayer.goal.FindEnemyGoal;
 import hardplayer.goal.Goal;
 import hardplayer.message.MessageSender;
 
@@ -49,13 +50,20 @@ public abstract class BasePlayer extends Static {
 	public void runloop() throws GameActionException {
 		myLoc = myRC.getLocation();
 		myDir = myRC.getDirection();
+		FindEnemyGoal.decay();
 		sortMessages();
 		senseNearbyRobots();
+		findEnemy();
 		//System.out.println("Allies: "+allies.size);
 		shoot();
 		transferFlux();
 		tryBestGoal();
 		broadcast();
+	}
+
+	public void findEnemy() {
+		FindEnemyGoal.read();
+		checkAtWar();
 	}
 
 	public boolean repurpose() { return false; }
@@ -69,11 +77,24 @@ public abstract class BasePlayer extends Static {
 			int i=robots.length;
 			allies.size = -1;
 			enemies.size = -1;
-			debris.size = -1;
+			alliedArchons.size = -1;
+			alliedSoldiers.size = -1;
+			alliedScouts.size = -1;
+			alliedDisrupters.size = -1;
+			alliedScorchers.size = -1;
+			alliedTowers.size = -1;
+			enemyArchons.size = -1;
+			enemySoldiers.size = -1;
+			enemyScouts.size = -1;
+			enemyDisrupters.size = -1;
+			enemyScorchers.size = -1;
+			enemyTowers.size = -1;
 			while(--i>=0) {
 				robot = robots[i];
 				info = myRC.senseRobotInfo(robots[i]);
 				fl = allUnits[info.team.ordinal()];
+				fl.robotInfos[++fl.size] = info;
+				fl = unitsByType[info.team.ordinal()][info.type.ordinal()];
 				fl.robotInfos[++fl.size] = info;
 			}
 		} catch(Exception e) {

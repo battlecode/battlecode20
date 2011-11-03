@@ -12,8 +12,10 @@ public class MakeArmyGoal extends Static implements Goal {
 	public RobotType chooseTypeToSpawn() {
 		if(enemies.size<0&&ArchonExploreGoal.target!=null&&myLoc.distanceSquaredTo(ArchonExploreGoal.target)<=2)
 			return RobotType.TOWER;
-		else
+		//else if(myRC.getTeam()==Team.A)
 			return RobotType.SOLDIER;
+		//else
+		//	return RobotType.SCORCHER;
 	}
 
 	public int maxPriority() {

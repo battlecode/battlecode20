@@ -1,38 +1,91 @@
 package hardplayer.goal;
 
-import hardplayer.Static;
 import hardplayer.message.MessageHandler;
-
+import hardplayer.message.MessageSender;
+import hardplayer.navigation.BugNavigation;
+import hardplayer.BasePlayer;
+import hardplayer.Static;
 import battlecode.common.Clock;
+import battlecode.common.Direction;
 import battlecode.common.MapLocation;
 import battlecode.common.Message;
+import battlecode.common.RobotInfo;
 
 public class FindEnemyGoal extends Static implements Goal, MessageHandler {
 
-	static MapLocation enemyLoc;
-	static int requestTime;
-	static int enemyDist;
+	public static double xsum;
+	public static double ysum;
+	public static double n;
 
-	public int maxPriority() { return FIND_NODE; }
+	static final double DECAY_RATE = 15./16.;
+
+	public static final long [] unitWeights = new long [] { 6000L, 2000L, 1500L,  2000L,  2000L, 0L };
+	public static final long messageWeight = 1000L;
+
+	public FindEnemyGoal() {
+		handlers[MessageSender.MSG_ENEMY_2] = this;
+	}
+
+	public static void decay() {
+		n*=DECAY_RATE;
+		xsum*=DECAY_RATE;
+		ysum*=DECAY_RATE;
+	}
+
+	static public void read() {
+		MapLocation loc;
+		int i, j;
+		long newn=0;
+		long newxsum=0;
+		long newysum=0;
+		long w;
+		RobotInfo info;
+		for(i=enemies.size;i>=0;i--) {
+			info = enemyInfos[i];
+			loc = info.location;
+			w=unitWeights[info.type.ordinal()]/(myLoc.distanceSquaredTo(loc)+1);
+			newn+=w;
+			newxsum+=w*loc.x;
+			newysum+=w*loc.y;
+		}
+		n+=newn;
+		xsum+=newxsum-newn*myLoc.x;
+		ysum+=newysum-newn*myLoc.y;
+	}
+
+	public int maxPriority() {
+		return FIND_ENEMY;
+	}
 
 	public int priority() {
-		if(Clock.getRoundNum()-requestTime<=10)
-			return FIND_ENEMY;
-		else
-			return 0;
+		return atWar?FIND_ENEMY:0;
+	}
+
+	public MapLocation getEnemyLoc() {
+		return new MapLocation((int)(xsum/n)+myLoc.getX(),(int)(ysum/n)+myLoc.getY());
+	}
+
+	public int getEnemyDX() {
+		return (int)(xsum/n);
+	}
+
+	public int getEnemyDY() {
+		return (int)(ysum/n);
 	}
 
 	public void execute() {
-		myNav.moveToForward(enemyLoc);
+		if(n>0)
+			debug_setIndicatorStringFormat(1,"%f %f %f",n,xsum/n,ysum/n);
+		myNav.moveToForward(getEnemyLoc());
 	}
 
 	public void receivedMessage(Message m) {
-		int d = myLoc.distanceSquaredTo(m.locations[1]);
-		if(d>=enemyDist&&Clock.getRoundNum()<=requestTime+1)
-			return;
-		enemyLoc = m.locations[1];
-		requestTime = Clock.getRoundNum();
-		enemyDist = d;
+		MapLocation loc = m.locations[1];
+		long w = m.ints[1] * messageWeight;
+		n+=w;
+		xsum+=w*(loc.x-myLoc.x);
+		ysum+=w*(loc.y-myLoc.y);
+		setAtWar();
 	}
 
 }

@@ -2,17 +2,17 @@ package hardplayer;
 
 import battlecode.common.RobotController;
 
-class MainStrategy extends Static implements Strategy {
+class AggroStrategy extends Static implements Strategy {
 
 	public void execute(RobotController myRC) {
 		while(true) {
 			try {
 				switch(myRC.getType()) {
 					case ARCHON:
-						new ArchonPlayer(myRC).run();
+						new AggroArchonPlayer(myRC).run();
 						break;
 					case SOLDIER:
-						new SoldierPlayer(myRC).run();
+						new AggroSoldierPlayer(myRC).run();
 						break;
 					case SCORCHER:
 						new ScorcherPlayer(myRC).run();
@@ -28,4 +28,3 @@ class MainStrategy extends Static implements Strategy {
 	}
 
 }
-

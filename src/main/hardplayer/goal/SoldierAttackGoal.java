@@ -21,7 +21,7 @@ public class SoldierAttackGoal extends Static implements Goal {
 		target = null;
 		for(i=enemies.size;i>=0;i--) {
 			info = enemyInfos[i];
-			if((info.robot instanceof PowerNode) && !myRC.senseConnected((PowerNode)info.robot))
+			if(info.type==RobotType.TOWER&&!senseConnected(info.location))
 				continue;
 			value = priorities[info.type.ordinal()]+myLoc.distanceSquaredTo(info.location);
 			if(value<bestv) {
