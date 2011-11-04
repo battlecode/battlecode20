@@ -190,7 +190,6 @@ public class BugNavigation extends Navigation {
 			// Check in front and to the side instead of just
 			// in front because snipers can't see directly
 			// to the side.  (It takes fewer bytecodes anyway.)
-			/*
 			else  {
 				Direction myDir=myRC.getDirection();
 				if((myRC.senseTerrainTile(myLoc.add(myDir.rotateRight())).getType()==TerrainTile.OFF_MAP||
@@ -199,14 +198,12 @@ public class BugNavigation extends Navigation {
 					rotationDirection=0;
 				}
 			}
-			*/
 		}
 		else if(rotationDirection==RIGHT) {
 			if(myRC.canMove(lastDir.opposite().rotateRight())&&myRC.canMove(lastDir.rotateLeft().rotateLeft())) {
 				//myRC.setIndicatorString(1,"reset because obstacle disappeared right"+Clock.getRoundNum());
 				rotationDirection=0;
 			}
-			/*
 			else  {
 				Direction myDir=myRC.getDirection();
 				if((myRC.senseTerrainTile(myLoc.add(myDir.rotateRight())).getType()==TerrainTile.OFF_MAP||
@@ -215,7 +212,6 @@ public class BugNavigation extends Navigation {
 					rotationDirection=0;
 				}
 			}
-			*/
 		}
 
 		if(rotationDirection==0) {

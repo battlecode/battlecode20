@@ -40,11 +40,12 @@ public class AggroArchonExploreGoal extends Static implements Goal {
 		if(myRC.senseTerrainTile(new MapLocation(x,y+dy)).getType() == TerrainTile.OFF_MAP)
 			dy=-dy;
 		int t = Clock.getRoundNum();
-		int armyWanted=5*(alliedArchons.size+2);
-		debug_setIndicatorStringObject(1,armySize());
+		int armyWanted=2*(alliedArchons.size+2);
+		//debug_setIndicatorStringFormat(1,"%d %d",dx,dy);
 		if(armySize()<armyWanted) {
 			// don't go looking for trouble until we have a big army
 			spreadOut();
+			debug_setIndicatorString(1,"spreading out");
 			/*
 			MapLocation nearbyArchonLoc = nearestAlliedArchonAtLeastDist(4);
 			if(nearbyArchonLoc!=null)
@@ -85,6 +86,7 @@ public class AggroArchonExploreGoal extends Static implements Goal {
 			}
 		}
 		*/
+		debug_setIndicatorString(1,"exploring");
 		myNav.moveToForward(new MapLocation(x+dx,y+dy));
 		numTurnsAdvanceFailed=0;
 	}

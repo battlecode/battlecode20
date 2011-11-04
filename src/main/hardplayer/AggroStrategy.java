@@ -10,6 +10,7 @@ class AggroStrategy extends Static implements Strategy {
 				switch(myRC.getType()) {
 					case ARCHON:
 						new AggroArchonPlayer(myRC).run();
+						new ArchonPlayer(myRC).run();
 						break;
 					case SOLDIER:
 						new AggroSoldierPlayer(myRC).run();

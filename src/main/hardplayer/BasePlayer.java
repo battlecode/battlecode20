@@ -109,6 +109,10 @@ public abstract class BasePlayer extends Static {
 		while(true) {
 			try {
 				runloop();
+				if(repurpose()) {
+					myRC.yield();
+					return;
+				}
 			} catch(Exception e) {
 				debug_stackTrace(e);
 			}

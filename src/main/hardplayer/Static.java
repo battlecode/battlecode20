@@ -79,6 +79,10 @@ public abstract class Static {
 	public static boolean justNowAtWar;
 	public static int lastKnownEnemyTime = -200;
 
+	public MapLocation [] archons;
+
+	public static final Random random = new Random();
+
 	public static void init(RobotController RC) {
 		myRC = RC;
 		myNav = new BugNavigation();
@@ -188,6 +192,21 @@ public abstract class Static {
 			loc = locs[i];
 			d = myLoc.distanceSquaredTo(loc);
 			if(d<bestd) {
+				bestd = d;
+				best = loc;
+			}
+		}
+		return best;
+	}
+	
+	public static MapLocation closestAtLeastDist(MapLocation [] locs, int mind) {
+		int i = locs.length-1, d;
+		int bestd = 99999;
+		MapLocation best=null, loc;
+		while(--i>=0) {
+			loc = locs[i];
+			d = myLoc.distanceSquaredTo(loc);
+			if(d<bestd&&d>=mind) {
 				bestd = d;
 				best = loc;
 			}

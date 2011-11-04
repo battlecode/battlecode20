@@ -2,20 +2,27 @@ package hardplayer.goal;
 
 import battlecode.common.*;
 
+import java.util.Random;
+
 import hardplayer.ArchonPlayer;
 import hardplayer.Static;
 
 public class MakeArmyGoal extends Static implements Goal {
 
 	private static RobotType typeToSpawn;
+	private static int spawnRand;
+
+	public MakeArmyGoal() {
+		spawnRand = random.nextInt();
+	}
 
 	public RobotType chooseTypeToSpawn() {
 		if(enemies.size<0&&ArchonExploreGoal.target!=null&&myLoc.distanceSquaredTo(ArchonExploreGoal.target)<=2)
 			return RobotType.TOWER;
-		//else if(myRC.getTeam()==Team.B)
+		else if(myRC.getTeam()==Team.A&&spawnRand%5!=0)
+			return RobotType.SCORCHER;
+		else
 			return RobotType.SOLDIER;
-		//else
-		//	return RobotType.SCORCHER;
 	}
 
 	public int maxPriority() {
@@ -36,6 +43,7 @@ public class MakeArmyGoal extends Static implements Goal {
 	}
 
 	public void execute() {
+		spawnRand = random.nextInt();
 		try {
 			if(typeToSpawn==RobotType.TOWER) {
 				Direction d=myLoc.directionTo(ArchonExploreGoal.target);

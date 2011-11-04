@@ -59,6 +59,7 @@ public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
 	public void execute() {
 		if(message!=null) {
 			attackFromMessage();
+			message = null;
 			return;
 		}
 		int i, soldiersNow=0, soldiersBack=0;
@@ -91,10 +92,16 @@ public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
 				}
 			} else {
 				if(farthest!=null) {
-					if(dmax>2)
-						myNav.moveToForward(farthest.location);
-					else
-						myRC.setDirection(myLoc.directionTo(farthest.location));
+					if(farthest.type==RobotType.TOWER) {
+						if(dmax<=4&&myRC.canMove(myDir.opposite()))
+							myRC.moveBackward();
+					}
+					else {
+						if(dmax>2)
+							myNav.moveToForward(farthest.location);
+						else
+							myRC.setDirection(myLoc.directionTo(farthest.location));
+					}
 				}
 			}
 		} catch(Exception e) {

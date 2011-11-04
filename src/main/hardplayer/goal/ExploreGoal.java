@@ -49,7 +49,7 @@ public class ExploreGoal extends Static implements Goal, MessageHandler {
 	}
 
 	public void execute() {
-		MapLocation archonLoc = closest(myRC.senseAlliedArchons());
+		MapLocation archonLoc = closestAtLeastDist(myRC.senseAlliedArchons(),1);
 		int d=(myLoc.x-archonLoc.x)*dx+(myLoc.y-archonLoc.y)*dy;
 		//debug_setIndicatorStringFormat(1,"%d %d %s %s",dx,dy,myLoc,archonLoc);
 		if(d<=0) {
