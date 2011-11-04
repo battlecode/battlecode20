@@ -25,6 +25,7 @@ public class MessageSender extends Static {
 	static public final int MSG_ENEMY=112;
 	static public final int MSG_EXPLORE=53;
 	static public final int MSG_ENEMY_2=57;
+	static public final int MSG_ENEMY_UNITS=12;
 	static public final int MSG_GO_THIS_WAY=86;
 
 	static public final int numTypes=113;
@@ -103,6 +104,14 @@ public class MessageSender extends Static {
 		m.ints[1] = enemies;
 		m.locations = new MapLocation [2];
 		m.locations[1] = loc;
+		send(m);
+	}
+
+	public static void sendEnemyUnits(MapLocation [] locs) {
+		Message m = new Message();
+		m.ints = new int [3];
+		m.ints[0] = MSG_ENEMY_UNITS;
+		m.locations = locs;
 		send(m);
 	}
 	

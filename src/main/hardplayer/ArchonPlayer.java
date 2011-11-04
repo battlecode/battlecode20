@@ -74,12 +74,26 @@ public class ArchonPlayer extends BasePlayer {
 		}
 	}
 
+	public void sendEnemies() {
+		int i = enemies.size+1, j = enemies.size-enemyTowers.size+1;
+		MapLocation [] locs = new MapLocation [j];
+		while(--i>=0) {
+			if(enemyInfos[i].type!=RobotType.TOWER)
+				locs[--j]=enemyInfos[i].location;
+		}
+		mySender.sendEnemyUnits(locs);
+	}
+
 	public void broadcast() {
+		/*
 		if(enemies.size>=0) {
 			RobotInfo enemyInfo = closestNoTower(enemies,base);
 			if(enemyInfo!=null)
 				mySender.sendFindEnemy(enemyInfo.location,enemies.size+1);
 		}
+		*/
+		if(enemies.size>enemyTowers.size)
+			sendEnemies();
 		else if(ArchonExploreGoal.target!=null) {
 			mySender.sendExplore(ArchonExploreGoal.target);
 		}

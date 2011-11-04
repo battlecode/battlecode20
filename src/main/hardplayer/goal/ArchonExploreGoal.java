@@ -48,7 +48,7 @@ public class ArchonExploreGoal extends Static implements Goal {
 
 	public void spreadOut() {
 		MapLocation archon = closest(myRC.senseAlliedArchons());
-		if(myLoc.distanceSquaredTo(archon)>52)
+		if(myLoc.distanceSquaredTo(archon)>20)
 			myNav.moveToASAPPreferFwd(archon);
 		else
 			myNav.moveToASAP(awayFrom(myLoc,archon));
