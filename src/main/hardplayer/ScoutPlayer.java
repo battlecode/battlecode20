@@ -19,11 +19,13 @@ public class ScoutPlayer extends BasePlayer {
 		if(myRC.isAttackActive())
 			return;
 		int i;
+		RobotInfo info;
 		try {
 			for(i=enemies.size;i>=0;i--) {
-				if(myRC.canAttackSquare(enemyInfos[i].location)&&enemyInfos[i].type!=RobotType.TOWER) {
+				info = enemyInfos[i];
+				if(myRC.canAttackSquare(info.location)&&info.flux>0) {
 					//System.out.println("shooting");
-					myRC.attackSquare(enemyInfos[i].location,enemyInfos[i].type.level);
+					myRC.attackSquare(info.location,info.type.level);
 					return;
 				}
 			}

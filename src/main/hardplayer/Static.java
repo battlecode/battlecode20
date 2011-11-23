@@ -81,8 +81,6 @@ public abstract class Static {
 
 	public MapLocation [] archons;
 
-	public static Random random;
-
 	public static void init(RobotController RC) {
 		myRC = RC;
 		myNav = new BugNavigation();
@@ -90,7 +88,7 @@ public abstract class Static {
 		myType = myRC.getType();
 		myRobot = myRC.getRobot();
 		myID = myRobot.getID();
-		rnd = new Random(myID);
+		rnd = new Random(myID+myRC.getLocation().hashCode());
 		base = myRC.sensePowerCore().getLocation();
 		if(myTeam==Team.A) {
 			allUnits = new FastList [] { allies, enemies };

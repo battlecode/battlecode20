@@ -17,7 +17,7 @@ public class ScorcherPlayer extends BasePlayer {
 			return;
 		int i;
 		try {
-			if(enemies.size>allies.size)
+			if(enemies.size-enemyScouts.size>allies.size-alliedScouts.size)
 				myRC.attackSquare(null,null);
 		} catch(Exception e) {
 			debug_stackTrace(e);
