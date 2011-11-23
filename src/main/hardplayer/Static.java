@@ -81,7 +81,7 @@ public abstract class Static {
 
 	public MapLocation [] archons;
 
-	public static final Random random = new Random();
+	public static Random random;
 
 	public static void init(RobotController RC) {
 		myRC = RC;

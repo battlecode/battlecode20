@@ -16,6 +16,7 @@ public interface Goal {
 	// Non-archon goals
 	static public final int ATTACK = 90;
 	static public final int FIND_ENEMY = 85;
+	static public final int HEAL = 70;
 	static public final int FIND_NODE = 30;
 	static public final int SEEK_FLUX_LOW = 20;
 

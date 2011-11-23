@@ -13,16 +13,24 @@ public class MakeArmyGoal extends Static implements Goal {
 	private static int spawnRand;
 
 	public MakeArmyGoal() {
-		spawnRand = random.nextInt();
+		spawnRand = rnd.nextInt();
 	}
 
 	public RobotType chooseTypeToSpawn() {
 		if(enemies.size<0&&ArchonExploreGoal.target!=null&&myLoc.distanceSquaredTo(ArchonExploreGoal.target)<=2)
 			return RobotType.TOWER;
-		else if(myRC.getTeam()==Team.A&&spawnRand%5!=0)
-			return RobotType.SCORCHER;
-		else
+		switch(spawnRand%7) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
 			return RobotType.SOLDIER;
+		case 4:
+		case 5:
+			return RobotType.SCORCHER;
+		default:
+			return RobotType.SCOUT;
+		}
 	}
 
 	public int maxPriority() {
@@ -42,8 +50,12 @@ public class MakeArmyGoal extends Static implements Goal {
 		return myRC.senseTerrainTile(loc).isTraversableAtHeight(level)&&(myRC.senseObjectAtLocation(loc,level)==null);
 	}
 
+	public void spawn() throws GameActionException {
+		myRC.spawn(typeToSpawn);
+		spawnRand = rnd.nextInt();
+	}
+
 	public void execute() {
-		spawnRand = random.nextInt();
 		try {
 			if(typeToSpawn==RobotType.TOWER) {
 				Direction d=myLoc.directionTo(ArchonExploreGoal.target);
@@ -52,11 +64,11 @@ public class MakeArmyGoal extends Static implements Goal {
 					return;
 				}
 				if(canSpawn(typeToSpawn.level,myDir))
-					myRC.spawn(typeToSpawn);
+					spawn();
 				return;
 			}
 			if(canSpawn(typeToSpawn.level,myDir))
-				myRC.spawn(typeToSpawn);
+				spawn();
 			else {
 				for(int i=7;i>=0;i--) {
 					if(canSpawn(typeToSpawn.level,Direction.values()[i])) {

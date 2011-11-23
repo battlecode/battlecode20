@@ -14,6 +14,9 @@ class MainStrategy extends Static implements Strategy {
 					case SOLDIER:
 						new SoldierPlayer(myRC).run();
 						break;
+					case SCOUT:
+						new ScoutPlayer(myRC).run();
+						break;
 					case SCORCHER:
 						new ScorcherPlayer(myRC).run();
 						break;
