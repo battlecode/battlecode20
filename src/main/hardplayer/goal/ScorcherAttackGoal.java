@@ -4,6 +4,7 @@ import battlecode.common.MapLocation;
 import battlecode.common.Message;
 import battlecode.common.PowerNode;
 import battlecode.common.RobotInfo;
+import battlecode.common.RobotLevel;
 import battlecode.common.RobotType;
 
 import hardplayer.Static;
@@ -20,14 +21,29 @@ public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
 
 	public int maxPriority() { return ATTACK; }
 
+	public boolean isConnected(MapLocation towerLoc) {
+		try {
+			return myRC.senseConnected((PowerNode)myRC.senseObjectAtLocation(towerLoc,RobotLevel.MINE));
+		} catch(Exception e) {
+			debug_stackTrace(e);
+			return true;
+		}
+	}
+
 	public int priority() {
 		RobotInfo info;
 		int i;
 		for(i=enemies.size;i>=0;i--) {
 			info = enemyInfos[i];
-			if(!(info.robot instanceof PowerNode) || myRC.senseConnected((PowerNode)info.robot)) {
-				message = null;
-				return ATTACK;
+			switch(info.type) {
+				case SCOUT:
+					continue;
+				case TOWER:
+					if(!isConnected(info.location))
+						continue;
+				default:
+					message = null;
+					return ATTACK;
 			}
 		}
 		if(message!=null)
@@ -68,6 +84,8 @@ public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
 		RobotInfo farthest = null;
 		for(i=enemies.size;i>=0;i--) {
 			info = enemyInfos[i];
+			if(info.type==RobotType.SCOUT)
+				continue;
 			if(info.type==RobotType.SOLDIER) {
 				soldiersNow++;
 				if(myRC.canAttackSquare(info.location.add(myDir)))
@@ -84,7 +102,7 @@ public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
 		debug_setIndicatorStringFormat(2,"%s %d %d",farthest,dmax,soldiersNow);
 		try {
 			if(soldiersNow>0) {
-				if(soldiersNow-soldiersBack<2&&myRC.canMove(myDir.opposite())) {
+				if(soldiersBack>0&&soldiersNow-soldiersBack<2&&myRC.canMove(myDir.opposite())) {
 					myRC.moveBackward();
 				}
 				else if(farthest!=null) {
