@@ -17,11 +17,11 @@ public class AggroArchonExploreGoal extends Static implements Goal {
 	static public final int MAX_FAILURE_TURNS = 30;
 
 	public int maxPriority() {
-		return EXPLORE;
+		return AGGRO_EXPLORE;
 	}
 
 	public int priority() {
-		return EXPLORE;
+		return AGGRO_EXPLORE;
 	}
 
 	public void spreadOut() {

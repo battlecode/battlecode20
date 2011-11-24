@@ -29,7 +29,10 @@ public class MakeArmyGoal extends Static implements Goal {
 		case 5:
 			return RobotType.SCORCHER;
 		default:
-			return RobotType.SCOUT;
+			if(alliedScouts.size<=alliedArchons.size)
+				return RobotType.SCOUT;
+			else
+				return RobotType.SOLDIER;
 		}
 	}
 

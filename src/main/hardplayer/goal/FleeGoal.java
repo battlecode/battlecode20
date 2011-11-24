@@ -54,6 +54,10 @@ public class FleeGoal extends Static implements Goal {
 			int i;
 			double dx = -(double)xsum/n + myLoc.getX();
 			double dy = -(double)ysum/n + myLoc.getY();
+			if(myRC.getFlux()>RobotType.SOLDIER.spawnCost&&myRC.canMove(myDir)&&myDir.dx*dx+myDir.dy+dy<0) {
+				myRC.spawn(RobotType.SOLDIER);
+				return;
+			}
 			double dxn, dyn;
 			boolean [] edge = new boolean [9]; // we don't actually use the odd ones
 			boolean [] forbidden = new boolean [9];

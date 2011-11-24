@@ -40,6 +40,7 @@ public class ArchonPlayer extends BasePlayer {
 			afeg,
 			new ArchonExploreGoal(),
 			new MakeArmyGoal(),
+			new AggroArchonExploreGoal(),
 			//new ArchonFindEnemyGoal(),
 			//new StayTogetherGoal()
 		};

@@ -24,7 +24,8 @@ public class AggroArchonPlayer extends ArchonPlayer {
 
 	public boolean repurpose() {
 		//debug_setIndicatorStringFormat(2,"%s %s",myLoc,myRC.senseAlliedArchons()[0]);
-		return myLoc.equals(myRC.senseAlliedArchons()[0]);
+		//return myLoc.equals(myRC.senseAlliedArchons()[0]);
+		return false;
 	}
 
 	public void broadcast() {

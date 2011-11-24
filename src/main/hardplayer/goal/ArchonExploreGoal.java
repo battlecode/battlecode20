@@ -6,6 +6,7 @@ import hardplayer.Static;
 import battlecode.common.Clock;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotInfo;
+import battlecode.common.RobotLevel;
 import battlecode.common.RobotType;
 import battlecode.common.TerrainTile;
 
@@ -18,6 +19,17 @@ public class ArchonExploreGoal extends Static implements Goal {
 	}
 
 	public int priority() {
+		if(enemies.size>=0) {
+			target = null;
+			return 0;
+		}
+		chooseTarget();
+		int d = myLoc.distanceSquaredTo(target);
+		int i;
+		for(i=alliedArchons.size;i>=0;i--) {
+			if(target.distanceSquaredTo(alliedArchonInfos[i].location)<d)
+				return 0;
+		}
 		return EXPLORE;
 	}
 
@@ -56,7 +68,7 @@ public class ArchonExploreGoal extends Static implements Goal {
 	}
 
 	public void execute() {
-		chooseTarget();
+		//chooseTarget();
 		int dist = myLoc.distanceSquaredTo(target); 
 		//debug_setIndicatorStringObject(1,target);
 		for(MapLocation l : myRC.senseAlliedArchons()) {

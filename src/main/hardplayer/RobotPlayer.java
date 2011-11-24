@@ -19,7 +19,7 @@ public class RobotPlayer implements Runnable {
 					case A:
 						new MainStrategy().execute(myRC);
 					case B:
-						new AggroStrategy().execute(myRC);
+						new MainStrategy().execute(myRC);
 				}
 			} catch(Exception e) {
 				Static.debug_stackTrace(e);
