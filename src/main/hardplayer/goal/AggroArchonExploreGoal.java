@@ -35,24 +35,34 @@ public class AggroArchonExploreGoal extends Static implements Goal {
 
 	public void execute() {
 		int x = myLoc.x, y = myLoc.y;
-		if(myRC.senseTerrainTile(new MapLocation(x+dx,y)).getType() == TerrainTile.OFF_MAP)
+		boolean edge = false;
+		if(myRC.senseTerrainTile(new MapLocation(x+dx,y)).getType() == TerrainTile.OFF_MAP) {
 			dx=-dx;
-		if(myRC.senseTerrainTile(new MapLocation(x,y+dy)).getType() == TerrainTile.OFF_MAP)
+			edge = true;
+		}
+		if(myRC.senseTerrainTile(new MapLocation(x,y+dy)).getType() == TerrainTile.OFF_MAP) {
 			dy=-dy;
+			edge = true;
+		}
+		if(!(edge||(myRC.senseTerrainTile(new MapLocation(x-dx,y)).getType() == TerrainTile.OFF_MAP)
+			||(myRC.senseTerrainTile(new MapLocation(x,y-dy)).getType() == TerrainTile.OFF_MAP))) {
+			MapLocation archon = closest(myRC.senseAlliedArchons());
+			if(myLoc.distanceSquaredTo(archon)<16) {
+				myNav.moveToASAP(awayFrom(myLoc,archon));
+				return;
+			}
+		}
 		int t = Clock.getRoundNum();
-		int armyWanted=2*(alliedArchons.size+2);
+		//int armyWanted=2*(alliedArchons.size+2);
 		//debug_setIndicatorStringFormat(1,"%d %d",dx,dy);
+		/*
 		if(armySize()<armyWanted) {
 			// don't go looking for trouble until we have a big army
 			spreadOut();
 			debug_setIndicatorString(1,"spreading out");
-			/*
-			MapLocation nearbyArchonLoc = nearestAlliedArchonAtLeastDist(4);
-			if(nearbyArchonLoc!=null)
-				myNav.moveToForward(nearbyArchonLoc);
-			*/
 			return;
 		}
+		*/
 		/*
 		if(t>stuckTimeout) {
 			int myPos = x*dx+y*dy;
