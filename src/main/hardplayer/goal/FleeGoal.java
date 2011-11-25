@@ -12,7 +12,7 @@ public class FleeGoal extends Static implements Goal {
 	}
 
 	static long xsum, ysum, n;
-	static public final long [] fear = new long [] { 0, 6, 3, 6, 6, 0 };
+	static public final long [] fear = new long [] { 6, 6, 3, 6, 6, 0 };
 
 	public static final double RETREAT_STAYPUT_VALUE = -.127;
 	public static final double RETREAT_EDGE_PENALTY = .06;
@@ -35,7 +35,7 @@ public class FleeGoal extends Static implements Goal {
 		RobotInfo info;
 		for(i=enemies.size;i>=0;i--) {
 			info = enemyInfos[i];
-			if(myLoc.distanceSquaredTo(info.location)>18)
+			if(myLoc.distanceSquaredTo(info.location)>20)
 				continue;
 			w=fear[info.type.ordinal()];
 			n+=w;
@@ -57,6 +57,26 @@ public class FleeGoal extends Static implements Goal {
 			if(myRC.getFlux()>RobotType.SOLDIER.spawnCost&&myRC.canMove(myDir)&&myDir.dx*dx+myDir.dy+dy<0) {
 				myRC.spawn(RobotType.SOLDIER);
 				return;
+			}
+			// retreat toward an ally if possible
+			archons:
+			{
+				int dmin = 99999;
+				MapLocation archon = null;
+				double val = dx * myLoc.x + dy * myLoc.y;
+				for(MapLocation loc : myRC.senseAlliedArchons()) {
+					int d = myLoc.distanceSquaredTo(loc);
+					if(d==0) continue;
+					if(d<=20) break archons;
+					if(d<dmin&&loc.x*dx+loc.y*dy>val) {
+						dmin = d;
+						archon = loc;
+					}
+				}
+				if(archon!=null) {
+					myNav.moveToASAP(archon);
+					return;
+				}
 			}
 			double dxn, dyn;
 			boolean [] edge = new boolean [9]; // we don't actually use the odd ones

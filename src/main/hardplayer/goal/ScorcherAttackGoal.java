@@ -21,15 +21,6 @@ public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
 
 	public int maxPriority() { return ATTACK; }
 
-	public boolean isConnected(MapLocation towerLoc) {
-		try {
-			return myRC.senseConnected((PowerNode)myRC.senseObjectAtLocation(towerLoc,RobotLevel.MINE));
-		} catch(Exception e) {
-			debug_stackTrace(e);
-			return true;
-		}
-	}
-
 	public int priority() {
 		RobotInfo info;
 		int i;
@@ -39,7 +30,7 @@ public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
 				case SCOUT:
 					continue;
 				case TOWER:
-					if(!isConnected(info.location))
+					if(!senseConnected(info.location))
 						continue;
 				default:
 					message = null;
