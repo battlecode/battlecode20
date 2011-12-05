@@ -20,6 +20,9 @@ class MainStrategy extends Static implements Strategy {
 					case SCORCHER:
 						new ScorcherPlayer(myRC).run();
 						break;
+					case DISRUPTER:
+						new DisrupterPlayer(myRC).run();
+						break;
 					default:
 						debug_println("I don't know what kind of robot I am!");
 						myRC.suicide();

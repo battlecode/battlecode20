@@ -44,6 +44,7 @@ public class RobotPlayer implements Runnable {
 			Object q = new Object();
 			// hash code
 			_assert_equal(o.hashCode(),0);
+			_assert_equal(System.identityHashCode(o),0);
 			java.util.HashSet<Object> h = new java.util.HashSet<Object>();
 			h.add(q);
 			_assert_equal(p.hashCode(),2);

@@ -26,6 +26,7 @@ public class MakeArmyGoal extends Static implements Goal {
 		case 3:
 			return RobotType.SOLDIER;
 		case 4:
+			return RobotType.DISRUPTER;
 		case 5:
 			return RobotType.SCORCHER;
 		default:
