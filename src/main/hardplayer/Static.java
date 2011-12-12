@@ -81,6 +81,8 @@ public abstract class Static {
 
 	public MapLocation [] archons;
 
+	public static final boolean debugOutput = "true".equals(System.getProperty("bc.testing.log-dev-players"));
+
 	public static void init(RobotController RC) {
 		myRC = RC;
 		myNav = new BugNavigation();
@@ -223,24 +225,27 @@ public abstract class Static {
 	}
 
 	public static void debug_stackTrace(Throwable e) {
-		System.out.println("CAUGHT EXCEPTION:");
-		e.printStackTrace();
+		if(debugOutput) {
+			System.out.println("CAUGHT EXCEPTION:");
+			e.printStackTrace();
+		}
 	}
 
 	public static void debug_println(String s) {
-		System.out.println(s);
+		if(debugOutput)
+			System.out.println(s);
 	}
 
 	public static void debug_printObject(Object o) {
-		System.out.println(o.toString());
+		debug_println(o.toString());
 	}
 
 	public static void debug_format(String fmt, Object ... obj) {
-		System.out.println(String.format(fmt,obj));
+		debug_println(String.format(fmt,obj));
 	}
 
 	public static void debug_printInt(int i) {
-		System.out.println(Integer.toString(i));
+		debug_println(Integer.toString(i));
 	}
 
 	public static void debug_startTiming() {
@@ -250,27 +255,28 @@ public abstract class Static {
 
 	public static void debug_stopTiming() {
 		int bytecodes = (Clock.getRoundNum()-roundTimer)*Clock.getBytecodeLimit()+(Clock.getBytecodeNum()-timer);
-		System.out.println(bytecodes);
+		debug_printInt(bytecodes);
 	}
 
 	public static void debug_stopTiming(String s) {
 		int t=6000*Clock.getRoundNum()+Clock.getBytecodeNum()-timer;
-		System.out.println(t+"\t"+s);
+		debug_println(t+"\t"+s);
 	}
 
 	public static void debug_setIndicatorString(int n, String s) {
-		myRC.setIndicatorString(n,s);
+		if(debugOutput)
+			myRC.setIndicatorString(n,s);
 	}
 
 	public static void debug_setIndicatorStringFormat(int n, String fmt, Object ... obj) {
-		myRC.setIndicatorString(n,String.format(fmt,obj));
+		debug_setIndicatorString(n,String.format(fmt,obj));
 	}
 
 	public static void debug_setIndicatorStringObject(int n, Object o) {
 		if(o!=null)
-			myRC.setIndicatorString(n,o.toString());
+			debug_setIndicatorString(n,o.toString());
 		else
-			myRC.setIndicatorString(n,null);
+			debug_setIndicatorString(n,null);
 	}
 
 	public static void debug_stackTrace() {
