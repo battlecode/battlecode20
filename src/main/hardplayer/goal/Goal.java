@@ -11,6 +11,7 @@ public interface Goal {
 	// Archon goals
 	static public final int FLEE = 100;
 	static public final int MAKE_ARMY = 95;
+	static public final int GET_HELP = 90;
 	static public final int EXPLORE = 30;
 	static public final int AGGRO_EXPLORE = 25;
 
