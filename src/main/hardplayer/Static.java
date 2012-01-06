@@ -216,7 +216,7 @@ public abstract class Static {
 
 	public static boolean senseConnected(MapLocation loc) {
 		try {
-			PowerNode p = (PowerNode)myRC.senseObjectAtLocation(loc,RobotLevel.MINE);
+			PowerNode p = (PowerNode)myRC.senseObjectAtLocation(loc,RobotLevel.POWER_NODE);
 			return myRC.senseConnected(p);
 		} catch(Exception e) {
 			debug_stackTrace(e);

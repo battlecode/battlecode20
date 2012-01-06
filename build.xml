@@ -48,8 +48,6 @@
 			<file file="${ivy.jar.file}"/>
 		</resourceexists>
 	</condition>
-	<fileset id="players.files" dir="${pkg.build.dir}" includes="${release.players}"/>
-	<pathconvert property="any-players" refid="players.files" setonempty="false"/>
 
     <!-- the normal classpath -->
     <path id="classpath-libs">
@@ -147,6 +145,11 @@
         </javac>
 
     </target>
+	
+	<target name="proguard-check" depends="init">
+		<fileset id="players.files" dir="${pkg.build.dir}" includes="${release.players}"/>
+		<pathconvert property="any-players" refid="players.files" setonempty="false"/>
+	</target>
 
 	<target name="proguard-run" depends="jar" if="any-players">
 		<taskdef resource="proguard/ant/task.properties">
@@ -165,7 +168,7 @@
 		<copy file="battlecode-player.jar" tofile="proguard/battlecode-player.jar"/>
 	</target>
 
-	<target name="proguard" depends="proguard-run,proguard-copy"/>
+	<target name="proguard" depends="proguard-check,proguard-run,proguard-copy"/>
 
     <target name="jar"
             description="Build the jar (with dependencies included)."

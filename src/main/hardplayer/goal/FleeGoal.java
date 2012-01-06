@@ -91,7 +91,7 @@ public class FleeGoal extends Static implements Goal {
 			Robot r;
 			RobotInfo info;
 			for(i=6;i>=0;i-=2) {
-				if(myRC.senseTerrainTile(myLoc.add(directions[i],6)).getType()==TerrainTile.OFF_MAP) {
+				if(myRC.senseTerrainTile(myLoc.add(directions[i],6))==TerrainTile.OFF_MAP) {
 					edge[i]=true;
 					numEdges++;
 				}

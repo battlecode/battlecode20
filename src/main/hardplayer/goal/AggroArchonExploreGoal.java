@@ -36,16 +36,16 @@ public class AggroArchonExploreGoal extends Static implements Goal {
 	public void execute() {
 		int x = myLoc.x, y = myLoc.y;
 		boolean edge = false;
-		if(myRC.senseTerrainTile(new MapLocation(x+dx,y)).getType() == TerrainTile.OFF_MAP) {
+		if(myRC.senseTerrainTile(new MapLocation(x+dx,y)) == TerrainTile.OFF_MAP) {
 			dx=-dx;
 			edge = true;
 		}
-		if(myRC.senseTerrainTile(new MapLocation(x,y+dy)).getType() == TerrainTile.OFF_MAP) {
+		if(myRC.senseTerrainTile(new MapLocation(x,y+dy)) == TerrainTile.OFF_MAP) {
 			dy=-dy;
 			edge = true;
 		}
-		if(!(edge||(myRC.senseTerrainTile(new MapLocation(x-dx,y)).getType() == TerrainTile.OFF_MAP)
-			||(myRC.senseTerrainTile(new MapLocation(x,y-dy)).getType() == TerrainTile.OFF_MAP))) {
+		if(!(edge||(myRC.senseTerrainTile(new MapLocation(x-dx,y)) == TerrainTile.OFF_MAP)
+			||(myRC.senseTerrainTile(new MapLocation(x,y-dy)) == TerrainTile.OFF_MAP))) {
 			MapLocation archon = closest(myRC.senseAlliedArchons());
 			if(myLoc.distanceSquaredTo(archon)<16) {
 				myNav.moveToASAP(awayFrom(myLoc,archon));

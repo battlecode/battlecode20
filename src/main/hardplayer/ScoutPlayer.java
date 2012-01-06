@@ -42,7 +42,7 @@ public class ScoutPlayer extends BasePlayer {
 		try {
 			for(i=allies.size;i>=0;i--) {
 				info = alliedInfos[i];
-				if((!info.regen)&&(info.energon<info.maxEnergon)) {
+				if((!info.regen)&&(info.energon<info.type.maxEnergon)) {
 					myRC.regenerate();
 					return;
 				}

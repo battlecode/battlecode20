@@ -19,7 +19,7 @@ public class HealGoal extends Static implements Goal {
 		RobotInfo info;
 		for(i=allies.size;i>=0;i--) {
 			info = alliedInfos[i];
-			if(info.regen||(info.energon>=info.maxEnergon)) continue;
+			if(info.regen||(info.energon>=info.type.maxEnergon)) continue;
 			d=myLoc.distanceSquaredTo(info.location);
 			if(d<bestd) {
 				target = info;
