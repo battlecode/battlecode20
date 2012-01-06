@@ -62,7 +62,7 @@ public class FindEnemyGoal extends Static implements Goal, MessageHandler {
 	}
 
 	public MapLocation getEnemyLoc() {
-		return new MapLocation((int)(xsum/n)+myLoc.getX(),(int)(ysum/n)+myLoc.getY());
+		return new MapLocation((int)(xsum/n)+myLoc.x,(int)(ysum/n)+myLoc.y);
 	}
 
 	public int getEnemyDX() {

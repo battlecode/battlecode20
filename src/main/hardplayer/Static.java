@@ -254,12 +254,12 @@ public abstract class Static {
 	}
 
 	public static void debug_stopTiming() {
-		int bytecodes = (Clock.getRoundNum()-roundTimer)*Clock.getBytecodeLimit()+(Clock.getBytecodeNum()-timer);
+		int bytecodes = (Clock.getRoundNum()-roundTimer)*GameConstants.BYTECODE_LIMIT+(Clock.getBytecodeNum()-timer);
 		debug_printInt(bytecodes);
 	}
 
 	public static void debug_stopTiming(String s) {
-		int t=6000*Clock.getRoundNum()+Clock.getBytecodeNum()-timer;
+		int t=GameConstants.BYTECODE_LIMIT*Clock.getRoundNum()+Clock.getBytecodeNum()-timer;
 		debug_println(t+"\t"+s);
 	}
 
