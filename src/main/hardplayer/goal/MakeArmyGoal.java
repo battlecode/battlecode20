@@ -13,7 +13,9 @@ public class MakeArmyGoal extends Static implements Goal {
 	private static int spawnRand;
 
 	public MakeArmyGoal() {
-		spawnRand = rnd.nextInt();
+		debug_startTiming();
+		spawnRand = nextInt();
+		debug_stopTiming();
 	}
 
 	public RobotType chooseTypeToSpawn() {
@@ -37,7 +39,7 @@ public class MakeArmyGoal extends Static implements Goal {
 		case 5:
 			return RobotType.SCORCHER;
 		default:
-			if(alliedScouts.size<=alliedArchons.size)
+			if(alliedScouts.size<alliedArchons.size)
 				return RobotType.SCOUT;
 			else
 				return RobotType.SOLDIER;
@@ -63,7 +65,7 @@ public class MakeArmyGoal extends Static implements Goal {
 
 	public void spawn() throws GameActionException {
 		myRC.spawn(typeToSpawn);
-		spawnRand = rnd.nextInt();
+		spawnRand = nextInt();
 	}
 
 	public void execute() {
@@ -87,6 +89,7 @@ public class MakeArmyGoal extends Static implements Goal {
 						return;
 					}
 				}
+				mySender.sendCrowded();
 			}
 		} catch(Exception e) {
 			debug_stackTrace(e);

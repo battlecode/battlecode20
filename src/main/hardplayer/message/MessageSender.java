@@ -27,8 +27,9 @@ public class MessageSender extends Static {
 	static public final int MSG_ENEMY_2=57;
 	static public final int MSG_ENEMY_UNITS=12;
 	static public final int MSG_GO_THIS_WAY=86;
+	static public final int MSG_CROWDED=122;
 
-	static public final int numTypes=113;
+	static public final int numTypes=123;
 	
 	static public final int broadcastRange=64;
 	
@@ -132,6 +133,13 @@ public class MessageSender extends Static {
 		m.ints[1] = dx;
 		m.ints[2] = dy;
 		send(m);
+	}
+
+	public static void sendCrowded() {
+		Message m = new Message();
+		m.ints = new int[3];
+		m.locations = new MapLocation[1];
+		m.ints[0] = MSG_CROWDED;
 	}
 
 }

@@ -21,10 +21,12 @@ public class ArchonExploreGoal extends Static implements Goal {
 	}
 
 	public int priority() {
+		/*
 		if(enemies.size>=0) {
 			target = null;
 			return 0;
 		}
+		*/
 		chooseTarget();
 		int d = myLoc.distanceSquaredTo(closest);
 		int i;

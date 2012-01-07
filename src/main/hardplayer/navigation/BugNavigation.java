@@ -264,6 +264,7 @@ public class BugNavigation extends Navigation {
 				newDir=newDir.rotateRight();
 				if(stop==newDir) {
 					//myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
+					mySender.sendCrowded();
 					rotationDirection=0;
 					return null;
 				}
@@ -277,6 +278,7 @@ public class BugNavigation extends Navigation {
 				newDir=newDir.rotateLeft();
 				if(stop==newDir) {
 					//myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
+					mySender.sendCrowded();
 					rotationDirection=0;
 					return null;
 				}

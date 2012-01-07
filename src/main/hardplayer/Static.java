@@ -7,8 +7,6 @@ import hardplayer.message.*;
 import battlecode.common.*;
 import hardplayer.goal.Goal;
 
-import java.util.Random;
-
 public abstract class Static {
 
 	public static RobotController myRC;
@@ -64,8 +62,6 @@ public abstract class Static {
 	public static int roundTimer;
 	public static int timer;
 
-	public static Random rnd;
-
 	public static SuperMessageStack enemyUnitMessages = new SuperMessageStack();
 
 	public static final int [] threatWeights = new int [] { 0, 2, 1, 3, 4, 0 };
@@ -83,6 +79,11 @@ public abstract class Static {
 
 	public static final boolean debugOutput = "true".equals(System.getProperty("bc.testing.log-dev-players"));
 
+	private static long seed;
+    private final static long rnd_multiplier = 0x5DEECE66DL;
+    private final static long rnd_addend = 0xBL;
+    private final static long rnd_mask = (1L << 48) - 1;	
+
 	public static void init(RobotController RC) {
 		myRC = RC;
 		myNav = new BugNavigation();
@@ -90,7 +91,7 @@ public abstract class Static {
 		myType = myRC.getType();
 		myRobot = myRC.getRobot();
 		myID = myRobot.getID();
-		rnd = new Random(myID+myRC.getLocation().hashCode());
+		seed = myID+myRC.getLocation().hashCode();
 		base = myRC.sensePowerCore().getLocation();
 		if(myTeam==Team.A) {
 			allUnits = new FastList [] { allies, enemies };
@@ -101,6 +102,13 @@ public abstract class Static {
 			unitsByType = new FastList [][] { enemiesByType, alliesByType };
 		}
 		mySender = new MessageSender();
+	}
+
+	// Similar to Random.nextInt(), but always returns a positive
+	// integer.
+	public static int nextInt() {
+		seed = (seed * rnd_multiplier + rnd_addend) & rnd_mask;
+		return (int)(seed>>17);
 	}
 
 	public static RobotInfo closest(FastList fl, MapLocation otherLoc) {
