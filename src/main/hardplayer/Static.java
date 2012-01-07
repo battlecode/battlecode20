@@ -79,7 +79,7 @@ public abstract class Static {
 	public static boolean justNowAtWar;
 	public static int lastKnownEnemyTime = -200;
 
-	public MapLocation [] archons;
+	public static MapLocation [] archons;
 
 	public static final boolean debugOutput = "true".equals(System.getProperty("bc.testing.log-dev-players"));
 
@@ -306,13 +306,15 @@ public abstract class Static {
 
 	public static void checkAtWar() {
 		justNowAtWar = false;
-		if(enemies.size>=0) {
-			if(!atWar)
-				justNowAtWar = true;
-			setAtWar();
+		for(int i = enemies.size;i>=0;i--) {
+			if(enemyInfos[i].type!=RobotType.TOWER) {
+				if(!atWar)
+					justNowAtWar = true;
+				setAtWar();
+				return;
+			}
 		}
-		else
-			atWar = (Clock.getRoundNum() - lastKnownEnemyTime) <= ENEMY_PURSUE_TIME;
+		atWar = (Clock.getRoundNum() - lastKnownEnemyTime) <= ENEMY_PURSUE_TIME;
 	}
 
 	public static void setAtWar() {

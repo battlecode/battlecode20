@@ -12,6 +12,8 @@ public interface Goal {
 	static public final int FLEE = 100;
 	static public final int MAKE_ARMY = 95;
 	static public final int GET_HELP = 90;
+	static public final int STAY_TOGETHER_HIGH = 55;
+	static public final int ARCHON_FIND_ENEMY = 40;
 	static public final int EXPLORE = 30;
 	static public final int AGGRO_EXPLORE = 25;
 

@@ -31,17 +31,16 @@ public class ArchonPlayer extends BasePlayer {
 
 	public void setGoals() {
 	
-		ArchonFindEnemyGoal afeg = new ArchonFindEnemyGoal();
-
 		goals = new Goal [] {
 			new FleeGoal(),
 			new GetHelpGoal(),
 			// ArchonExploreGoal needs to go before MakeArmyGoal
 			// because of chooseTarget
-			afeg,
+			new StayTogetherGoal(),
+			new ArchonFindEnemyGoal(),
 			new ArchonExploreGoal(),
 			new MakeArmyGoal(),
-			new AggroArchonExploreGoal(),
+			//new AggroArchonExploreGoal(),
 			//new ArchonFindEnemyGoal(),
 			//new StayTogetherGoal()
 		};
@@ -99,6 +98,11 @@ public class ArchonPlayer extends BasePlayer {
 		else if(ArchonExploreGoal.target!=null) {
 			mySender.sendExplore(ArchonExploreGoal.target);
 		}
+	}
+
+	public void senseNearbyRobots() {
+		archons = myRC.senseAlliedArchons();
+		super.senseNearbyRobots();
 	}
 
 }

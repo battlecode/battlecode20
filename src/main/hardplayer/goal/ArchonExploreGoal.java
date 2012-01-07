@@ -12,6 +12,8 @@ import battlecode.common.TerrainTile;
 
 public class ArchonExploreGoal extends Static implements Goal {
 
+	static public MapLocation closest;
+	static public MapLocation farthest;
 	static public MapLocation target;
 
 	public int maxPriority() {
@@ -24,12 +26,15 @@ public class ArchonExploreGoal extends Static implements Goal {
 			return 0;
 		}
 		chooseTarget();
-		int d = myLoc.distanceSquaredTo(target);
+		int d = myLoc.distanceSquaredTo(closest);
 		int i;
 		for(i=alliedArchons.size;i>=0;i--) {
-			if(target.distanceSquaredTo(alliedArchonInfos[i].location)<d)
-				return 0;
+			if(closest.distanceSquaredTo(alliedArchonInfos[i].location)<d) {
+				target = farthest;
+				return EXPLORE;
+			}
 		}
+		target = closest;
 		return EXPLORE;
 	}
 
@@ -39,7 +44,7 @@ public class ArchonExploreGoal extends Static implements Goal {
 	}
 
 	public void chooseTarget() {
-		int d, dmin = 99999;
+		int d, dmin = 99999, dmax = 0;
 		debug_printTarget();
 		MapLocation [] adjacent = myRC.senseCapturablePowerNodes();
 		for(MapLocation l : adjacent) {
@@ -48,13 +53,25 @@ public class ArchonExploreGoal extends Static implements Goal {
 			d = myLoc.distanceSquaredTo(l);
 			if(d<dmin) {
 				dmin=d;
-				target=l;
+				closest=l;
 			}
+			if(d>dmax) {
+				dmax=d;
+				farthest=l;
+			}
+
 		}
 	}
 
 	public void moveToTarget() {
-		moveAdjacentTo(target);
+		try {
+			if(myLoc.isAdjacentTo(target))
+				myRC.setDirection(myLoc.directionTo(target));
+			else
+				moveAdjacentTo(target);
+		} catch(Exception e) {
+			debug_stackTrace(e);
+		}
 		//myRC.setIndicatorString(2,"TARGET");
 	}
 

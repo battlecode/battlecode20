@@ -24,6 +24,7 @@ public class AggroArchonExploreGoal extends Static implements Goal {
 		return AGGRO_EXPLORE;
 	}
 
+	/*
 	public void spreadOut() {
 		MapLocation archon = closest(myRC.senseAlliedArchons());
 		if(myLoc.distanceSquaredTo(archon)>20)
@@ -32,6 +33,7 @@ public class AggroArchonExploreGoal extends Static implements Goal {
 			myNav.moveToASAP(awayFrom(myLoc,archon));
 		//myRC.setIndicatorString(2,"SPREAD");
 	}
+	*/
 
 	public void execute() {
 		int x = myLoc.x, y = myLoc.y;
