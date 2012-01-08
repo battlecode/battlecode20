@@ -13,9 +13,7 @@ public class MakeArmyGoal extends Static implements Goal {
 	private static int spawnRand;
 
 	public MakeArmyGoal() {
-		debug_startTiming();
 		spawnRand = nextInt();
-		debug_stopTiming();
 	}
 
 	public RobotType chooseTypeToSpawn() {

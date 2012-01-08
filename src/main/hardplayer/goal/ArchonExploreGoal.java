@@ -12,9 +12,8 @@ import battlecode.common.TerrainTile;
 
 public class ArchonExploreGoal extends Static implements Goal {
 
-	static public MapLocation closest;
-	static public MapLocation farthest;
 	static public MapLocation target;
+	static public MapLocation backup;
 
 	public int maxPriority() {
 		return EXPLORE;
@@ -27,27 +26,18 @@ public class ArchonExploreGoal extends Static implements Goal {
 			return 0;
 		}
 		*/
-		chooseTarget();
-		int d = myLoc.distanceSquaredTo(closest);
-		int i;
-		for(i=alliedArchons.size;i>=0;i--) {
-			if(closest.distanceSquaredTo(alliedArchonInfos[i].location)<d) {
-				target = farthest;
-				return EXPLORE;
-			}
-		}
-		target = closest;
 		return EXPLORE;
 	}
 
-	public void debug_printTarget() {
+	public static void debug_printTarget() {
 		myRC.setIndicatorString(1,java.util.Arrays.toString(myRC.senseCapturablePowerNodes()));
 		debug_setIndicatorStringObject(2,target);
 	}
 
-	public void chooseTarget() {
-		int d, dmin = 99999, dmax = 0;
-		debug_printTarget();
+	public static void chooseTarget() {
+		int i, d, dmin = 99999, dmax = 99999;
+		boolean backupLegal = false;
+		//debug_printTarget();
 		MapLocation [] adjacent = myRC.senseCapturablePowerNodes();
 		for(MapLocation l : adjacent) {
 			//if(l.equals(target))
@@ -55,13 +45,19 @@ public class ArchonExploreGoal extends Static implements Goal {
 			d = myLoc.distanceSquaredTo(l);
 			if(d<dmin) {
 				dmin=d;
-				closest=l;
+				target=l;
 			}
-			if(d>dmax) {
-				dmax=d;
-				farthest=l;
-			}
+			if(l.equals(backup))
+				backupLegal = true;
 
+		}
+		for(i=alliedArchons.size;i>=0;i--) {
+			if(target.distanceSquaredTo(alliedArchonInfos[i].location)<dmin) {
+				if(!backupLegal)
+					backup = adjacent[nextInt()%adjacent.length];
+				target = backup;
+				return;
+			}
 		}
 	}
 
@@ -87,18 +83,12 @@ public class ArchonExploreGoal extends Static implements Goal {
 	}
 
 	public void execute() {
-		//chooseTarget();
+		chooseTarget();
+		int d = myLoc.distanceSquaredTo(target);
+		int i;
+
 		int dist = myLoc.distanceSquaredTo(target); 
-		//debug_setIndicatorStringObject(1,target);
-		for(MapLocation l : myRC.senseAlliedArchons()) {
-			if((!l.equals(myLoc))&&l.distanceSquaredTo(target)<dist) {
-				spreadOut();
-				return;
-			}
-		}
 		moveToTarget();
-		//debug_setIndicatorStringObject(0,target);
-		//debug_setIndicatorStringObject(1,myLoc);
 		/*
 		if(myLoc.distanceSquaredTo(target)<=36&&enemies.size<0) {
 			// if we can see the target and we don't see enemies,
