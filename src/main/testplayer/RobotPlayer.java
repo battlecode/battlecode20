@@ -35,6 +35,10 @@ public class RobotPlayer implements Runnable {
 		return 2011;
 	}
 
+	public static void run(RobotController rc) {
+		new RobotPlayer(rc).run();
+	}
+
 	public void run() {
 		try {
 			//if(myRC.senseNearbyAirRobots().length>1)

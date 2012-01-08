@@ -3,15 +3,9 @@ package hardplayer;
 import battlecode.common.RobotController;
 import battlecode.common.Team;
 
-public class RobotPlayer implements Runnable {
+public class RobotPlayer {
 
-	RobotController myRC;
-
-	public RobotPlayer(RobotController rc) {
-		myRC = rc;
-	}
-
-	public void run() {
+	public static void run(RobotController myRC) {
 		while(true) {
 			Static.init(myRC);
 			try {
