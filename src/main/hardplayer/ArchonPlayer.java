@@ -35,14 +35,9 @@ public class ArchonPlayer extends BasePlayer {
 			new FleeGoal(),
 			new MakeArmyGoal(),
 			new GetHelpGoal(),
-			// ArchonExploreGoal needs to go before MakeArmyGoal
-			// because of chooseTarget
-			new StayTogetherGoal(),
+			//new StayTogetherGoal(),
 			new ArchonFindEnemyGoal(),
 			new ArchonExploreGoal(),
-			//new AggroArchonExploreGoal(),
-			//new ArchonFindEnemyGoal(),
-			//new StayTogetherGoal()
 		};
 
 	}

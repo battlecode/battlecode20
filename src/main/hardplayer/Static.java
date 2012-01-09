@@ -62,7 +62,7 @@ public abstract class Static {
 	public static int roundTimer;
 	public static int timer;
 
-	public static SuperMessageStack enemyUnitMessages = new SuperMessageStack();
+	//public static SuperMessageStack enemyUnitMessages = new SuperMessageStack();
 
 	public static final int [] threatWeights = new int [] { 0, 2, 1, 3, 4, 0 };
 	public static final boolean [] isFighter = new boolean [] { false, true, false, true, true, false };

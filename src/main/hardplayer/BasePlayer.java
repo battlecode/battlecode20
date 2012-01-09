@@ -6,8 +6,6 @@ import hardplayer.goal.FindEnemyGoal;
 import hardplayer.goal.Goal;
 import hardplayer.message.MessageSender;
 
-import java.util.ArrayList;
-
 public abstract class BasePlayer extends Static {
 
 	protected Goal [] goals;

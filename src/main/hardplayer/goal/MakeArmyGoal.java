@@ -2,8 +2,6 @@ package hardplayer.goal;
 
 import battlecode.common.*;
 
-import java.util.Random;
-
 import hardplayer.ArchonPlayer;
 import hardplayer.Static;
 
@@ -11,9 +9,18 @@ public class MakeArmyGoal extends Static implements Goal {
 
 	private static RobotType typeToSpawn;
 	private static int spawnRand;
+	private static RobotType myType;
+
+	//static RobotType aType = RobotType.valueOf(System.getProperty("bc.testing.team-a-type"));
+	//static RobotType bType = RobotType.valueOf(System.getProperty("bc.testing.team-b-type"));
+
+	public void debug_setType() {
+		myType = RobotType.valueOf(System.getProperty((myTeam==Team.A)?"bc.testing.team-a-type":"bc.testing.team-b-type"));
+	}
 
 	public MakeArmyGoal() {
 		spawnRand = nextInt();
+		//debug_setType();
 	}
 
 	public RobotType chooseTypeToSpawn() {
@@ -42,6 +49,18 @@ public class MakeArmyGoal extends Static implements Goal {
 			else
 				return RobotType.SOLDIER;
 		}
+		/*
+		switch(spawnRand%3) {
+		case 0:
+		case 1:
+			return myType;
+		default:
+			if(alliedScouts.size<alliedArchons.size)
+				return RobotType.SCOUT;
+			else
+				return RobotType.SOLDIER;
+		}
+		*/
 	}
 
 	public int maxPriority() {
