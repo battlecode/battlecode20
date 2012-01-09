@@ -9,8 +9,7 @@
 -overloadaggressively
 -dontusemixedcaseclassnames
 
--keepclasseswithmembers public class *.RobotPlayer implements java.lang.Runnable {
-    public RobotPlayer(battlecode.common.RobotController);
+-keepclasseswithmembers public class *.RobotPlayer {
 
-    public void run();
+    public static void run(battlecode.common.RobotController);
 }
