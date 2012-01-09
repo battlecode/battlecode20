@@ -4,30 +4,25 @@ import battlecode.common.*;
 
 import java.util.Random;
 
-public class RobotPlayer implements Runnable {
+public class RobotPlayer {
 
-	int failures;
-	RobotController myRC;
+	static int failures;
 
-	public RobotPlayer(RobotController rc) {
-		myRC = rc;
-	}
-
-	public void _assert_equal(int a, int b) {
+	public static void _assert_equal(int a, int b) {
 		if(a!=b) {
 			StackTraceElement [] trace = new AssertionError().getStackTrace();
 			System.out.format("Test failed at %s\n",trace[1].toString());
 			System.out.format("Expected %d, got %d\n",b,a);
-			failures++;
+			RobotPlayer.failures++;
 		}
 	}
 	
-	public void _assert_equal(Object a, Object b) {
+	public static void _assert_equal(Object a, Object b) {
 		if(a!=b) {
 			StackTraceElement [] trace = new AssertionError().getStackTrace();
 			System.out.format("Test failed at %s\n",trace[1].toString());
 			System.out.format("Expected %d, got %d",b,a);
-			failures++;
+			RobotPlayer.failures++;
 		}
 	}
 
@@ -35,7 +30,8 @@ public class RobotPlayer implements Runnable {
 		return 2011;
 	}
 
-	public void run() {
+	public static void run(RobotController rc) {
+		RobotController myRC = rc;
 		try {
 			//if(myRC.senseNearbyAirRobots().length>1)
 			//	myRC.suicide();
@@ -50,14 +46,14 @@ public class RobotPlayer implements Runnable {
 			_assert_equal(p.hashCode(),2);
 			_assert_equal(q.hashCode(),1);
 			_assert_equal(o.hashCode(),0);
-			_assert_equal(hashCode(),2011);
-			_assert_equal(super.hashCode(),3);
+			//_assert_equal(hashCode(),2011);
+			//_assert_equal(super.hashCode(),3);
 			// random
 			Random r = new Random();
 			Random s = new Random();
 			_assert_equal(r.nextInt(),s.nextInt());
 			// class
-			_assert_equal(RobotPlayer.class,getClass());
+			//_assert_equal(RobotPlayer.class,getClass());
 			myRC.yield();
 			if(failures==0)
 				System.out.println("Success!");
