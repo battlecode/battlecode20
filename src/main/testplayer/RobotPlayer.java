@@ -13,20 +13,20 @@ public class RobotPlayer implements Runnable {
 		myRC = rc;
 	}
 
-	public void _assert_equal(int a, int b) {
-		if(a!=b) {
+	public void _assert_equal(Object a, Object b) {
+		if(!a.equals(b)) {
 			StackTraceElement [] trace = new AssertionError().getStackTrace();
 			System.out.format("Test failed at %s\n",trace[1].toString());
-			System.out.format("Expected %d, got %d\n",b,a);
+			System.out.format("Expected %s, got %s\n",b,a);
 			failures++;
 		}
 	}
 	
-	public void _assert_equal(Object a, Object b) {
+	public void _assert_identical(Object a, Object b) {
 		if(a!=b) {
 			StackTraceElement [] trace = new AssertionError().getStackTrace();
 			System.out.format("Test failed at %s\n",trace[1].toString());
-			System.out.format("Expected %d, got %d",b,a);
+			System.out.format("Expected %s, got %s",b,a);
 			failures++;
 		}
 	}
@@ -60,8 +60,9 @@ public class RobotPlayer implements Runnable {
 			Random r = new Random();
 			Random s = new Random();
 			_assert_equal(r.nextInt(),s.nextInt());
+			_assert_equal(new Random().nextDouble(),Math.random());
 			// class
-			_assert_equal(RobotPlayer.class,getClass());
+			_assert_identical(RobotPlayer.class,getClass());
 			myRC.yield();
 			if(failures==0)
 				System.out.println("Success!");
