@@ -50,6 +50,10 @@ public class MessageSender extends Static {
 			idFactor = 102253;
 		}
 		myIDEncoded = (myRC.getRobot().getID()%ID_MODULUS)*idFactor;
+		roundNum = Clock.getRoundNum();
+		int i;
+		for(i=STALE_TIME-1;i>=0;i--)
+			seen[i] = new boolean [ID_MODULUS];
 	}
 
 	public static void updateRoundNum() {
