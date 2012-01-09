@@ -56,7 +56,7 @@ public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
 		try {
 			if(dmin>20)
 				myNav.moveToForward(locs[best]);
-			else
+			else if(dmin>0)
 				myRC.setDirection(myLoc.directionTo(locs[best]));
 		} catch(Exception e) {
 			debug_stackTrace(e);

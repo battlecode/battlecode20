@@ -16,6 +16,10 @@ public abstract class BasePlayer extends Static {
 		init(rc);
 	}
 
+	public static void debug_logGoal(Goal best) {
+		debug_setIndicatorStringFormat(0,"%d %s",Clock.getRoundNum(),best);
+	}
+
 	public void tryBestGoal() {
 		if(myRC.isMovementActive()||myRC.getFlux()<myType.moveCost)
 			return;
@@ -36,7 +40,7 @@ public abstract class BasePlayer extends Static {
 				bestPriority = priority;
 			}
 		}
-		debug_setIndicatorStringObject(0,best);	
+		debug_logGoal(best);
 		if(best!=null)
 			best.execute();
 	}

@@ -52,8 +52,8 @@ public class FleeGoal extends Static implements Goal {
 	public void execute() {
 		try {
 			int i;
-			double dx = -(double)xsum/n + myLoc.getX();
-			double dy = -(double)ysum/n + myLoc.getY();
+			double dx = -(double)xsum/n + myLoc.x;
+			double dy = -(double)ysum/n + myLoc.y;
 			if(myRC.getFlux()>RobotType.SOLDIER.spawnCost&&myRC.canMove(myDir)&&myDir.dx*dx+myDir.dy+dy<0) {
 				myRC.spawn(RobotType.SOLDIER);
 				return;
@@ -91,7 +91,7 @@ public class FleeGoal extends Static implements Goal {
 			Robot r;
 			RobotInfo info;
 			for(i=6;i>=0;i-=2) {
-				if(myRC.senseTerrainTile(myLoc.add(directions[i],6)).getType()==TerrainTile.OFF_MAP) {
+				if(myRC.senseTerrainTile(myLoc.add(directions[i],6))==TerrainTile.OFF_MAP) {
 					edge[i]=true;
 					numEdges++;
 				}

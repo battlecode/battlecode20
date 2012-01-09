@@ -12,7 +12,7 @@ public class ArchonFindEnemyGoal extends FindEnemyGoal {
 
 	public int priority() {
 		if(atWar&&allies.size>=5)
-			return FIND_ENEMY;
+			return ARCHON_FIND_ENEMY;
 		else
 			return 0;
 	}

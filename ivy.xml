@@ -7,14 +7,7 @@
   </info>
 
   <dependencies>
-    <dependency org="net.sf.proguard" name="proguard" rev="4.4">
-		<!-- This module isn't in the Maven repository (due to license
-			 restrictions I think).  As far as I know, we don't use
-			 it anyway. -->
-		<exclude module="kenv"/>
-	</dependency>
+    <dependency org="net.sf.proguard" name="proguard-anttask" rev="4.5" />
     <dependency org="junit" name="junit" rev="4.4" />
-  	<dependency org="org.scala-lang" name="scala-library" rev="2.8.1"/>
-	<dependency org="org.scala-lang" name="scala-compiler" rev="2.8.1"/>
   </dependencies>
 </ivy-module>

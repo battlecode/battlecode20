@@ -145,19 +145,35 @@
         </javac>
 
     </target>
+	
+	<target name="proguard-check" depends="init">
+		<fileset id="players.files" dir="${pkg.build.dir}" includes="${release.players}"/>
+		<pathconvert property="any-players" refid="players.files" setonempty="false"/>
+	</target>
 
-	<!--target name="proguard" depends="compile">
-		<taskdef resource="proguard/ant/task.properties"
-			classpath="${lib.dir}/proguard-4.4.jar"/>
-		<proguard configuration="refplayer.pro"/>
-	</target-->
+	<target name="proguard-run" depends="jar" if="any-players">
+		<taskdef resource="proguard/ant/task.properties">
+			<classpath>
+				<fileset dir="${lib.dir}">
+					<include name="proguard-*.jar"/>
+				</fileset>
+			</classpath>
+		</taskdef>
+		<proguard configuration="battlecode-player.pro"/>
+	</target>
+
+	<!-- proguard gives an error if we give it an empty jar file, so
+		 just copy instead -->
+	<target name="proguard-copy" depends="jar" unless="any-players">
+		<copy file="battlecode-player.jar" tofile="proguard/battlecode-player.jar"/>
+	</target>
+
+	<target name="proguard" depends="proguard-check,proguard-run,proguard-copy"/>
 
     <target name="jar"
             description="Build the jar (with dependencies included)."
             depends="compile">
         <jar jarfile="${pkg.build.jar}" basedir="${pkg.build.dir}" includes="${release.players}">
-			<zipgroupfileset dir="${lib.dir}" includes="scala-*, jline-*"/>
-			<zipgroupfileset dir="." includes="refplayer.jar"/>
         </jar>
     </target>
 

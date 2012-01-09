@@ -192,8 +192,8 @@ public class BugNavigation extends Navigation {
 			// to the side.  (It takes fewer bytecodes anyway.)
 			else  {
 				Direction myDir=myRC.getDirection();
-				if((myRC.senseTerrainTile(myLoc.add(myDir.rotateRight())).getType()==TerrainTile.OFF_MAP||
-					myRC.senseTerrainTile(myLoc.add(myDir.rotateLeft())).getType()==TerrainTile.OFF_MAP)&&
+				if((myRC.senseTerrainTile(myLoc.add(myDir.rotateRight()))==TerrainTile.OFF_MAP||
+					myRC.senseTerrainTile(myLoc.add(myDir.rotateLeft()))==TerrainTile.OFF_MAP)&&
 				   myLoc.distanceSquaredTo(dest)<myLoc.add(lastDir).distanceSquaredTo(dest)) {
 					rotationDirection=0;
 				}
@@ -206,8 +206,8 @@ public class BugNavigation extends Navigation {
 			}
 			else  {
 				Direction myDir=myRC.getDirection();
-				if((myRC.senseTerrainTile(myLoc.add(myDir.rotateRight())).getType()==TerrainTile.OFF_MAP||
-					myRC.senseTerrainTile(myLoc.add(myDir.rotateLeft())).getType()==TerrainTile.OFF_MAP)&&
+				if((myRC.senseTerrainTile(myLoc.add(myDir.rotateRight()))==TerrainTile.OFF_MAP||
+					myRC.senseTerrainTile(myLoc.add(myDir.rotateLeft()))==TerrainTile.OFF_MAP)&&
 				   myLoc.distanceSquaredTo(dest)<myLoc.add(lastDir).distanceSquaredTo(dest)) {
 					rotationDirection=0;
 				}
@@ -264,6 +264,7 @@ public class BugNavigation extends Navigation {
 				newDir=newDir.rotateRight();
 				if(stop==newDir) {
 					//myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
+					mySender.sendCrowded();
 					rotationDirection=0;
 					return null;
 				}
@@ -277,6 +278,7 @@ public class BugNavigation extends Navigation {
 				newDir=newDir.rotateLeft();
 				if(stop==newDir) {
 					//myRC.setIndicatorString(1,"reset because can't move "+Clock.getRoundNum());
+					mySender.sendCrowded();
 					rotationDirection=0;
 					return null;
 				}

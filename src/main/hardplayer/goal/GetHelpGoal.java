@@ -16,11 +16,11 @@ public class GetHelpGoal extends Static implements Goal {
 		if(alliedSoldiers.size+alliedScorchers.size+alliedDisrupters.size>=
 			enemySoldiers.size+enemyScorchers.size+enemyDisrupters.size)
 			return 0;
-		target = nearestAlliedArchonAtLeastDist(1);
+		target = nearestAlliedArchonAtLeastDist(21);
 		if(target==null)
 			return 0;
-		if(myLoc.distanceSquaredTo(target)<=20)
-			return 0;
+		//if(myLoc.distanceSquaredTo(target)<=20)
+		//	return 0;
 		else
 			return GET_HELP;
 	}

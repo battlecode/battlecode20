@@ -13,12 +13,19 @@ public class MakeArmyGoal extends Static implements Goal {
 	private static int spawnRand;
 
 	public MakeArmyGoal() {
-		spawnRand = rnd.nextInt();
+		spawnRand = nextInt();
 	}
 
 	public RobotType chooseTypeToSpawn() {
-		if(enemies.size<0&&ArchonExploreGoal.target!=null&&myLoc.distanceSquaredTo(ArchonExploreGoal.target)<=2)
+		try {
+			MapLocation targetLoc = myLoc.add(myDir);
+			if((enemies.size<0||enemyInfos[0].type==RobotType.TOWER)
+				&&myRC.senseObjectAtLocation(targetLoc,RobotLevel.POWER_NODE)!=null
+				&&myRC.senseObjectAtLocation(targetLoc,RobotLevel.ON_GROUND)==null)
 			return RobotType.TOWER;
+		} catch(Exception e) {
+			debug_stackTrace(e);
+		}
 		switch(spawnRand%7) {
 		case 0:
 		case 1:
@@ -30,7 +37,7 @@ public class MakeArmyGoal extends Static implements Goal {
 		case 5:
 			return RobotType.SCORCHER;
 		default:
-			if(alliedScouts.size<=alliedArchons.size)
+			if(alliedScouts.size<alliedArchons.size)
 				return RobotType.SCOUT;
 			else
 				return RobotType.SOLDIER;
@@ -56,7 +63,7 @@ public class MakeArmyGoal extends Static implements Goal {
 
 	public void spawn() throws GameActionException {
 		myRC.spawn(typeToSpawn);
-		spawnRand = rnd.nextInt();
+		spawnRand = nextInt();
 	}
 
 	public void execute() {
@@ -80,6 +87,7 @@ public class MakeArmyGoal extends Static implements Goal {
 						return;
 					}
 				}
+				mySender.sendCrowded();
 			}
 		} catch(Exception e) {
 			debug_stackTrace(e);

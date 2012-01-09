@@ -68,5 +68,6 @@ public class RobotPlayer implements Runnable {
 			ex.printStackTrace();
 			System.out.println("Test failed to finish due to an exception");
 		}
+		myRC.resign();
 	}
 }
