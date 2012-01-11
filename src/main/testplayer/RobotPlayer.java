@@ -4,25 +4,30 @@ import battlecode.common.*;
 
 import java.util.Random;
 
-public class RobotPlayer {
+public class RobotPlayer implements Runnable {
 
-	static int failures;
+	int failures;
+	RobotController myRC;
 
-	public static void _assert_equal(int a, int b) {
-		if(a!=b) {
+	public RobotPlayer(RobotController rc) {
+		myRC = rc;
+	}
+
+	public void _assert_equal(Object a, Object b) {
+		if(!a.equals(b)) {
 			StackTraceElement [] trace = new AssertionError().getStackTrace();
 			System.out.format("Test failed at %s\n",trace[1].toString());
-			System.out.format("Expected %d, got %d\n",b,a);
-			RobotPlayer.failures++;
+			System.out.format("Expected %s, got %s\n",b,a);
+			failures++;
 		}
 	}
 	
-	public static void _assert_equal(Object a, Object b) {
+	public void _assert_identical(Object a, Object b) {
 		if(a!=b) {
 			StackTraceElement [] trace = new AssertionError().getStackTrace();
 			System.out.format("Test failed at %s\n",trace[1].toString());
-			System.out.format("Expected %d, got %d",b,a);
-			RobotPlayer.failures++;
+			System.out.format("Expected %s, got %s",b,a);
+			failures++;
 		}
 	}
 
@@ -31,7 +36,10 @@ public class RobotPlayer {
 	}
 
 	public static void run(RobotController rc) {
-		RobotController myRC = rc;
+		new RobotPlayer(rc).run();
+	}
+
+	public void run() {
 		try {
 			//if(myRC.senseNearbyAirRobots().length>1)
 			//	myRC.suicide();
@@ -46,14 +54,15 @@ public class RobotPlayer {
 			_assert_equal(p.hashCode(),2);
 			_assert_equal(q.hashCode(),1);
 			_assert_equal(o.hashCode(),0);
-			//_assert_equal(hashCode(),2011);
-			//_assert_equal(super.hashCode(),3);
+			_assert_equal(hashCode(),2011);
+			_assert_equal(super.hashCode(),3);
 			// random
 			Random r = new Random();
 			Random s = new Random();
 			_assert_equal(r.nextInt(),s.nextInt());
+			_assert_equal(new Random().nextDouble(),Math.random());
 			// class
-			//_assert_equal(RobotPlayer.class,getClass());
+			_assert_identical(RobotPlayer.class,getClass());
 			myRC.yield();
 			if(failures==0)
 				System.out.println("Success!");

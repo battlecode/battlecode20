@@ -1,8 +1,8 @@
-package hardplayer;
+package basicplayer;
 
-import hardplayer.goal.*;
+import basicplayer.goal.*;
 
-import hardplayer.message.MessageSender;
+import basicplayer.message.MessageSender;
 
 import battlecode.common.Clock;
 import battlecode.common.Direction;

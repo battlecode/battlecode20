@@ -1,18 +1,14 @@
-package hardplayer.goal;
+package basicplayer.goal;
 
 import battlecode.common.*;
 
-import hardplayer.ArchonPlayer;
-import hardplayer.Static;
+import basicplayer.ArchonPlayer;
+import basicplayer.Static;
 
 public class MakeArmyGoal extends Static implements Goal {
 
 	private static RobotType typeToSpawn;
 	private static int spawnRand;
-	private static RobotType myType;
-
-	//static RobotType aType = RobotType.valueOf(System.getProperty("bc.testing.team-a-type"));
-	//static RobotType bType = RobotType.valueOf(System.getProperty("bc.testing.team-b-type"));
 
 	public void debug_setType() {
 		myType = RobotType.valueOf(System.getProperty((myTeam==Team.A)?"bc.testing.team-a-type":"bc.testing.team-b-type"));
@@ -20,7 +16,6 @@ public class MakeArmyGoal extends Static implements Goal {
 
 	public MakeArmyGoal() {
 		spawnRand = nextInt();
-		//debug_setType();
 	}
 
 	public RobotType chooseTypeToSpawn() {
@@ -33,34 +28,16 @@ public class MakeArmyGoal extends Static implements Goal {
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}
-		switch(spawnRand%7) {
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-			return RobotType.SOLDIER;
-		case 4:
-			return RobotType.DISRUPTER;
-		case 5:
-			return RobotType.SCORCHER;
-		default:
-			if(alliedScouts.size<alliedArchons.size)
-				return RobotType.SCOUT;
-			else
-				return RobotType.SOLDIER;
-		}
-		/*
 		switch(spawnRand%3) {
 		case 0:
 		case 1:
-			return myType;
+			return RobotType.SOLDIER;
 		default:
 			if(alliedScouts.size<alliedArchons.size)
 				return RobotType.SCOUT;
 			else
 				return RobotType.SOLDIER;
 		}
-		*/
 	}
 
 	public int maxPriority() {

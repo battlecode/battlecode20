@@ -1,8 +1,8 @@
-package hardplayer.message;
+package basicplayer.message;
 
 import java.util.Arrays;
 
-import hardplayer.Static;
+import basicplayer.Static;
 
 import battlecode.common.Clock;
 import battlecode.common.Direction;

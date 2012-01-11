@@ -1,11 +1,11 @@
-package hardplayer;
+package basicplayer;
 
-import hardplayer.navigation.BugNavigation;
-import hardplayer.navigation.Navigation;
-import hardplayer.navigation.QueuedAction;
-import hardplayer.message.*;
+import basicplayer.navigation.BugNavigation;
+import basicplayer.navigation.Navigation;
+import basicplayer.navigation.QueuedAction;
+import basicplayer.message.*;
 import battlecode.common.*;
-import hardplayer.goal.Goal;
+import basicplayer.goal.Goal;
 
 public abstract class Static {
 

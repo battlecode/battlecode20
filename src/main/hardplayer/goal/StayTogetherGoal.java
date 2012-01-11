@@ -16,8 +16,8 @@ public class StayTogetherGoal extends Static implements Goal {
 	}
 
 	public int priority() {
-		if(myTeam==battlecode.common.Team.A)
-			return 0;
+		//if(myTeam==battlecode.common.Team.A)
+		//	return 0;
 		int round = Clock.getRoundNum();
 		if(round<nextCallThreshold) {
 			return STAY_TOGETHER_HIGH;

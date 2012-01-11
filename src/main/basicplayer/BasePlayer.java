@@ -1,10 +1,10 @@
-package hardplayer;
+package basicplayer;
 
 import battlecode.common.*;
 
-import hardplayer.goal.FindEnemyGoal;
-import hardplayer.goal.Goal;
-import hardplayer.message.MessageSender;
+import basicplayer.goal.FindEnemyGoal;
+import basicplayer.goal.Goal;
+import basicplayer.message.MessageSender;
 
 public abstract class BasePlayer extends Static {
 

@@ -1,4 +1,4 @@
-package hardplayer;
+package basicplayer;
 
 import battlecode.common.RobotController;
 import battlecode.common.Team;
