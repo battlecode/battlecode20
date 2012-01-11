@@ -31,6 +31,11 @@ enum WallFollowingState {
 	WFS_LOST_WALL,
 }
 
+enum ArchonState {
+	AS_FINDING_ENEMY,
+	AS_FOUND_ENEMY,
+}
+
 class RobotWallFollowingState implements Comparable {
 	public WallFollowingState wfs;
 
@@ -44,29 +49,25 @@ class RobotWallFollowingState implements Comparable {
 	}
 }
 
-public class RobotPlayer implements Runnable {
-    private final RobotController myRC;
-	private Team myTeam;
-	private Map<Integer, RobotWallFollowingState> wallFollowingStates;
-	private int[] runCounters;
+public class RobotPlayer {
+    static RobotController myRC;
+	static Team myTeam;
+	static Map<Integer, RobotWallFollowingState> wallFollowingStates;
+	static int[] runCounters;
 
-    public RobotPlayer(RobotController rc) {
-        myRC = rc;
+    public static void run(RobotController rc) {
+		myRC = rc;
 		myTeam = myRC.getTeam();
 		wallFollowingStates = new HashMap<Integer, RobotWallFollowingState>();
 		runCounters = new int[6];
-    }
-
-    public void run() {
-        //System.out.println("STARTING");
         while (true) {
             try {
                 /*** beginning of main loop ***/
-                while (myRC.isMovementActive()) {
-                    myRC.yield(); // ends robot's computation for current round
+                while (RobotPlayer.myRC.isMovementActive()) {
+                    RobotPlayer.myRC.yield(); // ends robot's computation for current round
                 }
 
-				switch (myRC.getType()) {
+				switch (RobotPlayer.myRC.getType()) {
 					case ARCHON:
 						ArchonRun();
 						break;
@@ -92,7 +93,7 @@ public class RobotPlayer implements Runnable {
     }
 
 	// want to keep wall to the right of the robot
-	void move() throws Exception {
+	static void move() throws Exception {
 		int myID = myRC.getRobot().getID();
 		RobotWallFollowingState rwfs = wallFollowingStates.get(myID);
 		if (rwfs == null) {
@@ -144,22 +145,41 @@ public class RobotPlayer implements Runnable {
 		}
 	}
 
-	void ArchonRun() throws Exception {
+	static void airMove() throws Exception {
+		assert myRC.getType() == RobotType.SCOUT;
+		if (myRC.canMove(myRC.getDirection())) {
+			myRC.moveForward();
+		} else {
+			myRC.setDirection(myRC.getDirection().rotateRight());
+		}
+	}
+
+	static void ArchonRun() throws Exception {
 		// can't attack, only spawns
+		assert myRC.getType() == RobotType.ARCHON;
 		if (runCounters[RobotType.ARCHON.ordinal()] % 1024 != 0) {
 			move();
+			/*
+		} else if (runCounters[RobotType.ARCHON.ordinal()] % 512 == 0) {
+			if (myRC.getFlux() > RobotType.ARCHON.spawnCost) {
+				if (myRC.canMove(myRC.getDirection())) {
+					myRC.spawn(RobotType.ARCHON);
+					System.out.println("Spawned archon");
+				}
+			}
+			*/
 		} else {
 			if (myRC.getFlux() > RobotType.SCOUT.spawnCost) {
 				if (myRC.canMove(myRC.getDirection())) {
 					myRC.spawn(RobotType.SCOUT);
-					System.out.println("Spawned");
+					System.out.println("Spawned scout");
 				}
 			}
 		}
 		++runCounters[RobotType.ARCHON.ordinal()];
 	}
 
-	void DisrupterRun() throws Exception {
+	static void DisrupterRun() throws Exception {
 		if (runCounters[RobotType.DISRUPTER.ordinal()] % 8 != 0) {
 			move();
 		} else {
@@ -178,7 +198,7 @@ public class RobotPlayer implements Runnable {
 		++runCounters[RobotType.DISRUPTER.ordinal()];
 	}
 
-	void ScorcherRun() throws Exception {
+	static void ScorcherRun() throws Exception {
 		// can only attack ground; attacks everywhere in attack range
 		if (runCounters[RobotType.SCORCHER.ordinal()] % 8 != 0) {
 			move();
@@ -191,7 +211,7 @@ public class RobotPlayer implements Runnable {
 		++runCounters[RobotType.SCORCHER.ordinal()];
 	}
 
-	void ScoutRun() throws Exception {
+	static void ScoutRun() throws Exception {
 		if (runCounters[RobotType.SCOUT.ordinal()] % 8 != 0) {
 			move();
 		} else {
@@ -206,7 +226,7 @@ public class RobotPlayer implements Runnable {
 		++runCounters[RobotType.SCOUT.ordinal()];
 	}
 
-	void SoldierRun() throws Exception {
+	static void SoldierRun() throws Exception {
 		if (runCounters[RobotType.SOLDIER.ordinal()] % 8 != 0) {
 			move();
 		} else {
