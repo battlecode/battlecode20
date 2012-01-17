@@ -92,56 +92,28 @@ public class RobotPlayer {
         }
     }
 
-	// want to keep wall to the right of the robot
-	static void move() throws Exception {
-		int myID = myRC.getRobot().getID();
-		RobotWallFollowingState rwfs = wallFollowingStates.get(myID);
-		if (rwfs == null) {
-			rwfs = new RobotWallFollowingState(WallFollowingState.WFS_FINDING_WALL);
-			wallFollowingStates.put(myID, rwfs);
+	static int compareDirections(int ax, int ay, int bx, int by) {
+		int y = by - ay;
+		int x2 = (ax - bx)*(ax - bx);
+		int y2 = y*y;
+		if (x2 + y2 != 0) {
+			return (int)Math.asin(y/Math.sqrt(x2 + y2));
+		} else {
+			return 0;
 		}
-		assert rwfs != null;
-		switch (rwfs.wfs) {
-			case WFS_FINDING_WALL: {
-				if (myRC.canMove(myRC.getDirection())) {
-					myRC.moveForward();
-				} else {
-					rwfs.wfs = WallFollowingState.WFS_FOUND_WALL;
-					myRC.setDirection(myRC.getDirection().rotateLeft().rotateLeft());
-				}
-				break;
+	}
+	// want to keep wall to the right of the robot
+	static boolean moveTo(MapLocation dest) throws Exception {
+		// turn to direction of dest
+		MapLocation myLoc = myRC.getLocation();
+		Direction myDir = myRC.getDirection();
+		int angleDiff = compareDirections(myDir.x, myDir.y, dest.x - myLoc.x, dest.y - myLoc.y);
+		int num45s = (int)(angleDiff / 0.78539f); // pi / 4
+		if (num45s > 0) {
+			while (num45s > 0) {
+				myDir = myDir.rotateLeft();
+				num45s--;
 			}
-			case WFS_FOUND_WALL: {
-				if (myRC.canMove(myRC.getDirection())) {
-					myRC.moveForward();
-					MapLocation newLoc = myRC.getLocation().add(myRC.getDirection()).add(myRC.getDirection().rotateRight().rotateRight());
-					if (myRC.senseObjectAtLocation(newLoc, myRC.getRobot().getRobotLevel()) != null || myRC.senseTerrainTile(newLoc).isTraversableAtHeight(myRC.getRobot().getRobotLevel())) {
-						rwfs.wfs = WallFollowingState.WFS_LOST_WALL;
-					}
-				} else {
-					myRC.setDirection(myRC.getDirection().rotateLeft().rotateLeft());
-				}
-				break;
-			}
-			case WFS_LOST_WALL: {
-				if (myRC.canMove(myRC.getDirection())) {
-					myRC.setDirection(myRC.getDirection().rotateRight());
-					myRC.yield();
-					if (myRC.canMove(myRC.getDirection())) {
-						myRC.moveForward();
-					}
-				} else {
-					rwfs.wfs = WallFollowingState.WFS_FOUND_WALL;
-					myRC.setDirection(myRC.getDirection().rotateLeft());
-					myRC.yield();
-					if (myRC.canMove(myRC.getDirection())) {
-						myRC.moveForward();
-					}
-				}
-				break;
-			}
-			default:
-				break;
 		}
 	}
 
@@ -154,26 +126,22 @@ public class RobotPlayer {
 		}
 	}
 
+	static boolean canSpawn(RobotLevel level) throws Exception {
+		assert myRC.getType() == RobotType.ARCHON;
+		Direction d = myRC.getDirection();
+		MapLocation ml = myRC.getLocation().add(d);
+		return myRC.senseTerrainTile(ml).isTraversableAtHeight(level) && myRC.senseObjectAtLocation(ml, level) == null;
+	}
+
 	static void ArchonRun() throws Exception {
 		// can't attack, only spawns
 		assert myRC.getType() == RobotType.ARCHON;
 		if (runCounters[RobotType.ARCHON.ordinal()] % 1024 != 0) {
 			move();
-			/*
-		} else if (runCounters[RobotType.ARCHON.ordinal()] % 512 == 0) {
-			if (myRC.getFlux() > RobotType.ARCHON.spawnCost) {
-				if (myRC.canMove(myRC.getDirection())) {
-					myRC.spawn(RobotType.ARCHON);
-					System.out.println("Spawned archon");
-				}
-			}
-			*/
 		} else {
-			if (myRC.getFlux() > RobotType.SCOUT.spawnCost) {
-				if (myRC.canMove(myRC.getDirection())) {
-					myRC.spawn(RobotType.SCOUT);
-					System.out.println("Spawned scout");
-				}
+			if (myRC.getFlux() > RobotType.SCOUT.spawnCost && canSpawn(RobotType.SCOUT.level)) {
+				myRC.spawn(RobotType.SCOUT);
+				System.out.println("Spawned scout");
 			}
 		}
 		++runCounters[RobotType.ARCHON.ordinal()];
