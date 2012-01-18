@@ -22,6 +22,12 @@ public class FindEnemyGoal extends Static implements Goal, MessageHandler {
 	public static final long [] unitWeights = new long [] { 6000L, 2000L, 1500L,  2000L,  2000L, 0L };
 	public static final long messageWeight = 1000L;
 
+	public static void add(MapLocation loc, int wt) {
+		xsum+=wt*loc.x;
+		ysum+=wt*loc.y;
+		n+=wt;
+	}
+
 	//public FindEnemyGoal() {
 	//	handlers[MessageSender.MSG_ENEMY_2] = this;
 	//}

@@ -6,11 +6,21 @@ import hardplayer.message.SuperMessageStack;
 import battlecode.common.Clock;
 import battlecode.common.MapLocation;
 import battlecode.common.Message;
+import battlecode.common.PowerNode;
 import battlecode.common.RobotInfo;
 
 public class ArchonFindEnemyGoal extends FindEnemyGoal {
 
+	static PowerNode [] oldNodes = new PowerNode [0];
+
 	public int priority() {
+		for(PowerNode p : oldNodes) {
+			if(!myRC.senseOwned(p)&&base.distanceSquaredTo(p.getLocation())<base.distanceSquaredTo(myLoc)) {
+				setAtWar();
+				add(p.getLocation(),200);
+			}
+		}
+		oldNodes = myRC.senseAlliedPowerNodes();
 		if(atWar&&allies.size>=5)
 			return ARCHON_FIND_ENEMY;
 		else
