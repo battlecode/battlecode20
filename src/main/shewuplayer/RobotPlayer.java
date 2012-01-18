@@ -107,7 +107,7 @@ public class RobotPlayer {
 		// turn to direction of dest
 		MapLocation myLoc = myRC.getLocation();
 		Direction myDir = myRC.getDirection();
-		int angleDiff = compareDirections(myDir.x, myDir.y, dest.x - myLoc.x, dest.y - myLoc.y);
+		int angleDiff = compareDirections(myDir.dx, myDir.dy, dest.x - myLoc.x, dest.y - myLoc.y);
 		int num45s = (int)(angleDiff / 0.78539f); // pi / 4
 		if (num45s > 0) {
 			while (num45s > 0) {
@@ -115,6 +115,11 @@ public class RobotPlayer {
 				num45s--;
 			}
 		}
+		return true;
+	}
+
+	static void move() throws Exception {
+
 	}
 
 	static void airMove() throws Exception {
