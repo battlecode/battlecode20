@@ -52,11 +52,27 @@ public class ScoutPlayer extends BasePlayer {
 		}
 	}
 
+	public void broadcast() {
+		if(enemies.size>enemyTowers.size)
+			sendEnemies();
+	}
+
+	public void sendEnemies() {
+		int i = enemies.size+1, j = enemies.size-enemyTowers.size+1;
+		MapLocation [] locs = new MapLocation [j];
+		while(--i>=0) {
+			if(enemyInfos[i].type!=RobotType.TOWER)
+				locs[--j]=enemyInfos[i].location;
+		}
+		mySender.sendEnemyUnits(locs);
+	}
+
 	public void setGoals() {
 
 		goals = new Goal [] {
 			new HealGoal(),
-			new SeekFluxGoal()
+			new SeekFluxGoal(),
+			new ScoutFindNodeGoal()
 		};
 
 	}

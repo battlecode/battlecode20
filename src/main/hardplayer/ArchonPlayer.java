@@ -23,6 +23,8 @@ public class ArchonPlayer extends BasePlayer {
 
 	public static final double SUPPORT_RATIO = .7;
 
+	public static final int EXPLORE_MSG_TIME = 10; 
+
 	public static RobotLevel wantToSpawn;
 
 	public ArchonPlayer(RobotController RC) {
@@ -35,7 +37,7 @@ public class ArchonPlayer extends BasePlayer {
 			new FleeGoal(),
 			new MakeArmyGoal(),
 			new GetHelpGoal(),
-			//new StayTogetherGoal(),
+			new StayTogetherGoal(),
 			new ArchonFindEnemyGoal(),
 			new ArchonExploreGoal(),
 		};
@@ -90,7 +92,7 @@ public class ArchonPlayer extends BasePlayer {
 		*/
 		if(enemies.size>enemyTowers.size)
 			sendEnemies();
-		else if(ArchonExploreGoal.target!=null) {
+		else if(ArchonExploreGoal.target!=null&&Clock.getRoundNum()%EXPLORE_MSG_TIME==0) {
 			mySender.sendExplore(ArchonExploreGoal.target);
 		}
 	}

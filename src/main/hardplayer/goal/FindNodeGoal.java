@@ -24,8 +24,12 @@ public class FindNodeGoal extends Static implements Goal, MessageHandler {
 	public int maxPriority() { return FIND_NODE; }
 
 	public int priority() {
-		if(Clock.getRoundNum()-requestTime<=10)
-			return FIND_NODE;
+		if(Clock.getRoundNum()-requestTime<=10) {
+			for(MapLocation l : myRC.senseAlliedArchons())
+				if(l.distanceSquaredTo(myLoc)<=16)
+					return FIND_NODE;
+			return 0;
+		}
 		else
 			return 0;
 	}

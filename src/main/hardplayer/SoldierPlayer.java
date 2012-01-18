@@ -38,13 +38,10 @@ public class SoldierPlayer extends BasePlayer {
 
 	public void setGoals() {
 
-		FindNodeGoal fng = new FindNodeGoal();
-		FindEnemyGoal feg = new FindEnemyGoal();
-
 		goals = new Goal [] {
 			new SoldierAttackGoal(),
-			feg,
-			fng,
+			new FindEnemyGoal(),
+			new FindNodeGoal(),
 			new SeekFluxGoal()
 		};
 

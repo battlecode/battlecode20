@@ -7,19 +7,7 @@ import battlecode.common.RobotInfo;
 import battlecode.common.RobotLevel;
 import battlecode.common.RobotType;
 
-import hardplayer.Static;
-import hardplayer.message.MessageHandler;
-import hardplayer.message.MessageSender;
-
-public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
-
-	static Message message;
-
-	public ScorcherAttackGoal() {
-		handlers[MessageSender.MSG_ENEMY_UNITS] = this;
-	}
-
-	public int maxPriority() { return ATTACK; }
+public class ScorcherAttackGoal extends AttackGoal {
 
 	public int priority() {
 		RobotInfo info;
@@ -117,11 +105,6 @@ public class ScorcherAttackGoal extends Static implements Goal, MessageHandler {
 			debug_stackTrace(e);
 		}
 
-	}
-
-	public void receivedMessage(Message m) {
-		if(message==null||m.ints[1]-message.ints[1]>1||myLoc.distanceSquaredTo(m.locations[0])<=myLoc.distanceSquaredTo(message.locations[0]))
-			message = m;
 	}
 
 }

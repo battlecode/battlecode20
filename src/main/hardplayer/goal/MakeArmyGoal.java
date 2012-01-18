@@ -33,18 +33,16 @@ public class MakeArmyGoal extends Static implements Goal {
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}
-		switch(spawnRand%7) {
+		switch(spawnRand%5) {
 		case 0:
 		case 1:
-		case 2:
-		case 3:
 			return RobotType.SOLDIER;
-		case 4:
+		case 2:
 			return RobotType.DISRUPTER;
-		case 5:
+		case 3:
 			return RobotType.SCORCHER;
 		default:
-			if(alliedScouts.size<alliedArchons.size)
+			if(alliedScouts.size<=alliedArchons.size)
 				return RobotType.SCOUT;
 			else
 				return RobotType.SOLDIER;

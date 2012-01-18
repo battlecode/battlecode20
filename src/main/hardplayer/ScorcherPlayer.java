@@ -33,18 +33,12 @@ public class ScorcherPlayer extends BasePlayer {
 
 	public void setGoals() {
 
-		FindNodeGoal fng = new FindNodeGoal();
-		FindEnemyGoal feg = new FindEnemyGoal();
-
 		goals = new Goal [] {
 			new ScorcherAttackGoal(),
-			feg,
-			fng,
+			new FindEnemyGoal(),
+			new FindNodeGoal(),
 			new SeekFluxGoal()
 		};
-
-		handlers[MessageSender.MSG_EXPLORE] = fng;
-		handlers[MessageSender.MSG_ENEMY_2] = feg;
 
 	}
 

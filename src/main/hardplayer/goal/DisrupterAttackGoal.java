@@ -11,28 +11,20 @@ import hardplayer.Static;
 import hardplayer.message.MessageHandler;
 import hardplayer.message.MessageSender;
 
-public class DisrupterAttackGoal extends Static implements Goal, MessageHandler {
-
-	static Message message;
-
-	public DisrupterAttackGoal() {
-		handlers[MessageSender.MSG_ENEMY_UNITS] = this;
-	}
-
-	public int maxPriority() { return ATTACK; }
+public class DisrupterAttackGoal extends AttackGoal {
 
 	public int priority() {
 		RobotInfo info;
 		int i;
 		for(i=enemies.size;i>=0;i--) {
 			info = enemyInfos[i];
-			switch(info.type) {
-				case TOWER:
-					if(!senseConnected(info.location))
-						continue;
-				default:
+			if(info.type==RobotType.TOWER) {
+				if(!senseConnected(info.location))
+					continue;
+				else {
 					message = null;
 					return ATTACK;
+				}
 			}
 		}
 		if(message!=null)
@@ -113,11 +105,6 @@ public class DisrupterAttackGoal extends Static implements Goal, MessageHandler 
 			debug_stackTrace(e);
 		}
 
-	}
-
-	public void receivedMessage(Message m) {
-		if(message==null||m.ints[1]-message.ints[1]>1||myLoc.distanceSquaredTo(m.locations[0])<=myLoc.distanceSquaredTo(message.locations[0]))
-			message = m;
 	}
 
 }

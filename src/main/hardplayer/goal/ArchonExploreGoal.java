@@ -14,6 +14,7 @@ public class ArchonExploreGoal extends Static implements Goal {
 
 	static public MapLocation target;
 	static public MapLocation backup;
+	static public boolean millAround;
 
 	public int maxPriority() {
 		return EXPLORE;
@@ -51,10 +52,12 @@ public class ArchonExploreGoal extends Static implements Goal {
 				backupLegal = true;
 
 		}
+		millAround = false;
 		for(i=alliedArchons.size;i>=0;i--) {
 			if(target.distanceSquaredTo(alliedArchonInfos[i].location)<dmin) {
 				if(!backupLegal)
 					backup = adjacent[nextInt()%adjacent.length];
+				millAround = target.equals(backup);
 				target = backup;
 				return;
 			}
@@ -63,10 +66,15 @@ public class ArchonExploreGoal extends Static implements Goal {
 
 	public void moveToTarget() {
 		try {
-			if(myLoc.isAdjacentTo(target))
-				myRC.setDirection(myLoc.directionTo(target));
-			else
-				moveAdjacentTo(target);
+			if(millAround) {
+				myNav.moveToASAPPreferFwd(target.add(target.directionTo(myLoc).rotateLeft(),5));
+			}
+			else {
+				if(myLoc.isAdjacentTo(target))
+					myRC.setDirection(myLoc.directionTo(target));
+				else
+					moveAdjacentTo(target);
+			}
 		} catch(Exception e) {
 			debug_stackTrace(e);
 		}

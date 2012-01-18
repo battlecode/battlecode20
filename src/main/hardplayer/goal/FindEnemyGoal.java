@@ -22,9 +22,9 @@ public class FindEnemyGoal extends Static implements Goal, MessageHandler {
 	public static final long [] unitWeights = new long [] { 6000L, 2000L, 1500L,  2000L,  2000L, 0L };
 	public static final long messageWeight = 1000L;
 
-	public FindEnemyGoal() {
-		handlers[MessageSender.MSG_ENEMY_2] = this;
-	}
+	//public FindEnemyGoal() {
+	//	handlers[MessageSender.MSG_ENEMY_2] = this;
+	//}
 
 	public static void decay() {
 		n*=DECAY_RATE;
@@ -58,7 +58,14 @@ public class FindEnemyGoal extends Static implements Goal, MessageHandler {
 	}
 
 	public int priority() {
-		return atWar?FIND_ENEMY:0;
+		if(atWar) {
+			for(MapLocation l : myRC.senseAlliedArchons())
+				if(l.distanceSquaredTo(myLoc)<=16)
+					return FIND_ENEMY;
+			return 0;
+		}
+		else
+			return 0;
 	}
 
 	public MapLocation getEnemyLoc() {
