@@ -87,8 +87,8 @@ public class FindEnemyGoal extends Static implements Goal, MessageHandler {
 	}
 
 	public void execute() {
-		if(n>0)
-			debug_setIndicatorStringFormat(1,"%f %f %f",n,xsum/n,ysum/n);
+		//if(n>0)
+		//	debug_setIndicatorStringFormat(1,"%f %f %f",n,xsum/n,ysum/n);
 		myNav.moveToForward(getEnemyLoc());
 	}
 

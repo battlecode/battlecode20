@@ -27,7 +27,7 @@ public class StayTogetherGoal extends Static implements Goal {
 		int i, d;
 		for(MapLocation l : archons) {
 			d = myLoc.distanceSquaredTo(l);
-			if(d>169) {
+			if(d>400) {
 				numFarAway++;
 				if(d<closestFarAwayDist) {
 					closestFarAwayDist = d;
@@ -37,12 +37,7 @@ public class StayTogetherGoal extends Static implements Goal {
 			}
 		}
 		if(numFarAway>archons.length/2) {
-			if(closestFarAwayDist < 169)
-				nextCallThreshold = round + 40;
-			else if(closestFarAwayDist < 324)
-				nextCallThreshold = round + 80;
-			else
-				nextCallThreshold = round + 120;
+			nextCallThreshold = round + 80;
 			return STAY_TOGETHER_HIGH;
 		}
 		return 0;

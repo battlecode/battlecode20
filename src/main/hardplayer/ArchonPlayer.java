@@ -37,7 +37,7 @@ public class ArchonPlayer extends BasePlayer {
 			new FleeGoal(),
 			new MakeArmyGoal(),
 			new GetHelpGoal(),
-			//new StayTogetherGoal(),
+			new StayTogetherGoal(),
 			new ArchonFindEnemyGoal(),
 			new ArchonExploreGoal(),
 		};
@@ -73,10 +73,11 @@ public class ArchonPlayer extends BasePlayer {
 	}
 
 	public void sendEnemies() {
-		int i = enemies.size+1, j = enemies.size-enemyTowers.size+1;
+		int i = enemies.size+1, j = enemies.size-enemyTowers.size-enemyScouts.size-1;
 		MapLocation [] locs = new MapLocation [j];
 		while(--i>=0) {
-			if(enemyInfos[i].type!=RobotType.TOWER)
+			if(enemyInfos[i].type!=RobotType.TOWER&&
+				enemyInfos[i].type!=RobotType.SCOUT)
 				locs[--j]=enemyInfos[i].location;
 		}
 		mySender.sendEnemyUnits(locs);
@@ -90,7 +91,7 @@ public class ArchonPlayer extends BasePlayer {
 				mySender.sendFindEnemy(enemyInfo.location,enemies.size+1);
 		}
 		*/
-		if(enemies.size>enemyTowers.size)
+		if(enemies.size>enemyTowers.size+enemyScouts.size+1)
 			sendEnemies();
 		else if(ArchonExploreGoal.target!=null&&Clock.getRoundNum()%EXPLORE_MSG_TIME==0) {
 			mySender.sendExplore(ArchonExploreGoal.target);

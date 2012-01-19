@@ -53,15 +53,16 @@ public class ScoutPlayer extends BasePlayer {
 	}
 
 	public void broadcast() {
-		if(enemies.size>enemyTowers.size)
+		if(enemies.size>enemyTowers.size+enemyScouts.size+1)
 			sendEnemies();
 	}
 
 	public void sendEnemies() {
-		int i = enemies.size+1, j = enemies.size-enemyTowers.size+1;
+		int i = enemies.size+1, j = enemies.size-enemyTowers.size-enemyScouts.size-1;
 		MapLocation [] locs = new MapLocation [j];
 		while(--i>=0) {
-			if(enemyInfos[i].type!=RobotType.TOWER)
+			if(enemyInfos[i].type!=RobotType.TOWER&&
+				enemyInfos[i].type!=RobotType.SCOUT)
 				locs[--j]=enemyInfos[i].location;
 		}
 		mySender.sendEnemyUnits(locs);

@@ -38,6 +38,8 @@ public class SoldierAttackGoal extends AttackGoal {
 		int d = myLoc.distanceSquaredTo(l);
 		if(d>=RobotType.SOLDIER.attackRadiusMaxSquared)
 			myNav.moveToForward(l);
+		else if(d>2&&myRC.canMove(myDir)&&!myRC.canMove(myDir.opposite()))
+			myRC.moveForward();
 		else if(d>0)
 			myRC.setDirection(myLoc.directionTo(l));
 	}

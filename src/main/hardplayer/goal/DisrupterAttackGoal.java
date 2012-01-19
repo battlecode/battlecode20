@@ -14,18 +14,15 @@ import hardplayer.message.MessageSender;
 public class DisrupterAttackGoal extends AttackGoal {
 
 	public int priority() {
+		//debug_setIndicatorStringFormat(2,"OH LOOK");
 		RobotInfo info;
 		int i;
 		for(i=enemies.size;i>=0;i--) {
 			info = enemyInfos[i];
-			if(info.type==RobotType.TOWER) {
-				if(!senseConnected(info.location))
-					continue;
-				else {
-					message = null;
-					return ATTACK;
-				}
-			}
+			if(info.type==RobotType.TOWER&&!senseConnected(info.location))
+				continue;
+			message = null;
+			return ATTACK;
 		}
 		if(message!=null)
 			return ATTACK;
@@ -44,7 +41,7 @@ public class DisrupterAttackGoal extends AttackGoal {
 			}
 		}
 		try {
-			if(dmin>20)
+			if(dmin>RobotType.DISRUPTER.sensorRadiusSquared)
 				myNav.moveToForward(locs[best]);
 			else
 				myRC.setDirection(myLoc.directionTo(locs[best]));
@@ -59,47 +56,41 @@ public class DisrupterAttackGoal extends AttackGoal {
 			message = null;
 			return;
 		}
-		int i, soldiersNow=0, soldiersBack=0;
-		int d, dmax=0;
+		int i;
+		int d, dmin=99999;
 		RobotInfo info;
-		RobotInfo farthest = null;
+		RobotInfo closest = null;
 		for(i=enemies.size;i>=0;i--) {
 			info = enemyInfos[i];
-			if(info.type==RobotType.SOLDIER) {
-				soldiersNow++;
-				if(myRC.canAttackSquare(info.location.add(myDir)))
-					soldiersBack++;
-			}
-			else {
-				d=myLoc.distanceSquaredTo(info.location);
-				if(d>dmax) {
-					dmax = d;
-					farthest = info;
-				}
+			d=myLoc.distanceSquaredTo(info.location);
+			if(info.type==RobotType.TOWER&&!senseConnected(info.location))
+				continue;
+			if(d<dmin) {
+				dmin = d;
+				closest = info;
 			}
 		}
-		debug_setIndicatorStringFormat(2,"%s %d %d",farthest,dmax,soldiersNow);
+		myRC.setIndicatorString(1,"HEY I'M SETTING AN INDICATOR STRING!");
+		debug_setIndicatorStringFormat(2,"%s %s",myLoc,closest.location);
 		try {
-			if(soldiersNow>0) {
-				if(soldiersBack>0&&soldiersNow-soldiersBack<2&&myRC.canMove(myDir.opposite())) {
+			if(closest.type==RobotType.SOLDIER) {
+				if(myRC.canMove(myDir.opposite())&&myRC.canAttackSquare(closest.location.add(myDir)))
 					myRC.moveBackward();
+				else if(dmin>0)
+					myRC.setDirection(myLoc.directionTo(closest.location));
+			}
+			else {
+				if(myRC.canAttackSquare(closest.location))
+					if(myRC.canMove(myDir)&&!myRC.canMove(myDir.opposite()))
+						myRC.moveForward();
+					else if(dmin>0)
+						myRC.setDirection(myLoc.directionTo(closest.location));
+				else if(dmin<=RobotType.DISRUPTER.attackRadiusMaxSquared) {
+					if(dmin>0)
+						myRC.setDirection(myLoc.directionTo(closest.location));
 				}
-				else if(farthest!=null) {
-					myRC.setDirection(myLoc.directionTo(farthest.location));
-				}
-			} else {
-				if(farthest!=null) {
-					if(farthest.type==RobotType.TOWER) {
-						if(dmax<=4&&myRC.canMove(myDir.opposite()))
-							myRC.moveBackward();
-					}
-					else {
-						if(dmax>2)
-							myNav.moveToForward(farthest.location);
-						else
-							myRC.setDirection(myLoc.directionTo(farthest.location));
-					}
-				}
+				else
+					myNav.moveToForward(closest.location);
 			}
 		} catch(Exception e) {
 			debug_stackTrace(e);

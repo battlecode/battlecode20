@@ -42,7 +42,7 @@ public class ScorcherAttackGoal extends AttackGoal {
 			}
 		}
 		try {
-			if(dmin>20)
+			if(dmin>RobotType.SCORCHER.sensorRadiusSquared)
 				myNav.moveToForward(locs[best]);
 			else if(dmin>0)
 				myRC.setDirection(myLoc.directionTo(locs[best]));
