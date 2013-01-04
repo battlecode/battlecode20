@@ -13,14 +13,14 @@ public class RobotPlayer {
 		while (true) {
 			try {
 				if (rc.getType() == RobotType.HQ) {
-					if (!rc.isMovementActive()) {
+					if (rc.isActive()) {
 						Direction dir = Direction.values()[(int)(Math.random()*8)];
 						if (rc.canMove(dir))
 							rc.spawn(dir);
 					}
 					rc.yield();
 				} else if (rc.getType() == RobotType.SOLDIER) {
-					if (!rc.isMovementActive()) {
+					if (rc.isActive()) {
 						Direction dir = Direction.values()[(int)(Math.random()*8)];
 						if(rc.canMove(dir))
 							rc.move(dir);

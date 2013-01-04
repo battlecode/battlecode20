@@ -18,15 +18,16 @@ public class RobotPlayer {
 		while (true) {
 			turn: try {
 				if (rc.getType() == RobotType.HQ) {
-					if (!rc.isMovementActive()) {
+					if (rc.isActive()) {
 						Direction dir = Direction.values()[(int)(Math.random()*8)];
 						if (rc.canMove(dir))
 							rc.spawn(dir);
 					}
 				} else if (rc.getType() == RobotType.SOLDIER) {
-					// If we're on move delay for whatever reason, send useless message and end turn
-					if (rc.isMovementActive()) {
-						rc.broadcast(rc.getRobot().getID()%GameConstants.MAX_RADIO_CHANNEL, 5);
+					// If we're on move delay for whatever reason, send useless message sometimes and end turn
+					if (!rc.isActive()) {
+						if(Math.random()<0.05)
+							rc.broadcast(rc.getRobot().getID()%GameConstants.MAX_RADIO_CHANNEL, 5);
 						break turn;
 					}
 					

@@ -1,11 +1,9 @@
-package mediumbot;
+package supplierbot;
 
-import battlecode.common.Clock;
 import battlecode.common.Direction;
 import battlecode.common.GameConstants;
 import battlecode.common.GameObject;
 import battlecode.common.MapLocation;
-import battlecode.common.Robot;
 import battlecode.common.RobotController;
 import battlecode.common.RobotLevel;
 import battlecode.common.RobotType;
@@ -20,15 +18,18 @@ public class RobotPlayer {
 		while (true) {
 			turn: try {
 				if (rc.getType() == RobotType.HQ) {
+					rc.setIndicatorString(0, "delay: "+rc.roundsUntilActive());
+					
 					if (rc.isActive()) {
 						Direction dir = Direction.values()[(int)(Math.random()*8)];
 						if (rc.canMove(dir))
 							rc.spawn(dir);
 					}
 				} else if (rc.getType() == RobotType.SOLDIER) {
-					// If we're on move delay for whatever reason, send useless message and end turn
+					// If we're on move delay for whatever reason, send useless message sometimes and end turn
 					if (!rc.isActive()) {
-						rc.broadcast(rc.getRobot().getID()%GameConstants.MAX_RADIO_CHANNEL, 5);
+						if(Math.random()<0.05)
+							rc.broadcast(rc.getRobot().getID()%GameConstants.MAX_RADIO_CHANNEL, 5);
 						break turn;
 					}
 					
@@ -54,7 +55,7 @@ public class RobotPlayer {
 					
 					// If on encampment, capture it
 					if(nearestEncampment.equals(rc.getLocation())) {
-						rc.captureEncampment(RobotType.ARTILLERY);
+						rc.captureEncampment(RobotType.SUPPLIER);
 						break turn;
 					}
 					
@@ -90,27 +91,8 @@ public class RobotPlayer {
 					rc.move(dir);
 					break turn;
 					
-				} else if(rc.getType() == RobotType.ARTILLERY) {
-					if(!rc.isActive())
-						break turn;
-
-					Robot[] ar = rc.senseNearbyGameObjects(Robot.class, RobotType.ARTILLERY.attackRadiusMaxSquared);
-
-					if(ar==null || ar.length==0)
-						break turn;
-					MapLocation nearest = null;
-					for(Robot r: ar) {
-						if(r.getTeam()==rc.getRobot().getTeam())
-							continue;
-						MapLocation loc = rc.senseRobotInfo(r).location;
-						if(nearest == null || rc.getLocation().distanceSquaredTo(nearest) > rc.getLocation().distanceSquaredTo(loc))
-							nearest = loc;
-					}
-					if(nearest!=null && rc.canAttackSquare(nearest))
-						rc.attackSquare(nearest);
-					
 				} else {
-					// other encampments do nothing
+					// encampments never do anything
 				}
 
 				

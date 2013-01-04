@@ -14,13 +14,13 @@ public class RobotPlayer {
 		while (true) {
 			try {
 				if (rc.getType() == RobotType.HQ) {
-					if (!rc.isMovementActive()) {
+					if (rc.isActive()) {
 						Direction dir = Direction.values()[(int)(Math.random()*8)];
 						if (rc.canMove(dir))
 							rc.spawn(dir);
 					}
 				} else if (rc.getType() == RobotType.SOLDIER) {
-					if (!rc.isMovementActive()) {
+					if (rc.isActive()) {
 						if (Math.random()<0.005) {
 							// Lay a mine 
 							if(rc.senseMine(rc.getLocation())==null /* && not standing on encampment */)
