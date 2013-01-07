@@ -27,14 +27,14 @@ public class RobotPlayer {
 					// If we're on move delay for whatever reason, send useless message sometimes and end turn
 					if (!rc.isActive()) {
 						if(Math.random()<0.05)
-							rc.broadcast(rc.getRobot().getID()%GameConstants.MAX_RADIO_CHANNEL, 5);
+							rc.broadcast(rc.getRobot().getID()%GameConstants.BROADCAST_MAX_CHANNELS, 5);
 						break turn;
 					}
 					
 					// If adjacent to enemy (soldier or building), do nothing and wait for autoattack
 					for(int i=0; i<8; i++) {
 						MapLocation loc = rc.getLocation().add(Direction.values()[i]);
-						GameObject go = rc.senseObjectAtLocation(loc, RobotLevel.ON_GROUND);
+						GameObject go = rc.senseObjectAtLocation(loc);
 						if(go!=null && go.getTeam()!=rc.getTeam())
 							break turn;
 					}

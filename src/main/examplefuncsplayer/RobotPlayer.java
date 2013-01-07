@@ -23,7 +23,7 @@ public class RobotPlayer {
 					if (rc.isActive()) {
 						if (Math.random()<0.005) {
 							// Lay a mine 
-							if(rc.senseMine(rc.getLocation())==null /* && not standing on encampment */)
+							if(rc.senseMine(rc.getLocation())==null)
 								rc.layMine();
 						} else { 
 							// Choose a random direction, and move that way if possible
@@ -35,13 +35,12 @@ public class RobotPlayer {
 					
 					if (Math.random()<0.01) {
 						// Write the number 5 to a position on the message board corresponding to the robot's ID
-						rc.broadcast(rc.getRobot().getID()%GameConstants.MAX_RADIO_CHANNEL, 5);
+						rc.broadcast(rc.getRobot().getID()%GameConstants.BROADCAST_MAX_CHANNELS, 5);
 					}
 				}
 
 				rc.yield();
 			} catch (Exception e) {
-				System.out.println("caught exception:");
 				e.printStackTrace();
 			}
 		}

@@ -1,67 +1,72 @@
 package easybot;
 
 import battlecode.common.Direction;
+import battlecode.common.GameActionException;
 import battlecode.common.GameConstants;
 import battlecode.common.GameObject;
 import battlecode.common.MapLocation;
+import battlecode.common.Robot;
 import battlecode.common.RobotController;
-import battlecode.common.RobotLevel;
+import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
 
-/** This bot does a poor version of a standard macro strategy. 
- * Robots repeatedly move towards the nearest untaken encampment and build a generator on it.
- * They will defuse mines in their way if no enemies are adjacent to them.
+/** Haitao's first attempt at a good rush bot. Will disregard mining, capturing, and upgrades, 
+ * and focus on pure rushing.
  */
 public class RobotPlayer {
 	public static void run(RobotController rc) {
 		while (true) {
 			turn: try {
 				if (rc.getType() == RobotType.HQ) {
+					rc.setIndicatorString(0, "delay: "+rc.roundsUntilActive());
+					
 					if (rc.isActive()) {
 						Direction dir = Direction.values()[(int)(Math.random()*8)];
 						if (rc.canMove(dir))
 							rc.spawn(dir);
 					}
 				} else if (rc.getType() == RobotType.SOLDIER) {
-					// If we're on move delay for whatever reason, send useless message sometimes and end turn
 					if (!rc.isActive()) {
-						if(Math.random()<0.05)
-							rc.broadcast(rc.getRobot().getID()%GameConstants.MAX_RADIO_CHANNEL, 5);
+							rc.broadcast(rc.getRobot().getID()%GameConstants.BROADCAST_MAX_CHANNELS, 5);
 						break turn;
 					}
 					
-					// If adjacent to enemy (soldier or building), do nothing and wait for autoattack
-					for(int i=0; i<8; i++) {
-						MapLocation loc = rc.getLocation().add(Direction.values()[i]);
-						GameObject go = rc.senseObjectAtLocation(loc, RobotLevel.ON_GROUND);
-						if(go!=null && go.getTeam()!=rc.getTeam())
-							break turn;
+					// Compute relative power
+					int sum = 0;
+					for(Robot r: rc.senseNearbyGameObjects(Robot.class, 13)) {
+						RobotInfo ri = rc.senseRobotInfo(r);
+						if(ri.type!=RobotType.SOLDIER)
+							continue;
+						if(r.getTeam()==rc.getTeam()) sum++;
+						else sum--;
+					}
+					rc.setIndicatorString(0, sum+"");
+					int sumToAttack = 0;
+					
+					if(sum>=sumToAttack) {
+						for(int i=0; i<8; i++) {
+							MapLocation loc = rc.getLocation().add(Direction.values()[i]);
+							GameObject go = rc.senseObjectAtLocation(loc);
+							if(go!=null && go.getTeam()!=rc.getTeam())
+								break turn;
+						}
 					}
 					
-					// Compute nearest encampment (counting the enemy HQ)
-					MapLocation nearestEncampment = rc.senseEnemyHQLocation();
-					MapLocation[] alliedEncampments = rc.senseAlliedEncampments();
-					outer: for(MapLocation enc: rc.senseAllEncampments()) {
-						for(MapLocation aenc: alliedEncampments) 
-							if(aenc.equals(enc))
-								continue outer;
-						if(nearestEncampment==null || enc.distanceSquaredTo(rc.getLocation()) <
-								nearestEncampment.distanceSquaredTo(rc.getLocation()))
-							nearestEncampment = enc;
+					Direction dir = null;
+					RobotInfo enemy = nearestEnemy(rc, 13);
+					if(enemy==null) {
+						dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
+						
+					} else if(sum>=sumToAttack) {
+						dir = rc.getLocation().directionTo(enemy.location);
+						
+					} else {
+						dir = rc.getLocation().directionTo(enemy.location).opposite();
+						
 					}
 					
-					// If on encampment, capture it
-					if(nearestEncampment.equals(rc.getLocation())) {
-						rc.captureEncampment(RobotType.GENERATOR);
-						break turn;
-					}
-					
-					// Compute direction to encampment (greedy + wiggle + randomness)
-					MapLocation target = nearestEncampment;
-					Direction dir = rc.getLocation().directionTo(target);
-					if(Math.random()<0.5) 
-						dir = Direction.values()[(int)(Math.random()*8)];
+					// Wiggle
 					int[] wiggle = new int[] {0, -1, 1, -2, 2};
 					if(Math.random()<0.5) 
 						for(int i=0; i<wiggle.length; i++) 
@@ -89,8 +94,6 @@ public class RobotPlayer {
 					rc.move(dir);
 					break turn;
 					
-				} else {
-					// encampments never do anything
 				}
 
 				
@@ -100,5 +103,22 @@ public class RobotPlayer {
 			}
 			rc.yield();
 		}
+	}
+	
+	public static RobotInfo nearestEnemy(RobotController rc, int distThreshold) throws GameActionException {
+		Robot[] ar = rc.senseNearbyGameObjects(Robot.class, distThreshold);
+
+		if(ar==null || ar.length==0)
+			return null;
+		RobotInfo nearest = null;
+		for(Robot r: ar) {
+			if(r.getTeam()==rc.getRobot().getTeam())
+				continue;
+			RobotInfo ri = rc.senseRobotInfo(r);
+			MapLocation loc = ri.location;
+			if(nearest == null || rc.getLocation().distanceSquaredTo(nearest.location) > rc.getLocation().distanceSquaredTo(loc))
+				nearest = ri;
+		}
+		return nearest;
 	}
 }

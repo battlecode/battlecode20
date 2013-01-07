@@ -1,4 +1,4 @@
-package mediumbot;
+package shieldbot;
 
 import battlecode.common.Clock;
 import battlecode.common.Direction;
@@ -25,17 +25,26 @@ public class RobotPlayer {
 						if (rc.canMove(dir))
 							rc.spawn(dir);
 					}
+//					if (Clock.getRoundNum() == 570)
+//					{
+//						Robot[] r = rc.senseNearbyGameObjects(Robot.class);
+//						for (int x=0; x<r.length; x++)
+//							System.out.println(r[x]);
+//					}
 				} else if (rc.getType() == RobotType.SOLDIER) {
+					
+					rc.setIndicatorString(0, "Shields: "+rc.getShields());
+					
 					// If we're on move delay for whatever reason, send useless message and end turn
 					if (!rc.isActive()) {
-						rc.broadcast(rc.getRobot().getID()%GameConstants.MAX_RADIO_CHANNEL, 5);
+						rc.broadcast(rc.getRobot().getID()%GameConstants.BROADCAST_MAX_CHANNELS, 5);
 						break turn;
 					}
 					
 					// If adjacent to enemy (soldier or building), do nothing and wait for autoattack
 					for(int i=0; i<8; i++) {
 						MapLocation loc = rc.getLocation().add(Direction.values()[i]);
-						GameObject go = rc.senseObjectAtLocation(loc, RobotLevel.ON_GROUND);
+						GameObject go = rc.senseObjectAtLocation(loc);
 						if(go!=null && go.getTeam()!=rc.getTeam())
 							break turn;
 					}
@@ -54,7 +63,7 @@ public class RobotPlayer {
 					
 					// If on encampment, capture it
 					if(nearestEncampment.equals(rc.getLocation())) {
-						rc.captureEncampment(RobotType.ARTILLERY);
+						rc.captureEncampment(RobotType.SHIELDS);
 						break turn;
 					}
 					
@@ -89,25 +98,6 @@ public class RobotPlayer {
 					// Move in computed direction
 					rc.move(dir);
 					break turn;
-					
-				} else if(rc.getType() == RobotType.ARTILLERY) {
-					if(!rc.isActive())
-						break turn;
-
-					Robot[] ar = rc.senseNearbyGameObjects(Robot.class, RobotType.ARTILLERY.attackRadiusMaxSquared);
-
-					if(ar==null || ar.length==0)
-						break turn;
-					MapLocation nearest = null;
-					for(Robot r: ar) {
-						if(r.getTeam()==rc.getRobot().getTeam())
-							continue;
-						MapLocation loc = rc.senseRobotInfo(r).location;
-						if(nearest == null || rc.getLocation().distanceSquaredTo(nearest) > rc.getLocation().distanceSquaredTo(loc))
-							nearest = loc;
-					}
-					if(nearest!=null && rc.canAttackSquare(nearest))
-						rc.attackSquare(nearest);
 					
 				} else {
 					// other encampments do nothing

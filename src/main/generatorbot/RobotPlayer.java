@@ -1,4 +1,4 @@
-package supplierbot;
+package generatorbot;
 
 import battlecode.common.Direction;
 import battlecode.common.GameConstants;
@@ -18,8 +18,6 @@ public class RobotPlayer {
 		while (true) {
 			turn: try {
 				if (rc.getType() == RobotType.HQ) {
-					rc.setIndicatorString(0, "delay: "+rc.roundsUntilActive());
-					
 					if (rc.isActive()) {
 						Direction dir = Direction.values()[(int)(Math.random()*8)];
 						if (rc.canMove(dir))
@@ -55,7 +53,7 @@ public class RobotPlayer {
 					
 					// If on encampment, capture it
 					if(nearestEncampment.equals(rc.getLocation())) {
-						rc.captureEncampment(RobotType.SUPPLIER);
+						rc.captureEncampment(RobotType.GENERATOR);
 						break turn;
 					}
 					

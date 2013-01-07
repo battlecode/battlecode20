@@ -28,7 +28,7 @@ public class RobotPlayer {
 					if (Math.random() > 0.99)
 						rc.layMine();
 					for(int i=0; i<500; i++)
-						rc.broadcast(((int)(Math.random()*Integer.MAX_VALUE))%GameConstants.MAX_RADIO_CHANNEL, 
+						rc.broadcast(((int)(Math.random()*Integer.MAX_VALUE))%GameConstants.BROADCAST_MAX_CHANNELS, 
 								(int)(Math.random()*Integer.MAX_VALUE)+(int)(Math.random()*Integer.MIN_VALUE));
 					rc.yield();
 				}
