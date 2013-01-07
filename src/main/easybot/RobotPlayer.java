@@ -2,7 +2,6 @@ package easybot;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
-import battlecode.common.GameConstants;
 import battlecode.common.GameObject;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
@@ -97,7 +96,6 @@ public class RobotPlayer {
 
 				
 			} catch (Exception e) {
-				System.out.println("caught exception:");
 				e.printStackTrace();
 			}
 			rc.yield();

@@ -15,7 +15,8 @@ public class RobotPlayer {
 			try {
 				if (rc.getType() == RobotType.HQ) {
 					if (rc.isActive()) {
-						Direction dir = Direction.values()[(int)(Math.random()*8)];
+						// Spawn a soldier
+						Direction dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
 						if (rc.canMove(dir))
 							rc.spawn(dir);
 					}
@@ -28,17 +29,20 @@ public class RobotPlayer {
 						} else { 
 							// Choose a random direction, and move that way if possible
 							Direction dir = Direction.values()[(int)(Math.random()*8)];
-							if(rc.canMove(dir))
+							if(rc.canMove(dir)) {
 								rc.move(dir);
+								rc.setIndicatorString(0, "Last direction moved: "+dir.toString());
+							}
 						}
 					}
 					
-					if (Math.random()<0.01) {
+					if (Math.random()<0.01 && rc.getTeamPower()>5) {
 						// Write the number 5 to a position on the message board corresponding to the robot's ID
 						rc.broadcast(rc.getRobot().getID()%GameConstants.BROADCAST_MAX_CHANNELS, 5);
 					}
 				}
 
+				// End turn
 				rc.yield();
 			} catch (Exception e) {
 				e.printStackTrace();

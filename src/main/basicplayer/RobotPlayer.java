@@ -1,11 +1,10 @@
-package mediumbot;
+package basicplayer;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
-import battlecode.common.GameObject;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
 import battlecode.common.RobotController;
@@ -13,16 +12,14 @@ import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
 
-/** Haitao's first attempt at a good rush bot. Will disregard mining, capturing, and upgrades, 
- * and focus on pure rushing.
+/** Basic player. A general macro-based player which does almost everything, but does everything poorly.
  */
 public class RobotPlayer {
 	public static void run(RobotController rc) {
 		while (true) {
 			turn: try {
+				rc.setIndicatorString(2, "Delay: "+rc.roundsUntilActive());
 				if (rc.getType() == RobotType.HQ) {
-					rc.setIndicatorString(0, "delay: "+rc.roundsUntilActive());
-					
 					if (rc.isActive()) {
 						Direction dir = Direction.values()[(int)(Math.random()*8)];
 						if (rc.canMove(dir))
@@ -60,7 +57,8 @@ public class RobotPlayer {
 					// If on encampment, capture it
 					if(target.equals(rc.getLocation())) {
 						if(rc.getLocation().distanceSquaredTo(rc.senseHQLocation())>=rc.getLocation().distanceSquaredTo(rc.senseEnemyHQLocation())) {
-							rc.captureEncampment(RobotType.ARTILLERY);
+							double d = Math.random();
+							rc.captureEncampment(d<0.5?RobotType.ARTILLERY:d<0.75?RobotType.SHIELDS:RobotType.MEDBAY);
 						} else {
 							int x = rc.readBroadcast(5555+rc.getTeam().ordinal());
 							rc.captureEncampment(x%3==0?RobotType.GENERATOR:RobotType.SUPPLIER);
@@ -69,37 +67,19 @@ public class RobotPlayer {
 						break turn;
 					}
 					
-					// Compute relative power
-					int sum = 0;
-					for(Robot r: rc.senseNearbyGameObjects(Robot.class, 13)) {
-						RobotInfo ri = rc.senseRobotInfo(r);
-						if(ri.type!=RobotType.SOLDIER)
-							continue;
-						if(r.getTeam()==rc.getTeam()) sum++;
-						else sum--;
-					}
-					rc.setIndicatorString(0, sum+"");
-					int sumToAttack = 0;
-					
-					if(sum>=sumToAttack) {
-						for(int i=0; i<8; i++) {
-							MapLocation loc = rc.getLocation().add(Direction.values()[i]);
-							GameObject go = rc.senseObjectAtLocation(loc);
-							if(go!=null && go.getTeam()!=rc.getTeam())
-								break turn;
-						}
+
+					if(Math.random()<0.01 && rc.senseMine(rc.getLocation())==null) {
+						rc.layMine();
+						break turn;
 					}
 					
 					Direction dir = null;
-					RobotInfo enemy = nearestEnemy(rc, 13);
+					RobotInfo enemy = nearestEnemy(rc, 8);
 					if(enemy==null) {
 						dir = rc.getLocation().directionTo(target);
 						
-					} else if(sum>=sumToAttack) {
-						dir = rc.getLocation().directionTo(enemy.location);
-						
 					} else {
-						dir = rc.getLocation().directionTo(enemy.location).opposite();
+						dir = rc.getLocation().directionTo(enemy.location);
 						
 					}
 					
@@ -115,6 +95,7 @@ public class RobotPlayer {
 							break;
 						}
 					}
+					
 					
 					// If blocked, end turn
 					if(!rc.canMove(dir))
@@ -135,20 +116,9 @@ public class RobotPlayer {
 					if(!rc.isActive())
 						break turn;
 
-					Robot[] ar = rc.senseNearbyGameObjects(Robot.class, RobotType.ARTILLERY.attackRadiusMaxSquared);
-
-					if(ar==null || ar.length==0)
-						break turn;
-					MapLocation nearest = null;
-					for(Robot r: ar) {
-						if(r.getTeam()==rc.getRobot().getTeam())
-							continue;
-						MapLocation loc = rc.senseRobotInfo(r).location;
-						if(nearest == null || rc.getLocation().distanceSquaredTo(nearest) > rc.getLocation().distanceSquaredTo(loc))
-							nearest = loc;
-					}
-					if(nearest!=null && rc.canAttackSquare(nearest))
-						rc.attackSquare(nearest);
+					RobotInfo enemy = nearestEnemy(rc, rc.getType().attackRadiusMaxSquared);
+					if(enemy!=null && rc.canAttackSquare(enemy.location))
+						rc.attackSquare(enemy.location);
 					
 				}
 
