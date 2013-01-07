@@ -5,6 +5,7 @@ import java.util.Set;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
+import battlecode.common.GameConstants;
 import battlecode.common.GameObject;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
@@ -40,6 +41,7 @@ public class RobotPlayer {
 					for(MapLocation ml: allEncampments) allLocs.add(ml);
 					for(MapLocation ml: alliedEncampments) alliedLocs.add(ml);
 					for(Robot r: rc.senseNearbyGameObjects(Robot.class, 1000000, rc.getTeam())) {
+						if (rc.getTeamPower() < GameConstants.BROADCAST_READ_COST) break;
 						int x = rc.readBroadcast(r.getID());
 						if(x!=0) {
 							x--;
@@ -55,10 +57,12 @@ public class RobotPlayer {
 					}
 					int tint = (target.x<<16)+target.y+1;
 					rc.setIndicatorString(1, "target: "+(target.x-rc.getLocation().x)+","+(target.y-rc.getLocation().y));
-					rc.broadcast(rc.getRobot().getID(), tint);
+					if (rc.getTeamPower() > GameConstants.BROADCAST_SEND_COST)
+						rc.broadcast(rc.getRobot().getID(), tint);
 					
 					// If on encampment, capture it
-					if(target.equals(rc.getLocation())) {
+					if(target.equals(rc.getLocation()) && rc.senseEncampment(rc.getLocation())
+							&& rc.getTeamPower() >= rc.senseCaptureCost()) {
 						if(rc.getLocation().distanceSquaredTo(rc.senseHQLocation())>=rc.getLocation().distanceSquaredTo(rc.senseEnemyHQLocation())) {
 							rc.captureEncampment(RobotType.ARTILLERY);
 						} else {
@@ -117,7 +121,7 @@ public class RobotPlayer {
 					}
 					
 					// If blocked, end turn
-					if(!rc.canMove(dir))
+					if(dir.ordinal()<8 && !rc.canMove(dir))
 						break turn;
 					
 					// If there is an enemy mine in the way, defuse it
@@ -128,7 +132,8 @@ public class RobotPlayer {
 					}
 					
 					// Move in computed direction
-					rc.move(dir);
+					if(dir.ordinal()<8)
+						rc.move(dir);
 					break turn;
 					
 				} else if(rc.getType() == RobotType.ARTILLERY) {
