@@ -1,8 +1,10 @@
-package easybot;
+package mediumbot;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
-import battlecode.common.GameConstants;
 import battlecode.common.GameObject;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
@@ -31,6 +33,38 @@ public class RobotPlayer {
 						break turn;
 					}
 					
+					MapLocation[] allEncampments = rc.senseAllEncampments();
+					MapLocation[] alliedEncampments = rc.senseAlliedEncampments();
+					Set<MapLocation> allLocs = new HashSet<MapLocation>();
+					Set<MapLocation> alliedLocs = new HashSet<MapLocation>();
+					for(MapLocation ml: allEncampments) allLocs.add(ml);
+					for(MapLocation ml: alliedEncampments) alliedLocs.add(ml);
+					for(Robot r: rc.senseNearbyGameObjects(Robot.class, 1000000, rc.getTeam())) {
+						int x = rc.readBroadcast(r.getID());
+						if(x!=0) {
+							x--;
+							alliedLocs.add(new MapLocation(x>>16, x%(1<<16)));
+						}
+					}
+					MapLocation target = rc.senseEnemyHQLocation();
+					for(MapLocation enc: allLocs) {
+						if(alliedLocs.contains(enc)) continue;
+						if(target==null || enc.distanceSquaredTo(rc.getLocation()) <
+								target.distanceSquaredTo(rc.getLocation()))
+							target = enc;
+					}
+					int tint = (target.x<<16)+target.y+1;
+					rc.setIndicatorString(1, "target: "+(target.x-rc.getLocation().x)+","+(target.y-rc.getLocation().y));
+					rc.broadcast(rc.getRobot().getID(), tint);
+					
+					// If on encampment, capture it
+					if(target.equals(rc.getLocation())) {
+						int x = rc.readBroadcast(5555);
+						rc.captureEncampment(x%3==0?RobotType.GENERATOR:RobotType.SUPPLIER);
+						rc.broadcast(5555, x+1);
+						break turn;
+					}
+					
 					// Compute relative power
 					int sum = 0;
 					for(Robot r: rc.senseNearbyGameObjects(Robot.class, 13)) {
@@ -55,7 +89,7 @@ public class RobotPlayer {
 					Direction dir = null;
 					RobotInfo enemy = nearestEnemy(rc, 13);
 					if(enemy==null) {
-						dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
+						dir = rc.getLocation().directionTo(target);
 						
 					} else if(sum>=sumToAttack) {
 						dir = rc.getLocation().directionTo(enemy.location);
