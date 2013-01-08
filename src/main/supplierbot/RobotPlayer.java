@@ -43,8 +43,8 @@ public class RobotPlayer {
 					
 					// Compute nearest encampment (counting the enemy HQ)
 					MapLocation nearestEncampment = rc.senseEnemyHQLocation();
-					MapLocation[] alliedEncampments = rc.senseAlliedEncampments();
-					outer: for(MapLocation enc: rc.senseAllEncampments()) {
+					MapLocation[] alliedEncampments = rc.senseAlliedEncampmentSquares();
+					outer: for(MapLocation enc: rc.senseAllEncampmentSquares()) {
 						for(MapLocation aenc: alliedEncampments) 
 							if(aenc.equals(enc))
 								continue outer;

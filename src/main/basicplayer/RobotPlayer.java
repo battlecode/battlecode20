@@ -35,8 +35,8 @@ public class RobotPlayer {
 						break turn;
 					}
 					
-					MapLocation[] allEncampments = rc.senseAllEncampments();
-					MapLocation[] alliedEncampments = rc.senseAlliedEncampments();
+					MapLocation[] allEncampments = rc.senseAllEncampmentSquares();
+					MapLocation[] alliedEncampments = rc.senseAlliedEncampmentSquares();
 					Set<MapLocation> allLocs = new HashSet<MapLocation>();
 					Set<MapLocation> alliedLocs = new HashSet<MapLocation>();
 					for(MapLocation ml: allEncampments) allLocs.add(ml);

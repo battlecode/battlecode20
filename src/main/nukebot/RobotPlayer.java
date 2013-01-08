@@ -11,7 +11,7 @@ public class RobotPlayer {
 	public static void run(RobotController rc) {
 		while (true) {
 			try {
-				rc.researchUpgrade(Upgrade.values()[(int)(Math.random()*5)]);
+				rc.researchUpgrade(Upgrade.PICKAXE);
 			} catch (GameActionException e) {
 				e.printStackTrace();
 			}
