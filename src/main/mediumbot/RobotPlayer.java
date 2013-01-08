@@ -61,7 +61,7 @@ public class RobotPlayer {
 						rc.broadcast(rc.getRobot().getID(), tint);
 					
 					// If on encampment, capture it
-					if(target.equals(rc.getLocation()) && rc.senseEncampment(rc.getLocation())
+					if(target.equals(rc.getLocation()) && rc.senseEncampmentSquare(rc.getLocation())
 							&& rc.getTeamPower() >= rc.senseCaptureCost()) {
 						if(rc.getLocation().distanceSquaredTo(rc.senseHQLocation())>=rc.getLocation().distanceSquaredTo(rc.senseEnemyHQLocation())) {
 							rc.captureEncampment(RobotType.ARTILLERY);
