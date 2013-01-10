@@ -1,37 +1,45 @@
 package mediumbot;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import battlecode.common.Direction;
+import battlecode.common.Clock;
 import battlecode.common.GameActionException;
-import battlecode.common.GameConstants;
-import battlecode.common.GameObject;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
-import battlecode.common.RobotType;
-import battlecode.common.Team;
 
-/** Haitao's first attempt at a good macro bot.
- */
-public class RobotPlayer {
-	public static void run(RobotController rc) {
-		BasePlayer br;
-		switch(rc.getType()) {
-		case HQ:
-			br = new HQPlayer(rc);
-			break;
-		case SOLDIER:
-			br = new SoldierPlayer(rc);
-			break;
-		default:
-			br = new EncampmentPlayer(rc);
-			break;
-		}
-		
-		br.loop();
+public class Util {
+
+	static int m_z = Clock.getBytecodeNum();
+	static int m_w = Clock.getRoundNum();
+	
+	/**
+	 * sets up our RNG given two seeds
+	 * @param seed1
+	 * @param seed2
+	 */
+	public static void randInit(int seed1, int seed2)
+	{
+		m_z = seed1;
+		m_w = seed2;
+	}
+
+	private static int gen()
+	{
+		m_z = 36969 * (m_z & 65535) + (m_z >> 16);
+	    m_w = 18000 * (m_w & 65535) + (m_w >> 16);
+	    return (m_z << 16) + m_w;
+	}
+
+	/** @return an integer between 0 and MAX_INT */
+	public static int randInt()
+	{
+		return gen();
+	}
+
+	/** @return a double between 0 - 1.0 */
+	public static double randDouble()
+	{
+		return (gen() * 2.32830644e-10 + 0.5);
 	}
 	
 	public static RobotInfo nearestEnemy(RobotController rc, int distThreshold) throws GameActionException {
