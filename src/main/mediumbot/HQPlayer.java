@@ -1,9 +1,5 @@
 package mediumbot;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-
-import scala.actors.threadpool.Arrays;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
@@ -13,10 +9,11 @@ import battlecode.common.Team;
 
 public class HQPlayer extends BasePlayer {
 	MapLocation[] nearestEncampments;
+	int[] assign;
+	
 	
 	public HQPlayer(RobotController rc) throws GameActionException {
 		super(rc);
-		spawnRandomly();
 		findNearestEncampments();
 	}
 	
@@ -29,6 +26,15 @@ public class HQPlayer extends BasePlayer {
 		
 		if(shouldSpawn) {
 			spawnRandomly();
+			int i = 0;
+			while(i<assign.length&&assign[i]!=0) i++;
+			MapLocation ml;
+			if(i<assign.length) {
+				assign[i] = 1;
+				ml = nearestEncampments[i];
+			} else 
+				ml = enemyHQLoc;
+			msg.write(1, ml);
 		}
 		
 	}
@@ -53,13 +59,26 @@ public class HQPlayer extends BasePlayer {
 			if(enc.length > 20 || r > 2500)
 				break;
 		}
-		Arrays.sort(enc, new Comparator<MapLocation>() {
-
-			@Override
-			public int compare(MapLocation arg0, MapLocation arg1) {
-				return arg0.distanceSquaredTo(curLoc) - arg1.distanceSquaredTo(curLoc);
+		int N = enc.length;
+		int[] dists = new int[N];
+		boolean[] used = new boolean[N];
+		for(int n=0; n<N; n++) {
+			dists[n] = curLoc.distanceSquaredTo(enc[n]);
+			used[n] = false;
+		}
+		nearestEncampments = new MapLocation[N];
+		assign = new int[N];
+		for(int n=0; n<N; n++) {
+			int best = -1;
+			int val = 55555;
+			for(int m=0; m<N; m++) {
+				if(!used[m] && dists[m]<val) {
+					best = m;
+					val = dists[m];
+				}
 			}
-			
-		});
+			nearestEncampments[n] = enc[best];
+			used[best] = true;
+		}
 	}
 }

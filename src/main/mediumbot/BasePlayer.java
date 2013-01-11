@@ -17,6 +17,9 @@ public abstract class BasePlayer {
 	MapLocation curLoc;
 	double curHP;
 	double curShields;
+	MapLocation HQLoc;
+	MapLocation enemyHQLoc;
+	MessagingSystem msg;
 	
 	public BasePlayer(RobotController rc) {
 		this.rc = rc;
@@ -26,6 +29,11 @@ public abstract class BasePlayer {
 		this.enemyTeam = myTeam.opponent();
 		width = rc.getMapWidth();
 		height = rc.getMapHeight();
+		HQLoc = rc.senseHQLocation();
+		enemyHQLoc = rc.senseEnemyHQLocation();
+		
+		msg = new MessagingSystem(rc);
+		
 		updateCurVariables();
 	}
 	

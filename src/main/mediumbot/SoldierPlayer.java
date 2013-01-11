@@ -1,11 +1,7 @@
 package mediumbot;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
-import battlecode.common.GameConstants;
 import battlecode.common.GameObject;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
@@ -15,35 +11,20 @@ import battlecode.common.RobotType;
 import battlecode.common.Team;
 
 public class SoldierPlayer extends BasePlayer {
-	public SoldierPlayer(RobotController rc) {
+	MapLocation origTarget;
+	public SoldierPlayer(RobotController rc) throws GameActionException {
 		super(rc);
+		
+		origTarget = msg.readLoc(1);
 	}
-	public void run() throws GameActionException{
-		MapLocation[] allEncampments = rc.senseAllEncampmentSquares();
-		MapLocation[] alliedEncampments = rc.senseAlliedEncampmentSquares();
-		Set<MapLocation> allLocs = new HashSet<MapLocation>();
-		Set<MapLocation> alliedLocs = new HashSet<MapLocation>();
-		for(MapLocation ml: allEncampments) allLocs.add(ml);
-		for(MapLocation ml: alliedEncampments) alliedLocs.add(ml);
-		for(Robot r: rc.senseNearbyGameObjects(Robot.class, 1000000, rc.getTeam())) {
-			if (rc.getTeamPower() < GameConstants.BROADCAST_READ_COST) break;
-			int x = rc.readBroadcast(r.getID());
-			if(x!=0) {
-				x--;
-				alliedLocs.add(new MapLocation(x>>16, x%(1<<16)));
-			}
-		}
-		MapLocation target = rc.senseEnemyHQLocation();
-		for(MapLocation enc: allLocs) {
-			if(alliedLocs.contains(enc)) continue;
-			if(target==null || enc.distanceSquaredTo(rc.getLocation()) <
-					target.distanceSquaredTo(rc.getLocation()))
-				target = enc;
-		}
-		int tint = (target.x<<16)+target.y+1;
+	public void run() throws GameActionException {
+		
+		if(!rc.isActive()) 
+			return;
+		
+		MapLocation target = origTarget==null?enemyHQLoc:origTarget;
 		rc.setIndicatorString(1, "target: "+(target.x-rc.getLocation().x)+","+(target.y-rc.getLocation().y));
-		if (rc.getTeamPower() > GameConstants.BROADCAST_SEND_COST)
-			rc.broadcast(rc.getRobot().getID(), tint);
+		
 		
 		// If on encampment, capture it
 		if(rc.senseEncampmentSquare(rc.getLocation()) && rc.getTeamPower() >= rc.senseCaptureCost()) {
