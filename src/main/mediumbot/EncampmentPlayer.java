@@ -2,6 +2,7 @@ package mediumbot;
 
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
+import battlecode.common.Robot;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
@@ -17,12 +18,14 @@ public class EncampmentPlayer extends BasePlayer {
 		if(!rc.isActive())
 			return;
 
-		RobotInfo nearest = Util.nearestEnemy(rc, 63);
-		if(nearest!=null) {
-			MapLocation loc = nearest.location;
-			if(rc.canAttackSquare(loc))
-				rc.attackSquare(loc);
-		}
+		Robot[] ar = rc.senseNearbyGameObjects(Robot.class, 63, enemyTeam);
+		if(ar.length==0) 
+			return;
+		
+		RobotInfo ri = rc.senseRobotInfo(ar[(int)(Util.randDouble()*ar.length)]);
+		MapLocation loc = ri.location;
+		if(rc.canAttackSquare(loc))
+			rc.attackSquare(loc);
 		
 	}
 }

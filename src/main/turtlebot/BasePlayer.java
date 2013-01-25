@@ -1,4 +1,4 @@
-package mediumbot;
+package turtlebot;
 
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
@@ -17,7 +17,10 @@ public abstract class BasePlayer {
 	int height;
 	MapLocation curLoc;
 	double curHP;
+	double curEnergon;
 	double curShields;
+	double maxHP;
+	double maxEnergon;
 	MapLocation HQLoc;
 	MapLocation enemyHQLoc;
 	MessagingSystem msg;
@@ -25,6 +28,8 @@ public abstract class BasePlayer {
 	public BasePlayer(RobotController rc) {
 		this.rc = rc;
 		this.myType = rc.getType();
+		this.maxEnergon = myType.maxEnergon;
+		this.maxHP = maxEnergon;
 		this.myID = rc.getRobot().getID();
 		this.myTeam = rc.getTeam();
 		this.neutralTeam = Team.NEUTRAL;
@@ -64,6 +69,7 @@ public abstract class BasePlayer {
 	void updateCurVariables() {
 		curLoc = rc.getLocation();
 		curHP = rc.getEnergon();
+		curEnergon = curHP;
 		curShields = rc.getShields();
 	}
 }

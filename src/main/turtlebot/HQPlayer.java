@@ -1,16 +1,21 @@
-package mediumbot;
+package turtlebot;
 
+import battlecode.common.Clock;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
 import battlecode.common.RobotController;
+import battlecode.common.RobotInfo;
 import battlecode.common.Team;
+import battlecode.common.Upgrade;
 
 public class HQPlayer extends BasePlayer {
 	MapLocation[] nearestEncampments;
 	int[] assign;
-	
+	boolean allIn = false;
+	boolean techFast = false;
+	boolean sentInitialSoldier = false;
 	
 	public HQPlayer(RobotController rc) throws GameActionException {
 		super(rc);
@@ -18,11 +23,19 @@ public class HQPlayer extends BasePlayer {
 	}
 	
 	public void run() throws GameActionException {
+		if(rc.checkResearchProgress(Upgrade.NUKE)<Upgrade.NUKE.numRounds/2+2 && rc.senseEnemyNukeHalfDone())
+			allIn = true;
+		else if(rc.senseEnemyNukeHalfDone()) 
+			techFast = true;
+		RobotInfo nearestEnemy = Util.nearestEnemy(rc, 9999);
+		int nearestEnemyDist = nearestEnemy==null?9999:nearestEnemy.location.distanceSquaredTo(curLoc);
+		msg.write(7, nearestEnemy==null?null:nearestEnemy.location);
+		if(allIn) msg.write(13, 1);
 		if(!rc.isActive()) 
 			return;
 		
-		boolean shouldSpawn = rc.senseNearbyGameObjects(Robot.class, curLoc, 1000000, myTeam).length*5 < rc.getTeamPower();
-		
+		boolean shouldSpawn = !(techFast || rc.checkResearchProgress(Upgrade.NUKE)>320 || Clock.getRoundNum()>1700) && 
+				rc.senseNearbyGameObjects(Robot.class, curLoc, 1000000, myTeam).length*5 < rc.getTeamPower();
 		
 		if(shouldSpawn) {
 			spawnRandomly();
@@ -32,9 +45,19 @@ public class HQPlayer extends BasePlayer {
 			if(i<assign.length) {
 				assign[i] = 1;
 				ml = nearestEncampments[i];
-			} else 
+			} else if(!sentInitialSoldier) {
+				sentInitialSoldier = true;
+				ml = enemyHQLoc;
+			} else
 				ml = null;
 			msg.write(1, ml);
+		} else {
+			if(!rc.hasUpgrade(Upgrade.DEFUSION) && allIn)
+				rc.researchUpgrade(Upgrade.DEFUSION);
+			else if(!rc.hasUpgrade(Upgrade.VISION))
+				rc.researchUpgrade(Upgrade.VISION);
+			else
+				rc.researchUpgrade(Upgrade.NUKE);
 		}
 		
 	}
@@ -54,9 +77,9 @@ public class HQPlayer extends BasePlayer {
 		MapLocation[] enc;
 		int r = 0;
 		while(true) {
-			r+=100;
+			r+=9;
 			enc = rc.senseEncampmentSquares(curLoc, r, Team.NEUTRAL);
-			if(enc.length > 20 || r > 2500)
+			if(enc.length > 5 || r > 99)
 				break;
 		}
 		int N = enc.length;

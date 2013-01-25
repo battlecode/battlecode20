@@ -1,4 +1,4 @@
-package mediumbot;
+package turtlebot;
 
 import battlecode.common.GameActionException;
 import battlecode.common.GameConstants;
@@ -14,6 +14,7 @@ public class MessagingSystem {
 		this.teamShift = (rc.getTeam()==Team.A)?1977:5261;
 	}
 	
+	/** @return -1 if no message available */ 
 	public int read(int key) throws GameActionException {
 		int ch = key%GameConstants.BROADCAST_MAX_CHANNELS;
 		for(int i=0; i<3; i++) {
@@ -27,6 +28,7 @@ public class MessagingSystem {
 		return -1;
 	}
 	
+	/** @return null if no message available, (0,100) if a null message was written, (x,y) otherwise */
 	public MapLocation readLoc(int key) throws GameActionException {
 		int val = read(key);
 		if(val==-1) return null;

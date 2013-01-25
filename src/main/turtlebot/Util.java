@@ -1,4 +1,4 @@
-package mediumbot;
+package turtlebot;
 
 import battlecode.common.Clock;
 import battlecode.common.GameActionException;
@@ -43,12 +43,16 @@ public class Util {
 	}
 	
 	public static RobotInfo nearestEnemy(RobotController rc, int distThreshold) throws GameActionException {
+		return nearestEnemy(rc, distThreshold, rc.getLocation());
+	}
+	
+	public static RobotInfo nearestEnemy(RobotController rc, int distThreshold, MapLocation center) throws GameActionException {
 		int low = 0;
 		int high = distThreshold;
 		Robot[] ar;
 		while(true) {
 			int guess = (low+high)/2;
-			ar = rc.senseNearbyGameObjects(Robot.class, guess, rc.getTeam().opponent());
+			ar = rc.senseNearbyGameObjects(Robot.class, center, guess, rc.getTeam().opponent());
 			if(ar.length==0) low = guess+1;
 			else if(ar.length>4) high = guess-1;
 			else break;
