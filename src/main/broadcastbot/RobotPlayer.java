@@ -24,20 +24,24 @@ public class RobotPlayer {
 			try {
                 // Team A builds stuff and attacks around it
                 // Team B destroys what it sees
-                if (!rc.isActive()) {
-                    continue;
+                while (!rc.isActive()) {
+                    rc.yield();
                 }
                 if (rc.getTeam() == Team.A) {
                     //System.out.println("1 Team A sensed " + rc.senseBroadcastingRobots().length);
                     //System.out.println("2 Team A sensed " + rc.senseBroadcastingRobots(Team.A).length);
                     System.out.println("3 Team A sensed " + rc.senseBroadcastingRobots(Team.B).length);
                     if (rc.getType() == RobotType.HQ) {
+                        rc.setIndicatorString(0, "" + rc.getActionDelay());
                         Direction dir = rc.getLocation().directionTo(best);
                         if (rc.canMove(dir)) {
                             rc.spawn(dir);
                         }
                     } else if (rc.getType() == RobotType.SOLDIER) {
                         if (rc.getLocation().equals(best) || rc.getLocation().distanceSquaredTo(best) <= 2) {
+                            while (!rc.isActive()) {
+                                rc.yield();
+                            }
                             rc.construct(RobotType.PASTR);
                         } else {
                             Direction dir = rc.getLocation().directionTo(best);
@@ -47,6 +51,9 @@ public class RobotPlayer {
                             } else {
                                 stallTurns++;
                                 if (stallTurns > 5) {
+                            while (!rc.isActive()) {
+                                rc.yield();
+                            }
                                     rc.construct(RobotType.NOISETOWER);
                                 }
                             }
@@ -61,6 +68,7 @@ public class RobotPlayer {
                 } else {
                     MapLocation target = rc.senseEnemyHQLocation();
                     if (rc.getType() == RobotType.HQ) {
+                        rc.setIndicatorString(0, "" + rc.getActionDelay());
                         Direction dir = rc.getLocation().directionTo(target);
                         if (rc.canMove(dir)) {
                             rc.spawn(dir);
@@ -91,6 +99,9 @@ public class RobotPlayer {
                                 }
                                 if (Math.random() > 0.1) {
                                     if (found && rc.canAttackSquare(farthest)) {
+                                        while (!rc.isActive()) {
+                                            rc.yield();
+                                        }
                                         rc.attackSquare(farthest);
                                         rc.setIndicatorString(0, "I attacked " + farthest);
                                     }
