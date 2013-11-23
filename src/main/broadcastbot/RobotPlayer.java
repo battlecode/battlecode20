@@ -9,7 +9,7 @@ import battlecode.common.*;
 public class RobotPlayer {
 	public static void run(RobotController rc) {
         int rounds = 0;
-        double[][] cows = rc.senseCows();
+        double[][] cows = rc.senseCowGrowth();
         MapLocation best = new MapLocation(0, 0);
         for (int i = 0; i < rc.getMapWidth(); i++) {
             for (int j = 0; j < rc.getMapHeight(); j++) {
@@ -28,6 +28,9 @@ public class RobotPlayer {
                     continue;
                 }
                 if (rc.getTeam() == Team.A) {
+                    //System.out.println("1 Team A sensed " + rc.senseBroadcastingRobots().length);
+                    //System.out.println("2 Team A sensed " + rc.senseBroadcastingRobots(Team.A).length);
+                    System.out.println("3 Team A sensed " + rc.senseBroadcastingRobots(Team.B).length);
                     if (rc.getType() == RobotType.HQ) {
                         Direction dir = rc.getLocation().directionTo(best);
                         if (rc.canMove(dir)) {
@@ -35,7 +38,7 @@ public class RobotPlayer {
                         }
                     } else if (rc.getType() == RobotType.SOLDIER) {
                         if (rc.getLocation().equals(best) || rc.getLocation().distanceSquaredTo(best) <= 2) {
-                            rc.captureEncampment(RobotType.PASTR);
+                            rc.construct(RobotType.PASTR);
                         } else {
                             Direction dir = rc.getLocation().directionTo(best);
                             if (rc.canMove(dir)) {
@@ -44,7 +47,7 @@ public class RobotPlayer {
                             } else {
                                 stallTurns++;
                                 if (stallTurns > 5) {
-                                    rc.captureEncampment(RobotType.NOISETOWER);
+                                    rc.construct(RobotType.NOISETOWER);
                                 }
                             }
                         }
@@ -52,6 +55,7 @@ public class RobotPlayer {
                         rc.setIndicatorString(0, "I'm a noisetower!");
                     } else if (rc.getType() == RobotType.PASTR) {
                         rc.setIndicatorString(0, "I'm a pastr!");
+                        rc.broadcast(1, 1);
                     }
                     
                 } else {
@@ -85,14 +89,19 @@ public class RobotPlayer {
                                         }
                                     }
                                 }
-                                if (found && rc.canAttackSquare(farthest)) {
-                                    rc.attackSquare(farthest);
-                                    rc.setIndicatorString(0, "I attacked " + farthest);
+                                if (Math.random() > 0.1) {
+                                    if (found && rc.canAttackSquare(farthest)) {
+                                        rc.attackSquare(farthest);
+                                        rc.setIndicatorString(0, "I attacked " + farthest);
+                                    }
+                                } else {
+                                    rc.broadcast(1, 1);
                                 }
                             }
                     } else if (rc.getType() == RobotType.NOISETOWER) {
                     } else if (rc.getType() == RobotType.PASTR) {
                         rc.setIndicatorString(0, "I'm a pastr!");
+                        rc.broadcast(1, 1);
                     }
                 }
 
