@@ -1,4 +1,4 @@
-package pastrstream;
+package sweepbot;
 
 import battlecode.common.Direction;
 import battlecode.common.GameConstants;
@@ -33,25 +33,6 @@ public class RobotPlayer {
 		
 		if (rc.getType() == RobotType.HQ) {
 			try {
-				//trySpawn(rc,rc.getLocation().directionTo(enemyHQ));
-				//rc.broadcast(channelSpawn(),convertToMessage(2,rc.getLocation().add(Direction.EAST)));
-				avgcows = 0;
-				for (int i=0; i<cows.length/2; i++) {
-					for (int j=0; j<cows[0].length/2; j++) {
-						avgcows+=cows[2*i][2*j];
-						avgcows/=(cows.length/2);
-						avgcows/=(cows[0].length/2);
-					}
-				}
-				
-				LinkedList<naivePastrLocation> pastrLocations = new LinkedList<naivePastrLocation>();
-				boolean[][] addedPastrLocation = new boolean[cows.length][cows[0].length];
-				
-				MapLocation firstPastrLocation = rc.getLocation().add(rc.getLocation().directionTo(enemyHQ));
-				pastrLocations.offer(new naivePastrLocation(rc.getLocation().add(rc.getLocation().directionTo(enemyHQ))));
-				addedPastrLocation[firstPastrLocation.x][firstPastrLocation.y] = true;
-				naivePastrLocation nextPastrLocation;
-				
 				while (true) {
 					try {
 						
@@ -64,19 +45,7 @@ public class RobotPlayer {
 								trySpawn(rc,rc.getLocation().directionTo(enemyHQ));
 								//rc.broadcast(channelSpawn(),convertToMessage(1,enemyHQ));
 								
-								do {
-									nextPastrLocation = pastrLocations.poll();
-									for (naivePastrLocation p:nextPastrLocation.neighbors()) {
-										System.out.println("expanding " + nextPastrLocation.loc.toString());
-										if (!addedPastrLocation[p.loc.x][p.loc.y]) {
-											pastrLocations.offer(p);
-											System.out.println("added " + p.loc.toString());
-											addedPastrLocation[p.loc.x][p.loc.y] = true;
-										}
-									}
-								} while (nextPastrLocation == null || nextPastrLocation.loc.distanceSquaredTo(rc.getLocation()) <= 36 || Math.sqrt(nextPastrLocation.loc.distanceSquaredTo(rc.getLocation())) + Math.sqrt(nextPastrLocation.loc.distanceSquaredTo(enemyHQ)) < 1.05*Math.sqrt(rc.getLocation().distanceSquaredTo(enemyHQ))); //condition for 'bad' pastr
-								rc.broadcast(channelSpawn(),convertToMessage(2,nextPastrLocation.loc));
-								System.out.println(nextPastrLocation.loc.toString());
+								rc.broadcast(channelSpawn(),convertToMessage(1,enemyHQ));
 							}
 						}
 						rc.yield();
