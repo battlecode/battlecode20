@@ -117,11 +117,7 @@ public class RobotPlayer {
 						} else if (targetAction == 3) {
 							if (pastrID == 0) {
 								if (rc.isActive()) {
-									if (rc.getLocation().distanceSquaredTo(targetLocation) <= 24) {
-										attackMove(rc, targetLocation, true);
-									} else {
-										attackMove(rc,targetLocation);
-									}
+									attackMove(rc,targetLocation);
 								}
 								if (rc.canSenseSquare(targetLocation)) {
 									Robot obj = (Robot)rc.senseObjectAtLocation(targetLocation);
@@ -242,10 +238,9 @@ public class RobotPlayer {
 			//no enemies around.
 			//too far away
 			if (rc.getLocation().distanceSquaredTo(target) > 60) {
-				navigate(rc,target);
+				navigate(rc, target);
+				return;
 			}
-			
-			
 			Direction[] moves = new Direction[5];
 			Direction[] validMoves = new Direction[5];
 			int[] turn = {6,7,0,1,2};
@@ -270,13 +265,6 @@ public class RobotPlayer {
 				}
 			}
 			MapLocation destination = rc.getLocation().add(validMoves[closestMoveIndex]);
-			Robot[] allies8 = rc.senseNearbyGameObjects(Robot.class,1,myTeam);
-			if (destination.distanceSquaredTo(enemyHQ) > rc.getLocation().distanceSquaredTo(enemyHQ) && allies8.length > 1) {
-				lastDirection = toDirection[toInteger(validMoves[closestMoveIndex])+4];
-			} else {
-				lastDirection = validMoves[closestMoveIndex];
-			}
-			
 			boolean inPastrRange = false;
 			for (int i=0; i<pastrLocations.length; i++) {
 				if (destination.distanceSquaredTo(pastrLocations[i]) <= 13) {
@@ -290,8 +278,7 @@ public class RobotPlayer {
 			} else {
 				rc.move(validMoves[closestMoveIndex]);
 			}
-			//lastDirection = validMoves[closestMoveIndex];
-			
+			lastDirection = validMoves[closestMoveIndex];
 		}
 	}
 	
