@@ -32,9 +32,9 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.SOLDIER) {
 				try {
 					if (rc.isActive()) {
-						int action = (rc.getRobot().getID()*rand.nextInt(101))%101;
+						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
 						//Construct a PASTR
-						if (action < 1) {
+						if (action < 1 && rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 2) {
 							rc.construct(RobotType.PASTR);
 						//Attack a random nearby enemy
 						} else if (action < 30) {
