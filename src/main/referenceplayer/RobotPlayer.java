@@ -235,10 +235,10 @@ public class RobotPlayer {
 			return;
 		}
 		MapLocation[] enemyPastrLocations = rc.sensePastrLocations(enemyTeam);
-		if (enemyPastrLocations.length == 0) {
+		if (enemyPastrLocations == null || enemyPastrLocations.length == 0) {
 			attackMove(rc,targetLocation);
+			return;
 		}
-		
 		int closestIndex = 0;
 		int closestDistance = enemyPastrLocations[0].distanceSquaredTo(rc.getLocation());
 		
