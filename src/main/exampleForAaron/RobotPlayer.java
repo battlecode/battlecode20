@@ -37,16 +37,13 @@ public class RobotPlayer {
 						if(rc.isActive()){
 							double arand = rand.nextDouble();
 							if(arand<0.01){//small chance to build something
-								int whichBuilding = (int)(rand.nextDouble()*3);
+								int whichBuilding = (int)(rand.nextDouble()*2);
 								switch(whichBuilding){
 								case 0:
 									rc.construct(RobotType.PASTR);
 									break;
 								case 1:
 									rc.construct(RobotType.NOISETOWER);
-									break;
-								case 2:
-									rc.construct(RobotType.WALL);
 									break;
 								}
 							}else{//otherwise just walks around
