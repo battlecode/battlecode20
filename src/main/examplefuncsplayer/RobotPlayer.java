@@ -18,7 +18,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.HQ) {
 				try {					
 					//Check if a robot is spawnable and spawn one if it is
-					if (rc.isActive() && rc.senseRobotCount() <= 25) {
+					if (rc.isActive() && rc.senseRobotCount() < 25) {
 						Direction toEnemy = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
 						if (rc.senseObjectAtLocation(rc.getLocation().add(toEnemy)) == null) {
 							rc.spawn(toEnemy);
