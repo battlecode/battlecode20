@@ -91,7 +91,7 @@ public class RobotPlayer {
                                             continue;
                                         }
                                         RobotInfo info = rc.senseRobotInfo((Robot) obj);
-                                        if (info.team == Team.A && info.energon < 1000) {
+                                        if (info.team == Team.A && info.health < 1000) {
                                             farthest = m;
                                             found = true;
                                         }
