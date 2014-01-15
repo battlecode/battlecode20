@@ -89,15 +89,7 @@ public class RobotPlayer {
 		}
 		
 		if (rc.getType() == RobotType.SOLDIER) {
-			try {
-				while(true) {
-					if (rc.isActive()) {
-						rc.attackSquare(rc.getLocation());
-					}
-				}
-			} catch (Exception e) {}
 			
-			/*
 			try {
 				deadEnd = new boolean[cows.length][cows[0].length];
 				int m = rc.readBroadcast(channelSpawn());
@@ -136,7 +128,7 @@ public class RobotPlayer {
 					} catch (Exception e) {System.out.println("soldier exception occurred: " + e.getMessage()); rc.yield();}
 				}
 			} catch (Exception e) {System.out.println("soldier initializing exception occurred: " + e.getMessage()); rc.yield();}	
-		*/
+		
 		}
 		
 		
