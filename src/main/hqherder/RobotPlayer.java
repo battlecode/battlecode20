@@ -47,26 +47,28 @@ public class RobotPlayer {
 
                     // do some attacking (does not depend on activity)
 
-                    boolean attacked = false;
-                    Robot[] enemies = rc.senseNearbyGameObjects(Robot.class, RobotType.HQ.attackRadiusMaxSquared, rc.getTeam().opponent());
-                    if (enemies.length > 0) {
-                        // randomly attack one (should probably use some heuristics)
-                        int idx = (int) (Math.random() * enemies.length);
-                        RobotInfo info = rc.senseRobotInfo(enemies[idx]);
-                        rc.attackSquare(info.location);
-                        attacked = true;
-                    }
+                    if (rc.isActive()) {
+                        boolean attacked = false;
+                        Robot[] enemies = rc.senseNearbyGameObjects(Robot.class, RobotType.HQ.attackRadiusMaxSquared, rc.getTeam().opponent());
+                        if (enemies.length > 0) {
+                            // randomly attack one (should probably use some heuristics)
+                            int idx = (int) (Math.random() * enemies.length);
+                            RobotInfo info = rc.senseRobotInfo(enemies[idx]);
+                            rc.attackSquare(info.location);
+                            attacked = true;
+                        }
 
-                    if (!attacked) {
-                        Robot[] enemies2 = rc.senseNearbyGameObjects(Robot.class, RobotType.HQ.sensorRadiusSquared, rc.getTeam().opponent());
-                        for (Robot r : enemies2) {
-                            if (attacked) {
-                                break;
-                            }
-                            RobotInfo info = rc.senseRobotInfo(r);
-                            if (info.location.add(info.location.directionTo(myHQ)).distanceSquaredTo(myHQ) <= RobotType.HQ.attackRadiusMaxSquared) {
-                                rc.attackSquare(info.location.add(info.location.directionTo(myHQ)));
-                                attacked = true;
+                        if (!attacked) {
+                            Robot[] enemies2 = rc.senseNearbyGameObjects(Robot.class, RobotType.HQ.sensorRadiusSquared, rc.getTeam().opponent());
+                            for (Robot r : enemies2) {
+                                if (attacked) {
+                                    break;
+                                }
+                                RobotInfo info = rc.senseRobotInfo(r);
+                                if (info.location.add(info.location.directionTo(myHQ)).distanceSquaredTo(myHQ) <= RobotType.HQ.attackRadiusMaxSquared) {
+                                    rc.attackSquare(info.location.add(info.location.directionTo(myHQ)));
+                                    attacked = true;
+                                }
                             }
                         }
                     }
