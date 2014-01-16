@@ -6,7 +6,7 @@ import battlecode.common.*;
 
 public class RobotPlayer {
     //static final int coverage = 3; // increase this to do more full circles
-    static final int distance = 400; // radius squared to use
+    static final int distance = 300; // radius squared to use
 
     public static class SortByAngle implements Comparator<MapLocation> {
         MapLocation center;
