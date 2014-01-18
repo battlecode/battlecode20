@@ -44,13 +44,10 @@ public class Util {
 	 * Estimates enemy strength based on robot type, health level, cooldown, and flux
 	 */
 	public static double getEnemyStrengthEstimate(RobotInfo ri) {
-		double strengthEstimate;
+		double strengthEstimate = ri.health;
 		switch(ri.type) {
 		case SOLDIER:
-			strengthEstimate = ri.health+10;
-			break;
-		default:
-			strengthEstimate = 0;
+			strengthEstimate += 10;
 			break;
 		}
 		if(ri.actionDelay > 10) 

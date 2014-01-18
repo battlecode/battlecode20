@@ -26,6 +26,7 @@ public abstract class BaseRobot {
 	// Robot Statistics - updated per turn
 	public double curHealth;
 	public MapLocation curLoc;
+	public MapLocation prevLoc;
 	public Direction curDir;
 	public int curRound;
 
@@ -95,13 +96,11 @@ public abstract class BaseRobot {
 	public void updateRoundVariables() {
 		curRound = Clock.getRoundNum();
 		curHealth = rc.getHealth();
+		prevLoc = curLoc;
 		curLoc = rc.getLocation();
-		try {
-			curDir = rc.senseRobotInfo(rc.getRobot()).direction;
-			if (curDir == null) {
-				System.out.println("current direction is null");
-			}
-		} catch (Exception e) {
+		if (curLoc != null && prevLoc != null) {
+			curDir = prevLoc.directionTo(curLoc);
+		} else {
 			curDir = Direction.NORTH;
 		}
 
