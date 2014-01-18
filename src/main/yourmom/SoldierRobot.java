@@ -2,6 +2,7 @@ package yourmom;
 
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 
@@ -33,7 +34,7 @@ public class SoldierRobot extends BaseRobot {
 		super(myRC);
 
 		nav.setNavigationMode(NavigationMode.BUG);
-		enemySpottedRound = -1
+		enemySpottedRound = -1;
 	}
 
 	@Override
@@ -43,12 +44,51 @@ public class SoldierRobot extends BaseRobot {
 			healthLastTurn = curHealth;
 			return;
 		}
+
+		radar.scan(true, true);
+
+		int closestEnemyID = er.getClosestEnemyID();
+		MapLocation closestEnemyLocation = closestEnemyID == -1 ? null :
+			er.enemyLocationInfo[closestEnemyID];
+		if (closestEnemyLocation != null && rc.canSenseSquare(closestEnemyLocation)) {
+			closestEnemyLocation = null;
+		}
+		RobotInfo radarClosestEnemy = radar.closestEnemy;
+		if (radarClosestEnemy != null && (closestEnemyLocation == null || (radar.closestEnemyDist <= curLoc.distanceSquaredTo(closestEnemyLocation)))) {
+			closestEnemyLocation = radarClosestEnemy.location;
+		}
+		boolean enemyNearby = closestEnemyLocation != null && curLoc.distanceSquaredTo(closestEnemyLocation) <= myType.attackRadiusMaxSquared;
+		// TODO broadcasting?!
+
+		tryToAttack();
+
+		nav.setDestination(rc.senseEnemyHQLocation());
+
+		tryToMove();
 	}
 
-	// TODO
 	private void tryToAttack() throws GameActionException {
 		if (!rc.isActive()) {
 			return;
+		}
+
+		RobotInfo bestInfo = null;
+		double bestValue = Double.MAX_VALUE;
+		for (int n = 0; n < radar.numEnemyRobots; ++n) {
+			RobotInfo ri = radar.enemyInfos[radar.enemyRobots[n]];
+			if (!rc.canAttackSquare(ri.location)) {
+				continue;
+			}
+			// TODO determine whether to SD
+			if ((bestValue <= myType.attackPower && ri.health <= myType.attackPower) ? ri.health > bestValue : ri.health < bestValue) {
+				bestInfo = ri;
+				bestValue = ri.health;
+			}
+		}
+
+		if (bestInfo != null) {
+			// TODO broadcast?
+			rc.attackSquare(bestInfo.location);
 		}
 	}
 
@@ -58,20 +98,16 @@ public class SoldierRobot extends BaseRobot {
 		}
 
 		final Direction dirToMove = nav.navigateToDestination();
-		System.out.println("Direction of movement: "+dirToMove);
-		if (dirToMove != null) {
-			if (rc.canMove(dirToMove)) {
-				rc.move(dirToMove);
-			} else {
-				final Direction dirToWiggle = nav.wiggleToMovableDirection(dirToMove);
-				if (dirToWiggle != null) {
-					rc.move(dirToWiggle);
-				} else {
-					rc.move(nav.wiggleToMovableDirection(dirToMove.opposite()));
-				}
-			}
+		if (dirToMove != null && rc.canMove(dirToMove)) {
+			System.out.println("moving to dest");
+			rc.move(dirToMove);
 		} else {
-			rc.move(nav.navigateCompletelyRandomly());
+			Direction randomMove = nav.navigateCompletelyRandomly();
+			while (!rc.canMove(randomMove)) {
+				randomMove = nav.navigateCompletelyRandomly();
+			}
+			System.out.println("moving randomly");
+			rc.move(randomMove);
 		}
 		rc.yield();
 	}

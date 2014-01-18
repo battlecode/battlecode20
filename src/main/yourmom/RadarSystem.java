@@ -4,7 +4,9 @@ import battlecode.common.Clock;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
+import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
+import battlecode.common.Team;
 
 public class RadarSystem {
 	BaseRobot br;
@@ -172,7 +174,7 @@ public class RadarSystem {
  		}
 
  		if (scanAllies || scanEnemies) {
- 			Robots[] robots = this.robots;
+ 			Robot[] robots = this.robots;
 
  			// reset stat collection
  			if (scanEnemies) {
@@ -203,10 +205,87 @@ public class RadarSystem {
 	 							addEnemy(rc.senseRobotInfo(r));
 	 						}
 	 					}
+	 				} catch (Exception e) {
+	 					//e.printStackTrace();
 	 				}
 	 			}
  				break;
  			}
+
+ 			if (scanEnemies) {
+ 				if (numEnemyRobots == 0) {
+ 					centerEnemyX = centerEnemyY = -1;
+ 					vecEnemyX = br.curLoc.x;
+ 					vecEnemyY = br.curLoc.y;
+ 				} else {
+ 					centerEnemyX /= numEnemyRobots;
+ 					centerEnemyY /= numEnemyRobots;
+ 					vecEnemyX = centerEnemyX - br.curLoc.x;
+ 					vecEnemyY = centerEnemyY - br.curLoc.y;
+ 				}
+
+ 				// compute global statistics
+ 				if (numEnemyRobots == 0) {
+ 					roundsSinceEnemySighted++;
+ 				} else {
+ 					roundsSinceEnemySighted = 0;
+ 				}
+ 			}
+
+ 			if (scanAllies) {
+ 				if (numAllyFighters == 0) {
+ 					centerAllyX = centerAllyY = -1;
+ 				} else {
+ 					centerAllyX /= numAllyFighters;
+ 					centerAllyY /= numAllyFighters;
+ 				}
+ 			}
  		}
-	 }	 
+	}
+
+	/**
+	 * Check if we have scanned enemies this round
+	 */
+	public boolean hasScannedEnemies() {
+		return (lastScanRound == br.curRound && !needToScanEnemies);
+	}
+
+	/**
+	 * Check if we have scanned allies this round
+	 */
+	public boolean hasScannedAllies() {
+		return (lastScanRound == br.curRound && !needToScanAllies);
+	}
+
+	/**
+	 * Get the difference between the two swarms
+	 */
+	public double getArmyDifference() {
+		return numAllyRobots - numEnemyRobots;
+	}
+
+	/**
+	 * Gets the calculated swarm target in order to chase an enemy swarm
+	 */
+	public MapLocation getEnemySwarmTarget() {
+		double a = Math.sqrt(vecEnemyX * vecEnemyX + vecEnemyY * vecEnemyY) + 0.001;
+		return new MapLocation(
+			(int)(vecEnemyX * 7 / a) + br.curLoc.x,
+			(int)(vecEnemyY * 7 / a) + br.curLoc.y
+		);
+	}
+
+	/**
+	 * Gets the calculated enemy swarm center
+	 */
+	public MapLocation getEnemySwarmCenter() {
+		return new MapLocation(centerEnemyX, centerEnemyY);
+	}
+
+	/**
+	 * Gets the calculated ally swarm center
+	 */
+	public MapLocation getAllySwarmCenter() {
+		return new MapLocation(centerAllyX, centerAllyY);
+	}
 }

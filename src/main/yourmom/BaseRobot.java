@@ -14,6 +14,8 @@ public abstract class BaseRobot {
 	public final RobotController rc;
 	public final MapCacheSystem mc;
 	public final NavigationSystem nav;
+	public final RadarSystem radar;
+	public final ExtendedRadarSystem er;
 
 	// Robot Statistics - permanent variables
 	public final RobotType myType;
@@ -64,6 +66,8 @@ public abstract class BaseRobot {
 
 		mc = new MapCacheSystem(this);
 		nav = new NavigationSystem(this);
+		radar = new RadarSystem(this);
+		er = new ExtendedRadarSystem(this);
 	}
 
 	public abstract void run() throws GameActionException;
@@ -77,6 +81,8 @@ public abstract class BaseRobot {
 			try {
 				// Main Run Call
 				run();
+
+				er.step();
 
 				// Check if we've already run out of bytecodes
 				if (checkClock()) {

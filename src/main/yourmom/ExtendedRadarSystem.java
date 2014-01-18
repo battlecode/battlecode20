@@ -1,6 +1,8 @@
 package yourmom;
 
+import battlecode.common.Direction;
 import battlecode.common.MapLocation;
+import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 
 public class ExtendedRadarSystem {
@@ -93,7 +95,7 @@ public class ExtendedRadarSystem {
 	public double getStrengthDifference(MapLocation center, int radiusSquared) {
 		int i; // hardcoded to bring i into istore_3
 
-		flagCount+++;
+		flagCount++;
 		double diff = 0;
 
 		// Subtract enemy health
@@ -131,10 +133,11 @@ public class ExtendedRadarSystem {
 
 		// Add ally health from robots in the local radar but not in the ER
 		for (i = br.radar.numAllyRobots; --i >= 0;) {
-			int i = br.radar.allyRobots[i];
+			int id = br.radar.allyRobots[i];
 			if (flags[id] == flagCount) {
 				continue;
 			}
+			RobotInfo ri = br.radar.allyInfos[id];
 
 			if (center.distanceSquaredTo(ri.location) <= radiusSquared) {
 				diff += Util.getEnemyStrengthEstimate(ri);
@@ -177,13 +180,13 @@ public class ExtendedRadarSystem {
 		int[] counts = getEnemiesInEachDirection();
 		int bestDirOrdinal = -1;
 		int bestValue = -1;
-		for (int i = 0; i < RobotPlayer.NDIR; ++i) {
+		for (int i = 0; i < BaseRobot.NDIRECTIONS; ++i) {
 			if (counts[i] > bestValue) {
 				bestDirOrdinal = i;
 				bestValue = counts[i];
 			}
 		}
-		return RobotPlayer.USEFUL_DIRECTIONS[bestDirOrdinal];
+		return BaseRobot.USEFUL_DIRECTIONS[bestDirOrdinal];
 	}
 
 	/**
@@ -219,6 +222,7 @@ public class ExtendedRadarSystem {
 				counts[dirOrdinal]++;
 			}
 		}
+		return counts;
 	}
 
 	@Override
@@ -234,7 +238,7 @@ public class ExtendedRadarSystem {
 		size = allyKeySet.size();
 		for(int i=0; i<size; i++) {
 			int id = allyKeySet.getID(i);
-			ret+=" #"+", "+allyTypeInfo[id].ordinal()+id+", <"+(allyLocationInfo[id].x-br.curLoc.x)+","+(allyLocationInfo[id].y-br.curLoc.y)+
+			ret+=" #"+", "+id+", <"+(allyLocationInfo[id].x-br.curLoc.x)+","+(allyLocationInfo[id].y-br.curLoc.y)+
 					">, "+allyUnitStrengthEstimate[id]+"   ";
 		}
 		return ret.substring(0, Math.min(ret.length(), 250));
