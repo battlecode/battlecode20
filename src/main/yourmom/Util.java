@@ -46,12 +46,13 @@ public class Util {
 	public static double getEnemyStrengthEstimate(RobotInfo ri) {
 		double strengthEstimate = ri.health;
 		switch(ri.type) {
-		case SOLDIER:
-			strengthEstimate += 10;
+		case PASTR:
+		case NOISETOWER:
+			strengthEstimate = 0;
 			break;
 		}
-		if(ri.actionDelay > 10) 
-			strengthEstimate *= 20/(10+ri.actionDelay);
+		if(ri.actionDelay > 2) 
+			strengthEstimate *= 4/(2+ri.actionDelay);
 		return strengthEstimate;
 	}
 	
@@ -62,7 +63,8 @@ public class Util {
 	public static double getOwnStrengthEstimate(RobotController rc) {
 		switch(rc.getType()) {
 		case SOLDIER:
-			return rc.getHealth()+5;
+		case HQ:
+			return rc.getHealth();			
 		default:
 			return 0;
 		}

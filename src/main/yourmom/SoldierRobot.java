@@ -5,6 +5,7 @@ import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
+import battlecode.common.RobotType;
 
 public class SoldierRobot extends BaseRobot {
 	private enum BehaviorState {
@@ -29,18 +30,28 @@ public class SoldierRobot extends BaseRobot {
 	MapLocation enemySpottedTarget;
 	double healthLastTurn;
 	int enemySpottedRound;
+	int lastRoundTooClose;
+	boolean checkedBehind;
+	boolean movingTarget;
 
 	public SoldierRobot(RobotController myRC) throws GameActionException {
 		super(myRC);
 
 		nav.setNavigationMode(NavigationMode.BUG);
 		enemySpottedRound = -1;
+		lastRoundTooClose = -1;
+		behavior = BehaviorState.SWARM;
+		checkedBehind = false;
+		movingTarget = false;
+		target = ENEMY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, -5);
+
+		//System.out.println(rc.senseRobotCount());
 	}
 
 	@Override
 	public void run() throws GameActionException {
 		boolean gotHitLastRound = curHealth < healthLastTurn;
-		if ((behavior == BehaviorState.SWARM || behavior == BehaviorState.LOST)) {
+		if ((behavior == BehaviorState.SWARM || behavior == BehaviorState.LOST) && !rc.isActive()) {
 			healthLastTurn = curHealth;
 			return;
 		}
@@ -48,21 +59,59 @@ public class SoldierRobot extends BaseRobot {
 		radar.scan(true, true);
 
 		int closestEnemyID = er.getClosestEnemyID();
-		MapLocation closestEnemyLocation = closestEnemyID == -1 ? null :
-			er.enemyLocationInfo[closestEnemyID];
+		final MapLocation bestEnemyPastrLoc = getBestEnemyPastr();
+		MapLocation closestEnemyLocation = (bestEnemyPastrLoc != null)
+			? bestEnemyPastrLoc
+			: ((closestEnemyID == -1) ? null : er.enemyLocationInfo[closestEnemyID]);
 		if (closestEnemyLocation != null && rc.canSenseSquare(closestEnemyLocation)) {
 			closestEnemyLocation = null;
 		}
 		RobotInfo radarClosestEnemy = radar.closestEnemy;
-		if (radarClosestEnemy != null && (closestEnemyLocation == null || (radar.closestEnemyDist <= curLoc.distanceSquaredTo(closestEnemyLocation)))) {
+		if (radarClosestEnemy != null && radarClosestEnemy.type != RobotType.HQ && (closestEnemyLocation == null || (radar.closestEnemyDist <= curLoc.distanceSquaredTo(closestEnemyLocation)))) {
 			closestEnemyLocation = radarClosestEnemy.location;
 		}
 		boolean enemyNearby = closestEnemyLocation != null && curLoc.distanceSquaredTo(closestEnemyLocation) <= myType.attackRadiusMaxSquared;
-		// TODO broadcasting?!
+		// TODO broadcasting?
+
+		movingTarget = true;
+
+		if (gotHitLastRound && (closestEnemyLocation == null || curLoc.distanceSquaredTo(closestEnemyLocation) > 20) || (behavior == BehaviorState.LOOK_AROUND_FOR_ENEMIES)) {
+			behavior = BehaviorState.LOOK_AROUND_FOR_ENEMIES;
+		} else if (closestEnemyLocation != null) {
+			if (enemyNearby) {
+				behavior = BehaviorState.ENEMY_DETECTED;
+			} else {
+				behavior = BehaviorState.SEEK;
+			}
+			target = closestEnemyLocation;
+		} else if (behavior == BehaviorState.ENEMY_DETECTED) {
+			behavior = BehaviorState.ENEMY_DETECTED;
+		} /*else if (curRound < enemySpottedRound + Constants.ENEMY_SPOTTED_SIGNAL_TIMEOUT) {
+			behavior = BehaviorState.SEEK;
+			target = enemySpottedTarget;
+			movingTarget = false;
+		}*/ else if (behavior == BehaviorState.BECOME_PASTR) {
+			behavior = BehaviorState.BECOME_PASTR;
+		} else if (behavior == BehaviorState.BECOME_NOISETOWER) {
+			behavior = BehaviorState.BECOME_NOISETOWER;
+		} else {
+			behavior = BehaviorState.LOST;
+			// find the enemy pastr furthest from enemy HQ.
+			// if no pastrs, go to enemy HQ.
+			final MapLocation pastrLoc = getBestEnemyPastr();
+			target = (pastrLoc != null)
+				? pastrLoc
+				: ENEMY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, -5);
+		}
 
 		tryToAttack();
 
-		nav.setDestination(rc.senseEnemyHQLocation());
+		if (!movingTarget || previousBugTarget == null || !nav.isBugTracing() || target.distanceSquaredTo(previousBugTarget) > 20 || curLoc.distanceSquaredTo(previousBugTarget) <= 2) {
+			nav.setDestination(target);
+			previousBugTarget = target;
+		}
+
+		healthLastTurn = curHealth;
 
 		tryToMove();
 	}
@@ -74,12 +123,17 @@ public class SoldierRobot extends BaseRobot {
 
 		RobotInfo bestInfo = null;
 		double bestValue = Double.MAX_VALUE;
+
 		for (int n = 0; n < radar.numEnemyRobots; ++n) {
 			RobotInfo ri = radar.enemyInfos[radar.enemyRobots[n]];
-			if (!rc.canAttackSquare(ri.location)) {
+			// check self destruct
+			if (curLoc.distanceSquaredTo(ri.location) <= 2 && curHealth - 20 <= 0) {
+				rc.selfDestruct();
+			}
+
+			if (!rc.canAttackSquare(ri.location) || ri.type == RobotType.HQ) {
 				continue;
 			}
-			// TODO determine whether to SD
 			if ((bestValue <= myType.attackPower && ri.health <= myType.attackPower) ? ri.health > bestValue : ri.health < bestValue) {
 				bestInfo = ri;
 				bestValue = ri.health;
@@ -89,6 +143,7 @@ public class SoldierRobot extends BaseRobot {
 		if (bestInfo != null) {
 			// TODO broadcast?
 			rc.attackSquare(bestInfo.location);
+			rc.yield();
 		}
 	}
 
@@ -97,18 +152,177 @@ public class SoldierRobot extends BaseRobot {
 			return;
 		}
 
-		final Direction dirToMove = nav.navigateToDestination();
+		Direction dirToMove = computeMoveDirection();
 		if (dirToMove != null && rc.canMove(dirToMove)) {
-			System.out.println("moving to dest");
-			rc.move(dirToMove);
-		} else {
-			Direction randomMove = nav.navigateCompletelyRandomly();
-			while (!rc.canMove(randomMove)) {
-				randomMove = nav.navigateCompletelyRandomly();
+			if (curLoc.add(dirToMove).distanceSquaredTo(ENEMY_HQ_LOCATION) > 15) {
+				rc.move(dirToMove);
+			} else {
+				// turn until it can move
 			}
-			System.out.println("moving randomly");
-			rc.move(randomMove);
 		}
-		rc.yield();
+	}
+
+	private Direction computeMoveDirection() throws GameActionException {
+		if (behavior == BehaviorState.LOOK_AROUND_FOR_ENEMIES) {
+			checkedBehind = true;
+			return curDir.opposite();
+		} else if (behavior == BehaviorState.SWARM) {
+			if (curLoc.equals(target)) {
+				return nav.navigateCompletelyRandomly();
+			}
+			if (curLoc.distanceSquaredTo(target) >= 11) {
+				Direction dirToMove = nav.navigateToDestination();
+				if (dirToMove == null) {
+					return null;
+				}
+				if (behavior == BehaviorState.SWARM && !nav.isBugTracing()) {
+					if (radar.alliesInFront == 0 && Util.randDouble() < 0.6) {
+						return null;
+					}
+					if (radar.alliesInFront > 3 && Util.randDouble() < 0.05 * radar.alliesInFront) {
+						return nav.navigateCompletelyRandomly();
+					}
+					if (radar.alliesOnLeft > radar.alliesOnRight && Util.randDouble() < 0.4) {
+						return dirToMove.rotateRight();
+					} else if (radar.alliesOnLeft < radar.alliesOnRight && Util.randDouble() < 0.4) {
+						return dirToMove.rotateLeft();
+					}
+				}
+				return null;
+			} else if (curLoc.distanceSquaredTo(target) >= 2) {
+				if (radar.alliesInFront > 3 && Util.randDouble() < 0.05 * radar.alliesInFront) {
+					return nav.navigateCompletelyRandomly();
+				}
+			}
+		} else if (behavior == BehaviorState.ENEMY_DETECTED) {
+			final MapLocation midpoint = new MapLocation(
+				(curLoc.x + target.x) / 2,
+				(curLoc.y + target.y) / 2
+			);
+			final double strengthDifference = er.getStrengthDifference(midpoint, 24);
+			final boolean weHaveBiggerFront = strengthDifference > 6.;
+			final int tooClose = weHaveBiggerFront ? -1 : 5;
+			final int tooFar = weHaveBiggerFront ? 4 : 26;
+			final int distToTarget = curLoc.distanceSquaredTo(target);
+			final Direction dirToTarget = curLoc.directionTo(target);
+
+			if (distToTarget <= 13 && (curDir.ordinal() - dirToTarget.ordinal() + 9) % 8 > 2) {
+				return dirToTarget;
+			} else if (distToTarget <= tooClose) {
+				lastRoundTooClose = curRound;
+				final Direction opp = curDir.opposite();
+				if (rc.canMove(opp)) {
+					return opp;
+				}
+				Direction dir = opp.rotateLeft();
+				if (isOptimalRetreatingDirection(dir, target) && rc.canMove(dir)) {
+					return dir;
+				}
+				dir = opp.rotateRight();
+				if (isOptimalRetreatingDirection(dir, target) && rc.canMove(dir)) {
+					return dir;
+				}
+				dir = opp.rotateLeft().rotateLeft();
+				if (isOptimalRetreatingDirection(dir, target) && rc.canMove(dir)) {
+					return dir;
+				}
+			} else if (distToTarget >= tooFar) {
+				if (curRound < lastRoundTooClose + 12) {
+					return curLoc.directionTo(target);
+				}
+				if (distToTarget <= 5) {
+					if (rc.canMove(dirToTarget)) {
+						return dirToTarget;
+					}
+					Direction dir = dirToTarget.rotateLeft();
+					if (rc.canMove(dir) && isOptimalAdvancingDirection(dir, target, dirToTarget)) {
+						return dir;
+					}
+					dir = dirToTarget.rotateRight();
+					if (rc.canMove(dir) && isOptimalAdvancingDirection(dir, target, dirToTarget)) {
+						return dir;
+					}
+					return dirToTarget;
+				} else if (distToTarget >= 26) {
+					return nav.navigateToDestination();
+				} else {
+					return dirToTarget;
+				}
+			}
+		} else if (curLoc.distanceSquaredTo(target) >= 2) {
+			return nav.navigateToDestination();
+		}
+
+		return curLoc.directionTo(target);
+	}
+
+	private MapLocation getBestEnemyPastr() {
+		final MapLocation[] enemyPastrs = rc.sensePastrLocations(enemyTeam);
+		final int numEnemyPastrs = enemyPastrs.length;
+		double maxDistToEnemyHQ = 0;
+		MapLocation targetPastr = null;
+
+		for (int i = numEnemyPastrs; --i >= 0;) {
+			final double distToEnemyHQ = ENEMY_HQ_LOCATION.distanceSquaredTo(enemyPastrs[i]);
+			if (distToEnemyHQ > maxDistToEnemyHQ) {
+				targetPastr = enemyPastrs[i];
+				maxDistToEnemyHQ = distToEnemyHQ;
+			}
+		}
+
+		return targetPastr;
+	}
+
+	private boolean isOptimalAdvancingDirection(Direction dir, MapLocation target, Direction dirToTarget) {
+		final int dx = target.x-curLoc.x;
+		final int dy = target.y-curLoc.y;
+		switch(dx) {
+		case -2:
+			if(dy==1) return dir==Direction.WEST || dir==Direction.SOUTH_WEST;
+			else if(dy==-1) return dir==Direction.WEST || dir==Direction.NORTH_WEST;
+			break;
+		case -1:
+			if(dy==2) return dir==Direction.SOUTH || dir==Direction.SOUTH_WEST;
+			else if(dy==-2) return dir==Direction.NORTH || dir==Direction.NORTH_WEST;
+			break;
+		case 1:
+			if(dy==2) return dir==Direction.SOUTH || dir==Direction.SOUTH_EAST;
+			else if(dy==-2) return dir==Direction.NORTH || dir==Direction.NORTH_EAST;
+			break;
+		case 2:
+			if(dy==1) return dir==Direction.EAST || dir==Direction.SOUTH_EAST;
+			else if(dy==-1) return dir==Direction.EAST || dir==Direction.NORTH_EAST;
+			break;
+		default:
+			break;
+		}
+		return dir == dirToTarget;
+	}
+
+	private boolean isOptimalRetreatingDirection(Direction dir, MapLocation target) {
+		int dx = curLoc.x-target.x;
+		final int dy = curLoc.y-target.y;
+		if(dx==0) {
+			if(dy==0) return true;
+			if(dy>0) return dir==Direction.SOUTH || dir==Direction.SOUTH_EAST || dir==Direction.SOUTH_WEST;
+			return dir==Direction.NORTH || dir==Direction.NORTH_EAST || dir==Direction.NORTH_WEST;
+		}
+		if(dx>0) {
+			if(dy>dx) return dir==Direction.SOUTH_EAST || dir==Direction.SOUTH;
+			if(dy==dx) return dir==Direction.SOUTH_EAST || dir==Direction.SOUTH || dir==Direction.EAST;
+			if(dy>0) return dir==Direction.EAST || dir==Direction.SOUTH_EAST;
+			if(dy==0) return dir==Direction.EAST || dir==Direction.NORTH_EAST || dir==Direction.SOUTH_EAST;
+			if(dy>-dx) return dir==Direction.EAST || dir==Direction.NORTH_EAST;
+			if(dy==-dx) return dir==Direction.EAST || dir==Direction.NORTH_EAST || dir==Direction.NORTH;
+			return dir==Direction.NORTH || dir==Direction.NORTH_EAST;
+		}
+		dx = -dx;
+		if(dy>dx) return dir==Direction.SOUTH_WEST || dir==Direction.SOUTH;
+		if(dy==dx) return dir==Direction.SOUTH_WEST || dir==Direction.SOUTH || dir==Direction.WEST;
+		if(dy>0) return dir==Direction.WEST || dir==Direction.SOUTH_WEST;
+		if(dy==0) return dir==Direction.WEST || dir==Direction.NORTH_WEST || dir==Direction.SOUTH_WEST;
+		if(dy>-dx) return dir==Direction.WEST || dir==Direction.NORTH_WEST;
+		if(dy==-dx) return dir==Direction.WEST || dir==Direction.NORTH_WEST || dir==Direction.NORTH;
+		return dir==Direction.NORTH || dir==Direction.NORTH_WEST;
 	}
 }

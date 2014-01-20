@@ -20,10 +20,16 @@ public abstract class BaseRobot {
 	// Robot Statistics - permanent variables
 	public final RobotType myType;
 	public final Team myTeam;
+	public final Team enemyTeam;
 	public final int myID;
 	public final double myMaxHealth;
 	public final int birthday;
 	public final MapLocation birthplace;
+	public final MapLocation MY_HQ_LOCATION;
+	public final MapLocation ENEMY_HQ_LOCATION;
+	public final int MAP_WIDTH;
+	public final int MAP_HEIGHT;
+	public final Direction DIRECTION_TO_ENEMY_HQ;
 
 	// Robot Statistics - updated per turn
 	public double curHealth;
@@ -58,16 +64,25 @@ public abstract class BaseRobot {
 
 		myType = rc.getType();
 		myTeam = rc.getTeam();
+		enemyTeam = myTeam.opponent();
 		myID = rc.getRobot().getID();
 		myMaxHealth = myType.maxHealth;
 		birthday = Clock.getRoundNum();
 		birthplace = rc.getLocation();
 		updateRoundVariables();
 
+		MAP_WIDTH = rc.getMapWidth();
+		MAP_HEIGHT = rc.getMapHeight();
+		MY_HQ_LOCATION = rc.senseHQLocation();
+		ENEMY_HQ_LOCATION = rc.senseEnemyHQLocation();
+		DIRECTION_TO_ENEMY_HQ = MY_HQ_LOCATION.directionTo(ENEMY_HQ_LOCATION);
+
 		mc = new MapCacheSystem(this);
 		nav = new NavigationSystem(this);
 		radar = new RadarSystem(this);
 		er = new ExtendedRadarSystem(this);
+
+		mc.senseAll();
 	}
 
 	public abstract void run() throws GameActionException;

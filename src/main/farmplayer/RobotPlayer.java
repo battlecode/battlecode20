@@ -102,6 +102,7 @@ public class RobotPlayer {
 			RobotInfo firstRobotInfo = rc.senseRobotInfo(enemyRobots[0]);
 			if (rc.isActive()) {
 				rc.attackSquare(firstRobotInfo.location);
+				rc.yield();
 			}
 		}
 
@@ -127,13 +128,13 @@ public class RobotPlayer {
 		final MapLocation myLoc = rc.getLocation();
 		for (int i = 0; i < NDIR; ++i) {
 			final Direction d = USEFUL_DIRECTIONS[i];
-			for (int mult = 20; mult-- > 0;) {
+			for (int mult = 18; --mult >= 0;) {
 				final MapLocation attackLoc = myLoc.add(d, mult);
-				if (myLoc.distanceSquaredTo(attackLoc) < 400 && inMap(attackLoc)) {
+				if (myLoc.distanceSquaredTo(attackLoc) < 300 && inMap(attackLoc)) {
 					averageCowGrowth[i] += cows[attackLoc.x][attackLoc.y];
 				}
 			}
-			averageCowGrowth[i] /= 20;
+			averageCowGrowth[i] /= 17;
 		}
 
 		return averageCowGrowth;
@@ -149,13 +150,16 @@ public class RobotPlayer {
 
 		final MapLocation myLoc = rc.getLocation();
 		for (int i = 0; i < NDIR; ++i) {
-			if (averageCowGrowth[i] < 0.2) {
+			if (averageCowGrowth[i] < 0.1) {
 				continue;
 			}
 			final Direction d = USEFUL_DIRECTIONS[i];
-			for (int mult = 20; mult-- >= 0;) {
+			for (int mult = 18; --mult >= 0;) {
 				final MapLocation attackLoc = myLoc.add(d, mult);
-				if (myLoc.distanceSquaredTo(attackLoc) < 400 && inMap(attackLoc)) {
+				while (!rc.isActive()) {
+					rc.yield();
+				}
+				if (myLoc.distanceSquaredTo(attackLoc) < 300 && inMap(attackLoc)) {
 					rc.attackSquareLight(attackLoc);
 					rc.yield();
 				}

@@ -251,7 +251,7 @@ public class NavigationSystem {
 		if(mapCache.edgeYMax!=0) normalBug.edgeYMax = mapCache.edgeYMax;
 		boolean movable[] = new boolean[8];
 		for(int i=0; i<8; i++) {
-			Direction dir = Constants.directions[i];
+			Direction dir = BaseRobot.USEFUL_DIRECTIONS[i];
 			TerrainTile tt = rc.senseTerrainTile(
 					br.curLoc.add(dir));
 			if(bugTurnsBlocked < 3)
@@ -290,7 +290,7 @@ public class NavigationSystem {
 		int a = rand/2;
 		int b = rand%2*2+3;
 		for(int i=0; i<8; i++) {
-			Direction dir = Constants.directions[(a+i*b)%8];
+			Direction dir = BaseRobot.USEFUL_DIRECTIONS[(a+i*b)%8];
 			if(!mapCache.isWall(br.curLoc.add(dir)))
 				return dir;
 		}

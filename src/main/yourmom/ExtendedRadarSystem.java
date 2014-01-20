@@ -115,7 +115,7 @@ public class ExtendedRadarSystem {
 			}
 			RobotInfo ri = br.radar.enemyInfos[id];
 
-			if (ri.type == RobotType.SOLDIER) {
+			if (ri.type == RobotType.SOLDIER || ri.type == RobotType.HQ) {
 				if (center.distanceSquaredTo(ri.location) <= radiusSquared) {
 					diff -= Util.getEnemyStrengthEstimate(ri);
 				}
@@ -159,11 +159,13 @@ public class ExtendedRadarSystem {
 		int minDist = 34;
 		int bestID = -1;
 		int bestDist = Integer.MAX_VALUE;
+
 		for (int i = enemyKeySet.size(); --i >= 0;) {
 			int id = enemyKeySet.getID(i);
-			if (enemyMinDistToAlly[id] > minDist) {
+			if (enemyMinDistToAlly[id] > minDist || enemyUnitStrengthEstimate[id] > 1000.) {
 				continue;
 			}
+
 			int dist = br.curLoc.distanceSquaredTo(enemyLocationInfo[id]);
 			if (dist < bestDist) {
 				bestID = id;
