@@ -20,9 +20,11 @@ public class NoiseTowerRobot extends BaseRobot {
 			final Direction d = BaseRobot.USEFUL_DIRECTIONS[i];
 			for (int mult = 20; mult >= 0; mult -= 2) {
 				final MapLocation attackLoc = curLoc.add(d, mult);
+				while (!rc.isActive()) {
+					rc.yield();
+				}
 				if (curLoc.distanceSquaredTo(attackLoc) <= myType.attackRadiusMaxSquared && inMap(attackLoc)) {
 					rc.attackSquareLight(attackLoc);
-					rc.yield();
 				}
 			}
 		}

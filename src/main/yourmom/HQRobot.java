@@ -6,7 +6,7 @@ import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 
 public class HQRobot extends BaseRobot {
-	final static int MAX_ROBOTS = 15;
+	final static int MAX_ROBOTS = 20;
 
 	int nRobots = 0;
 

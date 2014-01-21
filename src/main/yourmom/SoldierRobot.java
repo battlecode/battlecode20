@@ -1,8 +1,10 @@
 package yourmom;
 
+import battlecode.common.Clock;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
+import battlecode.common.Robot;
 import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
@@ -24,6 +26,9 @@ public class SoldierRobot extends BaseRobot {
 		/** Become a noisetower. */
 		BECOME_NOISETOWER,
 	};
+
+	final int INITIAL_SWARM_SIZE = 5;
+
 	BehaviorState behavior;
 	MapLocation target;
 	MapLocation previousBugTarget;
@@ -33,6 +38,7 @@ public class SoldierRobot extends BaseRobot {
 	int lastRoundTooClose;
 	boolean checkedBehind;
 	boolean movingTarget;
+	int targetSwarmSize;
 
 	public SoldierRobot(RobotController myRC) throws GameActionException {
 		super(myRC);
@@ -43,13 +49,33 @@ public class SoldierRobot extends BaseRobot {
 		behavior = BehaviorState.SWARM;
 		checkedBehind = false;
 		movingTarget = false;
-		target = ENEMY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, -5);
+		target = ENEMY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, -4);
 
 		//System.out.println(rc.senseRobotCount());
+		targetSwarmSize = INITIAL_SWARM_SIZE;
+
+		if (Clock.getRoundNum() > 1500) {
+			final int nearbyHQStructures = rc.senseNearbyGameObjects(
+				Robot.class,
+				MY_HQ_LOCATION,
+				1,
+				myTeam
+			).length;
+			switch (nearbyHQStructures) {
+			case 1:
+				rc.construct(RobotType.PASTR);
+				break;
+			case 2:
+				rc.construct(RobotType.NOISETOWER);
+				break;
+			}
+		}
 	}
 
 	@Override
 	public void run() throws GameActionException {
+		rc.setIndicatorString(0, behavior.toString());
+
 		boolean gotHitLastRound = curHealth < healthLastTurn;
 		if ((behavior == BehaviorState.SWARM || behavior == BehaviorState.LOST) && !rc.isActive()) {
 			healthLastTurn = curHealth;
@@ -60,9 +86,7 @@ public class SoldierRobot extends BaseRobot {
 
 		int closestEnemyID = er.getClosestEnemyID();
 		final MapLocation bestEnemyPastrLoc = getBestEnemyPastr();
-		MapLocation closestEnemyLocation = (bestEnemyPastrLoc != null)
-			? bestEnemyPastrLoc
-			: ((closestEnemyID == -1) ? null : er.enemyLocationInfo[closestEnemyID]);
+		MapLocation closestEnemyLocation = (closestEnemyID == -1) ? null : er.enemyLocationInfo[closestEnemyID];
 		if (closestEnemyLocation != null && rc.canSenseSquare(closestEnemyLocation)) {
 			closestEnemyLocation = null;
 		}
@@ -70,6 +94,7 @@ public class SoldierRobot extends BaseRobot {
 		if (radarClosestEnemy != null && radarClosestEnemy.type != RobotType.HQ && (closestEnemyLocation == null || (radar.closestEnemyDist <= curLoc.distanceSquaredTo(closestEnemyLocation)))) {
 			closestEnemyLocation = radarClosestEnemy.location;
 		}
+		closestEnemyLocation = (bestEnemyPastrLoc != null) ? bestEnemyPastrLoc : closestEnemyLocation;
 		boolean enemyNearby = closestEnemyLocation != null && curLoc.distanceSquaredTo(closestEnemyLocation) <= myType.attackRadiusMaxSquared;
 		// TODO broadcasting?
 
@@ -86,14 +111,20 @@ public class SoldierRobot extends BaseRobot {
 			target = closestEnemyLocation;
 		} else if (behavior == BehaviorState.ENEMY_DETECTED) {
 			behavior = BehaviorState.ENEMY_DETECTED;
+			//final int numEnemyRobots = rc.senseNearbyGameObjects(Robot.class, 35, enemyTeam).length;
+			//targetSwarmSize = (numEnemyRobots > targetSwarmSize) ? numEnemyRobots : targetSwarmSize;
 		} /*else if (curRound < enemySpottedRound + Constants.ENEMY_SPOTTED_SIGNAL_TIMEOUT) {
 			behavior = BehaviorState.SEEK;
 			target = enemySpottedTarget;
 			movingTarget = false;
-		}*/ else if (behavior == BehaviorState.BECOME_PASTR) {
-			behavior = BehaviorState.BECOME_PASTR;
-		} else if (behavior == BehaviorState.BECOME_NOISETOWER) {
-			behavior = BehaviorState.BECOME_NOISETOWER;
+		}*/ else if (behavior == BehaviorState.SWARM) {
+			final int nearbySoldiers = rc.senseNearbyGameObjects(Robot.class, 4, myTeam).length;
+			if (nearbySoldiers < targetSwarmSize) {
+				behavior = BehaviorState.SWARM;
+			} else {
+				behavior = BehaviorState.SEEK;
+				targetSwarmSize = INITIAL_SWARM_SIZE;
+			}
 		} else {
 			behavior = BehaviorState.LOST;
 			// find the enemy pastr furthest from enemy HQ.
@@ -101,7 +132,7 @@ public class SoldierRobot extends BaseRobot {
 			final MapLocation pastrLoc = getBestEnemyPastr();
 			target = (pastrLoc != null)
 				? pastrLoc
-				: ENEMY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, -5);
+				: ENEMY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, -4);
 		}
 
 		tryToAttack();
@@ -128,6 +159,7 @@ public class SoldierRobot extends BaseRobot {
 			RobotInfo ri = radar.enemyInfos[radar.enemyRobots[n]];
 			// check self destruct
 			if (curLoc.distanceSquaredTo(ri.location) <= 2 && curHealth - 20 <= 0) {
+				System.out.println("self destruct");
 				rc.selfDestruct();
 			}
 
@@ -158,6 +190,10 @@ public class SoldierRobot extends BaseRobot {
 				rc.move(dirToMove);
 			} else {
 				// turn until it can move
+				do {
+					dirToMove = nav.wiggleToMovableDirection(dirToMove);
+				} while (!rc.canMove(dirToMove) || curLoc.add(dirToMove).distanceSquaredTo(ENEMY_HQ_LOCATION) <= 15);
+				rc.move(dirToMove);
 			}
 		}
 	}
@@ -243,13 +279,13 @@ public class SoldierRobot extends BaseRobot {
 						return dir;
 					}
 					return dirToTarget;
-				} else if (distToTarget >= 26) {
+				} else if (distToTarget >= 20) {
 					return nav.navigateToDestination();
 				} else {
 					return dirToTarget;
 				}
 			}
-		} else if (curLoc.distanceSquaredTo(target) >= 2) {
+		} else if (curLoc.distanceSquaredTo(target) >= 10) {
 			return nav.navigateToDestination();
 		}
 

@@ -6,7 +6,7 @@ import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 
 public class ExtendedRadarSystem {
-	private static final int BUFFER_SIZE = 4096;
+	private static final int BUFFER_SIZE = 1 << 14;
 	public static final int ALLY_MEMORY_TIMEOUT = 5;
 	private static final int ENEMY_MEMORY_TIMEOUT = 16;
 	private static final RobotType[] robotTypes = RobotType.values();

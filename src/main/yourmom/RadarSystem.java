@@ -11,7 +11,7 @@ import battlecode.common.Team;
 public class RadarSystem {
 	BaseRobot br;
 
-	public final static int MAX_ROBOTS = 4096;
+	public final static int MAX_ROBOTS = 1 << 14;
 	public final static int MAX_ENEMY_ROBOTS = 50;
 	public final static int MAX_ADJACENT = 17;
 
