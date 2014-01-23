@@ -40,6 +40,8 @@ public class SoldierRobot extends BaseRobot {
 	boolean movingTarget;
 	int targetSwarmSize;
 
+	MapLocation bestPastrSpot;
+
 	public SoldierRobot(RobotController myRC) throws GameActionException {
 		super(myRC);
 
@@ -54,20 +56,37 @@ public class SoldierRobot extends BaseRobot {
 		//System.out.println(rc.senseRobotCount());
 		targetSwarmSize = INITIAL_SWARM_SIZE;
 
-		if (Clock.getRoundNum() > 1500) {
-			final int nearbyHQStructures = rc.senseNearbyGameObjects(
-				Robot.class,
-				MY_HQ_LOCATION,
-				1,
-				myTeam
-			).length;
-			switch (nearbyHQStructures) {
-			case 1:
-				rc.construct(RobotType.PASTR);
-				break;
-			case 2:
-				rc.construct(RobotType.NOISETOWER);
-				break;
+		switch (rc.senseRobotCount()) {
+		case 1:
+			behavior = BehaviorState.BECOME_PASTR;
+			findBestSeat();
+			break;
+		}
+	}
+
+	private boolean inRange(int x, int y) {
+		return 0 <= x && x < MAP_WIDTH && 0 <= y && y < MAP_HEIGHT;
+	}
+
+	private void findBestSeat() throws GameActionException {
+		final double[][] cowProductions = rc.getCowProduction();
+		double bestAggregateCowProduction = Double.MIN_VALUE;
+		double tmpAggregateCowProduction = 0;
+		for (int x = MAP_WIDTH; --x >= 0;) {
+			for (int y = MAP_HEIGHT; --y >= 0;) {
+				tmpAggregateCowProduction = 0;
+				final int betterX = x - GameConstants.PASTR_RANGE;
+				final int betterY = y - GameConstants.PASTR_RANGE;
+				for (int dx = 2 * GameConstants.PASTR_RANGE; --dx >= 0;) {
+					for (int dy = 2 * GameConstants.PASTR_RANGE; --dy >= 0;) {
+						if (inRange(betterX + dx, betterY + dy)) {
+							tmpAggregateCowProduction += cowProductions[betterX + dx][betterY + dy];
+						}
+					}
+				}
+				if (tmpAggregateCowProduction > bestAggregateCowProduction) {
+					bestPastrSpot = new MapLocation(betterX, betterY);
+				}
 			}
 		}
 	}
@@ -125,6 +144,8 @@ public class SoldierRobot extends BaseRobot {
 				behavior = BehaviorState.SEEK;
 				targetSwarmSize = INITIAL_SWARM_SIZE;
 			}
+		} else if (behavior == BehaviorState.BECOME_PASTR) {
+			behavior = BehaviorState.BECOME_PASTR;
 		} else {
 			behavior = BehaviorState.LOST;
 			// find the enemy pastr furthest from enemy HQ.
@@ -285,6 +306,7 @@ public class SoldierRobot extends BaseRobot {
 					return dirToTarget;
 				}
 			}
+		} else if (behavior == BehaviorState.BECOME_PASTR) {
 		} else if (curLoc.distanceSquaredTo(target) >= 10) {
 			return nav.navigateToDestination();
 		}
