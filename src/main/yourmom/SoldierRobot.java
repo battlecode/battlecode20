@@ -3,6 +3,7 @@ package yourmom;
 import battlecode.common.Clock;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
+import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
 import battlecode.common.RobotController;
@@ -23,8 +24,6 @@ public class SoldierRobot extends BaseRobot {
 		LOOK_AROUND_FOR_ENEMIES,
 		/** Become a pastr. */
 		BECOME_PASTR,
-		/** Become a noisetower. */
-		BECOME_NOISETOWER,
 	};
 
 	final int INITIAL_SWARM_SIZE = 5;
@@ -53,39 +52,43 @@ public class SoldierRobot extends BaseRobot {
 		movingTarget = false;
 		target = ENEMY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, -4);
 
-		//System.out.println(rc.senseRobotCount());
 		targetSwarmSize = INITIAL_SWARM_SIZE;
 
 		switch (rc.senseRobotCount()) {
 		case 1:
+			System.out.println("finding best pastr spot");
 			behavior = BehaviorState.BECOME_PASTR;
 			findBestSeat();
-			break;
+			nav.setDestination(bestPastrSpot);
+			System.out.println("best seat is "+bestPastrSpot);
 		}
 	}
 
-	private boolean inRange(int x, int y) {
-		return 0 <= x && x < MAP_WIDTH && 0 <= y && y < MAP_HEIGHT;
-	}
-
 	private void findBestSeat() throws GameActionException {
-		final double[][] cowProductions = rc.getCowProduction();
+		final double[][] cowProductions = rc.senseCowGrowth();
 		double bestAggregateCowProduction = Double.MIN_VALUE;
 		double tmpAggregateCowProduction = 0;
+		double distToBestLocation = Double.MAX_VALUE;
 		for (int x = MAP_WIDTH; --x >= 0;) {
 			for (int y = MAP_HEIGHT; --y >= 0;) {
 				tmpAggregateCowProduction = 0;
 				final int betterX = x - GameConstants.PASTR_RANGE;
 				final int betterY = y - GameConstants.PASTR_RANGE;
-				for (int dx = 2 * GameConstants.PASTR_RANGE; --dx >= 0;) {
-					for (int dy = 2 * GameConstants.PASTR_RANGE; --dy >= 0;) {
-						if (inRange(betterX + dx, betterY + dy)) {
+				for (int dx = GameConstants.PASTR_RANGE<<1; --dx >= 0;) {
+					for (int dy = GameConstants.PASTR_RANGE<<1; --dy >= 0;) {
+						if (0 <= betterX+dx && betterX+dx < MAP_WIDTH && 0 <= betterY+dy && betterY+dy < MAP_HEIGHT) {
 							tmpAggregateCowProduction += cowProductions[betterX + dx][betterY + dy];
 						}
 					}
 				}
 				if (tmpAggregateCowProduction > bestAggregateCowProduction) {
-					bestPastrSpot = new MapLocation(betterX, betterY);
+					final MapLocation tmpMapLocation = new MapLocation(x, y);
+					final double distToLoc = MY_HQ_LOCATION.distanceSquaredTo(tmpMapLocation);
+					if (distToLoc < distToBestLocation) {
+						distToBestLocation = distToLoc;
+						bestAggregateCowProduction = tmpAggregateCowProduction;
+						bestPastrSpot = new MapLocation(x, y);
+					}
 				}
 			}
 		}
@@ -94,6 +97,19 @@ public class SoldierRobot extends BaseRobot {
 	@Override
 	public void run() throws GameActionException {
 		rc.setIndicatorString(0, behavior.toString());
+
+		switch (behavior) {
+		case BECOME_PASTR: {
+			final double distToBestSeat = curLoc.distanceSquaredTo(bestPastrSpot);
+			tryToAttack();
+			if (distToBestSeat < 5 && rc.isActive()) {
+				System.out.println("build pastr");
+				rc.construct(RobotType.PASTR);
+				rc.yield();
+			}
+			tryToMove();
+			return;
+		}}
 
 		boolean gotHitLastRound = curHealth < healthLastTurn;
 		if ((behavior == BehaviorState.SWARM || behavior == BehaviorState.LOST) && !rc.isActive()) {
@@ -113,7 +129,10 @@ public class SoldierRobot extends BaseRobot {
 		if (radarClosestEnemy != null && radarClosestEnemy.type != RobotType.HQ && (closestEnemyLocation == null || (radar.closestEnemyDist <= curLoc.distanceSquaredTo(closestEnemyLocation)))) {
 			closestEnemyLocation = radarClosestEnemy.location;
 		}
-		closestEnemyLocation = (bestEnemyPastrLoc != null) ? bestEnemyPastrLoc : closestEnemyLocation;
+		if (bestEnemyPastrLoc != null && behavior != BehaviorState.BECOME_PASTR) {
+			closestEnemyLocation = bestEnemyPastrLoc;
+			behavior = BehaviorState.SEEK;
+		}
 		boolean enemyNearby = closestEnemyLocation != null && curLoc.distanceSquaredTo(closestEnemyLocation) <= myType.attackRadiusMaxSquared;
 		// TODO broadcasting?
 
@@ -144,8 +163,6 @@ public class SoldierRobot extends BaseRobot {
 				behavior = BehaviorState.SEEK;
 				targetSwarmSize = INITIAL_SWARM_SIZE;
 			}
-		} else if (behavior == BehaviorState.BECOME_PASTR) {
-			behavior = BehaviorState.BECOME_PASTR;
 		} else {
 			behavior = BehaviorState.LOST;
 			// find the enemy pastr furthest from enemy HQ.
@@ -307,6 +324,7 @@ public class SoldierRobot extends BaseRobot {
 				}
 			}
 		} else if (behavior == BehaviorState.BECOME_PASTR) {
+			return nav.navigateToDestination();
 		} else if (curLoc.distanceSquaredTo(target) >= 10) {
 			return nav.navigateToDestination();
 		}
