@@ -55,7 +55,7 @@ public class SoldierRobot extends BaseRobot {
 		targetSwarmSize = INITIAL_SWARM_SIZE;
 
 		switch (rc.senseRobotCount()) {
-		case 1:
+		case 4:
 			System.out.println("finding best pastr spot");
 			behavior = BehaviorState.BECOME_PASTR;
 			findBestSeat();
@@ -66,21 +66,12 @@ public class SoldierRobot extends BaseRobot {
 
 	private void findBestSeat() throws GameActionException {
 		final double[][] cowProductions = rc.senseCowGrowth();
-		double bestAggregateCowProduction = Double.MIN_VALUE;
+		double bestAggregateCowProduction = 0;
 		double tmpAggregateCowProduction = 0;
 		double distToBestLocation = Double.MAX_VALUE;
 		for (int x = MAP_WIDTH; --x >= 0;) {
 			for (int y = MAP_HEIGHT; --y >= 0;) {
-				tmpAggregateCowProduction = 0;
-				final int betterX = x - GameConstants.PASTR_RANGE;
-				final int betterY = y - GameConstants.PASTR_RANGE;
-				for (int dx = GameConstants.PASTR_RANGE<<1; --dx >= 0;) {
-					for (int dy = GameConstants.PASTR_RANGE<<1; --dy >= 0;) {
-						if (0 <= betterX+dx && betterX+dx < MAP_WIDTH && 0 <= betterY+dy && betterY+dy < MAP_HEIGHT) {
-							tmpAggregateCowProduction += cowProductions[betterX + dx][betterY + dy];
-						}
-					}
-				}
+				tmpAggregateCowProduction = cowProductions[x][y];
 				if (tmpAggregateCowProduction > bestAggregateCowProduction) {
 					final MapLocation tmpMapLocation = new MapLocation(x, y);
 					final double distToLoc = MY_HQ_LOCATION.distanceSquaredTo(tmpMapLocation);
