@@ -45,20 +45,27 @@ public class ExtendedRadarSystem {
 	 * Should only be called from processMessage().
 	 */
 	public void integrateEnemyInfo(int[] info) {
-		boolean firstIDIsAnAlly = info[3] > 9000;
+		boolean firstIDIsAnAlly = info[1] > (1 << 29);
 
 		if (firstIDIsAnAlly) {
-			int senderID = info[0];
-			allyLocationInfo[senderID] = new MapLocation(info[1], info[2]);
-			allyUnitStrengthEstimate[senderID] = info[3] - 10001;
+			int senderID = (info[0] >> 16) & 0xFFFF;
+			allyLocationInfo[senderID] = new MapLocation(
+				(info[0] >> 8) & 0xFF,
+				info[0] & 0xFF
+			);
+			allyUnitStrengthEstimate[senderID] = (info[1] >> 8) & 0xFFFF;
 			allyKeySet.addID(senderID);
 		}
-		for (int n = firstIDIsAnAlly ? 5 : 0; n < info.length; n += 5) {
-			int id = info[n];
-			enemyLocationInfo[id] = new MapLocation(info[n+1], info[n+2]);
-			enemyUnitStrengthEstimate[id] = info[n+3];
-			if (!enemyKeySet.containsID(id) || enemyMinDistToAlly[id] > info[n+4]) {
-				enemyMinDistToAlly[id] = info[n+4];
+		for (int n = firstIDIsAnAlly ? 2 : 0; n < info.length; n += 2) {
+			int id = info[n] >> 16;
+			enemyLocationInfo[id] = new MapLocation(
+				(info[n] >> 8) & 0xFF,
+				info[n] & 0xFF
+			);
+			enemyUnitStrengthEstimate[id] = (info[n+1] >> 16);
+			final int distToAlly = info[n+1] & 0xFFFF;
+			if (!enemyKeySet.containsID(id) || enemyMinDistToAlly[id] > distToAlly) {
+				enemyMinDistToAlly[id] = distToAlly;
 			}
 			enemyKeySet.addID(id);
 		}
@@ -77,7 +84,7 @@ public class ExtendedRadarSystem {
 	 */
 	public void broadcastKill(int killID) {
 		br.er.integrateEnemyKill(killID);
-		//br.io.sendUShort(BroadcastChannel.EXTENDED_RADAR, BroadcastType.ENEMY_KILL, killID);
+		br.io.write(ChannelType.ENEMY_KILL_CHANNEL, killID);
 	}
 
 	/**

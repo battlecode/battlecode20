@@ -16,12 +16,14 @@ public abstract class BaseRobot {
 	public final NavigationSystem nav;
 	public final RadarSystem radar;
 	public final ExtendedRadarSystem er;
+	public final BroadcastSystem io;
 
 	// Robot Statistics - permanent variables
 	public final RobotType myType;
 	public final Team myTeam;
 	public final Team enemyTeam;
 	public final int myID;
+	public final int myRelativeID;
 	public final double myMaxHealth;
 	public final int birthday;
 	public final MapLocation birthplace;
@@ -30,6 +32,7 @@ public abstract class BaseRobot {
 	public final int MAP_WIDTH;
 	public final int MAP_HEIGHT;
 	public final Direction DIRECTION_TO_ENEMY_HQ;
+	public final double[][] cowProductions;
 
 	// Robot Statistics - updated per turn
 	public double curHealth;
@@ -37,6 +40,8 @@ public abstract class BaseRobot {
 	public MapLocation prevLoc;
 	public Direction curDir;
 	public int curRound;
+	public MapLocation[] myPastrs;
+	public MapLocation[] enemyPastrs;
 
 	// Robot Flags - toggle important behavior changes
 	public boolean gameEndNow = false;
@@ -66,9 +71,11 @@ public abstract class BaseRobot {
 		myTeam = rc.getTeam();
 		enemyTeam = myTeam.opponent();
 		myID = rc.getRobot().getID();
+		myRelativeID = rc.senseRobotCount();
 		myMaxHealth = myType.maxHealth;
 		birthday = Clock.getRoundNum();
 		birthplace = rc.getLocation();
+		cowProductions = rc.senseCowGrowth();
 		updateRoundVariables();
 
 		MAP_WIDTH = rc.getMapWidth();
@@ -81,6 +88,7 @@ public abstract class BaseRobot {
 		nav = new NavigationSystem(this);
 		radar = new RadarSystem(this);
 		er = new ExtendedRadarSystem(this);
+		io = new BroadcastSystem(this);
 
 		mc.senseAll();
 	}
@@ -124,6 +132,8 @@ public abstract class BaseRobot {
 		} else {
 			curDir = Direction.NORTH;
 		}
+		myPastrs = rc.sensePastrLocations(myTeam);
+		enemyPastrs = rc.sensePastrLocations(enemyTeam);
 
 		gameEndNow = curRound > GameConstants.ROUND_MAX_LIMIT;
 	}

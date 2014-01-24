@@ -1,6 +1,7 @@
 package yourmom;
 
 import battlecode.common.Clock;
+import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.Robot;
@@ -287,5 +288,29 @@ public class RadarSystem {
 	 */
 	public MapLocation getAllySwarmCenter() {
 		return new MapLocation(centerAllyX, centerAllyY);
+	}
+
+	/** Gets the enemy info from the radar into your own and nearby robots' extended radar. */
+	public void broadcastEnemyInfo(boolean sendOwnInfo) {
+		int localNumEnemyRobots = numEnemyRobots;
+		if(localNumEnemyRobots==0 && !sendOwnInfo) {
+			return;
+		}
+		final int nSend = (localNumEnemyRobots < 4) ? localNumEnemyRobots : 4;
+		int[] shorts = new int[(nSend)*2+(sendOwnInfo?2:0)];
+		if(sendOwnInfo) {
+			shorts[0] = (br.myID << 16) | (br.curLoc.x << 8) | br.curLoc.y;
+			shorts[1] = (1<<30) | ((int)Math.ceil(Util.getOwnStrengthEstimate(br.rc)) << 8) | br.myType.ordinal(); 
+		}
+		for(int i=0, c=sendOwnInfo?2:0; i<nSend; i++, c+=2) {
+			RobotInfo ri = enemyInfos[enemyRobots[i]];
+			shorts[c] = (ri.robot.getID() << 16) | (ri.location.x << 8) | ri.location.y;
+			shorts[c+1] = ((int)Math.ceil(Util.getEnemyStrengthEstimate(ri)) << 16) | br.curLoc.distanceSquaredTo(ri.location);
+		}
+		switch (br.myType) {
+		case SOLDIER:
+			br.er.integrateEnemyInfo(shorts);
+		}
+		br.io.writeUShorts(br.myRelativeID, shorts);
 	}
 }

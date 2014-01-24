@@ -50,35 +50,38 @@ public class SoldierRobot extends BaseRobot {
 		behavior = BehaviorState.SWARM;
 		checkedBehind = false;
 		movingTarget = false;
-		target = ENEMY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, -4);
+		target = MY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, 3);
 
 		targetSwarmSize = INITIAL_SWARM_SIZE;
+		final int shouldBuildPastr = (int)(8 * Util.randDouble());
+		System.out.println(shouldBuildPastr);
 
-		switch (rc.senseRobotCount()) {
-		case 4:
+		switch (shouldBuildPastr) {
+		case 7:
 			System.out.println("finding best pastr spot");
 			behavior = BehaviorState.BECOME_PASTR;
 			findBestSeat();
 			nav.setDestination(bestPastrSpot);
 			System.out.println("best seat is "+bestPastrSpot);
+		default:
+			break;
 		}
 	}
 
 	private void findBestSeat() throws GameActionException {
-		final double[][] cowProductions = rc.senseCowGrowth();
 		double bestAggregateCowProduction = 0;
 		double tmpAggregateCowProduction = 0;
 		double distToBestLocation = Double.MAX_VALUE;
 		for (int x = MAP_WIDTH; --x >= 0;) {
 			for (int y = MAP_HEIGHT; --y >= 0;) {
 				tmpAggregateCowProduction = cowProductions[x][y];
-				if (tmpAggregateCowProduction > bestAggregateCowProduction) {
+				if (tmpAggregateCowProduction >= bestAggregateCowProduction) {
 					final MapLocation tmpMapLocation = new MapLocation(x, y);
 					final double distToLoc = MY_HQ_LOCATION.distanceSquaredTo(tmpMapLocation);
-					if (distToLoc < distToBestLocation) {
+					if (distToLoc < distToBestLocation && (myPastrs.length == 0 || myPastrs.length > 0 && tmpMapLocation.distanceSquaredTo(myPastrs[0]) > 2*GameConstants.PASTR_RANGE)) {
 						distToBestLocation = distToLoc;
 						bestAggregateCowProduction = tmpAggregateCowProduction;
-						bestPastrSpot = new MapLocation(x, y);
+						bestPastrSpot = tmpMapLocation;
 					}
 				}
 			}
@@ -125,7 +128,9 @@ public class SoldierRobot extends BaseRobot {
 			behavior = BehaviorState.SEEK;
 		}
 		boolean enemyNearby = closestEnemyLocation != null && curLoc.distanceSquaredTo(closestEnemyLocation) <= myType.attackRadiusMaxSquared;
-		// TODO broadcasting?
+		if(curRound%ExtendedRadarSystem.ALLY_MEMORY_TIMEOUT == myID%ExtendedRadarSystem.ALLY_MEMORY_TIMEOUT) {
+			radar.broadcastEnemyInfo(enemyNearby && curHealth > 12);
+		}
 
 		movingTarget = true;
 
@@ -158,10 +163,13 @@ public class SoldierRobot extends BaseRobot {
 			behavior = BehaviorState.LOST;
 			// find the enemy pastr furthest from enemy HQ.
 			// if no pastrs, go to enemy HQ.
-			final MapLocation pastrLoc = getBestEnemyPastr();
-			target = (pastrLoc != null)
-				? pastrLoc
-				: ENEMY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, -4);
+			if (bestEnemyPastrLoc != null) {
+				target = bestEnemyPastrLoc;
+			} else if (myPastrs != null && myPastrs.length > 0) {
+				target = myPastrs[(int)(Util.randDouble() * myPastrs.length)];
+			} else {
+				MY_HQ_LOCATION.add(DIRECTION_TO_ENEMY_HQ, 3);
+			}
 		}
 
 		tryToAttack();
@@ -219,11 +227,19 @@ public class SoldierRobot extends BaseRobot {
 				rc.move(dirToMove);
 			} else {
 				// turn until it can move
-				do {
-					dirToMove = nav.wiggleToMovableDirection(dirToMove);
-				} while (!rc.canMove(dirToMove) || curLoc.add(dirToMove).distanceSquaredTo(ENEMY_HQ_LOCATION) <= 15);
-				rc.move(dirToMove);
+				int ntrials = 10;
+				for (; --ntrials >= 0 && (!rc.canMove(dirToMove) || curLoc.add(dirToMove).distanceSquaredTo(ENEMY_HQ_LOCATION) <= RobotType.HQ.attackRadiusMaxSquared);) {
+					dirToMove = nav.navigateRandomly(nav.getDestination());
+				}
+				switch (ntrials) {
+				case -1:
+					System.out.println("trial failed");
+					break;
+				default:
+					rc.move(dirToMove);
+				}
 			}
+			rc.yield();
 		}
 	}
 
@@ -324,7 +340,6 @@ public class SoldierRobot extends BaseRobot {
 	}
 
 	private MapLocation getBestEnemyPastr() {
-		final MapLocation[] enemyPastrs = rc.sensePastrLocations(enemyTeam);
 		final int numEnemyPastrs = enemyPastrs.length;
 		double maxDistToEnemyHQ = 0;
 		MapLocation targetPastr = null;
