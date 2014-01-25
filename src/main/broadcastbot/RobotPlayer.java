@@ -8,8 +8,15 @@ import battlecode.common.*;
  */
 public class RobotPlayer {
 	public static void run(RobotController rc) {
+        try {
+            if (rc.getType() == RobotType.HQ) {
+                rc.wearHat();
+                rc.yield();
+                rc.wearHat();
+                rc.yield();
+            }
+        } catch (Exception e) { System.out.println("fail"); }
         while (true) {
-
             try {
                 if (rc.getType() == RobotType.HQ) {
                     if (rc.isActive()) {
@@ -21,7 +28,18 @@ public class RobotPlayer {
                         if (rc.canMove(rc.senseHQLocation().directionTo(rc.senseEnemyHQLocation()))) {
                             rc.move(rc.senseHQLocation().directionTo(rc.senseEnemyHQLocation()));
                         } else {
-                            rc.selfDestruct();
+                            if (rc.senseTeamMilkQuantity(rc.getTeam()) > GameConstants.HAT_MILK_COST) {
+                                rc.wearHat();
+                            } else {
+                                //rc.construct(RobotType.PASTR);
+                                rc.selfDestruct();
+                            }
+                        }
+                    }
+                } else if (rc.getType() == RobotType.PASTR) {
+                    if (rc.isActive()) {
+                        if (rc.senseTeamMilkQuantity(rc.getTeam()) > GameConstants.HAT_MILK_COST) {
+                            rc.wearHat();
                         }
                     }
                 }
