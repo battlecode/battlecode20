@@ -14,20 +14,14 @@ public class RobotPlayer {
                 if (rc.getType() == RobotType.HQ) {
                     if (rc.isActive()) {
                         rc.spawn(rc.senseHQLocation().directionTo(rc.senseEnemyHQLocation()));
-                        while (true);
+                        rc.yield();
                     }
                 } else if (rc.getType() == RobotType.SOLDIER) {
                     if (rc.isActive()) {
                         if (rc.canMove(rc.senseHQLocation().directionTo(rc.senseEnemyHQLocation()))) {
                             rc.move(rc.senseHQLocation().directionTo(rc.senseEnemyHQLocation()));
                         } else {
-                            if (rc.getTeam() == Team.A) {
-                                rc.yield();
-                                rc.yield();
-                                rc.yield();
-                                rc.yield();
-                            }
-                            rc.construct(RobotType.PASTR);
+                            rc.selfDestruct();
                         }
                     }
                 }
