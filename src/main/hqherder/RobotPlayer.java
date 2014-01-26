@@ -6,7 +6,7 @@ import battlecode.common.*;
 
 public class RobotPlayer {
     //static final int coverage = 3; // increase this to do more full circles
-    static final int distance = 400; // radius squared to use
+    static final int distance = 300; // radius squared to use
 
     public static class SortByAngle implements Comparator<MapLocation> {
         MapLocation center;
@@ -34,6 +34,31 @@ public class RobotPlayer {
                 boolean noiseToweSpawned = false;
                 while (true) {
                     if (rc.isActive()) {
+                        boolean attacked = false;
+                        Robot[] enemies = rc.senseNearbyGameObjects(Robot.class, RobotType.HQ.attackRadiusMaxSquared, rc.getTeam().opponent());
+                        if (enemies.length > 0) {
+                            // randomly attack one (should probably use some heuristics)
+                            int idx = (int) (Math.random() * enemies.length);
+                            RobotInfo info = rc.senseRobotInfo(enemies[idx]);
+                            rc.attackSquare(info.location);
+                            attacked = true;
+                        }
+
+                        if (!attacked) {
+                            Robot[] enemies2 = rc.senseNearbyGameObjects(Robot.class, RobotType.HQ.sensorRadiusSquared, rc.getTeam().opponent());
+                            for (Robot r : enemies2) {
+                                if (attacked) {
+                                    break;
+                                }
+                                RobotInfo info = rc.senseRobotInfo(r);
+                                if (info.location.add(info.location.directionTo(myHQ)).distanceSquaredTo(myHQ) <= RobotType.HQ.attackRadiusMaxSquared) {
+                                    rc.attackSquare(info.location.add(info.location.directionTo(myHQ)));
+                                    attacked = true;
+                                }
+                            }
+                        }
+                    }
+                    if (rc.isActive()) {
                         Direction dir = myHQ.directionTo(rc.senseEnemyHQLocation());
                         for (int i = 0; i < 8; i++) {
                             if (rc.canMove(dir)) {
@@ -41,32 +66,6 @@ public class RobotPlayer {
                                 break;
                             } else {
                                 dir = dir.rotateRight();
-                            }
-                        }
-                    }
-
-                    // do some attacking (does not depend on activity)
-
-                    boolean attacked = false;
-                    Robot[] enemies = rc.senseNearbyGameObjects(Robot.class, RobotType.HQ.attackRadiusMaxSquared, rc.getTeam().opponent());
-                    if (enemies.length > 0) {
-                        // randomly attack one (should probably use some heuristics)
-                        int idx = (int) (Math.random() * enemies.length);
-                        RobotInfo info = rc.senseRobotInfo(enemies[idx]);
-                        rc.attackSquare(info.location);
-                        attacked = true;
-                    }
-
-                    if (!attacked) {
-                        Robot[] enemies2 = rc.senseNearbyGameObjects(Robot.class, RobotType.HQ.sensorRadiusSquared, rc.getTeam().opponent());
-                        for (Robot r : enemies2) {
-                            if (attacked) {
-                                break;
-                            }
-                            RobotInfo info = rc.senseRobotInfo(r);
-                            if (info.location.add(info.location.directionTo(myHQ)).distanceSquaredTo(myHQ) <= RobotType.HQ.attackRadiusMaxSquared) {
-                                rc.attackSquare(info.location.add(info.location.directionTo(myHQ)));
-                                attacked = true;
                             }
                         }
                     }
