@@ -64,7 +64,15 @@ public class RobotPlayer {
 				while (true) {
 					try {
 						
-						if(rc.senseTeamMilkQuantity(enemyTeam) > rc.senseTeamMilkQuantity(myTeam)+2000000 || rc.sensePastrLocations(enemyTeam).length >= 3) {
+						MapLocation[] enemyPastrLocations = rc.sensePastrLocations(enemyTeam);
+						int numEnemyPastrs=0;
+						for (MapLocation l:enemyPastrLocations) {
+							if (l.distanceSquaredTo(enemyTeam) > 2) {
+								numEnemyPastrs++;
+							}
+						}
+						
+						if(rc.senseTeamMilkQuantity(enemyTeam) > rc.senseTeamMilkQuantity(myTeam)+2000000 || numEnemyPastrs >= 3) {
 							panic = true;
 							turnsPanic=0;
 							Robot[] allies = rc.senseNearbyGameObjects(Robot.class,999999,myTeam);
@@ -525,7 +533,7 @@ public class RobotPlayer {
 		Direction[] validMoves = new Direction[8];
 		int numValidMoves=0;
 		for (int i=0; i<8; i++) {
-			if (rc.canMove(toDirection[i]) && rc.getLocation().add(toDirection[i]).distanceSquaredTo(enemyHQ) > 24) {
+			if (rc.canMove(toDirection[i]) && rc.getLocation().add(toDirection[i]).distanceSquaredTo(enemyHQ) > 25) {
 				validMoves[numValidMoves++] = toDirection[i];
 			}
 		}
