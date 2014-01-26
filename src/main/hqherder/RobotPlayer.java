@@ -34,20 +34,6 @@ public class RobotPlayer {
                 boolean noiseToweSpawned = false;
                 while (true) {
                     if (rc.isActive()) {
-                        Direction dir = myHQ.directionTo(rc.senseEnemyHQLocation());
-                        for (int i = 0; i < 8; i++) {
-                            if (rc.canMove(dir)) {
-                                rc.spawn(dir);
-                                break;
-                            } else {
-                                dir = dir.rotateRight();
-                            }
-                        }
-                    }
-
-                    // do some attacking (does not depend on activity)
-
-                    if (rc.isActive()) {
                         boolean attacked = false;
                         Robot[] enemies = rc.senseNearbyGameObjects(Robot.class, RobotType.HQ.attackRadiusMaxSquared, rc.getTeam().opponent());
                         if (enemies.length > 0) {
@@ -69,6 +55,17 @@ public class RobotPlayer {
                                     rc.attackSquare(info.location.add(info.location.directionTo(myHQ)));
                                     attacked = true;
                                 }
+                            }
+                        }
+                    }
+                    if (rc.isActive()) {
+                        Direction dir = myHQ.directionTo(rc.senseEnemyHQLocation());
+                        for (int i = 0; i < 8; i++) {
+                            if (rc.canMove(dir)) {
+                                rc.spawn(dir);
+                                break;
+                            } else {
+                                dir = dir.rotateRight();
                             }
                         }
                     }
