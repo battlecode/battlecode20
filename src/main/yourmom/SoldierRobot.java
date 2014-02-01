@@ -15,18 +15,25 @@ public class SoldierRobot extends BaseRobot {
 	SoldierState soldierState = SoldierState.NEW;
 	SoldierState nextSoldierState;
 	MapLocation enemySpottedTarget;
+	MapLocation[] whereToPastr;
+	MapLocation[] whereToNoisetower;
 	double healthLastTurn;
-
 	MapLocation rallyPoint;
+
+	final MapLocation DEFAULT_RALLY_LOCATION;
 
 	public SoldierRobot(RobotController myRC) throws GameActionException {
 		super(myRC);
 
+		whereToPastr = io.readPastrLocations();
+		whereToNoisetower = io.readNoisetowerLocations();
+
 		nav.setNavigationMode(NavigationMode.BUG);
-		rallyPoint = new MapLocation(
+		DEFAULT_RALLY_LOCATION = new MapLocation(
 			(3 * MY_HQ_LOCATION.x + ENEMY_HQ_LOCATION.x) / 4,
 			(3 * MY_HQ_LOCATION.y + ENEMY_HQ_LOCATION.y) / 4
 		);
+		rallyPoint = DEFAULT_RALLY_LOCATION;
 	}
 
 	@Override
@@ -42,7 +49,17 @@ public class SoldierRobot extends BaseRobot {
 			case 0:
 				soldierState = SoldierState.BUILD_PASTR;
 			}
-		} else {
+		} /*else if (curLoc.equals(whereToPastr[0])) {
+			switch (rc.senseNearbyGameObjects(Robot.class, myType.sensorRadiusSquared, enemyTeam).length) {
+			case 0:
+				soldierState = SoldierState.BUILD_PASTR;
+			}
+		} else if (curLoc.equals(whereToNoisetower[0])) {
+			switch (rc.senseNearbyGameObjects(Robot.class, myType.sensorRadiusSquared, enemyTeam).length) {
+			case 0:
+				soldierState = SoldierState.BUILD_NOISETOWER;
+			}
+		}*/ else {
 			final MapLocation bestEnemyPastrLoc = getBestEnemyPastr();
 			if (bestEnemyPastrLoc != null) {
 				rallyPoint = bestEnemyPastrLoc;
@@ -51,14 +68,25 @@ public class SoldierRobot extends BaseRobot {
 				case 0:
 					switch (MAP_SIZE) {
 					case SMALL:
+						if (curRound >= 1000 && radar.numAllySoldiers >= 12 && myPastrs.length == 0) {
+							rallyPoint = whereToPastr[0];
+						} else {
+							rallyPoint = ENEMY_HQ_LOCATION;
+						}
+						break;
 					case MEDIUM:
-						rallyPoint = ENEMY_HQ_LOCATION;
+						if (curRound >= 500 && radar.numAllySoldiers >= 8 && myPastrs.length == 0) {
+							rallyPoint = whereToPastr[0];
+						} else {
+							rallyPoint = ENEMY_HQ_LOCATION;
+						}
 						break;
 					case LARGE:
-						rallyPoint = new MapLocation(
-							(3 * MY_HQ_LOCATION.x + ENEMY_HQ_LOCATION.x) / 4,
-							(3 * MY_HQ_LOCATION.y + ENEMY_HQ_LOCATION.y) / 4
-						);
+						if (radar.numAllySoldiers >= 4 && myPastrs.length == 0) {
+							rallyPoint = whereToPastr[0];
+						} else {
+							rallyPoint = DEFAULT_RALLY_LOCATION;
+						}
 						break;
 					}
 					break;
@@ -139,18 +167,14 @@ public class SoldierRobot extends BaseRobot {
 	}
 
 	private void rallyingCode() throws GameActionException {
-		int genCount = Integer.MAX_VALUE;
-		//Message message = io.read(genCountChannel);
-		//if (message.isValid) {
-		//	genCount = message.body;
-		//}
-
 		if (radar.numNearbyEnemySoldiers > 0) {
-			nextSoldierState = SoldierState.FIGHTING;
-			fightingCode();
-		} else if (radar.numAllyRobots >= (40 + 10 * genCount)/1.5) {
-			nextSoldierState = SoldierState.PUSHING;
-			pushingCode();
+			if (radar.numNearbyEnemySoldiers > radar.numNearbyAllySoldiers + 1) {
+				nextSoldierState = SoldierState.RETREAT;
+				retreatCode();
+			} else {
+				nextSoldierState = SoldierState.FIGHTING;
+				fightingCode();
+			}
 		} else {
 			nav.setDestination(rallyPoint);
 		}
@@ -159,7 +183,6 @@ public class SoldierRobot extends BaseRobot {
 	private void retreatCode() throws GameActionException {
 		if (radar.numNearbyEnemySoldiers == 0) {
 			nextSoldierState = SoldierState.RALLYING;
-			io.write(ChannelType.RETREAT_CHANNEL, 0);
 			rallyingCode();
 		} else if (radar.numNearbyAllySoldiers >= Constants.FIGHTING_NOT_ENOUGH_ALLIED_SOLDIERS) {
 			nextSoldierState = SoldierState.FIGHTING;
@@ -176,7 +199,8 @@ public class SoldierRobot extends BaseRobot {
 					nextSoldierState = SoldierState.PUSHING;
 					pushingCode();
 				} else {
-					;
+					nextSoldierState = SoldierState.RALLYING;
+					rallyingCode();
 				}
 			} else {
 				nextSoldierState = SoldierState.PUSHING;
@@ -201,14 +225,14 @@ public class SoldierRobot extends BaseRobot {
 		final MapLocation closestEnemyLocation = new MapLocation(closestEnemyInfo[1], closestEnemyInfo[2]);
 		final int enemyDistSquared = closestEnemyLocation.distanceSquaredTo(curLoc);
 
-		if (enemyDistSquared <= 2) { // if there is enemy in one dist
+		if (enemyDistSquared <= myType.attackRadiusMaxSquared + 5) { // if there is enemy in one dist
 			double[] our23 = getEnemies2Or3StepsAway();
 			if (our23[0] < 1) {
 				if (our23[1] >= 1) {
 					nav.setDestination(curLoc.subtract(curDir));
 				}
 			}
-		} else if (enemyDistSquared == 16 || enemyDistSquared > 18) {
+		} else if (enemyDistSquared == 25 || enemyDistSquared > 27) {
 			nav.setDestination(curLoc.add(curDir));
 		} else {
 			double[] our23 = getEnemies2Or3StepsAway();

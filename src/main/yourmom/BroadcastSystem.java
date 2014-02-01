@@ -11,7 +11,7 @@ import battlecode.common.RobotController;
  * to write and read.
  */
 public class BroadcastSystem {
-	BaseRobot robot;
+	BaseRobot br;
 	RobotController rc;
 	public static byte signature = 0x1;
 	
@@ -20,8 +20,8 @@ public class BroadcastSystem {
 	 * @param myRobot
 	 */
 	public BroadcastSystem(BaseRobot myRobot) {
-		robot = myRobot;
-		rc = robot.rc;
+		br = myRobot;
+		rc = br.rc;
 	}
 	
 	/**
@@ -149,6 +149,28 @@ public class BroadcastSystem {
 		}
 	}
 
+	public MapLocation[] readNoisetowerLocations() throws GameActionException {
+		int ord = br.MAP_SIZE.ordinal();
+		MapLocation[] locs = new MapLocation[ord + 1];
+
+		switch (br.MAP_SIZE) {
+		case LARGE:
+			locs[ord--] = BroadcastSystem.intToLocation(
+				rc.readBroadcast(ChannelType.NOISETOWER3.ordinal())
+			);
+		case MEDIUM:
+			locs[ord--] = BroadcastSystem.intToLocation(
+				rc.readBroadcast(ChannelType.NOISETOWER2.ordinal())
+			);
+		case SMALL:
+			locs[ord] = BroadcastSystem.intToLocation(
+				rc.readBroadcast(ChannelType.NOISETOWER1.ordinal())
+			);
+		}
+
+		return locs;
+	}
+
 	public void broadcastPastrLocations(MapLocation[] locs) throws GameActionException {
 		switch (locs.length) {
 		default:
@@ -170,6 +192,28 @@ public class BroadcastSystem {
 		case 0:
 			break;
 		}
+	}
+
+	public MapLocation[] readPastrLocations() throws GameActionException {
+		int ord = br.MAP_SIZE.ordinal();
+		MapLocation[] locs = new MapLocation[ord + 1];
+
+		switch (br.MAP_SIZE) {
+		case LARGE:
+			locs[ord--] = BroadcastSystem.intToLocation(
+				rc.readBroadcast(ChannelType.PASTR3.ordinal())
+			);
+		case MEDIUM:
+			locs[ord--] = BroadcastSystem.intToLocation(
+				rc.readBroadcast(ChannelType.PASTR2.ordinal())
+			);
+		case SMALL:
+			locs[ord] = BroadcastSystem.intToLocation(
+				rc.readBroadcast(ChannelType.PASTR1.ordinal())
+			);
+		}
+
+		return locs;
 	}
 
 	static int locationToInt(MapLocation loc) {
