@@ -10,21 +10,17 @@ public class NoiseTowerRobot extends BaseRobot {
 		super(myRC);
 	}
 
-	private boolean inMap(MapLocation loc) {
-		return 0 <= loc.x && loc.x < MAP_WIDTH && 0 <= loc.y && loc.y < MAP_HEIGHT;
-	}
-
 	@Override
 	public void run() throws GameActionException {
 		for (int i = BaseRobot.NDIRECTIONS; --i >= 0;) {
 			final Direction d = BaseRobot.USEFUL_DIRECTIONS[i];
-			for (int mult = 20; mult >= 0; mult -= 2) {
-				final MapLocation attackLoc = curLoc.add(d, mult);
+			for (int mult = 15; mult >= 0; mult -= 2) {
+				final MapLocation attackLoc = curLoc.add(d, mult + 2);
 				while (!rc.isActive()) {
 					rc.yield();
 				}
 				if (curLoc.distanceSquaredTo(attackLoc) <= myType.attackRadiusMaxSquared && inMap(attackLoc)) {
-					rc.attackSquareLight(attackLoc);
+					rc.attackSquare(attackLoc);
 				}
 			}
 		}

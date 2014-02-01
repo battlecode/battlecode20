@@ -10,6 +10,5 @@ public class PastrRobot extends BaseRobot {
 
 	@Override
 	public void run() throws GameActionException {
-		;
 	}
 }
