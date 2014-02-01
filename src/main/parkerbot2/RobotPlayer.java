@@ -1,4 +1,4 @@
-package pastrstream;
+package parkerbot2;
 
 import battlecode.common.Direction;
 import battlecode.common.GameConstants;
@@ -7,91 +7,46 @@ import battlecode.common.RobotType;
 import battlecode.common.*;
 import java.util.*;
 
+//OLD
+
 public class RobotPlayer {
 	static Random rand;
 	static Team myTeam;
 	static Team enemyTeam;
-	static MapLocation enemyHQ;
 	static int NChannelsForMessaging = 65536;
-	static int rows;
-	static int cols;
-	static double[][] cows;
-	static double avgcows;
-	static boolean[][] deadEnd;
 	
 	public static void run(RobotController rc) {
 		MapLocation enemyHQ = rc.senseEnemyHQLocation();
 		rand = new Random();
 		myTeam = rc.getTeam();
 		enemyTeam = myTeam.opponent();
-		enemyHQ = rc.senseEnemyHQLocation();
 		int targetAction = 0;
-		MapLocation targetLocation = enemyHQ;
-		cows = rc.senseCowGrowth();
-		rows = cows.length;
-		cols = cows[0].length;
+		MapLocation targetLocation = new MapLocation((rc.senseHQLocation().x*3+enemyHQ.x)/4,(rc.senseHQLocation().y*3+enemyHQ.x)/4);
 		
 		if (rc.getType() == RobotType.HQ) {
 			try {
 				//trySpawn(rc,rc.getLocation().directionTo(enemyHQ));
 				//rc.broadcast(channelSpawn(),convertToMessage(2,rc.getLocation().add(Direction.EAST)));
-				avgcows = 0;
-				for (int i=0; i<cows.length/2; i++) {
-					for (int j=0; j<cows[0].length/2; j++) {
-						avgcows+=cows[2*i][2*j];
-						avgcows/=(cows.length/2);
-						avgcows/=(cows[0].length/2);
-					}
-				}
-				
-				LinkedList<naivePastrLocation> pastrLocations = new LinkedList<naivePastrLocation>();
-				boolean[][] addedPastrLocation = new boolean[cows.length][cows[0].length];
-				
-				MapLocation firstPastrLocation = rc.getLocation().add(rc.getLocation().directionTo(enemyHQ));
-				pastrLocations.offer(new naivePastrLocation(rc.getLocation().add(rc.getLocation().directionTo(enemyHQ))));
-				addedPastrLocation[firstPastrLocation.x][firstPastrLocation.y] = true;
-				naivePastrLocation nextPastrLocation;
 				
 				while (true) {
 					try {
-						
-						
 						if (rc.isActive()) {
-							Robot[] enemies16 = rc.senseNearbyGameObjects(Robot.class, 16, enemyTeam);
+							Robot[] enemies16 = rc.senseNearbyGameObjects(Robot.class, 15, enemyTeam);
 							if (enemies16.length != 0) {
 								rc.attackSquare(rc.senseRobotInfo(enemies16[0]).location);
-							} else {
+							} else if (Clock.getRoundNum() < 600) {
 								trySpawn(rc,rc.getLocation().directionTo(enemyHQ));
-								//rc.broadcast(channelSpawn(),convertToMessage(1,enemyHQ));
-								
-								do {
-									nextPastrLocation = pastrLocations.poll();
-									for (naivePastrLocation p:nextPastrLocation.neighbors()) {
-										System.out.println("expanding " + nextPastrLocation.loc.toString());
-										if (!addedPastrLocation[p.loc.x][p.loc.y]) {
-											pastrLocations.offer(p);
-											System.out.println("added " + p.loc.toString());
-											addedPastrLocation[p.loc.x][p.loc.y] = true;
-										}
-									}
-								} while (nextPastrLocation == null || nextPastrLocation.loc.distanceSquaredTo(rc.getLocation()) <= 36 || Math.sqrt(nextPastrLocation.loc.distanceSquaredTo(rc.getLocation())) + Math.sqrt(nextPastrLocation.loc.distanceSquaredTo(enemyHQ)) < 1.05*Math.sqrt(rc.getLocation().distanceSquaredTo(enemyHQ))); //condition for 'bad' pastr
-								rc.broadcast(channelSpawn(),convertToMessage(2,nextPastrLocation.loc));
-								System.out.println(nextPastrLocation.loc.toString());
+								rc.broadcast(channelSpawn(),convertToMessage(1,targetLocation));
 							}
 						}
 						rc.yield();
-						while(true) {
-							rc.yield();
-						}
 					} catch (Exception e) {System.out.println("hq exception occurred: " + e.getMessage()); rc.yield();}
 				}
 			} catch (Exception e) {System.out.println("hq initializing exception occurred: " + e.getMessage()); rc.yield();}	
 		}
 		
 		if (rc.getType() == RobotType.SOLDIER) {
-			
 			try {
-				deadEnd = new boolean[cows.length][cows[0].length];
 				int m = rc.readBroadcast(channelSpawn());
 				targetAction = actionFromMessage(m);
 				targetLocation = locationFromMessage(m);
@@ -100,27 +55,36 @@ public class RobotPlayer {
 				
 				while (true) {
 					try {
-						if (targetAction == 0) {
-							m = rc.readBroadcast(channelSpawn());
-							targetAction = actionFromMessage(m);
-							targetLocation = locationFromMessage(m);
-							rc.setIndicatorString(1,Integer.toString(targetAction));
-							rc.setIndicatorString(2,targetLocation.toString());
-						} else if (targetAction == 1) {
+						
+						
+						
+						if (Clock.getRoundNum() > 400) {
+							targetLocation = enemyHQ;
+						}
+						
+						if (!rc.isActive()) {
+							Robot[] enemies2 = rc.senseNearbyGameObjects(Robot.class,2,enemyTeam);
+							Robot[] allies2 = rc.senseNearbyGameObjects(Robot.class,2,myTeam);
+							if (enemies2.length-allies2.length > 1) {
+								rc.selfDestruct();
+							}
+						}
+						
+						if (targetAction == 1) {
 							if (rc.isActive()) {
-								attackMove(rc, targetLocation, false);
+								attackMove(rc, targetLocation);
 							}
 						} else if (targetAction == 2) {
 							if (rc.isActive()) {
 								if (rc.getLocation().equals(targetLocation)) {
 									rc.construct(RobotType.PASTR);
 								}
-								if (rc.getLocation().distanceSquaredTo(targetLocation) < 15) {
-									attackMove(rc,targetLocation, true);
-								} else {
-									attackMove(rc,targetLocation,false);
-								}
+								attackMove(rc,targetLocation);
 							}
+						}
+						
+						while(Clock.getBytecodeNum() < 2500) {
+							rc.senseNearbyGameObjects(Robot.class,10);
 						}
 						
 						rc.yield();
@@ -128,33 +92,43 @@ public class RobotPlayer {
 					} catch (Exception e) {System.out.println("soldier exception occurred: " + e.getMessage()); rc.yield();}
 				}
 			} catch (Exception e) {System.out.println("soldier initializing exception occurred: " + e.getMessage()); rc.yield();}	
-		
 		}
-		
 		
 		while(true) {
 			rc.yield();
 		}
-		
-		
 	}
 	
 	
-	public static void attackMove (RobotController rc, MapLocation target, boolean sneak) throws GameActionException {
-		Robot[] enemies16 = rc.senseNearbyGameObjects(Robot.class,16,enemyTeam);
+	public static boolean attackMove (RobotController rc, MapLocation target) throws GameActionException {
+		Robot[] enemies16 = rc.senseNearbyGameObjects(Robot.class,10,enemyTeam);
+		if (rc.getHealth() <= 70 && enemies16.length > 2) {
+			navigate(rc,target);
+			return true;
+		}
+		
 		if (enemies16.length != 0) {
-			rc.attackSquare(rc.senseRobotInfo(enemies16[0]).location);
-			return;
+			int lowestIndex = 0;
+			double lowestHP = rc.senseRobotInfo(enemies16[lowestIndex]).health;
+			for (int i=1; i<enemies16.length; i++) {
+				RobotInfo r = rc.senseRobotInfo(enemies16[i]);
+				if (r.health < lowestHP) {
+					lowestHP = r.health;
+					lowestIndex=i;
+				}
+			}
+			rc.attackSquare(rc.senseRobotInfo(enemies16[lowestIndex]).location);
+			return true;
 		} else {
-			navigate(rc, target, sneak);
+			if (navigate(rc, target)) {
+				return true;
+			}
+			return false;
 		}
 	}
 	
 	
-	public static void navigate (RobotController rc, MapLocation target, boolean sneak) throws GameActionException {
-		if (rc.getLocation().equals(target)) {
-			return;
-		}
+	public static boolean navigate (RobotController rc, MapLocation target) throws GameActionException {
 		Direction[] validMoves = new Direction[8];
 		int numValidMoves=0;
 		for (int i=0; i<8; i++) {
@@ -163,26 +137,22 @@ public class RobotPlayer {
 			}
 		}
 		if (numValidMoves==0) {
-			return;
+			return false;
 		}
 		int closestMoveIndex = 0;
-		int closestDistance = 999999;
-		for (int i=0; i<numValidMoves; i++) {
-			MapLocation destination = rc.getLocation().add(validMoves[i]);
-			int temp = destination.distanceSquaredTo(target);
-			if (temp < closestDistance && !deadEnd[destination.x][destination.y]) {
+		int closestDistance = rc.getLocation().add(validMoves[0]).distanceSquaredTo(target);
+		for (int i=1; i<numValidMoves; i++) {
+			int temp = rc.getLocation().add(validMoves[i]).distanceSquaredTo(target);
+			if (temp < closestDistance) {
 				closestMoveIndex = i;
 				closestDistance = temp;
 			}
 		}
-		if (closestDistance >= rc.getLocation().distanceSquaredTo(target)) {
-			deadEnd[rc.getLocation().x][rc.getLocation().y] = true;
-			System.out.println("DEAD END "+ rc.getLocation().toString());
-		}
-		if (sneak) {
-			rc.sneak(validMoves[closestMoveIndex]);
-		} else {
+		if (closestDistance <= rc.getLocation().distanceSquaredTo(target)) {
 			rc.move(validMoves[closestMoveIndex]);
+			return true;
+		} else {
+			return false;
 		}
 	}
 	
@@ -303,35 +273,6 @@ public class RobotPlayer {
 	}
 	
 	static Direction[] toDirection = {Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST, Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST, Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST};
-
-	static class naivePastrLocation {
-		MapLocation loc;
-		
-		public naivePastrLocation(MapLocation l) {
-			loc = l;
-		}
-		
-		public ArrayList<naivePastrLocation> neighbors() {
-			ArrayList<naivePastrLocation> output = new ArrayList<naivePastrLocation>();
-			
-			if (loc.x+5 < cols-1) {
-				output.add(new naivePastrLocation(new MapLocation(loc.x+5,loc.y)));
-			}
-			if (loc.x-5 >=1 ) {
-				output.add(new naivePastrLocation(new MapLocation(loc.x-5,loc.y)));
-			}
-			if (loc.y+5 < rows-1) {
-				output.add(new naivePastrLocation(new MapLocation(loc.x,loc.y+5)));
-			}
-			if (loc.y-5 >= 1) {
-				output.add(new naivePastrLocation(new MapLocation(loc.x,loc.y-5)));
-			}
-			return output;
-		}
-		
-		public double avgCows() {
-			return (cows[loc.x][loc.y]+cows[loc.x][loc.y-1]+cows[loc.x][loc.y+1]+cows[loc.x-1][loc.y-1]+cows[loc.x-1][loc.y]+cows[loc.x-1][loc.y+1]+cows[loc.x+1][loc.y-1]+cows[loc.x+1][loc.y]+cows[loc.x+1][loc.y+1])/9.0;
-		}
-	}
+	
 	
 }

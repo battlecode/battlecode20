@@ -1,4 +1,6 @@
-package sweepbot;
+package team001;
+
+//NOTE: NOT COMPLETE
 
 import battlecode.common.Direction;
 import battlecode.common.GameConstants;
@@ -10,9 +12,11 @@ import java.util.*;
 public class RobotPlayer {
 	static Random rand;
 	static Team myTeam;
+	static MapLocation myHQ;
 	static Team enemyTeam;
 	static MapLocation enemyHQ;
 	static MapLocation targetLocation;
+	static MapLocation center;
 	static int targetAction;
 	static int NChannelsForMessaging = 65536;
 	static int rows;
@@ -24,47 +28,92 @@ public class RobotPlayer {
 	static Direction lastDirection;
 	static int pastrID;
 	static boolean readyToPatrol;
+	static boolean[][] evaluated;
+	static MapLocation[] bestLocations = new MapLocation[10000];
+	static int bestLocationsIndex = 0;
+	static boolean panic;
+	static int turnsPanic;
 	
 	static ArrayList<Integer> IDs;
 	static int numIDs;
 	
 	public static void run(RobotController rc) {
-		enemyHQ = rc.senseEnemyHQLocation();
 		rand = new Random();
 		myTeam = rc.getTeam();
+		myHQ = rc.senseHQLocation();
 		enemyTeam = myTeam.opponent();
 		enemyHQ = rc.senseEnemyHQLocation();
 		targetAction = 0;
 		targetLocation = enemyHQ;
 		cows = rc.senseCowGrowth();
-		rows = cows.length;
-		cols = cows[0].length;
+		cols = cows.length;
+		rows = cows[0].length;
+		center = new MapLocation((myHQ.x+enemyHQ.x)/2,(myHQ.y+enemyHQ.y)/2);
 		
 		if (rc.getType() == RobotType.HQ) {
 			try {
 				//trySpawn(rc,rc.getLocation().directionTo(enemyHQ));
 				//rc.broadcast(channelSpawn(),convertToMessage(2,rc.getLocation().add(Direction.EAST)));
-				MapLocation pastrLocation = new MapLocation((3*rc.getLocation().x+enemyHQ.x)/4,(3*rc.getLocation().y+enemyHQ.y)/4);
-				trySpawn(rc,rc.getLocation().directionTo(pastrLocation));
+				trySpawn(rc,rc.getLocation().directionTo(enemyHQ));
+				findGoodLocations();
+				
+				MapLocation pastrLocation = findBestLocation(rc);
 				rc.broadcast(channelSpawn(),convertToMessage(2,pastrLocation));
+				//System.out.println(pastrLocation.toString());
 				
 				while (true) {
 					try {
 						
+						MapLocation[] enemyPastrLocations = rc.sensePastrLocations(enemyTeam);
+						int numEnemyPastrs=0;
+						for (MapLocation l:enemyPastrLocations) {
+							if (l.distanceSquaredTo(enemyHQ) > 2) {
+								numEnemyPastrs++;
+							}
+						}
+						
+						if(rc.senseTeamMilkQuantity(enemyTeam) > rc.senseTeamMilkQuantity(myTeam)+2000000 || numEnemyPastrs >= 3) {
+							panic = true;
+							turnsPanic=0;
+							Robot[] allies = rc.senseNearbyGameObjects(Robot.class,999999,myTeam);
+							for (int i=allies.length; --i>=0;) {
+								int id = allies[i].getID();
+								rc.broadcast(channelInbound(id),convertToMessage(4,pastrLocation));
+							}
+						} else if (panic && rc.sensePastrLocations(enemyTeam).length == 0) {
+							turnsPanic++;
+							if (turnsPanic > 100) {
+								panic = false;
+								Robot[] allies = rc.senseNearbyGameObjects(Robot.class,999999,myTeam);
+								for (int i=allies.length; --i>=0;) {
+									int id = allies[i].getID();
+									rc.broadcast(channelInbound(id),convertToMessage(3,pastrLocation));
+								}
+							}
+						}
 						
 						if (rc.isActive()) {
-							Robot[] enemies15 = rc.senseNearbyGameObjects(Robot.class, 15, enemyTeam);
-							if (enemies15.length != 0) {
-								rc.attackSquare(rc.senseRobotInfo(enemies15[0]).location);
-							} else {
+							Robot[] enemies24 = rc.senseNearbyGameObjects(Robot.class, 24, enemyTeam);
+							if (enemies24.length != 0) {
+								RobotInfo r = rc.senseRobotInfo(enemies24[0]);
+								if (r.location.distanceSquaredTo(rc.getLocation()) < 16) {
+									rc.attackSquare(r.location);
+								} else {
+									rc.attackSquare(r.location.add(r.location.directionTo(rc.getLocation())));
+								}
+							} else if (rc.senseRobotCount() < 25) {
 								trySpawn(rc,rc.getLocation().directionTo(pastrLocation));
-								rc.broadcast(channelSpawn(),convertToMessage(3,pastrLocation));
+								if (!panic) {
+									rc.broadcast(channelSpawn(),convertToMessage(3,pastrLocation));
+								} else {
+									rc.broadcast(channelSpawn(),convertToMessage(4,pastrLocation));
+								}
 							}
 						}
 						rc.yield();
-					} catch (Exception e) {System.out.println("hq exception occurred: " + e.getMessage()); rc.yield();}
+					} catch (Exception e) {rc.yield();}//{System.out.println("hq exception occurred: " + e.getMessage()); rc.yield();}
 				}
-			} catch (Exception e) {System.out.println("hq initializing exception occurred: " + e.getMessage()); rc.yield();}	
+			} catch (Exception e) {rc.yield();}//{System.out.println("hq initializing exception occurred: " + e.getMessage()); rc.yield();}	
 		}
 		
 		if (rc.getType() == RobotType.SOLDIER) {
@@ -75,12 +124,14 @@ public class RobotPlayer {
 				int m = rc.readBroadcast(channelSpawn());
 				targetAction = actionFromMessage(m);
 				targetLocation = locationFromMessage(m);
-				rc.setIndicatorString(1,Integer.toString(targetAction));
-				rc.setIndicatorString(2,targetLocation.toString());
+				//rc.setIndicatorString(1,Integer.toString(targetAction));
+				//rc.setIndicatorString(2,targetLocation.toString());
 				
 				
 				while (true) {
 					try {
+						
+						//rc.broadcast(statusChannel(rc.getRobot().getID()),convertToMessage(targetAction,targetLocation));
 						
 						if (rc.isActive()) {
 							pastrLocations = rc.sensePastrLocations(myTeam);
@@ -89,6 +140,12 @@ public class RobotPlayer {
 						int message = rc.readBroadcast(channelInbound(rc.getRobot().getID()));
 						if (message != 0) {
 							rc.broadcast(channelInbound(rc.getRobot().getID()),0);
+							if (actionFromMessage(message) < 5) {
+								targetAction = actionFromMessage(message);
+								targetLocation = locationFromMessage(message);
+								//rc.setIndicatorString(1,Integer.toString(targetAction));
+								//rc.setIndicatorString(2,targetLocation.toString());
+							}
 						}
 						
 						//idle
@@ -96,8 +153,8 @@ public class RobotPlayer {
 							m = rc.readBroadcast(channelSpawn());
 							targetAction = actionFromMessage(m);
 							targetLocation = locationFromMessage(m);
-							rc.setIndicatorString(1,Integer.toString(targetAction));
-							rc.setIndicatorString(2,targetLocation.toString());
+							//rc.setIndicatorString(1,Integer.toString(targetAction));
+							//rc.setIndicatorString(2,targetLocation.toString());
 						//attack move
 						} else if (targetAction == 1) {
 							if (rc.isActive()) {
@@ -118,6 +175,13 @@ public class RobotPlayer {
 						} else if (targetAction == 3) {
 							if (pastrID == 0) {
 								if (rc.isActive()) {
+									if (rc.getLocation().equals(targetLocation)) {
+										Robot[] enemies = rc.senseNearbyGameObjects(Robot.class,36,enemyTeam);
+										if (enemies.length == 0) {
+											rc.construct(RobotType.PASTR);
+										}
+									}
+									
 									if (rc.getLocation().distanceSquaredTo(targetLocation) <= 24) {
 										attackMove(rc, targetLocation, true);
 									} else {
@@ -125,13 +189,11 @@ public class RobotPlayer {
 									}
 								}
 								if (rc.canSenseSquare(targetLocation)) {
-									Robot obj = (Robot)rc.senseObjectAtLocation(targetLocation);
-									if (obj == null) {
-										targetAction = 0;
-									} else {
-										RobotInfo r = rc.senseRobotInfo(obj);
+									Robot[] obj = rc.senseNearbyGameObjects(Robot.class,targetLocation,1,myTeam);
+									if (obj.length > 0) {
+										RobotInfo r = rc.senseRobotInfo(obj[0]);
 										if (r.type == RobotType.PASTR && r.team == myTeam) {										
-											pastrID = obj.getID();
+											pastrID = obj[0].getID();
 											rc.broadcast(channelInbound(pastrID),convertToMessage(33,rc.getRobot().getID()));
 										}
 									}
@@ -147,7 +209,7 @@ public class RobotPlayer {
 										attackMove(rc,locationFromMessage(message));
 									} else {
 										if (!readyToPatrol) {
-											readyToPatrol = (rc.getLocation().distanceSquaredTo(enemyHQ) > targetLocation.distanceSquaredTo(enemyHQ));
+											readyToPatrol = (rc.getLocation().distanceSquaredTo(enemyHQ) < targetLocation.distanceSquaredTo(enemyHQ));
 											attackMove(rc,enemyHQ);
 										} else {
 											patrol(rc,targetLocation);
@@ -155,33 +217,17 @@ public class RobotPlayer {
 									}
 								}
 							}
-							/*
+						} else if (targetAction == 4) {
 							if (rc.isActive()) {
-								MapLocation closestPastr = null;
-								int distanceSquared = 9999999;
-								for (int i=0; i<pastrLocations.length; i++) {
-									if (pastrLocations[i].distanceSquaredTo(rc.getLocation()) < distanceSquared) {
-										distanceSquared = pastrLocations[i].distanceSquaredTo(rc.getLocation());
-									}
-								}
-								
-								Robot[] enemies36 = rc.senseNearbyGameObjects(Robot.class, 36, enemyTeam);
-								if (enemies36.length > 0) {
-									attackMove(rc,rc.senseRobotInfo(enemies36[0]).location);
-								} else if (rc.getLocation().distanceSquaredTo(targetLocation) <= 20) {
-									navigateAway(rc, targetLocation);
-								} else {
-									navigate(rc,targetLocation);
-								}
+								sweep(rc, targetLocation);
 							}
-							*/
 						}
 						
 						rc.yield();
 						//attackMove(rc, rc.getLocation().directionTo(enemyHQ));
-					} catch (Exception e) {System.out.println("soldier exception occurred: " + e.getMessage()); rc.yield();}
+					} catch (Exception e) {rc.yield();}//{System.out.println("soldier exception occurred: " + e.getMessage()); rc.yield();}
 				}
-			} catch (Exception e) {System.out.println("soldier initializing exception occurred: " + e.getMessage()); rc.yield();}	
+			} catch (Exception e) {rc.yield();}//{System.out.println("soldier initializing exception occurred: " + e.getMessage()); rc.yield();}	
 		}
 		
 		if (rc.getType() == RobotType.PASTR) {
@@ -193,7 +239,7 @@ public class RobotPlayer {
 						int m = rc.readBroadcast(channelInbound(rc.getRobot().getID()));
 						if (m != 0 && actionFromMessage(m) == 33) {
 							IDs.add(idFromMessage(m));
-							System.out.println("added " + idFromMessage(m));
+							//System.out.println("added " + idFromMessage(m));
 							//
 							rc.broadcast(channelInbound(rc.getRobot().getID()),0);
 						}
@@ -217,20 +263,155 @@ public class RobotPlayer {
 									closestDist = temp;
 								}
 							}
-							for (int i=0; i<IDs.size(); i++) {
-								rc.broadcast(channelInbound(IDs.get(i)),convertToMessage(31,closestEnemy));
+							if (rc.getLocation().distanceSquaredTo(closestEnemy) < 100) {
+								for (int i=0; i<IDs.size(); i++) {
+									rc.broadcast(channelInbound(IDs.get(i)),convertToMessage(31,closestEnemy));
+								}
 							}
 						}
 						
 						rc.yield();
-					} catch (Exception e) {System.out.println("PASTR exception occurred: " + e.getMessage()); rc.yield();}
+					} catch (Exception e) {rc.yield();}//{System.out.println("PASTR exception occurred: " + e.getMessage()); rc.yield();}
 				}
-			} catch (Exception e) {System.out.println("PASTR initializing exception occurred: " + e.getMessage()); rc.yield();}
+			} catch (Exception e) {rc.yield();}//{System.out.println("PASTR initializing exception occurred: " + e.getMessage()); rc.yield();}
 		}
 		
 		while(true) {
 			rc.yield();
 		}
+	}
+	
+	public static int evaluateLocation(RobotController rc, MapLocation loc, int radius) throws GameActionException {
+		/*
+		int startRow = Math.max(0,loc.y-5);
+		int stopRow = Math.min(rows,loc.y+5);
+		int startCol = Math.max(0,loc.x-5);
+		int stopCol = Math.min(cols,loc.x+5);
+		int badness = 0;
+		for (int r=startRow; r<stopRow; r++) {
+			for (int c = startCol; c<stopCol; c++) {
+				if (cows[r][c] == 0) {
+					badness++;
+				} else if (!checkInMap(rc,loc)) {
+					badness++;
+				}
+			}
+		}
+		*/
+		int badness=0;
+		
+		MapLocation[] nearbyLocations = MapLocation.getAllMapLocationsWithinRadiusSq(loc,radius);
+		for (MapLocation L : nearbyLocations) {
+			if (!checkInMap(rc,L)) {
+				badness++;
+			} else {
+				badness+=1-cows[L.x][L.y];
+			}
+		}
+		//getallmaplocationswithinradiussq
+		return badness;
+	}
+	
+	public static boolean checkInMap(RobotController rc, MapLocation loc) throws GameActionException {
+		if (loc.x < 0 || loc.y < 0 || loc.x >= cols || loc.y >= rows) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static void findGoodLocations() throws GameActionException {
+		double highestCows = 1;
+		int bestx = 0;
+		int besty = 0;
+		
+		for (int c=cols; --c>=0;) {
+			for (int r=rows; --r>=0;) {
+				if (cows[c][r] > highestCows) {
+					highestCows = cows[c][r];
+					bestLocations = new MapLocation[10000];
+					bestLocations[0] = new MapLocation(c,r);
+					bestLocationsIndex = 1;
+				} else if (cows[c][r] == highestCows) {
+					MapLocation add = new MapLocation(c,r);
+					if (add.distanceSquaredTo(myHQ) < add.distanceSquaredTo(enemyHQ)) {
+						bestLocations[bestLocationsIndex++] = new MapLocation(c,r);
+					}
+				}
+			}
+		}
+	}
+	
+	public static MapLocation findBestLocation(RobotController rc) throws GameActionException {
+		//System.out.println(bestLocationsIndex);
+		if (bestLocationsIndex > 100) {
+			int lowestBadness = 99999;
+			MapLocation bestLocation = null;
+			for (int i=0; i<100; i++) {
+				int random = rand.nextInt(bestLocationsIndex);
+				MapLocation testLocation = bestLocations[random];
+				int badness = evaluateLocation(rc,testLocation,20);
+				if (badness < lowestBadness) {
+					bestLocation = testLocation;
+					lowestBadness = badness;
+				}
+				//System.out.println("index " + random + " has badness " + badness);
+			}
+			return bestLocation;
+		} else {
+			MapLocation bestLocation = null;
+			int lowestBadness = 9999;
+			if (myTeam == Team.A) {
+				for (int i=bestLocationsIndex; --i>=0;) {
+					int badness = evaluateLocation(rc,bestLocations[i],24);
+					if (badness < lowestBadness) {
+						bestLocation = bestLocations[i];
+						lowestBadness = badness;
+					}
+				}
+			} else {
+				for (int i=0; i < bestLocationsIndex; i++) {
+					int badness = evaluateLocation(rc,bestLocations[i],24);
+					if (badness < lowestBadness) {
+						bestLocation = bestLocations[i];
+						lowestBadness = badness;
+					}
+				}
+			}
+			return bestLocation;
+		}
+	}
+	
+	public static void sweep (RobotController rc, MapLocation target) throws GameActionException {
+		Robot[] allies32 = rc.senseNearbyGameObjects(Robot.class,32,myTeam);
+		Robot[] enemies32 = rc.senseNearbyGameObjects(Robot.class,32,enemyTeam);
+		int numEnemyRobots=0;
+		for (Robot r : enemies32) {
+			RobotInfo info = rc.senseRobotInfo(r);
+			if (info.type == RobotType.SOLDIER) {
+				numEnemyRobots++;
+			}
+		}
+		if (numEnemyRobots > allies32.length) {
+			navigate(rc,myHQ);
+			return;
+		}
+		MapLocation[] enemyPastrLocations = rc.sensePastrLocations(enemyTeam);
+		if (enemyPastrLocations == null || enemyPastrLocations.length == 0) {
+			attackMove(rc,targetLocation);
+			return;
+		}
+		int closestIndex = 0;
+		int closestDistance = enemyPastrLocations[0].distanceSquaredTo(rc.getLocation());
+		
+		for (int i=1; i<enemyPastrLocations.length; i++) {
+			int temp = enemyPastrLocations[i].distanceSquaredTo(rc.getLocation());
+			if (temp < closestDistance) {
+				closestIndex = i;
+				closestDistance = temp;
+			}
+		}
+		
+		attackMove(rc,enemyPastrLocations[closestIndex]);
 	}
 	
 	public static void patrol (RobotController rc, MapLocation target) throws GameActionException {
@@ -241,15 +422,15 @@ public class RobotPlayer {
 			return;
 		}
 		Robot[] enemies35 = rc.senseNearbyGameObjects(Robot.class,35,enemyTeam);
-		if (enemies35.length != 0) {
+		if (enemies35.length != 0 && rc.getLocation().distanceSquaredTo(targetLocation) < 99) {
 			navigate(rc,rc.senseRobotInfo(enemies35[0]).location);
 		} else {
 			//no enemies around.
 			//too far away
 			if (rc.getLocation().distanceSquaredTo(target) > 60) {
 				navigate(rc,target);
+				return;
 			}
-			
 			
 			Direction[] moves = new Direction[5];
 			Direction[] validMoves = new Direction[5];
@@ -302,8 +483,37 @@ public class RobotPlayer {
 	
 	public static void attackMove (RobotController rc, MapLocation target) throws GameActionException {
 		Robot[] enemies10 = rc.senseNearbyGameObjects(Robot.class,10,enemyTeam);
+		Robot[] allies32 = rc.senseNearbyGameObjects(Robot.class,32,myTeam);
+		
+		int numEnemyRobots=0;
 		if (enemies10.length != 0) {
-			rc.attackSquare(rc.senseRobotInfo(enemies10[0]).location);
+			RobotInfo info = rc.senseRobotInfo(enemies10[0]);
+			if (info.type == RobotType.SOLDIER) {
+				numEnemyRobots++;
+			}
+			double lowestHP = info.health;
+			MapLocation weakestEnemy = info.location;
+			for (int i=1; i<enemies10.length; i++) {
+				RobotInfo r = rc.senseRobotInfo(enemies10[i]);
+				if (r.health < lowestHP) {
+					lowestHP = r.health;
+					weakestEnemy = r.location;
+				}
+				if (info.type == RobotType.SOLDIER) {
+					numEnemyRobots++;
+				}
+			}
+			if (numEnemyRobots > allies32.length) {
+				if (rc.senseNearbyGameObjects(Robot.class,10,enemyTeam).length == 0) {
+					return;
+				}
+				navigate(rc,myHQ);
+				if (rc.isActive()) {
+					rc.attackSquare(weakestEnemy);
+				}
+				return;
+			}
+			rc.attackSquare(weakestEnemy);
 			return;
 		} else {
 			Robot[] enemies35 = rc.senseNearbyGameObjects(Robot.class,35,enemyTeam);
@@ -323,7 +533,7 @@ public class RobotPlayer {
 		Direction[] validMoves = new Direction[8];
 		int numValidMoves=0;
 		for (int i=0; i<8; i++) {
-			if (rc.canMove(toDirection[i])) {
+			if (rc.canMove(toDirection[i]) && rc.getLocation().add(toDirection[i]).distanceSquaredTo(enemyHQ) > 25) {
 				validMoves[numValidMoves++] = toDirection[i];
 			}
 		}
@@ -342,7 +552,7 @@ public class RobotPlayer {
 		}
 		if (closestDistance >= rc.getLocation().distanceSquaredTo(target)) {
 			deadEnd[rc.getLocation().x][rc.getLocation().y] = true;
-			System.out.println("DEAD END "+ rc.getLocation().toString());
+			//System.out.println("DEAD END "+ rc.getLocation().toString());
 		}
 		MapLocation destination = rc.getLocation().add(validMoves[closestMoveIndex]);
 		boolean inPastrRange = false;
@@ -436,7 +646,7 @@ public class RobotPlayer {
 		}
 		if (closestDistance >= rc.getLocation().distanceSquaredTo(target)) {
 			deadEnd[rc.getLocation().x][rc.getLocation().y] = true;
-			System.out.println("DEAD END "+ rc.getLocation().toString());
+			//System.out.println("DEAD END "+ rc.getLocation().toString());
 		}
 		if (sneak) {
 			rc.sneak(validMoves[closestMoveIndex]);
@@ -542,20 +752,28 @@ public class RobotPlayer {
 	
 	//messages being broadcast from the robot
 	public static int channelOutbound (Robot r) {
-		return ((r.getID()*2) % (NChannelsForMessaging-1));
+		return ((r.getID()*3) % (NChannelsForMessaging-1));
 	}
 	
 	public static int channelOutbound (int r) {
-		return ((r*2) % (NChannelsForMessaging-1));
+		return ((r*3) % (NChannelsForMessaging-1));
 	}
 	
 	//messages going in to the robot
 	public static int channelInbound (Robot r) {
-		return ((r.getID()*2+1) % (NChannelsForMessaging-1));
+		return ((r.getID()*3+1) % (NChannelsForMessaging-1));
 	}
 	
 	public static int channelInbound (int r) {
-		return ((r*2+1) % (NChannelsForMessaging-1));
+		return ((r*3+1) % (NChannelsForMessaging-1));
+	}
+	
+	public static int statusChannel (Robot r) {
+		return ((r.getID()*3+2) % (NChannelsForMessaging-1));
+	}
+	
+	public static int statusChannel (int r) {
+		return ((r*3+2) % (NChannelsForMessaging-1));
 	}
 	
 	/*

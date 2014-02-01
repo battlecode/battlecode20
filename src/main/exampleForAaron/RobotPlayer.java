@@ -17,8 +17,15 @@ public class RobotPlayer {
 		while(true) {
 			try{
 				if (rc.getType() == RobotType.HQ) {
+					/*
 					Direction spawnDir = getRandomDir();
 					if(rc.isActive()&&rc.canMove(spawnDir)&&rc.senseRobotCount()<GameConstants.MAX_ROBOTS){
+						rc.spawn(spawnDir);
+					}
+					*/
+					
+					Direction spawnDir = getRandomDir();
+					if(rc.isActive()&&rc.canMove(spawnDir)&&rc.senseRobotCount()==0){
 						rc.spawn(spawnDir);
 					}
 				}else if (rc.getType() == RobotType.SOLDIER){
