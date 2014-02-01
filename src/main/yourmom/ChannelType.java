@@ -5,22 +5,24 @@ import battlecode.common.GameConstants;
 public enum ChannelType {
 	// robots occupy the first 30 * 10 channels
         // for broadcasting move-out
-        MOVE_OUT (300),
+        MOVE_OUT,
         
         // retreat channel
-        RETREAT_CHANNEL (999),
+        RETREAT_CHANNEL,
 
-		// kill channel
-		ENEMY_KILL_CHANNEL (100),
+		// pastr channels
+		PASTR1,
+		PASTR2,
+		PASTR3,
+
+		// noisetower channels
+		NOISETOWER1,
+		NOISETOWER2,
+		NOISETOWER3,
 
 		// number of channels
-		NUM_CHANNELS (GameConstants.BROADCAST_MAX_CHANNELS);
+		NUM_CHANNELS;
 
-		private final int val;
-		ChannelType(int x) { val = x; }
-
-		public int getValue() { return val; }
-        
         public static final int size = ChannelType.values().length;
         public static final int range = GameConstants.BROADCAST_MAX_CHANNELS / size;
 }

@@ -15,7 +15,6 @@ public abstract class BaseRobot {
 	public final MapCacheSystem mc;
 	public final NavigationSystem nav;
 	public final RadarSystem radar;
-	public final ExtendedRadarSystem er;
 	public final BroadcastSystem io;
 
 	// Robot Statistics - permanent variables
@@ -33,6 +32,7 @@ public abstract class BaseRobot {
 	public final int MAP_HEIGHT;
 	public final Direction DIRECTION_TO_ENEMY_HQ;
 	public final double[][] cowProductions;
+	public final MapSize MAP_SIZE;
 
 	// Robot Statistics - updated per turn
 	public double curHealth;
@@ -42,6 +42,8 @@ public abstract class BaseRobot {
 	public int curRound;
 	public MapLocation[] myPastrs;
 	public MapLocation[] enemyPastrs;
+	public boolean woreHat;
+	public double myMilkQuantity;
 
 	// Robot Flags - toggle important behavior changes
 	public boolean gameEndNow = false;
@@ -80,6 +82,14 @@ public abstract class BaseRobot {
 
 		MAP_WIDTH = rc.getMapWidth();
 		MAP_HEIGHT = rc.getMapHeight();
+		final int mapMetric = (int)Math.sqrt(MAP_WIDTH * MAP_HEIGHT);
+		if (mapMetric < 35) {
+			MAP_SIZE = MapSize.SMALL;
+		} else if (mapMetric < 50) {
+			MAP_SIZE = MapSize.MEDIUM;
+		} else {
+			MAP_SIZE = MapSize.LARGE;
+		}
 		MY_HQ_LOCATION = rc.senseHQLocation();
 		ENEMY_HQ_LOCATION = rc.senseEnemyHQLocation();
 		DIRECTION_TO_ENEMY_HQ = MY_HQ_LOCATION.directionTo(ENEMY_HQ_LOCATION);
@@ -87,7 +97,6 @@ public abstract class BaseRobot {
 		mc = new MapCacheSystem(this);
 		nav = new NavigationSystem(this);
 		radar = new RadarSystem(this);
-		er = new ExtendedRadarSystem(this);
 		io = new BroadcastSystem(this);
 
 		mc.senseAll();
@@ -105,15 +114,16 @@ public abstract class BaseRobot {
 				// Main Run Call
 				run();
 
-				er.step();
-
 				// Check if we've already run out of bytecodes
 				if (checkClock()) {
 					rc.yield();
 					continue;
 				}
 
-				// TODO Otherwise...wear hat?
+				// Use excess bytecodes
+				if (Clock.getRoundNum() == executeStartTime && Clock.getBytecodesLeft() > 9000) {
+					useExtraBytecodes();
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -134,6 +144,7 @@ public abstract class BaseRobot {
 		}
 		myPastrs = rc.sensePastrLocations(myTeam);
 		enemyPastrs = rc.sensePastrLocations(enemyTeam);
+		myMilkQuantity = rc.senseTeamMilkQuantity(myTeam);
 
 		gameEndNow = curRound > GameConstants.ROUND_MAX_LIMIT;
 	}
@@ -161,34 +172,32 @@ public abstract class BaseRobot {
         return true;
 	}
 
-	/** Should be overridden by any robot that wants to do movements. 
-	 * @return a new MoveInfo structure that either represents a spawn, a move, or a turn
-	 */
-	// public MoveInfo computeNextMove() throws GameActionException {
-	// 	return null;
-	// }
-	
 	/** If there are bytecodes left to use this turn, will call this function
 	 * a single time. Function should try very hard not to run over bytecodes.
 	 * Overriding functions should make sure to call super.
 	 * @throws GameActionException 
 	 */
 	public void useExtraBytecodes() throws GameActionException {
-		
 		// Game Ending Detection Stuff
 		// if(gameEndDetected && Clock.getRoundNum() == curRound && Clock.getBytecodesLeft() > 300) {
 		// 	if(Clock.getRoundNum()%11 == myID%11)  //announce to allies
 		// 		io.sendUShort(BroadcastChannel.ALL, BroadcastType.DETECTED_GAME_END, gameEndTime);
 		// }
-	
-		// // Message IO
-		// if(Clock.getRoundNum()==curRound && Clock.getBytecodesLeft()>2000 &&
-		// 		rc.getFlux() > 0.1) 
-		// 	io.sendAll();
+
+		// LOLWTF
+		final double enemyMilkQuantity = rc.senseTeamMilkQuantity(enemyTeam);
+		if (rc.isActive() && !woreHat && myMilkQuantity > GameConstants.HAT_MILK_COST && myMilkQuantity > enemyMilkQuantity + GameConstants.OPPONENT_MILK_SENSE_ACCURACY) {
+			rc.wearHat();
+			woreHat = true;
+		}
 	}
 	
 	public String locationToVectorString(MapLocation loc) {
 		if(loc==null) return "<null>";
 		return "<"+(loc.x-curLoc.x)+","+(loc.y-curLoc.y)+">";
+	}
+
+	public boolean inMap(MapLocation loc) {
+		return 0 <= loc.x && loc.x < MAP_WIDTH && 0 <= loc.y && loc.y < MAP_HEIGHT;
 	}
 }

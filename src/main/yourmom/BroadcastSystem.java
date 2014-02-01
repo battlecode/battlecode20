@@ -1,6 +1,8 @@
 package yourmom;
 
 import battlecode.common.Clock;
+import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 
 /**
@@ -59,18 +61,6 @@ public class BroadcastSystem {
 			}
 		} catch (Exception e) {
 //				  e.printStackTrace();
-		}
-	}
-
-	public void writeUShorts(ChannelType channelType, int[] data) {
-		writeUShorts(channelType.ordinal(), data);
-	}
-	
-	public void writeUShorts(int channel, int[] data) {
-		for (int i = 0; i < data.length; ++i) {
-			try {
-				rc.broadcast(channel+i, (signature << 31) | data[i]);
-			} catch (Exception e) {}
 		}
 	}
 	
@@ -134,57 +124,59 @@ public class BroadcastSystem {
 			channelNos[i] = rangeStart + offset;
 		}
 		return channelNos;
-	}	 
-	
-	// All code below this point is for pre-computing channels
-	
-//	  /**
-//	   * Right now, we're using this for pre-generating a list of channels so we don't have to calculate them during the game.
-//	   * This writes to PrecomputedChannelNos.java
-//	   * @param args
-//	   */
-//	  public static void main(String[] args) {
-//		  try {
-//			  String filename = System.getProperty("user.dir") + "\\teams\\baseTurgid\\PrecomputedChannelNos.java";
-//			  FileWriter fw = new FileWriter(filename);
-//			  BufferedWriter bw = new BufferedWriter(fw, 100000000);
-//			  
-//			  bw.write("package baseTurgid;\n\n");
-//			  bw.write("public class PrecomputedChannelNos {\n\n");
-//			  bw.write("public static int[][][] precomputedChannelNos =\n");
-//			  bw.write("\t{");
-//			  for (int constant = 0; constant < Constants.MAX_PRECOMPUTED_ROUNDS / Constants.CHANNEL_CYCLE; constant++) {
-//				  if (constant > 0) {
-//					  bw.write("\t");
-//				  }
-//				  bw.write("{");
-//				  for (int channel = 0; channel < ChannelType.size; channel++) {
-//					  int[] channelNos = getChannelNos(ChannelType.values()[channel], constant);
-//					  bw.write("{");
-//					  for (int i = 0; i < channelNos.length; i++) {
-//						  bw.write(Integer.toString(channelNos[i]));
-//						  if (i < channelNos.length - 1) {
-//							  bw.write(", ");
-//						  }
-//					  }
-//					  bw.write("}");
-//					  if (channel < ChannelType.size - 1) {
-//						  bw.write(", ");
-//					  }
-//				  }
-//				  bw.write("}");
-//				  if (constant < GameConstants.ROUND_MAX_LIMIT - 1) {
-//					  bw.write(", ");
-//				  }
-//				  
-//				  bw.write("\n");
-//			  }
-//			  bw.write("};\n\n");
-//			  bw.write("}\n");
-//			  bw.flush();
-//			  bw.close();
-//		  } catch (IOException e) {
-//			  e.printStackTrace();
-//		  }
-//	  }
+	}
+
+	public void broadcastNoisetowerLocations(MapLocation[] locs) throws GameActionException {
+		switch (locs.length) {
+		default:
+		case 3:
+			rc.broadcast(
+				ChannelType.NOISETOWER3.ordinal(),
+				BroadcastSystem.locationToInt(locs[2])
+			);
+		case 2:
+			rc.broadcast(
+				ChannelType.NOISETOWER2.ordinal(),
+				BroadcastSystem.locationToInt(locs[1])
+			);
+		case 1:
+			rc.broadcast(
+				ChannelType.NOISETOWER1.ordinal(),
+				BroadcastSystem.locationToInt(locs[0])
+			);
+		case 0:
+			break;
+		}
+	}
+
+	public void broadcastPastrLocations(MapLocation[] locs) throws GameActionException {
+		switch (locs.length) {
+		default:
+		case 3:
+			rc.broadcast(
+				ChannelType.PASTR3.ordinal(),
+				BroadcastSystem.locationToInt(locs[2])
+			);
+		case 2:
+			rc.broadcast(
+				ChannelType.PASTR2.ordinal(),
+				BroadcastSystem.locationToInt(locs[1])
+			);
+		case 1:
+			rc.broadcast(
+				ChannelType.PASTR1.ordinal(),
+				BroadcastSystem.locationToInt(locs[0])
+			);
+		case 0:
+			break;
+		}
+	}
+
+	static int locationToInt(MapLocation loc) {
+		return (loc.x << 8) | loc.y;
+	}
+
+	static MapLocation intToLocation(int l) {
+		return new MapLocation(l >> 8, l & 0xFF);
+	}
 }

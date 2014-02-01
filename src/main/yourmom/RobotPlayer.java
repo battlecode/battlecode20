@@ -28,7 +28,7 @@ public class RobotPlayer {
 				break;
 			}
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 
 		while (true) {

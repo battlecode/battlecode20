@@ -40,4 +40,9 @@ public final class Constants {
 	// used primarily for broadcasting in EncampmentJobSystem (resetting channels)
 	public static final int MAX_MESSAGE = 0xFFFFFF;
 	
+	/**
+	 * Fighting
+	 */
+	// If we have fewer than this number of soldiers, then turn off FIGHTING mode; otherwise, keep FIGHTing
+	public static final int FIGHTING_NOT_ENOUGH_ALLIED_SOLDIERS = 10;
 }
