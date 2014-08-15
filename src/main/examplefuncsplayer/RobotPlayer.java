@@ -33,26 +33,21 @@ public class RobotPlayer {
 				try {
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
-						//Do nothing
-						if (action < 1 && rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 2) {
+						//Mine
+						if (action < 20 && rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 2) {
+                            rc.mine();
 						//Attack a random nearby enemy
-						} else if (action < 30) {
+						} else if (action < 50) {
 							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,10,rc.getTeam().opponent());
 							if (nearbyEnemies.length > 0) {
 								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
 								rc.attackSquare(robotInfo.location);
 							}
 						//Move in a random direction
-						} else if (action < 80) {
+						} else if (action < 100) {
 							Direction moveDirection = directions[rand.nextInt(8)];
 							if (rc.canMove(moveDirection)) {
 								rc.move(moveDirection);
-							}
-						//Sneak towards the enemy
-						} else {
-							Direction toEnemy = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
-							if (rc.canMove(toEnemy)) {
-								rc.sneak(toEnemy);
 							}
 						}
 					}
