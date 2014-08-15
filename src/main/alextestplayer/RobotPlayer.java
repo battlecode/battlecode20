@@ -44,12 +44,18 @@ public class RobotPlayer {
 								rc.attackSquare(robotInfo.location);
 							}
 						//Move in a random direction
-						} else if (action < 100) {
+						} else if (action < 75) {
 							Direction moveDirection = directions[rand.nextInt(8)];
 							if (rc.canMove(moveDirection)) {
 								rc.move(moveDirection);
 							}
-						}
+                        //Move towards enemy headquarters
+						} else if (action < 100) {
+							Direction moveDirection = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
+							if (rc.canMove(moveDirection)) {
+								rc.move(moveDirection);
+							}
+                        }
 					}
 				} catch (Exception e) {
 					System.out.println("Soldier Exception");
