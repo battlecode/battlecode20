@@ -33,9 +33,8 @@ public class RobotPlayer {
 				try {
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
-						//Construct a PASTR
+						//Do nothing
 						if (action < 1 && rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 2) {
-							rc.construct(RobotType.PASTR);
 						//Attack a random nearby enemy
 						} else if (action < 30) {
 							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,10,rc.getTeam().opponent());
