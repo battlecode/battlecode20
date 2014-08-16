@@ -18,10 +18,12 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.HQ) {
 				try {					
                     if (rc.isActive()) {
-                        Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,10,rc.getTeam().opponent());
+                        Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,100,rc.getTeam().opponent());
                         if (nearbyEnemies.length > 0) {
                             RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
-                            rc.attackSquare(robotInfo.location);
+                            if (rc.canAttackSquare(robotInfo.location)) {
+                                rc.attackSquare(robotInfo.location);
+                            }
                         }
                     }
 				} catch (Exception e) {
