@@ -19,9 +19,9 @@ public class RobotPlayer {
 				try {					
 					//Check if a robot is spawnable and spawn one if it is
 					if (rc.isActive() && rc.senseRobotCount() < 25) {
-						Direction toEnemy = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
-						if (rc.senseObjectAtLocation(rc.getLocation().add(toEnemy)) == null) {
-							rc.spawn(toEnemy);
+                        Direction moveDirection = directions[rand.nextInt(8)];
+						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null) {
+							rc.spawn(moveDirection);
 						}
 					}
 				} catch (Exception e) {
@@ -31,10 +31,12 @@ public class RobotPlayer {
 			
 			if (rc.getType() == RobotType.SOLDIER) {
 				try {
+                    rc.setIndicatorString(0, "" + rc.senseOre(rc.getLocation()));
+                    rc.setIndicatorString(1, "" + rc.getLocation());
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
 						//Mine
-						if (action < 20 && rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 2) {
+						if (action < 20) {
                             rc.mine();
 						//Attack a random nearby enemy
 						} else if (action < 50) {
@@ -51,7 +53,7 @@ public class RobotPlayer {
 							}
                         //Move towards enemy headquarters
 						} else if (action < 100) {
-							Direction moveDirection = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
+							Direction moveDirection = rc.getLocation().directionTo(new MapLocation(1000, 1000));
 							if (rc.canMove(moveDirection)) {
 								rc.move(moveDirection);
 							}
