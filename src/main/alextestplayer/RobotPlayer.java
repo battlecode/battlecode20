@@ -36,7 +36,7 @@ public class RobotPlayer {
 					if (rc.isActive()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
 						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null) {
-							rc.spawn(moveDirection);
+							rc.spawn(moveDirection, RobotType.FURBY);
 						}
 					}
 				} catch (Exception e) {
@@ -44,7 +44,7 @@ public class RobotPlayer {
 				}
 			}
 			
-			if (rc.getType() == RobotType.SOLDIER) {
+			if (rc.getType() == RobotType.FURBY) {
 				try {
                     rc.setIndicatorString(0, "" + rc.senseOre(rc.getLocation()));
                     rc.setIndicatorString(1, "" + rc.getLocation());
@@ -56,7 +56,7 @@ public class RobotPlayer {
                             rc.mine();
 						//Attack a random nearby enemy
 						} else if (action < 50) {
-							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,15,rc.getTeam().opponent());
+							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,8,rc.getTeam().opponent());
 							if (nearbyEnemies.length > 0) {
 								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
 								rc.attackSquare(robotInfo.location);
