@@ -44,7 +44,7 @@ public class RobotPlayer {
 				}
 			}
 			
-			if (rc.getType() == RobotType.FURBY) {
+			if (rc.getType() == RobotType.FURBY || rc.getType() == RobotType.SOLDIER) {
 				try {
                     rc.setIndicatorString(0, "" + rc.senseOre(rc.getLocation()));
                     rc.setIndicatorString(1, "" + rc.getLocation());
@@ -52,11 +52,17 @@ public class RobotPlayer {
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
 						//Mine
-						if (action < 20) {
+						if (action < 10) {
                             rc.mine();
+                        // build something
+                        } else if (action < 20 && rc.getType() == RobotType.FURBY) {
+                            Direction dir = directions[rand.nextInt(8)];
+                            if (rc.canMove(dir)) { 
+                                rc.build(dir, RobotType.BARRACKS);
+                            }
 						//Attack a random nearby enemy
 						} else if (action < 50) {
-							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,8,rc.getTeam().opponent());
+							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,rc.getType().attackRadiusSquared,rc.getTeam().opponent());
 							if (nearbyEnemies.length > 0) {
 								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
 								rc.attackSquare(robotInfo.location);
@@ -93,6 +99,21 @@ public class RobotPlayer {
                     e.printStackTrace();
 				}
 			}
+
+            if (rc.getType() == RobotType.BARRACKS) {
+				try {					
+					//Check if a robot is spawnable and spawn one if it is
+					if (rc.isActive()) {
+                        Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
+						if (rc.canMove(moveDirection)) {
+							rc.spawn(moveDirection, RobotType.SOLDIER);
+						}
+					}
+				} catch (Exception e) {
+					System.out.println("Barracks Exception");
+                    e.printStackTrace();
+				}
+            }
 			
 			rc.yield();
 		}
