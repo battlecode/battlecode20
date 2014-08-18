@@ -56,7 +56,7 @@ public class RobotPlayer {
                             rc.mine();
 						//Attack a random nearby enemy
 						} else if (action < 50) {
-							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,24,rc.getTeam().opponent());
+							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,15,rc.getTeam().opponent());
 							if (nearbyEnemies.length > 0) {
 								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
 								rc.attackSquare(robotInfo.location);
