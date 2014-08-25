@@ -35,7 +35,7 @@ public class RobotPlayer {
 					//Check if a robot is spawnable and spawn one if it is
 					if (rc.isActive()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
-						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null) {
+						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= RobotType.FURBY.oreCost) {
 							rc.spawn(moveDirection, RobotType.FURBY);
 						}
 					}
@@ -52,12 +52,12 @@ public class RobotPlayer {
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
 						//Mine
-						if (action < 10) {
+						if (action < 2) {
                             rc.mine();
                         // build something
                         } else if (action < 20 && rc.getType() == RobotType.FURBY) {
                             Direction dir = directions[rand.nextInt(8)];
-                            if (rc.canMove(dir)) { 
+                            if (rc.canMove(dir) && rc.getTeamOre() >= RobotType.BARRACKS.oreCost) {
                                 rc.build(dir, RobotType.BARRACKS);
                             }
 						//Attack a random nearby enemy
@@ -105,7 +105,7 @@ public class RobotPlayer {
 					//Check if a robot is spawnable and spawn one if it is
 					if (rc.isActive()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
-						if (rc.canMove(moveDirection)) {
+						if (rc.canMove(moveDirection) && rc.getTeamOre() > RobotType.SOLDIER.oreCost) {
 							rc.spawn(moveDirection, RobotType.SOLDIER);
 						}
 					}
