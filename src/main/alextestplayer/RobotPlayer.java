@@ -14,7 +14,7 @@ public class RobotPlayer {
 		rand = new Random();
 		Direction[] directions = {Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST};
 
-        MapLocation enemyHQLocation = null;
+        MapLocation enemyHQLocation = rc.senseEnemyHQLocation();
         Direction lastDirection = null;
 
 		while(true) {
@@ -41,6 +41,7 @@ public class RobotPlayer {
 					}
 				} catch (Exception e) {
 					System.out.println("HQ Exception");
+                    e.printStackTrace();
 				}
 			}
 			
