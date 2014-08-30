@@ -52,7 +52,7 @@ public class RobotPlayer {
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
 						//Mine
-						if (action < 2) {
+						if (action < 2 && rc.getType() == RobotType.FURBY) {
                             rc.mine();
                         // build something
                         } else if (action < 20 && rc.getType() == RobotType.FURBY) {
