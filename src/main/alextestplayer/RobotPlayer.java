@@ -33,7 +33,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.HQ) {
 				try {					
 					//Check if a robot is spawnable and spawn one if it is
-					if (rc.isActive()) {
+					if (rc.canMove()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
 						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= RobotType.FURBY.oreCost) {
 							rc.spawn(moveDirection, RobotType.FURBY);

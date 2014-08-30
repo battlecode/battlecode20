@@ -17,7 +17,7 @@ public class RobotPlayer {
 		while(true) {
 			if (rc.getType() == RobotType.HQ) {
 				try {					
-                    if (rc.isActive()) {
+                    if (rc.canAttack()) {
                         Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,100,rc.getTeam().opponent());
                         if (nearbyEnemies.length > 0) {
                             RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
