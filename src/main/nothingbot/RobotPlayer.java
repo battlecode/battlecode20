@@ -17,6 +17,7 @@ public class RobotPlayer {
 		while(true) {
 			if (rc.getType() == RobotType.HQ) {
 				try {					
+                    /*
                     if (rc.canAttack()) {
                         Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,100,rc.getTeam().opponent());
                         if (nearbyEnemies.length > 0) {
@@ -26,6 +27,7 @@ public class RobotPlayer {
                             }
                         }
                     }
+                    */
 				} catch (Exception e) {
 					System.out.println("HQ Exception");
 				}
