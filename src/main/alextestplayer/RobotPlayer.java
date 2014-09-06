@@ -53,32 +53,34 @@ public class RobotPlayer {
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
                         boolean shouldBuild = rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 50 && rc.getTeamOre() > 1000;
+                        Direction dir = directions[rand.nextInt(8)];
 						//Mine
 						if (action < 30 && rc.getType() == RobotType.FURBY) {
                             rc.mine();
-                        // build barracks
+                        // build
                         } else if (action < 40 && rc.getType() == RobotType.FURBY && shouldBuild) {
-                            Direction dir = directions[rand.nextInt(8)];
                             if (rc.canBuild(dir, RobotType.BARRACKS)) {
                                 rc.build(dir, RobotType.BARRACKS);
                             }
-                        // build metabuilder
-                        } else if (action < 50 && rc.getType() == RobotType.FURBY && shouldBuild) {
-                            Direction dir = directions[rand.nextInt(8)];
+                        } else if (action < 45 && rc.getType() == RobotType.FURBY && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.METABUILDER)) {
                                 rc.build(dir, RobotType.METABUILDER);
                             }
-                        // build miner factory
-                        } else if (action < 60 && rc.getType() == RobotType.FURBY && shouldBuild) {
-                            Direction dir = directions[rand.nextInt(8)];
+                        } else if (action < 50 && rc.getType() == RobotType.FURBY && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.MINERFACTORY)) {
                                 rc.build(dir, RobotType.MINERFACTORY);
                             }
-                        // build an engineering bay
-                        } else if (action < 75 && rc.getType() == RobotType.FURBY && shouldBuild) {
-                            Direction dir = directions[rand.nextInt(8)];
+                        } else if (action < 55 && rc.getType() == RobotType.FURBY && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.ENGINEERINGBAY)) {
                                 rc.build(dir, RobotType.ENGINEERINGBAY);
+                            }
+                        } else if (action < 65 && rc.getType() == RobotType.FURBY && shouldBuild) {
+                            if (rc.canBuild(dir, RobotType.HANDWASHSTATION)) {
+                                rc.build(dir, RobotType.HANDWASHSTATION);
+                            }
+                        } else if (action < 70 && rc.getType() == RobotType.FURBY && shouldBuild) {
+                            if (rc.canBuild(dir, RobotType.BIOMECHATRONICRESEARCHLAB)) {
+                                rc.build(dir, RobotType.BIOMECHATRONICRESEARCHLAB);
                             }
 						//Attack a random nearby enemy
 						} else if (action < 80) {
@@ -148,6 +150,23 @@ public class RobotPlayer {
                     }
                 } catch (Exception e) {
                     System.out.println("Engineering Bay exception");
+                    e.printStackTrace();
+                }
+            }
+
+            if (rc.getType() == RobotType.BIOMECHATRONICRESEARCHLAB) {
+                try {
+                    if (rc.canMove()) {
+                        if (rc.checkResearchProgress(Upgrade.REGENERATIVEMACHINERY) == 0 && rc.getTeamOre() >= Upgrade.REGENERATIVEMACHINERY.oreCost) {
+                            rc.researchUpgrade(Upgrade.REGENERATIVEMACHINERY);
+                        } else if (rc.checkResearchProgress(Upgrade.NEUROMORPHICS) == 0 && rc.getTeamOre() >= Upgrade.NEUROMORPHICS.oreCost) {
+                            rc.researchUpgrade(Upgrade.NEUROMORPHICS);
+                        } else if (rc.checkResearchProgress(Upgrade.CONTROLLEDECOPHAGY) == 0 && rc.getTeamOre() >= Upgrade.CONTROLLEDECOPHAGY.oreCost) {
+                            rc.researchUpgrade(Upgrade.CONTROLLEDECOPHAGY);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("BRL exception");
                     e.printStackTrace();
                 }
             }
