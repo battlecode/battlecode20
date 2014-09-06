@@ -35,7 +35,7 @@ public class RobotPlayer {
 					//Check if a robot is spawnable and spawn one if it is
 					if (rc.canMove()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
-						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= RobotType.FURBY.oreCost) {
+						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= 500) {
 							rc.spawn(moveDirection, RobotType.FURBY);
 						}
 					}
@@ -44,6 +44,95 @@ public class RobotPlayer {
                     e.printStackTrace();
 				}
 			}
+
+			if (rc.getType() == RobotType.MINERFACTORY) {
+				try {					
+					//Check if a robot is spawnable and spawn one if it is
+					if (rc.canMove()) {
+                        Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
+						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= 500) {
+							rc.spawn(moveDirection, RobotType.MINER);
+						}
+					}
+				} catch (Exception e) {
+					System.out.println("HQ Exception");
+                    e.printStackTrace();
+				}
+			}
+
+			if (rc.getType() == RobotType.BARRACKS) {
+				try {					
+					//Check if a robot is spawnable and spawn one if it is
+					if (rc.canMove()) {
+                        Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
+						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= 500 && rand.nextInt(100) < 1) {
+							rc.spawn(moveDirection, RobotType.SOLDIER);
+						}
+					}
+				} catch (Exception e) {
+					System.out.println("HQ Exception");
+                    e.printStackTrace();
+				}
+			}
+
+            if (rc.getType() == RobotType.MINER) {
+                try {
+                    if (rc.isActive()) {
+                        int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
+                        if (action < 50) {
+                            rc.mine();
+						} else if (action < 100) {
+                            Direction moveDirection = directions[rand.nextInt(8)];
+                            if (rc.canMove(moveDirection)) {
+                                rc.move(moveDirection);
+                            }
+                        }
+                    }
+				} catch (Exception e) {
+					System.out.println("miner Exception");
+                    e.printStackTrace();
+				}
+            }
+
+            if (rc.getType() == RobotType.SOLDIER) {
+                try {
+                    int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
+                    //Attack a random nearby enemy
+                    if (action < 50 && false) {
+                        Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,rc.getType().attackRadiusSquared,rc.getTeam().opponent());
+                        if (nearbyEnemies.length > 0) {
+                            RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
+                            rc.attackSquare(robotInfo.location);
+                        }
+
+                        for (Robot r : nearbyEnemies) {
+                            RobotInfo rr = rc.senseRobotInfo(r);
+                            if (rr.type == RobotType.HQ) {
+                                rc.broadcast(0, 1);
+                                rc.broadcast(1, rr.location.x);
+                                rc.broadcast(2, rr.location.y);
+                            }
+                        }
+                    //Move towards enemy headquarters
+                    } else if (action < 100) {
+                        Direction moveDirection = rc.getLocation().directionTo(enemyHQLocation);
+                        if (rc.canMove(moveDirection)) {
+                            rc.move(moveDirection);
+                        } else {
+                            moveDirection = moveDirection.rotateLeft();
+                            if (rc.canMove(moveDirection)) {
+                                rc.move(moveDirection);
+                            } else {
+                                moveDirection = moveDirection.rotateRight().rotateRight();
+                                if (rc.canMove(moveDirection)) {
+                                    rc.move(moveDirection);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
 			
 			if (rc.getType() == RobotType.FURBY) {
 				try {
@@ -52,7 +141,7 @@ public class RobotPlayer {
 
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
-                        boolean shouldBuild = rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 50 && rc.getTeamOre() > 1000;
+                        boolean shouldBuild = rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 50 && rc.getTeamOre() > 500;
                         Direction dir = directions[rand.nextInt(8)];
 						//Mine
 						if (action < 30 && rc.getType() == RobotType.FURBY) {
@@ -83,7 +172,7 @@ public class RobotPlayer {
                                 rc.build(dir, RobotType.BIOMECHATRONICRESEARCHLAB);
                             }
 						//Attack a random nearby enemy
-						} else if (action < 80) {
+						} else if (action < 80 && false) {
 							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,rc.getType().attackRadiusSquared,rc.getTeam().opponent());
 							if (nearbyEnemies.length > 0) {
 								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
