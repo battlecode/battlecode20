@@ -59,25 +59,25 @@ public class RobotPlayer {
                         // build barracks
                         } else if (action < 40 && rc.getType() == RobotType.FURBY && shouldBuild) {
                             Direction dir = directions[rand.nextInt(8)];
-                            if (rc.canMove(dir) && rc.getTeamOre() >= RobotType.BARRACKS.oreCost) {
+                            if (rc.canBuild(dir, RobotType.BARRACKS)) {
                                 rc.build(dir, RobotType.BARRACKS);
                             }
                         // build metabuilder
                         } else if (action < 50 && rc.getType() == RobotType.FURBY && shouldBuild) {
                             Direction dir = directions[rand.nextInt(8)];
-                            if (rc.canMove(dir) && rc.getTeamOre() >= RobotType.METABUILDER.oreCost) {
+                            if (rc.canBuild(dir, RobotType.METABUILDER)) {
                                 rc.build(dir, RobotType.METABUILDER);
                             }
                         // build miner factory
                         } else if (action < 60 && rc.getType() == RobotType.FURBY && shouldBuild) {
                             Direction dir = directions[rand.nextInt(8)];
-                            if (rc.canMove(dir) && rc.getTeamOre() >= RobotType.MINERFACTORY.oreCost) {
+                            if (rc.canBuild(dir, RobotType.MINERFACTORY)) {
                                 rc.build(dir, RobotType.MINERFACTORY);
                             }
                         // build an engineering bay
                         } else if (action < 75 && rc.getType() == RobotType.FURBY && shouldBuild) {
                             Direction dir = directions[rand.nextInt(8)];
-                            if (rc.canMove(dir) && rc.getTeamOre() >= RobotType.ENGINEERINGBAY.oreCost) {
+                            if (rc.canBuild(dir, RobotType.ENGINEERINGBAY)) {
                                 rc.build(dir, RobotType.ENGINEERINGBAY);
                             }
 						//Attack a random nearby enemy
@@ -86,6 +86,7 @@ public class RobotPlayer {
 							if (nearbyEnemies.length > 0) {
 								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
 								rc.attackSquare(robotInfo.location);
+                                System.out.println("attack " + robotInfo.location);
 							}
 
                             for (Robot r : nearbyEnemies) {
