@@ -75,6 +75,21 @@ public class RobotPlayer {
 				}
 			}
 
+			if (rc.getType() == RobotType.METABUILDER) {
+				try {					
+					//Check if a robot is spawnable and spawn one if it is
+					if (rc.canMove()) {
+                        Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
+						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= 500) {
+							rc.spawn(moveDirection, RobotType.BUILDER);
+						}
+					}
+				} catch (Exception e) {
+					System.out.println("HQ Exception");
+                    e.printStackTrace();
+				}
+			}
+
             if (rc.getType() == RobotType.MINER) {
                 try {
                     if (rc.isActive()) {
@@ -134,7 +149,7 @@ public class RobotPlayer {
                 }
             }
 			
-			if (rc.getType() == RobotType.FURBY) {
+			if (rc.getType() == RobotType.FURBY || rc.getType() == RobotType.BUILDER) {
 				try {
                     rc.setIndicatorString(0, "" + rc.senseOre(rc.getLocation()));
                     rc.setIndicatorString(1, "" + rc.getLocation());
@@ -147,27 +162,27 @@ public class RobotPlayer {
 						if (action < 30 && rc.getType() == RobotType.FURBY) {
                             rc.mine();
                         // build
-                        } else if (action < 40 && rc.getType() == RobotType.FURBY && shouldBuild) {
+                        } else if (action < 40 && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.BARRACKS)) {
                                 rc.build(dir, RobotType.BARRACKS);
                             }
-                        } else if (action < 45 && rc.getType() == RobotType.FURBY && shouldBuild) {
+                        } else if (action < 45 && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.METABUILDER)) {
                                 rc.build(dir, RobotType.METABUILDER);
                             }
-                        } else if (action < 50 && rc.getType() == RobotType.FURBY && shouldBuild) {
+                        } else if (action < 50 && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.MINERFACTORY)) {
                                 rc.build(dir, RobotType.MINERFACTORY);
                             }
-                        } else if (action < 55 && rc.getType() == RobotType.FURBY && shouldBuild) {
+                        } else if (action < 55 && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.ENGINEERINGBAY)) {
                                 rc.build(dir, RobotType.ENGINEERINGBAY);
                             }
-                        } else if (action < 65 && rc.getType() == RobotType.FURBY && shouldBuild) {
+                        } else if (action < 65 && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.HANDWASHSTATION)) {
                                 rc.build(dir, RobotType.HANDWASHSTATION);
                             }
-                        } else if (action < 70 && rc.getType() == RobotType.FURBY && shouldBuild) {
+                        } else if (action < 70 && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.BIOMECHATRONICRESEARCHLAB)) {
                                 rc.build(dir, RobotType.BIOMECHATRONICRESEARCHLAB);
                             }
