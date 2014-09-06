@@ -52,7 +52,7 @@ public class RobotPlayer {
 
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
-                        boolean shouldBuild = rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 50;
+                        boolean shouldBuild = rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 50 && rc.getTeamOre() > 1000;
 						//Mine
 						if (action < 30 && rc.getType() == RobotType.FURBY) {
                             rc.mine();
@@ -86,7 +86,6 @@ public class RobotPlayer {
 							if (nearbyEnemies.length > 0) {
 								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
 								rc.attackSquare(robotInfo.location);
-                                System.out.println("attack " + robotInfo.location);
 							}
 
                             for (Robot r : nearbyEnemies) {
@@ -136,6 +135,21 @@ public class RobotPlayer {
 					System.out.println("Barracks Exception");
                     e.printStackTrace();
 				}
+            }
+
+            if (rc.getType() == RobotType.ENGINEERINGBAY) {
+                try {
+                    if (rc.canMove()) {
+                        if (rc.checkResearchProgress(Upgrade.IMPROVEDBUILDING) == 0 && rc.getTeamOre() >= Upgrade.IMPROVEDBUILDING.oreCost) {
+                            rc.researchUpgrade(Upgrade.IMPROVEDBUILDING);
+                        } else if (rc.checkResearchProgress(Upgrade.IMPROVEDMINING) == 0 && rc.getTeamOre() >= Upgrade.IMPROVEDMINING.oreCost) {
+                            rc.researchUpgrade(Upgrade.IMPROVEDMINING);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("Engineering Bay exception");
+                    e.printStackTrace();
+                }
             }
 			
 			rc.yield();
