@@ -66,7 +66,7 @@ public class RobotPlayer {
 					if (rc.canMove()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
 						if (rc.canMove(moveDirection) && rc.getTeamOre() >= 500 && rand.nextInt(100) < 1) {
-							//rc.spawn(moveDirection, RobotType.SOLDIER);
+							rc.spawn(moveDirection, RobotType.BASHER);
 						}
 					}
 				} catch (Exception e) {
@@ -81,7 +81,7 @@ public class RobotPlayer {
 					if (rc.canMove()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
 						if (rc.canMove(moveDirection) && rc.getTeamOre() >= 500 && rand.nextInt(100) < 1) {
-							rc.spawn(moveDirection, RobotType.DRONE);
+							//rc.spawn(moveDirection, RobotType.DRONE);
 						}
 					}
 				} catch (Exception e) {
@@ -124,11 +124,11 @@ public class RobotPlayer {
 				}
             }
 
-            if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.DRONE) {
+            if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.DRONE || rc.getType() == RobotType.BASHER) {
                 try {
                     int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
                     //Attack a random nearby enemy
-                    if (action < 50 && false) {
+                    if (action < 50) {
                         Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,rc.getType().attackRadiusSquared,rc.getTeam().opponent());
                         if (nearbyEnemies.length > 0) {
                             RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
