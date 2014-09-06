@@ -35,7 +35,7 @@ public class RobotPlayer {
 					//Check if a robot is spawnable and spawn one if it is
 					if (rc.canMove()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
-						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= 500) {
+						if (rc.canMove(moveDirection) && rc.getTeamOre() >= 500) {
 							rc.spawn(moveDirection, RobotType.FURBY);
 						}
 					}
@@ -50,8 +50,8 @@ public class RobotPlayer {
 					//Check if a robot is spawnable and spawn one if it is
 					if (rc.canMove()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
-						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= 500) {
-							rc.spawn(moveDirection, RobotType.MINER);
+						if (rc.canMove(moveDirection) && rc.getTeamOre() >= 500) {
+							//rc.spawn(moveDirection, RobotType.MINER);
 						}
 					}
 				} catch (Exception e) {
@@ -65,12 +65,27 @@ public class RobotPlayer {
 					//Check if a robot is spawnable and spawn one if it is
 					if (rc.canMove()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
-						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= 500 && rand.nextInt(100) < 1) {
-							rc.spawn(moveDirection, RobotType.SOLDIER);
+						if (rc.canMove(moveDirection) && rc.getTeamOre() >= 500 && rand.nextInt(100) < 1) {
+							//rc.spawn(moveDirection, RobotType.SOLDIER);
 						}
 					}
 				} catch (Exception e) {
 					System.out.println("HQ Exception");
+                    e.printStackTrace();
+				}
+			}
+
+			if (rc.getType() == RobotType.HELIPAD) {
+				try {					
+					//Check if a robot is spawnable and spawn one if it is
+					if (rc.canMove()) {
+                        Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
+						if (rc.canMove(moveDirection) && rc.getTeamOre() >= 500 && rand.nextInt(100) < 1) {
+							rc.spawn(moveDirection, RobotType.DRONE);
+						}
+					}
+				} catch (Exception e) {
+					System.out.println("helipad Exception");
                     e.printStackTrace();
 				}
 			}
@@ -80,12 +95,12 @@ public class RobotPlayer {
 					//Check if a robot is spawnable and spawn one if it is
 					if (rc.canMove()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
-						if (rc.senseObjectAtLocation(rc.getLocation().add(moveDirection)) == null && rc.getTeamOre() >= 500) {
+						if (rc.canMove(moveDirection) && rc.getTeamOre() >= 500) {
 							rc.spawn(moveDirection, RobotType.BUILDER);
 						}
 					}
 				} catch (Exception e) {
-					System.out.println("HQ Exception");
+					System.out.println("metabuilder Exception");
                     e.printStackTrace();
 				}
 			}
@@ -109,7 +124,7 @@ public class RobotPlayer {
 				}
             }
 
-            if (rc.getType() == RobotType.SOLDIER) {
+            if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.DRONE) {
                 try {
                     int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
                     //Attack a random nearby enemy
@@ -186,21 +201,13 @@ public class RobotPlayer {
                             if (rc.canBuild(dir, RobotType.BIOMECHATRONICRESEARCHLAB)) {
                                 rc.build(dir, RobotType.BIOMECHATRONICRESEARCHLAB);
                             }
-						//Attack a random nearby enemy
-						} else if (action < 80 && false) {
-							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,rc.getType().attackRadiusSquared,rc.getTeam().opponent());
-							if (nearbyEnemies.length > 0) {
-								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
-								rc.attackSquare(robotInfo.location);
-							}
-
-                            for (Robot r : nearbyEnemies) {
-                                RobotInfo rr = rc.senseRobotInfo(r);
-                                if (rr.type == RobotType.HQ) {
-                                    rc.broadcast(0, 1);
-                                    rc.broadcast(1, rr.location.x);
-                                    rc.broadcast(2, rr.location.y);
-                                }
+                        } else if (action < 80 && shouldBuild) {
+                            if (rc.canBuild(dir, RobotType.TECHNOLOGYINSTITUTE)) {
+                                rc.build(dir, RobotType.TECHNOLOGYINSTITUTE);
+                            }
+                        } else if (action < 85 && shouldBuild) {
+                            if (rc.canBuild(dir, RobotType.HELIPAD)) {
+                                rc.build(dir, RobotType.HELIPAD);
                             }
                         //Move towards enemy headquarters
 						} else if (action < 100) {
