@@ -105,6 +105,60 @@ public class RobotPlayer {
 				}
 			}
 
+			if (rc.getType() == RobotType.AEROSPACELAB) {
+				try {					
+					//Check if a robot is spawnable and spawn one if it is
+					if (rc.canMove()) {
+                        Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
+						if (rc.canMove(moveDirection) && rc.getTeamOre() >= 500) {
+							rc.spawn(moveDirection, RobotType.LAUNCHER);
+						}
+					}
+				} catch (Exception e) {
+					System.out.println("aerospacelab Exception");
+                    e.printStackTrace();
+				}
+			}
+
+            if (rc.getType() == RobotType.LAUNCHER) {
+                try {
+                    if (rc.isActive()) {
+                        int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
+                        Direction moveDirection = directions[rand.nextInt(8)];
+                        if (action < 50 && rc.getMissileCount() > 0 && rc.canMove(moveDirection)) {
+                            // launch missile
+                            rc.launchMissile(moveDirection);
+						} else if (action < 100) {
+                            if (rc.canMove(moveDirection)) {
+                                rc.move(moveDirection);
+                            }
+                        }
+                    }
+				} catch (Exception e) {
+					System.out.println("launcher Exception");
+                    e.printStackTrace();
+				}
+            }
+
+            if (rc.getType() == RobotType.MISSILE) {
+                try {
+                    if (rc.isActive()) {
+                        int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
+                        Direction moveDirection = directions[rand.nextInt(8)];
+                        if (action < 10) {
+                            rc.explode();
+						} else if (action < 100) {
+                            if (rc.canMove(moveDirection)) {
+                                rc.move(moveDirection);
+                            }
+                        }
+                    }
+				} catch (Exception e) {
+					System.out.println("missile Exception");
+                    e.printStackTrace();
+				}
+            }
+
             if (rc.getType() == RobotType.MINER) {
                 try {
                     if (rc.isActive()) {
@@ -208,6 +262,10 @@ public class RobotPlayer {
                         } else if (action < 85 && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.HELIPAD)) {
                                 rc.build(dir, RobotType.HELIPAD);
+                            }
+                        } else if (action < 90 && shouldBuild) {
+                            if (rc.canBuild(dir, RobotType.AEROSPACELAB)) {
+                                rc.build(dir, RobotType.AEROSPACELAB);
                             }
                         //Move towards enemy headquarters
 						} else if (action < 100) {
