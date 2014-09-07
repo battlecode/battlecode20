@@ -18,8 +18,10 @@ public class RobotPlayer {
         Direction lastDirection = null;
 
 		while(true) {
-            // do we know the enemy HQ location?
             try {
+                rc.setIndicatorString(0, "" + rc.senseOre(rc.getLocation()));
+                rc.setIndicatorString(1, "" + rc.getLocation());
+                rc.setIndicatorString(2, "my supply level: " + rc.getSupplyLevel());
                 if (enemyHQLocation == null) {
                     int test = rc.readBroadcast(0);
                     if (test != 0) {
@@ -86,6 +88,15 @@ public class RobotPlayer {
 					}
 				} catch (Exception e) {
 					System.out.println("helipad Exception");
+                    e.printStackTrace();
+				}
+			}
+
+			if (rc.getType() == RobotType.SUPPLYDEPOT) {
+				try {					
+                    rc.transferSuppliesToHQ();
+				} catch (Exception e) {
+					System.out.println("metabuilder Exception");
                     e.printStackTrace();
 				}
 			}
@@ -220,17 +231,19 @@ public class RobotPlayer {
 			
 			if (rc.getType() == RobotType.FURBY || rc.getType() == RobotType.BUILDER) {
 				try {
-                    rc.setIndicatorString(0, "" + rc.senseOre(rc.getLocation()));
-                    rc.setIndicatorString(1, "" + rc.getLocation());
 
 					if (rc.isActive()) {
 						int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
                         boolean shouldBuild = rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 50 && rc.getTeamOre() > 500;
                         Direction dir = directions[rand.nextInt(8)];
 						//Mine
-						if (action < 30 && rc.getType() == RobotType.FURBY) {
+						if (action < 20 && rc.getType() == RobotType.FURBY) {
                             rc.mine();
                         // build
+                        } else if (action < 30 && shouldBuild) {
+                            if (rc.canBuild(dir, RobotType.SUPPLYDEPOT)) {
+                                rc.build(dir, RobotType.SUPPLYDEPOT);
+                            }
                         } else if (action < 40 && shouldBuild) {
                             if (rc.canBuild(dir, RobotType.BARRACKS)) {
                                 rc.build(dir, RobotType.BARRACKS);
