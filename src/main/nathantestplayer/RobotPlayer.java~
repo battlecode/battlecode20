@@ -74,7 +74,7 @@ public class RobotPlayer {
                 try {					
 					if (rc.canMove()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
-						if (rc.canMove(moveDirection) && rc.getTeamOre() >= 100) {
+						if (rc.canMove(moveDirection) && !rc.hasCommander() && rc.getTeamOre() >= 100) {
 							rc.spawn(moveDirection, RobotType.COMMANDER);
                             System.out.println("COMMANDER SPAWNED");
 						}
@@ -106,9 +106,13 @@ public class RobotPlayer {
 
             if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.DRONE || rc.getType() == RobotType.COMMANDER) {
                 try {
+                    if (rc.getType() == RobotType.COMMANDER) {
+                        rc.setIndicatorString(0, "xp: " + rc.getXP());
+                    }
+
                     int action = (rc.getRobot().getID()*rand.nextInt(101) + 50)%101;
                     //Attack a random nearby enemy
-                    if (action < 50) {
+                    if (action < 90) {
                         Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class,rc.getType().attackRadiusSquared,rc.getTeam().opponent());
                         if (nearbyEnemies.length > 0) {
                             RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
@@ -194,14 +198,12 @@ public class RobotPlayer {
             if (rc.getType() == RobotType.BARRACKS) {
 				try {					
 					//Check if a robot is spawnable and spawn one if it is
-                    /*
 					if (rc.isActive()) {
                         Direction moveDirection = enemyHQLocation == null ? directions[rand.nextInt(8)] : rc.getLocation().directionTo(enemyHQLocation);
 						if (rc.canMove(moveDirection) && rc.getTeamOre() > RobotType.SOLDIER.oreCost) {
 							rc.spawn(moveDirection, RobotType.SOLDIER);
 						}
 					}
-                    */
 				} catch (Exception e) {
 					System.out.println("Barracks Exception");
                     e.printStackTrace();
