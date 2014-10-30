@@ -26,7 +26,7 @@ public class RobotPlayer {
             try {
             	if (myType==RobotType.FURBY){
             		int c = Clock.getBytecodeNum();
-            		achieveTech(RobotType.LAUNCHER);
+            		achieveTech(RobotType.TANK);
             		int c2 = (Clock.getBytecodeNum()-c);
             		//rc.setIndicatorString(2,"achieveTech took "+c2);
             		if(Clock.getRoundNum()==100){
