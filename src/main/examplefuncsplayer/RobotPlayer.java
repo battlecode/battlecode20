@@ -5,17 +5,21 @@ import java.util.*;
 
 public class RobotPlayer {
 	static RobotController rc;
+	static Team myTeam;
+	static Team enemyTeam;
+	static int myRange;
 	static Random rand;
 	static Direction[] directions = {Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST};
 	
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
+		myRange = rc.getType().attackRadiusSquared;
         rand = new Random(rc.getRobot().getID());
 		MapLocation enemyLoc = rc.senseEnemyHQLocation();
         Direction lastDirection = null;
-		Team myTeam = rc.getTeam();
-		Team enemyTeam = myTeam.opponent();
-		Robot myRobots[];
+		myTeam = rc.getTeam();
+		enemyTeam = myTeam.opponent();
+		Robot[] myRobots;
 
 		while(true) {
             try {
@@ -30,11 +34,29 @@ public class RobotPlayer {
 				try {					
 					int fate = rand.nextInt(10000);
 					myRobots = rc.senseNearbyGameObjects(Robot.class, 999999, myTeam);
+					int numSoldiers = 0;
+					int numBashers = 0;
 					int numFurbies = 0;
+					int numBarracks = 0;
 					for (Robot r : myRobots) {
-						if (rc.senseRobotInfo(r).type == RobotType.FURBY) {
+						RobotType type = rc.senseRobotInfo(r).type;
+						if (type == RobotType.SOLDIER) {
+							numSoldiers++;
+						} else if (type == RobotType.BASHER) {
+							numBashers++;
+						} else if (type == RobotType.FURBY) {
 							numFurbies++;
+						} else if (type == RobotType.BARRACKS) {
+							numBarracks++;
 						}
+					}
+					rc.broadcast(0,numFurbies);
+					rc.broadcast(1,numSoldiers);
+					rc.broadcast(2,numBashers);
+					rc.broadcast(100, numBarracks);
+					
+					if (rc.canAttack()) {
+						attackSomething();
 					}
 					if (rc.canMove() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numFurbies)*10000) {
                         
@@ -70,48 +92,62 @@ public class RobotPlayer {
                     e.printStackTrace();
 				}
 			}
-
-			if (rc.getType() == RobotType.SUPPLYDEPOT) {
-				try {					
-                    rc.transferSuppliesToHQ();
-				} catch (Exception e) {
-					System.out.println("Supplydepot exception");
-                    e.printStackTrace();
-				}
-			}
-
-            if (rc.getType() == RobotType.TRAININGFIELD) {
+			
+            if (rc.getType() == RobotType.TOWER) {
                 try {					
-					
+					if (rc.canAttack()) {
+						attackSomething();
+					}
 				} catch (Exception e) {
-					System.out.println("Trainingfield Exception");
+					System.out.println("Tower Exception");
                     e.printStackTrace();
 				}
             }
-
-            if (rc.getType() == RobotType.MINER) {
+			
+			
+			if (rc.getType() == RobotType.BASHER) {
                 try {
-                    
-				} catch (Exception e) {
-					System.out.println("Miner Exception");
-                    e.printStackTrace();
-				}
-            }
-
-            if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.DRONE || rc.getType() == RobotType.COMMANDER) {
-                try {
-                    
+                    Robot[] adjacentEnemies = rc.senseNearbyGameObjects(Robot.class, 2, enemyTeam);
+					if (adjacentEnemies.length > 0 && rc.canAttack()) {
+						rc.attackSquare(rc.getLocation());
+					} else if (rc.canMove()) {
+						
+						int fate = rand.nextInt(1000);
+						if (fate < 800) {
+							tryMove(directions[rand.nextInt(8)]);
+						} else {
+							tryMove(rc.senseHQLocation().directionTo(rc.getLocation()));
+						}
+					}
                 } catch (Exception e) {
+					System.out.println("Basher Exception");
+					e.printStackTrace();
                 }
             }
 			
-			if (rc.getType() == RobotType.FURBY || rc.getType() == RobotType.BUILDER) {
+            if (rc.getType() == RobotType.SOLDIER) {
+                try {
+                    if (rc.canAttack()) {
+						attackSomething();
+					}
+					if (rc.canMove()) {
+						int fate = rand.nextInt(1000);
+						if (fate < 800) {
+							tryMove(directions[rand.nextInt(8)]);
+						} else {
+							tryMove(rc.senseHQLocation().directionTo(rc.getLocation()));
+						}
+					}
+                } catch (Exception e) {
+					System.out.println("Soldier Exception");
+					e.printStackTrace();
+                }
+            }
+			
+			if (rc.getType() == RobotType.FURBY) {
 				try {
 					if (rc.canAttack()) {
-						Robot[] enemies = rc.senseNearbyGameObjects(Robot.class, 8, enemyTeam);
-						if (enemies.length > 0) {
-							rc.attackSquare(rc.senseLocationOf(enemies[0]));
-						}
+						attackSomething();
 					}
 					if (rc.canMove()) {
 						int fate = rand.nextInt(1000);
@@ -120,41 +156,47 @@ public class RobotPlayer {
 						} else if (fate < 600) {
 							rc.mine();
 						} else if (fate < 900) {
-							Direction movedir = directions[rand.nextInt(8)];
-							tryMove(movedir);
+							tryMove(directions[rand.nextInt(8)]);
 						} else {
 							tryMove(rc.senseHQLocation().directionTo(rc.getLocation()));
 						}
 					}
 				} catch (Exception e) {
-					System.out.println("Soldier Exception");
+					System.out.println("Furby Exception");
                     e.printStackTrace();
 				}
 			}
 
             if (rc.getType() == RobotType.BARRACKS) {
-				try {					
-					myRobots = rc.senseNearbyGameObjects(Robot.class, 999999, myTeam);
-					int numSoldiers = 0;
-					int numBashers = 0;
-					for (Robot r : myRobots) {
-						RobotType type = rc.senseRobotInfo(r).type;
-						if (type == RobotType.SOLDIER) {
-							numSoldiers++;
-						} else if (type == RobotType.BASHER) {
-							numBashers++;
+				try {
+					int fate = rand.nextInt(10000);
+					
+					int numFurbies = rc.readBroadcast(0);
+					int numSoldiers = rc.readBroadcast(1);
+					int numBashers = rc.readBroadcast(2);
+					int numBarracks = rc.readBroadcast(100);
+					
+					if (rc.canMove() && rc.getTeamOre() >= 50 && fate < Math.pow(1.2,15-numSoldiers-numBashers+numFurbies)*10000) {
+						if (rc.getTeamOre() > 80 && fate % 2 == 0) {
+							trySpawn(directions[rand.nextInt(8)],RobotType.BASHER);
+						} else {
+							trySpawn(directions[rand.nextInt(8)],RobotType.SOLDIER);
 						}
-					}
-					if (rc.canMove() && rc.getTeamOre() >= 50) {
-						trySpawn(directions[rand.nextInt(8)], RobotType.SOLDIER);
 					}
 				} catch (Exception e) {
 					System.out.println("Barracks Exception");
                     e.printStackTrace();
 				}
 			}
-
+			
 			rc.yield();
+		}
+	}
+	
+	static void attackSomething() throws GameActionException {
+		Robot[] enemies = rc.senseNearbyGameObjects(Robot.class, myRange, enemyTeam);
+		if (enemies.length > 0) {
+			rc.attackSquare(rc.senseLocationOf(enemies[0]));
 		}
 	}
 	
