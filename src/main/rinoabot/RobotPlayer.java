@@ -24,84 +24,32 @@ public class RobotPlayer {
 		while(true) {
             try {
                 
-            } catch (Exception e) {
-                System.out.println("You suck");
-            }
+            
 
 			if (rc.getType() == RobotType.HQ) {
-				try {	
-					if (Clock.getRoundNum() == 1) {
-						trySpawn(Direction.SOUTH_EAST, RobotType.FURBY);
-					}
-				} catch (Exception e) {
-					System.out.println("HQ Exception");
-                    e.printStackTrace();
+				if (rc.canAttack()) {
+					attackSomething();
 				}
 			}
 			
             if (rc.getType() == RobotType.SOLDIER) {
-                try {
-                    
-                } catch (Exception e) {
-					System.out.println("Soldier Exception");
-					e.printStackTrace();
-                }
+
             }
 			
 			if (rc.getType() == RobotType.FURBY) {
-				try {
-					rc.mine();
-					System.out.println("1");
-				} catch (Exception e) {System.out.println("1 failed");}
-				rc.yield();
-				try {
-					rc.move(Direction.EAST);
-					System.out.println("2");
-				} catch (Exception e) {System.out.println("2 failed");}
-				rc.yield();
-				try {
-					rc.move(Direction.EAST);
-					System.out.println("3");
-				} catch (Exception e) {System.out.println("3 failed");}
-				rc.yield();
-				try {
-					rc.move(Direction.EAST);
-					System.out.println("4");
-				} catch (Exception e) {System.out.println("4 failed");}
-				rc.yield();
-				rc.yield();
-				rc.yield();
-				rc.yield();
-				rc.yield();
-				rc.yield();
-				rc.yield();
-				rc.yield();
-				try {
-					rc.move(Direction.EAST);
-					System.out.println("5");
-				} catch (Exception e) {System.out.println("5 failed");}
-				rc.yield();
-				try {
-					rc.mine();
-					System.out.println("6");
-				} catch (Exception e) {System.out.println("6 failed");}
-				rc.yield();
-				
-				while (true) {
-					rc.yield();
-				}
+
 			}
 
-            if (rc.getType() == RobotType.BARRACKS) {
-				try {
-					
-				} catch (Exception e) {
-					System.out.println("Barracks Exception");
-                    e.printStackTrace();
+            if (rc.getType() == RobotType.TOWER) {
+				if (rc.canAttack()) {
+					attackSomething();
 				}
 			}
 			
 			rc.yield();
+			} catch (Exception e) {
+                System.out.println("You suck");
+            }
 		}
 	}
 	

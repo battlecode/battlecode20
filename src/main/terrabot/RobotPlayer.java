@@ -1,4 +1,4 @@
-package examplefuncsplayer;
+package terrabot;
 
 import battlecode.common.*;
 import java.util.*;
@@ -10,6 +10,14 @@ public class RobotPlayer {
 	static int myRange;
 	static Random rand;
 	static Direction[] directions = {Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST};
+	//0-towers, 1-supply depot, 2-barracks, 3-tech institute, 4-metabuilder, 5-helipad, 6-training field, 7-tank fact, 8-miner fact, 9-eng bay, 10-handwash station, 11-biomech lab, 12-aero lab
+	static RobotType[] structureTypes = {RobotType.TOWER,RobotType.SUPPLYDEPOT,RobotType.BARRACKS,RobotType.TECHNOLOGYINSTITUTE,RobotType.METABUILDER,RobotType.HELIPAD,RobotType.TRAININGFIELD,
+	RobotType.TANKFACTORY,RobotType.MINERFACTORY,RobotType.ENGINEERINGBAY,RobotType.HANDWASHSTATION,RobotType.BIOMECHATRONICRESEARCHLAB,RobotType.AEROSPACELAB};
+	//0-furby, 1-computer, 2-soldier, 3-basher, 4-builder, 5-miner, 6-drone, 7-tank, 8-commander, 9-launcher
+	static RobotType[] unitTypes = {RobotType.FURBY, RobotType.COMPUTER, RobotType.SOLDIER, RobotType.BASHER, RobotType.BUILDER, 
+	RobotType.MINER, RobotType.DRONE, RobotType.TANK, RobotType.COMMANDER, RobotType.LAUNCHER};
+	static int[] structureCount = new int[structureTypes.length];
+	static int[] unitCount = new int[unitTypes.length];
 	
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
@@ -20,72 +28,46 @@ public class RobotPlayer {
 		myTeam = rc.getTeam();
 		enemyTeam = myTeam.opponent();
 		Robot[] myRobots;
-
+		
 		while(true) {
             try {
                 rc.setIndicatorString(0, "Ore here: " + rc.senseOre(rc.getLocation()));
                 rc.setIndicatorString(1, "Location: " + rc.getLocation());
                 rc.setIndicatorString(2, "My supply level: " + rc.getSupplyLevel());
+				
+				//inefficient for now but w/e
+				for (int i=0; i<structureCount.length; i++) {
+					structureCount[i] = rc.getRobotTypeCount(structureTypes[i]);
+				}
+				for (int i=0; i<unitCount.length; i++) {
+					unitCount[i] = rc.getRobotTypeCount(unitTypes[i]);
+				}
+				
+				
+				
             } catch (Exception e) {
-                System.out.println("You suck");
+                e.printStackTrace();
+				System.out.println("You suck");
             }
 
 			if (rc.getType() == RobotType.HQ) {
 				try {					
 					int fate = rand.nextInt(10000);
-					myRobots = rc.senseNearbyGameObjects(Robot.class, 999999, myTeam);
-					int numSoldiers = 0;
-					int numBashers = 0;
-					int numFurbies = 0;
-					int numBarracks = 0;
-					for (Robot r : myRobots) {
-						RobotType type = rc.senseRobotInfo(r).type;
-						if (type == RobotType.SOLDIER) {
-							numSoldiers++;
-						} else if (type == RobotType.BASHER) {
-							numBashers++;
-						} else if (type == RobotType.FURBY) {
-							numFurbies++;
-						} else if (type == RobotType.BARRACKS) {
-							numBarracks++;
-						}
-					}
-					rc.broadcast(0,numFurbies);
-					rc.broadcast(1,numSoldiers);
-					rc.broadcast(2,numBashers);
-					rc.broadcast(100, numBarracks);
+					
+					
+					
+					int numSoldiers = unitCount[2];
+					int numBashers = unitCount[3];
+					int numFurbies = unitCount[0];
+					int numBarracks = structureCount[2];
 					
 					if (rc.canAttack()) {
 						attackSomething();
 					}
 					if (rc.canMove() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numFurbies)*10000) {
-                        
-						trySpawn(directions[rand.nextInt(8)], RobotType.FURBY);
-						
-						/*
-						Direction spawndir;
-						if (enemyLoc != null) {
-							spawndir = rc.getLocation().directionTo(enemyLoc);
-						} else {
-							spawndir = directions[rand.nextInt(8)];
-						}
-						
-						
-						int offsetIndex = 0;
-						int[] offsets = {0,1,-1,2,-2,3,-3,4};
-						int spawndirint = directionToInt(spawndir);
-						boolean blocked = false;
-						while (offsetIndex < 8 && !rc.canMove(directions[(spawndirint+offsets[offsetIndex]+8)%8])) {
-							offsetIndex++;
-						}
-						if (offsetIndex >= 8) {
-							System.out.println("creep blocked");
-						} else {
-							rc.spawn(directions[(spawndirint+offsets[offsetIndex]+8)%8], RobotType.FURBY);
-							
-							//give the robot some supplies
-						}
-						*/
+                        Direction spawndir = directions[rand.nextInt(8)];
+						trySpawn(spawndir, RobotType.FURBY);
+						//rc.transferSupplies((int)(rc.getSupplyLevel()/2), spawndir);
 					}
 				} catch (Exception e) {
 					System.out.println("HQ Exception");
@@ -111,7 +93,6 @@ public class RobotPlayer {
 					if (adjacentEnemies.length > 0 && rc.canAttack()) {
 						rc.attack();
 					} else if (rc.canMove()) {
-						
 						int fate = rand.nextInt(1000);
 						if (fate < 800) {
 							tryMove(directions[rand.nextInt(8)]);
@@ -171,10 +152,10 @@ public class RobotPlayer {
 				try {
 					int fate = rand.nextInt(10000);
 					
-					int numFurbies = rc.readBroadcast(0);
-					int numSoldiers = rc.readBroadcast(1);
-					int numBashers = rc.readBroadcast(2);
-					int numBarracks = rc.readBroadcast(100);
+					int numSoldiers = unitCount[2];
+					int numBashers = unitCount[3];
+					int numFurbies = unitCount[0];
+					int numBarracks = structureCount[2];
 					
 					if (rc.canMove() && rc.getTeamOre() >= 50 && fate < Math.pow(1.2,15-numSoldiers-numBashers+numFurbies)*10000) {
 						if (rc.getTeamOre() > 80 && fate % 2 == 0) {
