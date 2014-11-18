@@ -23,7 +23,7 @@ public class RobotPlayer {
 
         while (true) {
             try {
-                myself.execute();
+                myself.go();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -54,7 +54,7 @@ public class RobotPlayer {
         }
 
         public Direction[] getDirectionsTowardEnemy() {
-            Direction toEnemyHQ = myHQ.directionTo(theirHQ);
+            Direction toEnemyHQ = theirHQ != null ? myHQ.directionTo(theirHQ) : Direction.NORTH_EAST;
             Direction[] dirs = {toEnemyHQ, toEnemyHQ.rotateLeft(), toEnemyHQ.rotateRight(), toEnemyHQ.rotateLeft().rotateLeft(), toEnemyHQ.rotateRight().rotateRight(), toEnemyHQ.opposite().rotateLeft(), toEnemyHQ.opposite().rotateRight(), toEnemyHQ.opposite()};
             return dirs;
         }
@@ -89,25 +89,24 @@ public class RobotPlayer {
             return null;
         }
 
-        public Robot[] getAllies() {
-            Robot[] allies = rc.senseNearbyRobots(Integer.MAX_VALUE, myTeam);
+        public RobotInfo[] getAllies() {
+            RobotInfo[] allies = rc.senseNearbyRobots(Integer.MAX_VALUE, myTeam);
             return allies;
         }
 
-        public Robot[] getEnemiesInAttackingRange() {
-            Robot[] enemies = rc.senseNearbyRobots(RobotType.SOLDIER.attackRadiusSquared, theirTeam);
+        public RobotInfo[] getEnemiesInAttackingRange() {
+            RobotInfo[] enemies = rc.senseNearbyRobots(RobotType.SOLDIER.attackRadiusSquared, theirTeam);
             return enemies;
         }
 
-        public void attackLeastHealthEnemy(Robot[] enemies) throws GameActionException {
+        public void attackLeastHealthEnemy(RobotInfo[] enemies) throws GameActionException {
             if (enemies.length == 0) {
                 return;
             }
 
             double minEnergon = Double.MAX_VALUE;
             MapLocation toAttack = null;
-            for (Robot r : enemies) {
-                RobotInfo info = rc.senseRobotInfo(r);
+            for (RobotInfo info : enemies) {
                 if (info.health < minEnergon) {
                     toAttack = info.location;
                     minEnergon = info.health;
@@ -115,6 +114,21 @@ public class RobotPlayer {
             }
 
             rc.attackSquare(toAttack);
+        }
+
+        public void beginningOfTurn() {
+            if (rc.senseEnemyHQLocation() != null) {
+                this.theirHQ = rc.senseEnemyHQLocation();
+            }
+        }
+
+        public void endOfTurn() {
+        }
+
+        public void go() throws GameActionException {
+            beginningOfTurn();
+            execute();
+            endOfTurn();
         }
 
         public void execute() throws GameActionException {
@@ -135,7 +149,7 @@ public class RobotPlayer {
             }
 
             // also try to attack
-            Robot[] enemies = getEnemiesInAttackingRange();
+            RobotInfo[] enemies = getEnemiesInAttackingRange();
             if (rc.isAttackActive() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
             }
@@ -204,7 +218,7 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             // if can attack, then attack
-            Robot[] enemies = getEnemiesInAttackingRange();
+            RobotInfo[] enemies = getEnemiesInAttackingRange();
             if (rc.isAttackActive() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
             }
@@ -227,7 +241,7 @@ public class RobotPlayer {
         }
 
         public void execute() throws GameActionException {
-            Robot[] enemies = getEnemiesInAttackingRange();
+            RobotInfo[] enemies = getEnemiesInAttackingRange();
             if (rc.isAttackActive() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
             }
