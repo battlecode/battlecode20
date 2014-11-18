@@ -46,13 +46,6 @@ public class RobotPlayer {
             this.theirTeam = this.myTeam.opponent();
         }
 
-        public boolean has(RobotType type) {
-            if (type == null) {
-                return true;
-            }
-            return rc.getRobotTypeCount(type) > 0;
-        }
-
         public Direction[] getDirectionsTowardEnemy() {
             Direction toEnemyHQ = theirHQ != null ? myHQ.directionTo(theirHQ) : Direction.NORTH_EAST;
             Direction[] dirs = {toEnemyHQ, toEnemyHQ.rotateLeft(), toEnemyHQ.rotateRight(), toEnemyHQ.rotateLeft().rotateLeft(), toEnemyHQ.rotateRight().rotateRight(), toEnemyHQ.opposite().rotateLeft(), toEnemyHQ.opposite().rotateRight(), toEnemyHQ.opposite()};
