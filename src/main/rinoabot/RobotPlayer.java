@@ -14,12 +14,12 @@ public class RobotPlayer {
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
 		myRange = rc.getType().attackRadiusSquared;
-        rand = new Random(rc.getRobot().getID());
+        rand = new Random(rc.getID());
 		MapLocation enemyLoc = rc.senseEnemyHQLocation();
         Direction lastDirection = null;
 		myTeam = rc.getTeam();
 		enemyTeam = myTeam.opponent();
-		Robot[] myRobots;
+		RobotInfo[] myRobots;
 
 		while(true) {
             try {
@@ -27,7 +27,7 @@ public class RobotPlayer {
             
 
 			if (rc.getType() == RobotType.HQ) {
-				if (rc.canAttack()) {
+				if (rc.isAttackActive()) {
 					attackSomething();
 				}
 			}
@@ -41,7 +41,7 @@ public class RobotPlayer {
 			}
 
             if (rc.getType() == RobotType.TOWER) {
-				if (rc.canAttack()) {
+				if (rc.isAttackActive()) {
 					attackSomething();
 				}
 			}
@@ -54,9 +54,9 @@ public class RobotPlayer {
 	}
 	
 	static void attackSomething() throws GameActionException {
-		Robot[] enemies = rc.senseNearbyGameObjects(Robot.class, myRange, enemyTeam);
+		RobotInfo[] enemies = rc.senseNearbyRobots(myRange, enemyTeam);
 		if (enemies.length > 0) {
-			rc.attackSquare(rc.senseLocationOf(enemies[0]));
+			rc.attackSquare(enemies[0].location);
 		}
 	}
 	
