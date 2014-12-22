@@ -87,9 +87,9 @@ public class RobotPlayer {
         public Direction getDirectionTowardEnemy() {
 	    MapLocation enemyTarget = null;
 	    try {
-		int i = rc.readBroadcast(CH_TOWER_REMOVED);
+		int towerBase = rc.readBroadcast(CH_TOWER_REMOVED);
 		int towerCount = rc.readBroadcast(CH_TOWER_COUNT);
-		while (towerCount > 0) {
+		for (int i = towerBase; i < towerCount + towerCount; i++) {
 		    MapLocation towerLoc = new MapLocation(rc.readBroadcast(CH_TOWER_X + i),
 							   rc.readBroadcast(CH_TOWER_Y + i));
 		    boolean setTarget = true;
@@ -102,9 +102,7 @@ public class RobotPlayer {
 			    towerCount--;
 			    rc.broadcast(CH_TOWER_COUNT, rc.readBroadcast(CH_TOWER_COUNT) - 1);
 			    setTarget = false;
-			} else if (allegedTower != null) {
-			    rc.setIndicatorString(0, allegedTower.type.toString());
-			    rc.setIndicatorString(1, towerLoc.toString());
+			    printTowerArray();
 			} 
 		    }
 		    if (setTarget) {
@@ -130,6 +128,18 @@ public class RobotPlayer {
 	    } catch (Exception e) {
 	    }
 	    return 0;
+	}
+	
+	public void printTowerArray() {
+	    int towerBase = readCastNE(CH_TOWER_REMOVED);
+	    System.out.printf("Removed %d ", towerBase);
+	    int towerCount = readCastNE(CH_TOWER_COUNT);
+	    System.out.printf("Count %d ", towerCount);
+	    for (int i = towerBase; i < towerBase + towerCount; i++) {
+		System.out.printf("[%d, %d] ", readCastNE(CH_TOWER_X + i),
+				  readCastNE(CH_TOWER_Y + i));
+	    }
+	    System.out.printf("\n");
 	}
 
 	public boolean canMove(Direction dir) {
@@ -205,7 +215,7 @@ public class RobotPlayer {
 	public void addTowerToRadio (RobotInfo towerInfo) throws GameActionException{
 	    int prevCount = rc.readBroadcast(CH_TOWER_COUNT);
 	    int towerBase = rc.readBroadcast(CH_TOWER_REMOVED);
-	    for (int i = towerBase; i < prevCount; i++) {
+	    for (int i = towerBase; i < towerBase + prevCount; i++) {
 		if (towerInfo.location.x == rc.readBroadcast(CH_TOWER_X + i)
 		    && towerInfo.location.y == rc.readBroadcast(CH_TOWER_Y + i))
 		{
@@ -217,6 +227,7 @@ public class RobotPlayer {
 	    rc.broadcast(CH_TOWER_Y + prevCount + towerBase, towerInfo.location.y);
 	    System.out.printf("%d added tower %s  at round %d, towerCount now %d\n", id,
 			      towerInfo.location.toString(), Clock.getRoundNum(), prevCount + 1);
+	    printTowerArray();
 	}
 
         public void beginningOfTurn() {
@@ -261,10 +272,10 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
 	    // sort the towers by distance to the enemy hq
-	    /*int towerCount = readCastNE(CH_TOWER_COUNT);
+	    int towerCount = readCastNE(CH_TOWER_COUNT);
 	    int towerRemoved = readCastNE(CH_TOWER_REMOVED);
 	    if (theirHQ != null) {
-		for (int i = towerRemoved; i < towerCount - 1; i++) {
+		for (int i = towerRemoved; i < towerRemoved + towerCount - 1; i++) {
 		    MapLocation maxLoc
 			= null;
 		    int distMax = 0;
@@ -284,13 +295,14 @@ public class RobotPlayer {
 		    MapLocation a
 			= new MapLocation(readCastNE(CH_TOWER_X + i),
 					  readCastNE(CH_TOWER_Y + i));
-		    
-		    rc.broadcast(CH_TOWER_X + i, maxLoc.x);
-		    rc.broadcast(CH_TOWER_Y + i, maxLoc.y);
-		    rc.broadcast(CH_TOWER_X + maxInd, a.x);
-		    rc.broadcast(CH_TOWER_Y + maxInd, a.y);
+		    if (i != maxInd) {
+			rc.broadcast(CH_TOWER_X + i, maxLoc.x);
+			rc.broadcast(CH_TOWER_Y + i, maxLoc.y);
+			rc.broadcast(CH_TOWER_X + maxInd, a.x);
+			rc.broadcast(CH_TOWER_Y + maxInd, a.y);
+		    }
 		}
-		}*/
+		}
             // spawn a furby if possible
             Direction dir = getSpawnDirection(RobotType.FURBY);
             if (dir != null && rc.isMovementActive()) {
@@ -424,15 +436,15 @@ public class RobotPlayer {
 		}
 	    } else {
 		rc.setIndicatorString(0, "no enemy in range");
-	    }
 
-            // else try to move to enemy HQ
-            if (rc.isMovementActive()) {
-                Direction moveDir = getMoveDir(getDirectionTowardEnemy());
-                if (moveDir != null) {
-                    rc.move(moveDir);
-                }
-            }
+		// else try to move to enemy HQ
+		if (rc.isMovementActive()) {
+		    Direction moveDir = getMoveDir(getDirectionTowardEnemy());
+		    if (moveDir != null) {
+			rc.move(moveDir);
+		    }
+		}
+	    }
 
             rc.yield();
         }
