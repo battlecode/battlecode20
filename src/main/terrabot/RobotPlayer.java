@@ -455,11 +455,11 @@ public class RobotPlayer {
 		} else {
 			boolean shouldmove = false;
 			Direction bestdir = null;
-			int basemin = rc.senseOre(rc.getLocation());
-			int mostmin = basemin;
+			double basemin = rc.senseOre(rc.getLocation());
+			double mostmin = basemin;
 			for (int i=0; i<8; i++) {
 				Direction trydir = directions[i];
-				int trymin = rc.senseOre(rc.getLocation().add(trydir));
+				double trymin = rc.senseOre(rc.getLocation().add(trydir));
 				if (trymin > mostmin && rc.canMove(trydir) && (trymin > basemin*1.2 || basemin <= lowerbound)) {
 					bestdir = trydir;
 					shouldmove = true;

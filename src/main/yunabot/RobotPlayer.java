@@ -38,7 +38,7 @@ public class RobotPlayer {
 	static RobotType targetType;
 	static MapLocation targetLocation;
 	
-	static int NUM_FURBIES = 12;
+	static int NUM_BEAVERS = 12;
 	static int NUM_SOLDIERS = 0;
 	static int NUM_BASHERS = 0;
 	static int NUM_TANKS = 3;
@@ -186,7 +186,7 @@ public class RobotPlayer {
 					
 					int numSoldiers = unitCount[2];
 					int numBashers = unitCount[3];
-					int numFurbies = unitCount[0];
+					int numBeavers = unitCount[0];
 					int numTanks = unitCount[6];
 					int numDrones = unitCount[5];
 					
@@ -212,13 +212,13 @@ public class RobotPlayer {
 					if (rc.isAttackActive()) {
 						attackSomething();
 					}
-					if (rc.isMovementActive() && rc.getTeamOre() >= 100 && numFurbies < NUM_FURBIES && !DONE_SPAWNING) {
+					if (rc.isMovementActive() && rc.getTeamOre() >= 100 && numBeavers < NUM_BEAVERS && !DONE_SPAWNING) {
                         Direction spawndir = directions[rand.nextInt(8)];
 						trySpawn(spawndir, RobotType.BEAVER);
 						//rc.transferSupplies((int)(rc.getSupplyLevel()/2), spawndir);
 					}
 					
-					if (numFurbies == NUM_FURBIES && numSoldiers == NUM_SOLDIERS && numBashers == NUM_BASHERS && numTanks == NUM_TANKS && numDrones == NUM_DRONES) {
+					if (numBeavers == NUM_BEAVERS && numSoldiers == NUM_SOLDIERS && numBashers == NUM_BASHERS && numTanks == NUM_TANKS && numDrones == NUM_DRONES) {
 						DONE_SPAWNING = true;
 					}
 					
@@ -363,7 +363,7 @@ public class RobotPlayer {
 					
 					int numSoldiers = unitCount[2];
 					int numBashers = unitCount[3];
-					int numFurbies = unitCount[0];
+					int numBeavers = unitCount[0];
 					
 					if (rc.isMovementActive() && rc.getTeamOre() >= 200 && numSoldiers < NUM_SOLDIERS) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.SOLDIER);
@@ -535,11 +535,11 @@ public class RobotPlayer {
 		} else {
 			boolean shouldmove = false;
 			Direction bestdir = null;
-			int basemin = rc.senseOre(rc.getLocation());
-			int mostmin = basemin;
+			double basemin = rc.senseOre(rc.getLocation());
+			double mostmin = basemin;
 			for (int i=0; i<8; i++) {
 				Direction trydir = directions[i];
-				int trymin = rc.senseOre(rc.getLocation().add(trydir));
+				double trymin = rc.senseOre(rc.getLocation().add(trydir));
 				if (trymin > mostmin && rc.canMove(trydir) && (trymin > basemin*1.2 || basemin <= lowerbound)) {
 					bestdir = trydir;
 					shouldmove = true;
