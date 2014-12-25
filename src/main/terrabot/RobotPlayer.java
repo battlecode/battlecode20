@@ -22,11 +22,11 @@ public class RobotPlayer {
 	static Direction[] directions = {Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST,
 	Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST,
 	Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST};
-	//0-towers, 1-supply depot, 2-barracks, 3-tech institute, 4-metabuilder, 5-helipad, 6-training field, 7-tank fact, 8-miner fact, 9-eng bay, 10-handwash station, 11-biomech lab, 12-aero lab
-	static RobotType[] structureTypes = {RobotType.TOWER,RobotType.SUPPLYDEPOT,RobotType.BARRACKS,RobotType.TECHNOLOGYINSTITUTE,RobotType.METABUILDER,RobotType.HELIPAD,RobotType.TRAININGFIELD,
-	RobotType.TANKFACTORY,RobotType.MINERFACTORY,RobotType.ENGINEERINGBAY,RobotType.HANDWASHSTATION,RobotType.BIOMECHATRONICRESEARCHLAB,RobotType.AEROSPACELAB};
-	//0-furby, 1-computer, 2-soldier, 3-basher, 4-builder, 5-miner, 6-drone, 7-tank, 8-commander, 9-launcher
-	static RobotType[] unitTypes = {RobotType.FURBY, RobotType.COMPUTER, RobotType.SOLDIER, RobotType.BASHER, RobotType.BUILDER, 
+	//0-towers, 1-supply depot, 2-barracks, 3-tech institute, 4-helipad, 5-training field, 6-tank fact, 7-miner fact, 8-aero lab, 9-handwash station
+	static RobotType[] structureTypes = {RobotType.TOWER,RobotType.SUPPLYDEPOT,RobotType.BARRACKS,RobotType.TECHNOLOGYINSTITUTE,RobotType.HELIPAD,RobotType.TRAININGFIELD,
+	RobotType.TANKFACTORY,RobotType.MINERFACTORY,RobotType.AEROSPACELAB,RobotType.HANDWASHSTATION};
+	//0-BEAVER, 1-computer, 2-soldier, 3-basher, 4-miner, 5-drone, 6-tank, 7-commander, 8-launcher
+	static RobotType[] unitTypes = {RobotType.BEAVER, RobotType.COMPUTER, RobotType.SOLDIER, RobotType.BASHER, 
 	RobotType.MINER, RobotType.DRONE, RobotType.TANK, RobotType.COMMANDER, RobotType.LAUNCHER};
 	static int[] structureCount = new int[structureTypes.length];
 	static int[] unitCount = new int[unitTypes.length];
@@ -64,11 +64,11 @@ public class RobotPlayer {
 				System.out.println("HQ initialization exception: " + e.getMessage());
 				e.printStackTrace();
 			}
-		} else if (rc.getType() == RobotType.FURBY) {
+		} else if (rc.getType() == RobotType.BEAVER) {
 			try {
 				myMissionPointer = rc.readBroadcast(MISSION_CHANNEL);
 			} catch (Exception e) {
-				System.out.println("furby initialization exception: " + e.getMessage());
+				System.out.println("BEAVER initialization exception: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -107,7 +107,7 @@ public class RobotPlayer {
 					myRobots = rc.senseNearbyRobots(99999, myTeam);
 					for (RobotInfo r : myRobots) {
 						switch (r.type) {
-							case FURBY:
+							case BEAVER:
 								unitCount[0]++;
 								break;
 							case SOLDIER:
@@ -116,23 +116,20 @@ public class RobotPlayer {
 							case BASHER:
 								unitCount[3]++;
 								break;
-							case BUILDER:
+							case MINER:
 								unitCount[4]++;
 								break;
-							case MINER:
+							case DRONE:
 								unitCount[5]++;
 								break;
-							case DRONE:
-								unitCount[6]++;
-								break;
 							case TANK:
-								unitCount[7]++;
+								unitCount[6]++;
 								break;
 							case COMPUTER:
 								unitCount[1]++;
 								break;
 							case LAUNCHER:
-								unitCount[9]++;
+								unitCount[8]++;
 								break;
 							case TOWER:
 								structureCount[0]++;
@@ -146,35 +143,26 @@ public class RobotPlayer {
 							case TECHNOLOGYINSTITUTE:
 								structureCount[3]++;
 								break;
-							case METABUILDER:
+							case HELIPAD:
 								structureCount[4]++;
 								break;
-							case HELIPAD:
+							case TRAININGFIELD:
 								structureCount[5]++;
 								break;
-							case TRAININGFIELD:
+							case TANKFACTORY:
 								structureCount[6]++;
 								break;
-							case TANKFACTORY:
+							case MINERFACTORY:
 								structureCount[7]++;
 								break;
-							case MINERFACTORY:
+							case AEROSPACELAB:
 								structureCount[8]++;
 								break;
-							case ENGINEERINGBAY:
+							case HANDWASHSTATION:
 								structureCount[9]++;
 								break;
-							case HANDWASHSTATION:
-								structureCount[10]++;
-								break;
-							case BIOMECHATRONICRESEARCHLAB:
-								structureCount[11]++;
-								break;
-							case AEROSPACELAB:
-								structureCount[12]++;
-								break;
 							case COMMANDER:
-								unitCount[8]++;
+								unitCount[7]++;
 								break;
 							default:
 								break;
@@ -215,7 +203,7 @@ public class RobotPlayer {
 					}
 					if (rc.isMovementActive() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numFurbies)*10000) {
                         Direction spawndir = directions[rand.nextInt(8)];
-						trySpawn(spawndir, RobotType.FURBY);
+						trySpawn(spawndir, RobotType.BEAVER);
 						//rc.transferSupplies((int)(rc.getSupplyLevel()/2), spawndir);
 					}
 				} catch (Exception e) {
@@ -271,7 +259,7 @@ public class RobotPlayer {
                 }
             }
 			
-			if (rc.getType() == RobotType.FURBY) {
+			if (rc.getType() == RobotType.BEAVER) {
 				try {
 					//reading messages, checking missions
 					if (targetAction == 0) {
@@ -321,7 +309,7 @@ public class RobotPlayer {
 					
 					
 				} catch (Exception e) {
-					System.out.println("furby exception: " + e.getMessage());
+					System.out.println("BEAVER exception: " + e.getMessage());
                     e.printStackTrace();
 				}
 			}
@@ -367,7 +355,7 @@ public class RobotPlayer {
 	//returns true if the build has started.
 	static boolean smartBuild(RobotType r) throws GameActionException {
 		MapLocation myloc = rc.getLocation();
-		if (r == RobotType.SUPPLYDEPOT || r == RobotType.TECHNOLOGYINSTITUTE || r == RobotType.ENGINEERINGBAY || r == RobotType.HANDWASHSTATION || r == RobotType.BIOMECHATRONICRESEARCHLAB) {
+		if (r == RobotType.SUPPLYDEPOT || r == RobotType.TECHNOLOGYINSTITUTE || r == RobotType.HANDWASHSTATION) {
 			if (myloc.distanceSquaredTo(enemyHQ) < alliedHQ.distanceSquaredTo(enemyHQ)) {
 				if (myloc.distanceSquaredTo(alliedHQ) > 100) {
 					tryMove(rc.getLocation().directionTo(rc.senseHQLocation()));
@@ -395,6 +383,7 @@ public class RobotPlayer {
 				if (farthestdist == 0) {
 					//blocked, can't do anything.
 					return false;
+					
 				} else if (rc.canBuild(bestdir,r)) {
 					rc.build(bestdir,r);
 					return true;
@@ -432,28 +421,25 @@ public class RobotPlayer {
 		}
 		return false;
 	}
-	//	static RobotType[] structureTypes = {RobotType.TOWER,RobotType.SUPPLYDEPOT,RobotType.BARRACKS,RobotType.TECHNOLOGYINSTITUTE,RobotType.METABUILDER,RobotType.HELIPAD,RobotType.TRAININGFIELD,
-	//RobotType.TANKFACTORY,RobotType.MINERFACTORY,RobotType.ENGINEERINGBAY,RobotType.HANDWASHSTATION,RobotType.BIOMECHATRONICRESEARCHLAB,RobotType.AEROSPACELAB};
 	
 	//Mines or moves to a better mining location. Always performs an action.
 	static void smartMine() throws GameActionException {
 		int threshold;
 		int lowerbound;
-		if (rc.getType() == RobotType.FURBY) {
-			threshold = GameConstants.FURBY_MINE_MAX*GameConstants.FURBY_MINE_RATE;
-			lowerbound = GameConstants.FURBY_MINE_RATE;
+		if (rc.getType() == RobotType.BEAVER) {
+			threshold = GameConstants.BEAVER_MINE_MAX*GameConstants.BEAVER_MINE_RATE;
+			lowerbound = GameConstants.BEAVER_MINE_RATE;
 		} else {
 			threshold = GameConstants.MINER_MINE_MAX*GameConstants.MINER_MINE_RATE;
 			lowerbound = GameConstants.MINER_MINE_RATE;
 		}
-		
 		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(2,myTeam);
 		int clutter = 0;
 		if (nearbyAllies.length > 2) {
 			for (RobotInfo r : nearbyAllies) {
-				if (r.type == RobotType.FURBY || r.type == RobotType.MINER || r.type == RobotType.BUILDER) {
+				if (r.type == RobotType.BEAVER || r.type == RobotType.MINER) {
 					clutter++;
-				} else if (r.type == RobotType.HQ || r.type == RobotType.BARRACKS || r.type == RobotType.TANKFACTORY || r.type == RobotType.HELIPAD || r.type == RobotType.MINERFACTORY || r.type == RobotType.METABUILDER) {
+				} else if (r.type == RobotType.HQ || r.type == RobotType.BARRACKS || r.type == RobotType.TANKFACTORY || r.type == RobotType.HELIPAD || r.type == RobotType.MINERFACTORY) {
 					if (rc.senseNearbyRobots(r.location,2,myTeam).length > 6) {
 						clutter+=10;
 					}
