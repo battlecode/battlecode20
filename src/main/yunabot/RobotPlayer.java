@@ -1,4 +1,4 @@
-package rinoabot;
+package yunabot;
 
 import battlecode.common.*;
 import java.util.*;
@@ -38,11 +38,11 @@ public class RobotPlayer {
 	static RobotType targetType;
 	static MapLocation targetLocation;
 	
-	static int NUM_FURBIES = 12;
+	static int NUM_FURBIES = 0;
 	static int NUM_SOLDIERS = 0;
 	static int NUM_BASHERS = 0;
 	static int NUM_TANKS = 0;
-	static int NUM_DRONES = 8;
+	static int NUM_DRONES = 0;
 	static boolean DONE_SPAWNING = false;
 	static int WAIT_TURNS = 500;
 	
@@ -210,8 +210,6 @@ public class RobotPlayer {
 						postMission(buildMessage(1,3));
 						myMissionPointer++;
 					} else if (Clock.getRoundNum() == 200) {
-						postMission(buildMessage(1,5));
-						myMissionPointer++;
 						postMission(buildMessage(1,5));
 						myMissionPointer++;
 						postMission(buildMessage(1,7));
