@@ -109,7 +109,7 @@ public class RobotPlayer {
                 try {
                     RobotInfo[] adjacentEnemies = rc.senseNearbyRobots(2, enemyTeam);
 					if (adjacentEnemies.length > 0 && rc.isAttackActive()) {
-						rc.attackSquare(rc.getLocation());
+						rc.bash();
 					} else if (rc.isMovementActive()) {
 						
 						int fate = rand.nextInt(1000);
@@ -151,7 +151,7 @@ public class RobotPlayer {
 					}
 					if (rc.isMovementActive()) {
 						int fate = rand.nextInt(1000);
-						if (fate < 10 && rc.getTeamOre() >= 250) {
+						if (fate < 10 && rc.getTeamOre() >= 300) {
 							tryBuild(directions[rand.nextInt(8)],RobotType.BARRACKS);
 						} else if (fate < 600) {
 							rc.mine();
@@ -176,7 +176,7 @@ public class RobotPlayer {
 					int numBashers = rc.readBroadcast(2);
 					int numBarracks = rc.readBroadcast(100);
 					
-					if (rc.isMovementActive() && rc.getTeamOre() >= 50 && fate < Math.pow(1.2,15-numSoldiers-numBashers+numBeavers)*10000) {
+					if (rc.isMovementActive() && rc.getTeamOre() >= 60 && fate < Math.pow(1.2,15-numSoldiers-numBashers+numBeavers)*10000) {
 						if (rc.getTeamOre() > 80 && fate % 2 == 0) {
 							trySpawn(directions[rand.nextInt(8)],RobotType.BASHER);
 						} else {

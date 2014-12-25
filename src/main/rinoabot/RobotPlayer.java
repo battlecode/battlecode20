@@ -33,6 +33,8 @@ public class RobotPlayer {
 	
 	static Direction lastDirection = null;
 	static RobotInfo[] myRobots;
+	static RobotInfo[] suppliableAllies;
+	static boolean postedSupplyMission = false;
 	
 	static int targetAction;
 	static RobotType targetType;
@@ -43,6 +45,7 @@ public class RobotPlayer {
 	static int NUM_BASHERS = 0;
 	static int NUM_TANKS = 0;
 	static int NUM_DRONES = 8;
+	static int NUM_LAUNCHERS = 0;
 	static boolean DONE_SPAWNING = false;
 	static int WAIT_TURNS = 500;
 	
@@ -72,11 +75,11 @@ public class RobotPlayer {
 				System.out.println("HQ initialization exception: " + e.getMessage());
 				e.printStackTrace();
 			}
-		} else if (rc.getType() == RobotType.BEAVER) {
+		} else {
 			try {
 				myMissionPointer = rc.readBroadcast(MISSION_CHANNEL);
 			} catch (Exception e) {
-				System.out.println("BEAVER initialization exception: " + e.getMessage());
+				System.out.println("non-HQ initialization exception: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -86,19 +89,7 @@ public class RobotPlayer {
                 rc.setIndicatorString(0, "Ore here: " + rc.senseOre(rc.getLocation()));
                 rc.setIndicatorString(1, "Location: " + rc.getLocation());
                 rc.setIndicatorString(2, "My supply level: " + rc.getSupplyLevel());
-				
-				
-				for (int i=0; i<structureCount.length; i++) {
-					//structureCount[i] = rc.getRobotTypeCount(structureTypes[i]);
-					// CHANGE THIS
-				}
-				for (int i=0; i<unitCount.length; i++) {
-					//unitCount[i] = rc.getRobotTypeCount(unitTypes[i]);
-					// CHANGE THIS
-				}
-				
-				
-				
+				suppliableAllies = null;
             } catch (Exception e) {
                 e.printStackTrace();
 				System.out.println("You suck");
@@ -189,8 +180,39 @@ public class RobotPlayer {
 					int numBeavers = unitCount[0];
 					int numTanks = unitCount[6];
 					int numDrones = unitCount[5];
+					int numLaunchers = unitCount[8];
 					
-					//logic
+					//check missions
+					int mission;
+					int openpointer = rc.readBroadcast(OPEN_CHANNEL);
+					while (myMissionPointer < openpointer) {
+						mission = retrieveMission();
+						if (mission > 0) {
+							System.out.println(mission);
+							int action = actionFromMessage(mission);
+							//conditions for mission acceptance
+							if (action == 2) {
+								int idToSupply = infoFromMessage(mission);
+								if (suppliableAllies == null) {
+									suppliableAllies = rc.senseNearbyRobots(GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED,myTeam);
+								}
+								for (int i=0; i<suppliableAllies.length; i++) {
+									RobotInfo r = suppliableAllies[i];
+									if (r.ID == idToSupply) {
+										//transfer supplies
+										rc.transferSupplies((int)(rc.getSupplyLevel()+r.supplyLevel)/2,r.location);
+										confirmMission(myMissionPointer);
+										i = suppliableAllies.length;
+									}
+								}
+							} else {
+								
+							}
+						}
+						myMissionPointer++;
+					}
+					
+					//econ logic
 					if (Clock.getRoundNum() == 0) {
 						postMission(buildMessage(1,2));
 						myMissionPointer++;
@@ -201,6 +223,9 @@ public class RobotPlayer {
 						postMission(buildMessage(1,4));
 						myMissionPointer++;
 						postMission(buildMessage(1,6));
+						myMissionPointer++;
+					} else if (Clock.getRoundNum() == 300) {
+						postMission(buildMessage(1,8));
 						myMissionPointer++;
 					}
 					/*
@@ -218,7 +243,7 @@ public class RobotPlayer {
 						//rc.transferSupplies((int)(rc.getSupplyLevel()/2), spawndir);
 					}
 					
-					if (numBeavers == NUM_BEAVERS && numSoldiers == NUM_SOLDIERS && numBashers == NUM_BASHERS && numTanks == NUM_TANKS && numDrones == NUM_DRONES) {
+					if (numBeavers == NUM_BEAVERS && numSoldiers == NUM_SOLDIERS && numBashers == NUM_BASHERS && numTanks == NUM_TANKS && numDrones == NUM_DRONES && numLaunchers == NUM_LAUNCHERS) {
 						DONE_SPAWNING = true;
 					}
 					
@@ -349,7 +374,15 @@ public class RobotPlayer {
 						
 					}
 					
-					
+					if (!postedSupplyMission) {
+						if (rc.getSupplyLevel() < 100) {
+							postSupplyMission();
+							postedSupplyMission = true;
+							System.out.println("I need supply!");
+						} else if (rc.getSupplyLevel() > 200) {
+							postedSupplyMission = false;
+						}
+					}
 					
 				} catch (Exception e) {
 					System.out.println("BEAVER exception: " + e.getMessage());
@@ -784,9 +817,13 @@ public class RobotPlayer {
 		}
 	}
 	
+	static void postSupplyMission() throws GameActionException {
+		postMission(buildMessage(2,rc.getID()));
+	}
+	
 	static void postAttackMission(MapLocation loc) throws GameActionException {
-		int coordx = 100+loc.x-alliedHQ.x;
-		int coordy = 100+loc.y-alliedHQ.y;
+		int coordx = 200+loc.x-alliedHQ.x;
+		int coordy = 200+loc.y-alliedHQ.y;
 		int message = coordx*1000+coordy;
 		rc.broadcast(ATTACK_CHANNEL,message);
 	}
@@ -794,8 +831,8 @@ public class RobotPlayer {
 	static void retrieveAttackMission() throws GameActionException {
 		int location = rc.readBroadcast(ATTACK_CHANNEL);
 		if (location != 0) {
-			int locx = location/1000-100+alliedHQ.x;
-			int locy = location%1000-100+alliedHQ.y;
+			int locx = location/1000-200+alliedHQ.x;
+			int locy = location%1000-200+alliedHQ.y;
 			targetLocation = new MapLocation(locx,locy);
 		}
 	}
@@ -822,14 +859,20 @@ public class RobotPlayer {
 	}
 	
 	static int buildMessage(int action, int info) {
-		return action*10000+info;
+		return action*1000000+info;
 	}
 	
 	static int actionFromMessage(int m) {
-		return m/10000;
+		return m/1000000;
 	}
 	
 	static int infoFromMessage(int m) {
-		return m%10000;
+		return m%1000000;
+	}
+	
+	static MapLocation locationFromMessage(int m) {
+		int locx = (m%1000000)/1000-200+alliedHQ.x;
+		int locy = m%1000-200+alliedHQ.y;
+		return new MapLocation(locx,locy);
 	}
 }
