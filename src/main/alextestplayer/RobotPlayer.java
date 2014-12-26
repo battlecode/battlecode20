@@ -63,9 +63,12 @@ public class RobotPlayer {
         }
 
         public Direction getSpawnDirection(RobotType type) {
+            if (!rc.canSpawnRobotType(type)) {
+                return null;
+            }
             Direction[] dirs = getDirectionsTowardEnemy();
             for (Direction d : dirs) {
-                if (rc.canSpawn(d, type)) {
+                if (rc.canSpawnInDirection(d)) {
                     return d;
                 }
             }
@@ -73,9 +76,12 @@ public class RobotPlayer {
         }
 
         public Direction getBuildDirection(RobotType type) {
+            if (!rc.canBuildRobotType(type) || rc.getType() != RobotType.BEAVER) {
+                return null;
+            }
             Direction[] dirs = getDirectionsTowardEnemy();
             for (Direction d : dirs) {
-                if (rc.canBuild(d, type)) {
+                if (rc.canBuildInDirection(d)) {
                     return d;
                 }
             }
