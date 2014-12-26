@@ -34,17 +34,19 @@ public class RobotPlayer {
 	static Direction lastDirection = null;
 	static RobotInfo[] myRobots;
 	static RobotInfo[] suppliableAllies;
-	static boolean postedSupplyMission = false;
+	static int supplyWait = 0;
+	static boolean supplied = false; //set to true for units to not use supply
+	static double LOW_SUPPLY_THRESHOLD = 200;
 	
 	static int targetAction;
 	static RobotType targetType;
 	static MapLocation targetLocation;
 	
 	static int NUM_BEAVERS = 12;
-	static int NUM_SOLDIERS = 0;
+	static int NUM_SOLDIERS = 13;
 	static int NUM_BASHERS = 0;
 	static int NUM_TANKS = 0;
-	static int NUM_DRONES = 8;
+	static int NUM_DRONES = 0;
 	static int NUM_LAUNCHERS = 0;
 	static boolean DONE_SPAWNING = false;
 	static int WAIT_TURNS = 500;
@@ -75,20 +77,27 @@ public class RobotPlayer {
 				System.out.println("HQ initialization exception: " + e.getMessage());
 				e.printStackTrace();
 			}
-		} else {
+		} else if (rc.getType() == RobotType.BEAVER) {
 			try {
 				myMissionPointer = rc.readBroadcast(MISSION_CHANNEL);
 			} catch (Exception e) {
 				System.out.println("non-HQ initialization exception: " + e.getMessage());
 				e.printStackTrace();
 			}
+		} else if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.BASHER || rc.getType() == RobotType.TANK || rc.getType() == RobotType.DRONE || rc.getType() == RobotType.LAUNCHER ||rc.getType() == RobotType.COMMANDER) {
+			//combat unit
 		}
 		
 		while(true) {
             try {
-                rc.setIndicatorString(0, "Ore here: " + rc.senseOre(rc.getLocation()));
-                rc.setIndicatorString(1, "Location: " + rc.getLocation());
-                rc.setIndicatorString(2, "My supply level: " + rc.getSupplyLevel());
+                if (rc.getType() != RobotType.HQ) {
+					rc.setIndicatorString(0, "Ore here: " + rc.senseOre(rc.getLocation()));
+					rc.setIndicatorString(1, "Action: " + targetAction);
+					rc.setIndicatorString(2, "My supply level: " + rc.getSupplyLevel());
+				} else {
+					rc.setIndicatorString(0, "Team ore: " + rc.getTeamOre());
+					rc.setIndicatorString(2, "My supply level: " + rc.getSupplyLevel());
+				}
 				suppliableAllies = null;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -185,7 +194,7 @@ public class RobotPlayer {
 					//check missions
 					int mission;
 					int openpointer = rc.readBroadcast(OPEN_CHANNEL);
-					while (myMissionPointer < openpointer) {
+					while (rc.getSupplyLevel() > 2*LOW_SUPPLY_THRESHOLD && myMissionPointer < openpointer) {
 						mission = retrieveMission();
 						if (mission > 0) {
 							System.out.println(mission);
@@ -200,8 +209,7 @@ public class RobotPlayer {
 									RobotInfo r = suppliableAllies[i];
 									if (r.ID == idToSupply) {
 										//transfer supplies
-										rc.transferSupplies((int)(rc.getSupplyLevel()+r.supplyLevel)/2,r.location);
-										confirmMission(myMissionPointer);
+										rc.transferSupplies((int)(rc.getSupplyLevel()-r.supplyLevel)/2,r.location);
 										i = suppliableAllies.length;
 									}
 								}
@@ -287,48 +295,43 @@ public class RobotPlayer {
 			
 			if (rc.getType() == RobotType.BASHER) {
                 try {
-					retrieveAttackMission();
-					bashMove(targetLocation);
+					if (!supplied) {
+						bashMove(alliedHQ);
+						if (rc.getLocation().distanceSquaredTo(alliedHQ) < GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED && Clock.getRoundNum()%3 == 0) {
+							postSupplyMission();
+							supplied = true;
+						}
+					} else {
+						retrieveAttackMission();
+						bashMove(targetLocation);
+					}
                 } catch (Exception e) {
 					System.out.println("basher exception: " + e.getMessage());
 					e.printStackTrace();
                 }
             }
 			
-            if (rc.getType() == RobotType.SOLDIER) {
+            if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.DRONE || rc.getType() == RobotType.TANK) {
                 try {
-                    retrieveAttackMission();
-					attackMove(targetLocation);
+                    if (!supplied) {
+						attackMove(alliedHQ);
+						if (rc.getLocation().distanceSquaredTo(alliedHQ) < GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED && Clock.getRoundNum()%3 == 0) {
+							postSupplyMission();
+							supplied = true;
+						}
+					} else {
+						retrieveAttackMission();
+						attackMove(targetLocation);
+					}
                 } catch (Exception e) {
-					System.out.println("soldier exception: " + e.getMessage());
+					System.out.println("combat unit exception: " + e.getMessage());
 					e.printStackTrace();
                 }
             }
 			
-			if (rc.getType() == RobotType.DRONE) {
-				try {
-                    retrieveAttackMission();
-					attackMove(targetLocation);
-                } catch (Exception e) {
-					System.out.println("soldier exception: " + e.getMessage());
-					e.printStackTrace();
-                }
-			}
-			
-			if (rc.getType() == RobotType.TANK) {
-				try {
-                    retrieveAttackMission();
-					attackMove(targetLocation);
-                } catch (Exception e) {
-					System.out.println("soldier exception: " + e.getMessage());
-					e.printStackTrace();
-                }
-			}
-			
 			if (rc.getType() == RobotType.BEAVER) {
 				try {
 					//reading messages, checking missions
-					rc.setIndicatorString(1,"doing action "+ targetAction + " at round " + Clock.getRoundNum());
 					
 					if (targetAction == 0) {
 						int mission;
@@ -336,7 +339,6 @@ public class RobotPlayer {
 						while (targetAction == 0 && myMissionPointer < openpointer) {
 							mission = retrieveMission();
 							if (mission > 0) {
-								System.out.println(mission);
 								int action = actionFromMessage(mission);
 								
 								//conditions for mission acceptance
@@ -344,8 +346,26 @@ public class RobotPlayer {
 									targetAction = action;
 									targetType = structureTypes[infoFromMessage(mission)];
 									confirmMission(myMissionPointer);
-								} else {
-									
+								} else if (action == 2) {
+									int idToSupply = infoFromMessage(mission);
+									if (idToSupply == rc.getID()) {
+										//No one has supplied me, so I should head back to HQ
+										targetAction = 2;
+									}
+									if (rc.getSupplyLevel() > 2*LOW_SUPPLY_THRESHOLD) {
+										if (suppliableAllies == null) {
+											suppliableAllies = rc.senseNearbyRobots(GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED,myTeam);
+										}
+										for (int i=0; i<suppliableAllies.length; i++) {
+											RobotInfo r = suppliableAllies[i];
+											if (r.ID == idToSupply && r.location.distanceSquaredTo(alliedHQ) > GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED) {
+												//transfer supplies
+												rc.transferSupplies((int)(rc.getSupplyLevel()-r.supplyLevel)/2,r.location);
+												confirmMission(myMissionPointer);
+												i = suppliableAllies.length;
+											}
+										}
+									}
 								}
 							}
 							myMissionPointer++;
@@ -361,6 +381,11 @@ public class RobotPlayer {
 						} else if (rc.isMovementActive()) {
 							smartMine();
 						}
+						
+						if (rc.getSupplyLevel() <= LOW_SUPPLY_THRESHOLD) {
+							postSupplyMission();
+							//supplyWait = 1;
+						}
 					} else if (targetAction == 1) {
 						if (rc.isMovementActive()) {
 							boolean building = smartBuild(targetType);
@@ -369,21 +394,32 @@ public class RobotPlayer {
 							}
 						}
 					} else if (targetAction == 2) {
-						
+						//go to HQ and get supply.
+						if (rc.isMovementActive()) {
+							navigate(alliedHQ);
+						}
+						if (rc.getLocation().distanceSquaredTo(alliedHQ) <= GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED && Clock.getRoundNum()%3 == 0) {
+							postSupplyMission();
+						}
+						if (rc.getSupplyLevel() > LOW_SUPPLY_THRESHOLD) {
+							targetAction = 0;
+						}
 					} else {
 						
 					}
 					
-					if (!postedSupplyMission) {
-						if (rc.getSupplyLevel() < 100) {
-							postSupplyMission();
-							postedSupplyMission = true;
-							System.out.println("I need supply!");
-						} else if (rc.getSupplyLevel() > 200) {
-							postedSupplyMission = false;
-						}
-					}
 					
+					/*
+					
+					} else if (rc.getSupplyLevel() <= LOW_SUPPLY_THRESHOLD) {
+						supplyWait++;
+						if (supplyWait > 10 && targetAction != 1) {
+							targetAction = 2;
+						}
+					} else {
+						supplyWait = 0;
+						targetAction = 0;
+					}*/
 				} catch (Exception e) {
 					System.out.println("BEAVER exception: " + e.getMessage());
                     e.printStackTrace();
@@ -592,6 +628,7 @@ public class RobotPlayer {
 	static void bashMove(MapLocation target) throws GameActionException {
 		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(2,enemyTeam);
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
+		boolean shouldAttack = false;
 		
 		if (attackableEnemies.length > 0) {
 			Direction bestdir = null;
@@ -611,6 +648,7 @@ public class RobotPlayer {
 					rc.move(bestdir);
 				}
 			}
+			shouldAttack = bestNumEnemies > 0;
 		} else if (rc.isMovementActive()) {
 			if (nearbyEnemies.length > 0) {
 				MapLocation closestEnemy = rc.getLocation();
@@ -627,7 +665,7 @@ public class RobotPlayer {
 				navigate(target);
 			}
 		}
-		if (rc.isAttackActive()) {
+		if (shouldAttack && rc.isAttackActive()) {
 			rc.bash();
 		}
 	}
@@ -846,7 +884,6 @@ public class RobotPlayer {
 		int missionchannel = rc.readBroadcast(MISSION_CHANNEL);
 		while (rc.readBroadcast(missionchannel) < 0) {
 			rc.broadcast(MISSION_CHANNEL,missionchannel+1);
-			System.out.println("channel " + missionchannel + " wiped");
 			missionchannel = rc.readBroadcast(MISSION_CHANNEL);
 		}
 	}
@@ -855,7 +892,6 @@ public class RobotPlayer {
 		int openchannel = rc.readBroadcast(OPEN_CHANNEL);
 		rc.broadcast(openchannel, missionmessage);
 		rc.broadcast(OPEN_CHANNEL,openchannel+1);
-		System.out.println("channel " + openchannel + " posted");
 	}
 	
 	static int buildMessage(int action, int info) {
