@@ -9,7 +9,7 @@ public class RobotPlayer {
 
         if (rc.getType() == RobotType.HQ) {
             myself = new HQ(rc);
-        } else if (rc.getType() == RobotType.FURBY) {
+        } else if (rc.getType() == RobotType.BEAVER) {
             myself = new Furby(rc);
         } else if (rc.getType() == RobotType.BARRACKS) {
             myself = new Barracks(rc);
@@ -138,9 +138,9 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             // spawn a furby if possible
-            Direction dir = getSpawnDirection(RobotType.FURBY);
+            Direction dir = getSpawnDirection(RobotType.BEAVER);
             if (dir != null && rc.isMovementActive()) {
-                rc.spawn(dir, RobotType.FURBY);
+                rc.spawn(dir, RobotType.BEAVER);
             }
 
             // also try to attack

@@ -20,10 +20,10 @@ public class RobotPlayer {
         while (true) {
             try {
             	if (rc.getType() == RobotType.HQ) {
-                    Utility.spawn(rc, Direction.values()[(int)(Math.random()*8)], RobotType.FURBY, 0);
+                    Utility.spawn(rc, Direction.values()[(int)(Math.random()*8)], RobotType.BEAVER, 0);
                     Utility.tryToShoot(rc);
                     Comms.listAlliedRobotCount(rc);
-                }else if(rc.getType() == RobotType.FURBY){
+                }else if(rc.getType() == RobotType.BEAVER){
                 	Utility.buildInRatio(rc, RobotType.MINER.spawnSource, techGoal.spawnSource,  techGoal.oreCost,minerfactoryRatio);
                 	//Utility.tryToBuild(rc, RobotType.MINER.spawnSource, techGoal.oreCost, 5);
                 	//Utility.tryToBuild(rc, techGoal.spawnSource, techGoal.oreCost, 5);
