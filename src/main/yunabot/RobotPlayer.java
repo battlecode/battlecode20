@@ -35,17 +35,17 @@ public class RobotPlayer {
 	static RobotInfo[] myRobots;
 	static RobotInfo[] suppliableAllies;
 	static int supplyWait = 0;
-	static boolean supplied = false;
+	static boolean supplied = false; //set to true for units to not use supply
 	static double LOW_SUPPLY_THRESHOLD = 200;
 	
 	static int targetAction;
 	static RobotType targetType;
 	static MapLocation targetLocation;
 	
-	static int NUM_BEAVERS = 0;
+	static int NUM_BEAVERS = 12;
 	static int NUM_SOLDIERS = 0;
 	static int NUM_BASHERS = 0;
-	static int NUM_TANKS = 0;
+	static int NUM_TANKS = 3;
 	static int NUM_DRONES = 0;
 	static int NUM_LAUNCHERS = 0;
 	static boolean DONE_SPAWNING = false;
@@ -61,6 +61,10 @@ public class RobotPlayer {
 		ArrayList<Integer> missions;
 		double distanceToEnemy;
 		MapLocation attackLocation = null;
+		double supplyFlowIn = 0;
+		double supplyFlowOut = 0;
+		double netSupply = 0;
+		int waitBuildDepot = 0;
 		//end only used by HQ
 		
 		enemyHQ = rc.senseEnemyHQLocation();
@@ -96,6 +100,7 @@ public class RobotPlayer {
 					rc.setIndicatorString(2, "My supply level: " + rc.getSupplyLevel());
 				} else {
 					rc.setIndicatorString(0, "Team ore: " + rc.getTeamOre());
+					rc.setIndicatorString(1, "Net supply usage: " + netSupply);
 					rc.setIndicatorString(2, "My supply level: " + rc.getSupplyLevel());
 				}
 				suppliableAllies = null;
@@ -106,7 +111,7 @@ public class RobotPlayer {
 
 			if (rc.getType() == RobotType.HQ) {
 				try {
-					int fate = rand.nextInt(10000);
+					waitBuildDepot++;
 					
 					//reset unit/structure counts
 					structureCount = new int[structureTypes.length];
@@ -177,6 +182,13 @@ public class RobotPlayer {
 						}
 					}
 					
+					supplyFlowIn = GameConstants.HQ_SUPPLY_GEN + structureCount[1]*GameConstants.DEPOT_SUPPLY_GEN;
+					supplyFlowOut = 0;
+					for (int i=0; i<unitCount.length; i++) {
+						supplyFlowOut+=unitCount[i]*unitTypes[i].supplyUpkeep;
+					}
+					netSupply = supplyFlowIn-supplyFlowOut;
+					
 					for (int i=0; i<structureCount.length; i++) {
 						rc.broadcast(65200+i,structureCount[i]);
 					}
@@ -197,7 +209,7 @@ public class RobotPlayer {
 					while (rc.getSupplyLevel() > 2*LOW_SUPPLY_THRESHOLD && myMissionPointer < openpointer) {
 						mission = retrieveMission();
 						if (mission > 0) {
-							System.out.println(mission);
+							//System.out.println(mission);
 							int action = actionFromMessage(mission);
 							//conditions for mission acceptance
 							if (action == 2) {
@@ -235,6 +247,11 @@ public class RobotPlayer {
 					} else if (Clock.getRoundNum() == 300) {
 						postMission(buildMessage(1,8));
 						myMissionPointer++;
+					}
+					if (netSupply < supplyFlowIn/4 && waitBuildDepot > 20) {
+						postMission(buildMessage(1,1));
+						System.out.println("We require more vespene gas");
+						waitBuildDepot=0;
 					}
 					/*
 					build: 100xy, where xy is the 2-digit number of the structure type
@@ -336,13 +353,15 @@ public class RobotPlayer {
 					if (targetAction == 0) {
 						int mission;
 						int openpointer = rc.readBroadcast(OPEN_CHANNEL);
-						while (targetAction == 0 && myMissionPointer < openpointer) {
+						boolean acceptingMissions = rc.isMovementActive();
+						while (acceptingMissions && targetAction == 0 && myMissionPointer < openpointer) {
 							mission = retrieveMission();
 							if (mission > 0) {
 								int action = actionFromMessage(mission);
 								
 								//conditions for mission acceptance
 								if (action == 1) {
+									System.out.println("Accepted mission "+mission); //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 									targetAction = action;
 									targetType = structureTypes[infoFromMessage(mission)];
 									confirmMission(myMissionPointer);
@@ -483,6 +502,15 @@ public class RobotPlayer {
 				}
 			}
 			
+			if (rc.getType() == RobotType.SUPPLYDEPOT) {
+				try {
+					rc.transferSuppliesToHQ();
+				} catch (Exception e) {
+					System.out.println("supply depot exception: " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+			
 			rc.yield();
 		}
 	}
@@ -502,6 +530,9 @@ public class RobotPlayer {
 	//returns true if the build has started.
 	static boolean smartBuild(RobotType r) throws GameActionException {
 		MapLocation myloc = rc.getLocation();
+		if (!rc.canBuildRobotType(r)) {
+			return false;
+		}
 		if (r == RobotType.SUPPLYDEPOT || r == RobotType.TECHNOLOGYINSTITUTE || r == RobotType.HANDWASHSTATION) {
 			if (myloc.distanceSquaredTo(enemyHQ) < alliedHQ.distanceSquaredTo(enemyHQ)) {
 				if (myloc.distanceSquaredTo(alliedHQ) > 100) {
@@ -531,7 +562,7 @@ public class RobotPlayer {
 					//blocked, can't do anything.
 					return false;
 					
-				} else if (rc.canBuild(bestdir,r)) {
+				} else if (rc.canBuildInDirection(bestdir)) {
 					rc.build(bestdir,r);
 					return true;
 				}
@@ -560,7 +591,7 @@ public class RobotPlayer {
 					//no good locations detected; move somewhere randomly to find a good spot
 					tryMove(directions[rand.nextInt(8)]);
 					return false;
-				} else if (rc.canBuild(bestdir,r)) {
+				} else if (rc.canBuildInDirection(bestdir)) {
 					rc.build(bestdir,r);
 					return true;
 				}
@@ -628,6 +659,7 @@ public class RobotPlayer {
 	static void bashMove(MapLocation target) throws GameActionException {
 		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(2,enemyTeam);
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
+		boolean shouldAttack = false;
 		
 		if (attackableEnemies.length > 0) {
 			Direction bestdir = null;
@@ -647,6 +679,7 @@ public class RobotPlayer {
 					rc.move(bestdir);
 				}
 			}
+			shouldAttack = bestNumEnemies > 0;
 		} else if (rc.isMovementActive()) {
 			if (nearbyEnemies.length > 0) {
 				MapLocation closestEnemy = rc.getLocation();
@@ -663,7 +696,7 @@ public class RobotPlayer {
 				navigate(target);
 			}
 		}
-		if (rc.isAttackActive()) {
+		if (shouldAttack && rc.isAttackActive()) {
 			rc.bash();
 		}
 	}
