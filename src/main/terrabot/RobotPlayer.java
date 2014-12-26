@@ -38,6 +38,15 @@ public class RobotPlayer {
 	static RobotType targetType;
 	static MapLocation targetLocation;
 	
+	public static void run(RobotController applepie) {
+		while (true) {
+			rc.yield();
+		}
+	}
+}
+	
+	/*
+	
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
 		myRange = rc.getType().attackRadiusSquared;
@@ -192,10 +201,10 @@ public class RobotPlayer {
 						myMissionPointer++;
 						
 					}
-					/*
-					build: 100xy, where xy is the 2-digit number of the structure type
-					request supplies: 2
-					*/
+					
+					//build: 100xy, where xy is the 2-digit number of the structure type
+					//request supplies: 2
+					
 					
 					
 					if (rc.isAttackActive()) {
@@ -710,3 +719,4 @@ public class RobotPlayer {
 		return m%10000;
 	}
 }
+*/
