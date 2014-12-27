@@ -10,14 +10,14 @@ public class RobotPlayer {
 
         if (rc.getType() == RobotType.HQ) {
             myself = new HQ(rc);
-        } else if (rc.getType() == RobotType.FURBY) {
+        } else if (rc.getType() == RobotType.BEAVER) {
             myself = new Furby(rc);
         } else if (rc.getType() == RobotType.BARRACKS) {
             myself = new Barracks(rc);
 	} else if (rc.getType() == RobotType.HELIPAD) {
             myself = new Helipad(rc);
-        } else if (rc.getType() == RobotType.SOLDIER) {
-            myself = new Soldier(rc);
+        } else if (rc.getType() == RobotType.BASHER) {
+            myself = new Basher(rc);
 	} else if (rc.getType() == RobotType.DRONE) {
             myself = new Drone(rc);
         } else if (rc.getType() == RobotType.TOWER) {
@@ -304,9 +304,9 @@ public class RobotPlayer {
 		}
 		}
             // spawn a furby if possible
-            Direction dir = getSpawnDirection(RobotType.FURBY);
+            Direction dir = getSpawnDirection(RobotType.BEAVER);
             if (dir != null && rc.isMovementActive()) {
-                rc.spawn(dir, RobotType.FURBY);
+                rc.spawn(dir, RobotType.BEAVER);
             }
 
             // also try to attack
@@ -353,7 +353,7 @@ public class RobotPlayer {
 		    rc.build(buildDir, RobotType.TECHNOLOGYINSTITUTE);
 		} else if (rc.checkDependencyProgress(RobotType.TECHNOLOGYINSTITUTE)
 			   != DependencyProgress.DONE) {
-		    rc.build(buildDir, RobotType.BARRACKS);
+		    //rc.build(buildDir, RobotType.BARRACKS);
 		} else {
 		    rc.build(buildDir, RobotType.HELIPAD);
 		}
@@ -371,9 +371,9 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             // spawn a furby if possible
-            Direction dir = getSpawnDirection(RobotType.SOLDIER);
+            Direction dir = getSpawnDirection(RobotType.BASHER);
             if (dir != null && rc.isMovementActive()) {
-                rc.spawn(dir, RobotType.SOLDIER);
+                rc.spawn(dir, RobotType.BASHER);
             }
 
             rc.yield();
@@ -420,6 +420,31 @@ public class RobotPlayer {
             rc.yield();
         }
     }
+
+    public static class Basher extends BaseBot {
+        public Basher(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            // if can attack, then attack
+            RobotInfo[] enemies = getEnemiesInRange(type.attackRadiusSquared);
+            if (rc.isAttackActive() && enemies.length > 0) {
+                rc.bash();
+            }
+
+            // else try to move to enemy HQ
+            else if (rc.isMovementActive()) {
+                Direction moveDir = getMoveDir(getDirectionTowardEnemy());
+                if (moveDir != null) {
+                    rc.move(moveDir);
+                }
+            }
+
+            rc.yield();
+        }
+    }
+
 
     public static class Drone extends BaseBot {
         public Drone(RobotController rc) {
