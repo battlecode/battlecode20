@@ -503,25 +503,23 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.LAUNCHER) {
 				try {
 					if (!supplied) {
-						if (rc.isMovementActive()) {
-							navigate(alliedHQ);
-						}
+						launcherMove(alliedHQ);
 						if (rc.getLocation().distanceSquaredTo(alliedHQ) < GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED && Clock.getRoundNum()%3 == 0) {
 							postSupplyMission();
 							supplied = true;
 						}
 					} else {
 						retrieveAttackMission();
+						/*
 						if (Clock.getRoundNum() == 500) {
-							rc.launchMissile(Direction.SOUTH_WEST);
-							postMissileMission(rc.getLocation().add(Direction.SOUTH_WEST),enemyHQ);
-						} else if (Clock.getRoundNum() == 502) {
-							rc.launchMissile(Direction.NORTH_EAST);
-							postMissileMission(rc.getLocation().add(Direction.NORTH_EAST),alliedHQ);
-						}
-						if (rc.isMovementActive()) {
-							navigate(targetLocation);
-						}
+							rc.move(Direction.EAST);
+						} if (Clock.getRoundNum() == 501) {
+							rc.launchMissile(Direction.NORTH);
+							postMissileMission(rc.getLocation().add(Direction.NORTH),alliedHQ);
+							rc.launchMissile(Direction.EAST);
+							postMissileMission(rc.getLocation().add(Direction.EAST),alliedHQ);
+						}*/
+						launcherMove(targetLocation);
 					}
 				} catch (Exception e) {
 					System.out.println("launcher exception: " + e.getMessage());
@@ -759,6 +757,52 @@ public class RobotPlayer {
 				rc.mine();
 				return;
 			}
+		}
+	}
+	
+	static void tryLaunch(MapLocation target) throws GameActionException {
+		Direction d = rc.getLocation().directionTo(target);
+		int offsetIndex = 0;
+		int[] offsets = {0,1,-1,2,-2};
+		int dirint = directionToInt(d);
+		boolean blocked = false;
+		while (offsetIndex < 5 && !rc.canMove(directions[(dirint+offsets[offsetIndex]+8)%8])) {
+			offsetIndex++;
+		}
+		if (offsetIndex < 5) {
+			Direction launchDir = directions[(dirint+offsets[offsetIndex]+8)%8];
+			rc.launchMissile(launchDir);
+			postMissileMission(rc.getLocation().add(launchDir),target);
+		}
+	}
+	
+	static void launcherMove(MapLocation target) throws GameActionException {
+		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(15, enemyTeam);
+		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
+		
+		if (attackableEnemies.length > 0) {
+			MapLocation closestEnemy = null;
+			int closestDistance = 999999;
+			for (RobotInfo r : attackableEnemies) {
+				MapLocation tryloc = r.location;
+				int trydist = tryloc.distanceSquaredTo(rc.getLocation());
+				if (trydist < closestDistance) {
+					closestEnemy = tryloc;
+					closestDistance = trydist;
+				}
+			}
+			if (rc.isMovementActive()) {
+				tryMove(closestEnemy.directionTo(rc.getLocation()));
+				return;
+			} else if (rc.getMissileCount() > 0) {
+				tryLaunch(closestEnemy.add(closestEnemy.directionTo(rc.getLocation())));
+				return;
+			}
+		} else if (nearbyEnemies.length > 0 && rc.getMissileCount() > 0) {
+			tryLaunch(nearbyEnemies[0].location.add(nearbyEnemies[0].location.directionTo(rc.getLocation())));
+			return;
+		} else if (rc.isMovementActive()) {
+			navigate(target);
 		}
 	}
 	
