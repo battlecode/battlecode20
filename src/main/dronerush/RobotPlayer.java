@@ -93,7 +93,7 @@ public class RobotPlayer {
 		    MapLocation towerLoc = new MapLocation(rc.readBroadcast(CH_TOWER_X + i),
 							   rc.readBroadcast(CH_TOWER_Y + i));
 		    boolean setTarget = true;
-		    if (rc.canSenseSquare(towerLoc)) {
+		    if (rc.canSenseLocation(towerLoc)) {
 			RobotInfo allegedTower = rc.senseRobotAtLocation(towerLoc);
 			if (allegedTower == null || allegedTower.type != RobotType.TOWER) {
 			    i++;
