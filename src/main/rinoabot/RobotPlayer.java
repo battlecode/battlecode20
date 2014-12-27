@@ -395,7 +395,7 @@ public class RobotPlayer {
 						RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(myRange,enemyTeam);
 						if (nearbyEnemies.length > 0) {
 							if (rc.isAttackActive()) {
-								rc.attackSquare(nearbyEnemies[0].location);
+								rc.attackLocation(nearbyEnemies[0].location);
 							}
 						} else if (rc.isMovementActive()) {
 							smartMine();
@@ -530,7 +530,7 @@ public class RobotPlayer {
 	//returns true if the build has started.
 	static boolean smartBuild(RobotType r) throws GameActionException {
 		MapLocation myloc = rc.getLocation();
-		if (!rc.canBuildRobotType(r)) {
+		if (!rc.hasBuildRequirements(r)) {
 			return false;
 		}
 		if (r == RobotType.SUPPLYDEPOT || r == RobotType.TECHNOLOGYINSTITUTE || r == RobotType.HANDWASHSTATION) {
@@ -562,7 +562,7 @@ public class RobotPlayer {
 					//blocked, can't do anything.
 					return false;
 					
-				} else if (rc.canBuildInDirection(bestdir)) {
+				} else if (rc.canBuild(bestdir, r)) {
 					rc.build(bestdir,r);
 					return true;
 				}
@@ -591,7 +591,7 @@ public class RobotPlayer {
 					//no good locations detected; move somewhere randomly to find a good spot
 					tryMove(directions[rand.nextInt(8)]);
 					return false;
-				} else if (rc.canBuildInDirection(bestdir)) {
+				} else if (rc.canBuild(bestdir, r)) {
 					rc.build(bestdir,r);
 					return true;
 				}
@@ -707,7 +707,7 @@ public class RobotPlayer {
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
 		if (attackableEnemies.length > 0) {
 			if (rc.isAttackActive()) {
-				rc.attackSquare(attackableEnemies[0].location);
+				rc.attackLocation(attackableEnemies[0].location);
 			}
 		} else if (rc.isMovementActive()) {
 			if (nearbyEnemies.length > 0) {
@@ -817,7 +817,7 @@ public class RobotPlayer {
 	static void attackSomething() throws GameActionException {
 		RobotInfo[] enemies = rc.senseNearbyRobots(myRange, enemyTeam);
 		if (enemies.length > 0) {
-			rc.attackSquare(enemies[0].location);
+			rc.attackLocation(enemies[0].location);
 		}
 	}
 	

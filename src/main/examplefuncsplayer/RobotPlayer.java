@@ -196,7 +196,7 @@ public class RobotPlayer {
 	static void attackSomething() throws GameActionException {
 		RobotInfo[] enemies = rc.senseNearbyRobots(myRange, enemyTeam);
 		if (enemies.length > 0) {
-			rc.attackSquare(enemies[0].location);
+			rc.attackLocation(enemies[0].location);
 		}
 	}
 	

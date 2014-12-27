@@ -19,7 +19,7 @@ public class Utility{
 	}
 	
 	public static void build(RobotController rc,Direction d,RobotType rtype) throws GameActionException{
-		if(!rc.isBuildingSomething()&&rc.canBuild(d, rtype)&&rc.getTeamOre()>rtype.oreCost){
+		if(!rc.isMovementActive()&&rc.canBuild(d, rtype)&&rc.getTeamOre()>rtype.oreCost){
 			rc.build(d, rtype);
 		}
 	}
@@ -75,8 +75,8 @@ public class Utility{
 	}
 
 	public static void attack(RobotController rc, MapLocation targetLoc) throws GameActionException {
-		if(rc.isAttackActive()&&rc.canAttackSquare(targetLoc)){
-			rc.attackSquare(targetLoc);
+		if(rc.isAttackActive()&&rc.canAttackLocation(targetLoc)){
+			rc.attackLocation(targetLoc);
 		}
 	}
 	
@@ -132,7 +132,7 @@ public class Utility{
 	}
 	
 	public static void tryToBuild(RobotController rc, RobotType goalStructure, double reserveOre,int buildingRepeats) throws GameActionException{
-		if(!rc.isBuildingSomething()){
+		if(!rc.isMovementActive()){
 			if(rc.checkDependencyProgress(goalStructure)==DependencyProgress.NONE||Comms.getAlliedRobotCount(rc, goalStructure)<buildingRepeats){
 				if(requisitesComplete(rc,goalStructure,reserveOre)){
 					if(rc.getTeamOre()>(reserveOre+goalStructure.oreCost)){
@@ -149,13 +149,10 @@ public class Utility{
 	}
 	
 	private static boolean requisitesComplete(RobotController rc, RobotType goalStructure,double reserveOre) throws GameActionException{
-		RobotType[] requisites = goalStructure.getDependencies();
-		for(RobotType r:requisites){
-			if(rc.checkDependencyProgress(r)!=DependencyProgress.DONE){
-				tryToBuild(rc,r,reserveOre,1);
-				return false;
-			}
-		}
+        if(rc.checkDependencyProgress(goalStructure.dependency)!=DependencyProgress.DONE){
+            tryToBuild(rc,goalStructure.dependency,reserveOre,1);
+            return false;
+        }
 		return true;
 	}
 	
