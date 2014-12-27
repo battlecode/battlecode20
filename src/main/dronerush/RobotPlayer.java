@@ -209,7 +209,7 @@ public class RobotPlayer {
                 }
             }
 
-            rc.attackSquare(toAttack);
+            rc.attackLocation(toAttack);
         }
 
 	public void addTowerToRadio (RobotInfo towerInfo) throws GameActionException{
