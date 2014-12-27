@@ -634,8 +634,9 @@ public class RobotPlayer {
 	//returns true if the build has started.
 	static boolean smartBuild(RobotType r) throws GameActionException {
 		MapLocation myloc = rc.getLocation();
+
 		/*
-		if (!rc.checkDependencyProgress) {
+		if (!rc.hasBuildRequirements(r)) {
 			return false;
 		}
 		*/
@@ -667,7 +668,6 @@ public class RobotPlayer {
 				if (farthestdist == 0) {
 					//blocked, can't do anything.
 					return false;
-					
 				} else if (rc.canBuild(bestdir,r)) {
 					rc.build(bestdir,r);
 					return true;

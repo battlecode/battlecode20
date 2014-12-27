@@ -297,7 +297,7 @@ public class RobotPlayer {
 						RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(myRange,enemyTeam);
 						if (nearbyEnemies.length > 0) {
 							if (rc.isAttackActive()) {
-								rc.attackSquare(nearbyEnemies[0].location);
+								rc.attackLocation(nearbyEnemies[0].location);
 							}
 						} else if (rc.isMovementActive()) {
 							smartMine();
@@ -491,7 +491,7 @@ public class RobotPlayer {
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
 		if (attackableEnemies.length > 0) {
 			if (rc.isAttackActive()) {
-				rc.attackSquare(attackableEnemies[0].location);
+				rc.attackLocation(attackableEnemies[0].location);
 			}
 		} else if (rc.isMovementActive()) {
 			if (nearbyEnemies.length > 0) {
@@ -601,7 +601,7 @@ public class RobotPlayer {
 	static void attackSomething() throws GameActionException {
 		RobotInfo[] enemies = rc.senseNearbyRobots(myRange, enemyTeam);
 		if (enemies.length > 0) {
-			rc.attackSquare(enemies[0].location);
+			rc.attackLocation(enemies[0].location);
 		}
 	}
 	

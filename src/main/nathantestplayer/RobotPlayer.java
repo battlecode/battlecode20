@@ -108,7 +108,7 @@ public class RobotPlayer {
                 }
             }
 
-            rc.attackSquare(toAttack);
+            rc.attackLocation(toAttack);
         }
 
         public void beginningOfTurn() {
