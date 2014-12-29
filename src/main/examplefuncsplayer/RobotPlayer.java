@@ -108,9 +108,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.BASHER) {
                 try {
                     RobotInfo[] adjacentEnemies = rc.senseNearbyRobots(2, enemyTeam);
-					if (adjacentEnemies.length > 0 && rc.isAttackActive()) {
-						rc.bash();
-					} else if (rc.isMovementActive()) {
+					if (rc.isMovementActive()) {
 						
 						int fate = rand.nextInt(1000);
 						if (fate < 800) {
@@ -218,7 +216,7 @@ public class RobotPlayer {
 		int[] offsets = {0,1,-1,2,-2,3,-3,4};
 		int dirint = directionToInt(d);
 		boolean blocked = false;
-		while (offsetIndex < 8 && !rc.canMove(directions[(dirint+offsets[offsetIndex]+8)%8])) {
+		while (offsetIndex < 8 && !rc.canSpawn(directions[(dirint+offsets[offsetIndex]+8)%8], RobotType.BEAVER)) {
 			offsetIndex++;
 		}
 		if (offsetIndex < 8) {

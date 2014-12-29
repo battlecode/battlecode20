@@ -869,9 +869,10 @@ public class RobotPlayer {
 				navigate(target);
 			}
 		}
-		if (shouldAttack && rc.isAttackActive()) {
-			rc.bash();
-		}
+        // commented out by Alex since bashers always attack
+		//if (shouldAttack && rc.isAttackActive()) {
+			//rc.bash();
+		//}
 	}
 	
 	//naive attackmove.

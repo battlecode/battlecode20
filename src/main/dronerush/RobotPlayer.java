@@ -429,12 +429,14 @@ public class RobotPlayer {
         public void execute() throws GameActionException {
             // if can attack, then attack
             RobotInfo[] enemies = getEnemiesInRange(type.attackRadiusSquared);
-            if (rc.isAttackActive() && enemies.length > 0) {
-                rc.bash();
-            }
+
+            // the first if clause is commented out by Alex since bashers auto attack
+            //if (rc.isAttackActive() && enemies.length > 0) {
+                //rc.bash();
+            //}
 
             // else try to move to enemy HQ
-            else if (rc.isMovementActive()) {
+            /*else */if (rc.isMovementActive()) {
                 Direction moveDir = getMoveDir(getDirectionTowardEnemy());
                 if (moveDir != null) {
                     rc.move(moveDir);
