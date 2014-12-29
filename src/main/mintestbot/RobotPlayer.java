@@ -237,7 +237,7 @@ public class RobotPlayer {
     public static class Tower extends BaseBot {
         public Tower(RobotController rc) {
             super(rc);
-            sdfkjsldkfj
+            sdfasfd
             
         }
 
