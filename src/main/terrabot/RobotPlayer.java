@@ -38,7 +38,7 @@ public class RobotPlayer {
 	static RobotType targetType;
 	static MapLocation targetLocation;
 	
-	public static void run(RobotController applepie) {
+	public static void run(RobotController rc) {
 		while (true) {
 			rc.yield();
 		}
