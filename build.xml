@@ -130,23 +130,25 @@
 			<include name="**/*.java"/>
 		</scalac>
 		-->
-        <javac encoding="${build.encoding}"
-                srcdir="${src.dir}"
-								includes="**/*.java"
-								excludes="${player.excludes}"
-                destdir="${pkg.build.dir}"
-                debug="${javac.debug}"
-                optimize="${javac.optimize}"
-                target="${javac.version}"
-                source="${javac.version}"
-                deprecation="${javac.deprecation}"
-                includeantruntime="false">
-            <compilerarg line="${javac.args} ${javac.args.warnings}"/>
-						<classpath refid="classpath-libs"/>
-        </javac>
+		<echo message="include players ${player.includes}"/>
+		<echo message="exclude players ${player.excludes}"/>
+		<javac encoding="${build.encoding}"
+				srcdir="${src.dir}"
+				includes="${player.includes}"
+				excludes="${player.excludes}"
+				destdir="${pkg.build.dir}"
+				debug="${javac.debug}"
+				optimize="${javac.optimize}"
+				target="${javac.version}"
+				source="${javac.version}"
+				deprecation="${javac.deprecation}"
+				includeantruntime="false">
+				<compilerarg line="${javac.args} ${javac.args.warnings}"/>
+				<classpath refid="classpath-libs"/>
+		</javac>
 
-    </target>
-	
+</target>
+
 	<target name="proguard-check" depends="init">
 		<fileset id="players.files" dir="${pkg.build.dir}" includes="${release.players}"/>
 		<pathconvert property="any-players" refid="players.files" setonempty="false"/>
