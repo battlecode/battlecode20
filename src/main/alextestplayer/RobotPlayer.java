@@ -15,6 +15,8 @@ public class RobotPlayer {
             myself = new Barracks(rc);
         } else if (rc.getType() == RobotType.SOLDIER) {
             myself = new Soldier(rc);
+        } else if (rc.getType() == RobotType.BASHER) {
+            myself = new Basher(rc);
         } else if (rc.getType() == RobotType.TOWER) {
             myself = new Tower(rc);
         } else {
@@ -37,6 +39,7 @@ public class RobotPlayer {
         protected RobotController rc;
         protected MapLocation myHQ, theirHQ;
         protected Team myTeam, theirTeam;
+        protected RobotType myType;
 
         public BaseBot(RobotController rc) {
             this.rc = rc;
@@ -44,6 +47,7 @@ public class RobotPlayer {
             this.theirHQ = rc.senseEnemyHQLocation();
             this.myTeam = rc.getTeam();
             this.theirTeam = this.myTeam.opponent();
+            this.myType = rc.getType();
         }
 
         public Direction[] getDirectionsTowardEnemy() {
@@ -88,7 +92,7 @@ public class RobotPlayer {
         }
 
         public RobotInfo[] getEnemiesInAttackingRange() {
-            RobotInfo[] enemies = rc.senseNearbyRobots(RobotType.SOLDIER.attackRadiusSquared, theirTeam);
+            RobotInfo[] enemies = rc.senseNearbyRobots(myType.attackRadiusSquared, theirTeam);
             return enemies;
         }
 
@@ -195,9 +199,9 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             // spawn a furby if possible
-            Direction dir = getSpawnDirection(RobotType.SOLDIER);
+            Direction dir = getSpawnDirection(RobotType.BASHER);
             if (dir != null && rc.isMovementActive()) {
-                rc.spawn(dir, RobotType.SOLDIER);
+                rc.spawn(dir, RobotType.BASHER);
             }
 
             rc.yield();
@@ -218,6 +222,23 @@ public class RobotPlayer {
 
             // else try to move to enemy HQ
             else if (rc.isMovementActive()) {
+                Direction moveDir = getMoveDir();
+                if (moveDir != null) {
+                    rc.move(moveDir);
+                }
+            }
+
+            rc.yield();
+        }
+    }
+
+    public static class Basher extends BaseBot {
+        public Basher(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            if (rc.isMovementActive()) {
                 Direction moveDir = getMoveDir();
                 if (moveDir != null) {
                     rc.move(moveDir);
