@@ -18,6 +18,8 @@ public class RobotPlayer {
             myself = new Helipad(rc);
         } else if (rc.getType() == RobotType.BASHER) {
             myself = new Basher(rc);
+	} else if (rc.getType() == RobotType.SOLDIER) {
+            myself = new Soldier(rc);
 	} else if (rc.getType() == RobotType.DRONE) {
             myself = new Drone(rc);
         } else if (rc.getType() == RobotType.TOWER) {
@@ -252,15 +254,16 @@ public class RobotPlayer {
         public void go() throws GameActionException {
             beginningOfTurn();
             execute();
+	    rc.yield();
             endOfTurn();
         }
 
         public void execute() throws GameActionException {
-            rc.yield();
         }
     }
 
     public static class HQ extends BaseBot {
+	public boolean hasAttacked = false;
         public HQ(RobotController rc) {
             super(rc);
 
@@ -312,7 +315,11 @@ public class RobotPlayer {
             // also try to attack
             RobotInfo[] enemies = getEnemiesInRange(type.attackRadiusSquared);
             if (rc.isAttackActive() && enemies.length > 0) {
-                attackLeastHealthEnemy(enemies);
+		if (!hasAttacked) {
+		    attackLeastHealthEnemy(enemies);
+		    System.out.println("hq attack");
+		    hasAttacked = true;
+		}
             }
 	    
             rc.yield();
@@ -346,21 +353,18 @@ public class RobotPlayer {
                     }
                 }
             }
-
-            // else, build barracks
+	    // else, build barracks
             else if (buildDir != null && rc.isMovementActive() && !hasBuilt) {
 		if (this.id % ID_MULTIPLIER == 5) {
 		    rc.build(buildDir, RobotType.TECHNOLOGYINSTITUTE);
 		} else if (rc.checkDependencyProgress(RobotType.TECHNOLOGYINSTITUTE)
 			   != DependencyProgress.DONE) {
-		    //rc.build(buildDir, RobotType.BARRACKS);
+		    rc.build(buildDir, RobotType.BARRACKS);
 		} else {
 		    rc.build(buildDir, RobotType.HELIPAD);
 		}
 		hasBuilt = true;
             }
-
-            rc.yield();
         }
     }
 
@@ -371,12 +375,11 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             // spawn a furby if possible
-            Direction dir = getSpawnDirection(RobotType.BASHER);
+	    RobotType spawnType = RobotType.BASHER;
+            Direction dir = getSpawnDirection(spawnType);
             if (dir != null && rc.isMovementActive()) {
-                rc.spawn(dir, RobotType.BASHER);
+                rc.spawn(dir, spawnType);
             }
-
-            rc.yield();
         }
     }
 
@@ -391,8 +394,6 @@ public class RobotPlayer {
             if (dir != null && rc.isMovementActive()) {
                 rc.spawn(dir, RobotType.DRONE);
             }
-
-            rc.yield();
         }
     }
     
@@ -405,10 +406,11 @@ public class RobotPlayer {
         public void execute() throws GameActionException {
             // if can attack, then attack
             RobotInfo[] enemies = getEnemiesInRange(type.attackRadiusSquared);
-            if (rc.isAttackActive() && enemies.length > 0) {
-                attackLeastHealthEnemy(enemies);
+            if (enemies.length > 0) {
+		if (rc.isAttackActive()) {
+		    attackLeastHealthEnemy(enemies);
+		}
             }
-
             // else try to move to enemy HQ
             else if (rc.isMovementActive()) {
                 Direction moveDir = getMoveDir(getDirectionTowardEnemy());
@@ -416,8 +418,6 @@ public class RobotPlayer {
                     rc.move(moveDir);
                 }
             }
-
-            rc.yield();
         }
     }
 
@@ -433,7 +433,7 @@ public class RobotPlayer {
             // the first if clause is commented out by Alex since bashers auto attack
             //if (rc.isAttackActive() && enemies.length > 0) {
                 //rc.bash();
-            //}
+	    //}
 
             // else try to move to enemy HQ
             /*else */if (rc.isMovementActive()) {
@@ -442,8 +442,6 @@ public class RobotPlayer {
                     rc.move(moveDir);
                 }
             }
-
-            rc.yield();
         }
     }
 
@@ -472,8 +470,6 @@ public class RobotPlayer {
 		    }
 		}
 	    }
-
-            rc.yield();
         }
     }
 
