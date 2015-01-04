@@ -241,7 +241,7 @@ public class RobotPlayer {
 						}
 					}
 					
-					supplyFlowIn = GameConstants.HQ_SUPPLY_GEN + structureCount[1]*GameConstants.DEPOT_SUPPLY_GEN;
+					supplyFlowIn = GameConstants.SUPPLY_GEN_BASE * (GameConstants.SUPPLY_GEN_MULTIPLIER + Math.pow(structureCount[1], GameConstants.SUPPLY_GEN_EXPONENT));
 					supplyFlowOut = 0;
 					for (int i=0; i<unitCount.length; i++) {
 						supplyFlowOut+=unitCount[i]*unitTypes[i].supplyUpkeep;
