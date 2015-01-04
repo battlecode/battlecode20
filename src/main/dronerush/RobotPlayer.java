@@ -151,7 +151,7 @@ public class RobotPlayer {
 	    MapLocation wouldBe = rc.getLocation().add(dir);
 	    if (theirHQ != null
 		&& readCastNE(CH_TOWER_REMOVED) < 2
-		&& wouldBe.distanceSquaredTo(theirHQ) <= GameConstants.ATTACK_RADIUS_SQUARED_BUFFED_HQ) {
+		&& wouldBe.distanceSquaredTo(theirHQ) <= GameConstants.HQ_BUFFED_ATTACK_RADIUS_SQUARED) {
 		return false;
 	    }
 	    return true;
