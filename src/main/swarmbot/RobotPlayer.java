@@ -141,13 +141,13 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             Direction dir = getSpawnDirection(RobotType.BEAVER);
-            if (dir != null && rc.isMovementActive()) {
+            if (dir != null && rc.isCoreReady()) {
                 rc.spawn(dir, RobotType.BEAVER);
             }
 
             // also try to attack
             RobotInfo[] enemies = getEnemiesInAttackingRange();
-            if (rc.isAttackActive() && enemies.length > 0) {
+            if (rc.isWeaponReady() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
             }
 
@@ -176,7 +176,7 @@ public class RobotPlayer {
 	    int numBarracks = rc.readBroadcast(2);
 	    rc.setIndicatorString(2, "" + numBarracks);
 
-	    if (rc.isMovementActive()) {
+	    if (rc.isCoreReady()) {
 		if (rc.getLocation().distanceSquaredTo(myHQ) < MOVE_AWAY_THRESHOLD) {
 		    Direction moveDir = getMoveDir(this.theirHQ);
 		    if (moveDir != null) {
@@ -212,7 +212,7 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             Direction dir = getSpawnDirection(RobotType.SOLDIER);
-            if (dir != null && rc.isMovementActive()) {
+            if (dir != null && rc.isCoreReady()) {
                 rc.spawn(dir, RobotType.SOLDIER);
             }
 
@@ -228,7 +228,7 @@ public class RobotPlayer {
         public void execute() throws GameActionException {
             RobotInfo[] enemies = getEnemiesInAttackingRange();
             if (enemies.length > 0) {
-		if (rc.isAttackActive()) {
+		if (rc.isWeaponReady()) {
 		    attackLeastHealthEnemy(enemies);
 		}
             }
@@ -237,7 +237,7 @@ public class RobotPlayer {
 		int xpos = rc.readBroadcast(0), ypos = rc.readBroadcast(1);
 		MapLocation rally = new MapLocation(xpos, ypos);
 
-		if (rc.isMovementActive()) {
+		if (rc.isCoreReady()) {
 		    Direction moveDir = getMoveDir(rally);
 		    if (moveDir != null) {
 			rc.move(moveDir);
@@ -256,7 +256,7 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             RobotInfo[] enemies = getEnemiesInAttackingRange();
-            if (rc.isAttackActive() && enemies.length > 0) {
+            if (rc.isWeaponReady() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
             }
 

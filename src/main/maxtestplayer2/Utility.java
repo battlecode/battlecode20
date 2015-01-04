@@ -13,13 +13,13 @@ public class Utility{
 	
 	public static void spawn(RobotController rc,Direction d,RobotType rtype,int reserveOre) throws GameActionException{
 		MapLocation goal = rc.getLocation().add(d);
-		if(rc.isMovementActive()&&rc.canSpawn(d, rtype)&&(rc.getTeamOre()-reserveOre>rtype.oreCost)&&rc.senseTerrainTile(goal)==TerrainTile.NORMAL){
+		if(rc.isCoreReady()&&rc.canSpawn(d, rtype)&&(rc.getTeamOre()-reserveOre>rtype.oreCost)&&rc.senseTerrainTile(goal)==TerrainTile.NORMAL){
 			rc.spawn(d,rtype);
 		}
 	}
 	
 	public static void build(RobotController rc,Direction d,RobotType rtype) throws GameActionException{
-		if(!rc.isMovementActive()&&rc.canBuild(d, rtype)&&rc.getTeamOre()>rtype.oreCost){
+		if(!rc.isCoreReady()&&rc.canBuild(d, rtype)&&rc.getTeamOre()>rtype.oreCost){
 			rc.build(d, rtype);
 		}
 	}
@@ -29,7 +29,7 @@ public class Utility{
 	}
 	
 	public static boolean mine(RobotController rc,double thresh) throws GameActionException{
-		if(rc.isMovementActive()&&rc.senseOre(rc.getLocation())>thresh){
+		if(rc.isCoreReady()&&rc.senseOre(rc.getLocation())>thresh){
 			rc.mine();
 			return true;
 		}else{//look for a better place to mine
@@ -64,7 +64,7 @@ public class Utility{
 	}
 
 	public static boolean move(RobotController rc, Direction d) throws GameActionException {
-		if(rc.isMovementActive()&&rc.canMove(d)){
+		if(rc.isCoreReady()&&rc.canMove(d)){
 			if(pastMoves.size()>0)
 				pastMoves.remove(0);
 			pastMoves.add(rc.getLocation());
@@ -75,7 +75,7 @@ public class Utility{
 	}
 
 	public static void attack(RobotController rc, MapLocation targetLoc) throws GameActionException {
-		if(rc.isAttackActive()&&rc.canAttackLocation(targetLoc)){
+		if(rc.isWeaponReady()&&rc.canAttackLocation(targetLoc)){
 			rc.attackLocation(targetLoc);
 		}
 	}
@@ -132,7 +132,7 @@ public class Utility{
 	}
 	
 	public static void tryToBuild(RobotController rc, RobotType goalStructure, double reserveOre,int buildingRepeats) throws GameActionException{
-		if(!rc.isMovementActive()){
+		if(!rc.isCoreReady()){
 			if(rc.checkDependencyProgress(goalStructure)==DependencyProgress.NONE||Comms.getAlliedRobotCount(rc, goalStructure)<buildingRepeats){
 				if(requisitesComplete(rc,goalStructure,reserveOre)){
 					if(rc.getTeamOre()>(reserveOre+goalStructure.oreCost)){

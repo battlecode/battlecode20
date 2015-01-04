@@ -55,10 +55,10 @@ public class RobotPlayer {
 					rc.broadcast(2,numBashers);
 					rc.broadcast(100, numBarracks);
 					
-					if (rc.isAttackActive()) {
+					if (rc.isWeaponReady()) {
 						attackSomething();
 					}
-					if (rc.isMovementActive() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numBeavers)*10000) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numBeavers)*10000) {
                         
 						trySpawn(directions[rand.nextInt(8)], RobotType.BEAVER);
 						
@@ -95,7 +95,7 @@ public class RobotPlayer {
 			
             if (rc.getType() == RobotType.TOWER) {
                 try {					
-					if (rc.isAttackActive()) {
+					if (rc.isWeaponReady()) {
 						attackSomething();
 					}
 				} catch (Exception e) {
@@ -108,7 +108,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.BASHER) {
                 try {
                     RobotInfo[] adjacentEnemies = rc.senseNearbyRobots(2, enemyTeam);
-					if (rc.isMovementActive()) {
+					if (rc.isCoreReady()) {
 						
 						int fate = rand.nextInt(1000);
 						if (fate < 800) {
@@ -125,10 +125,10 @@ public class RobotPlayer {
 			
             if (rc.getType() == RobotType.SOLDIER) {
                 try {
-                    if (rc.isAttackActive()) {
+                    if (rc.isWeaponReady()) {
 						attackSomething();
 					}
-					if (rc.isMovementActive()) {
+					if (rc.isCoreReady()) {
 						int fate = rand.nextInt(1000);
 						if (fate < 800) {
 							tryMove(directions[rand.nextInt(8)]);
@@ -144,10 +144,10 @@ public class RobotPlayer {
 			
 			if (rc.getType() == RobotType.BEAVER) {
 				try {
-					if (rc.isAttackActive()) {
+					if (rc.isWeaponReady()) {
 						attackSomething();
 					}
-					if (rc.isMovementActive()) {
+					if (rc.isCoreReady()) {
 						int fate = rand.nextInt(1000);
 						if (fate < 10 && rc.getTeamOre() >= 300) {
 							tryBuild(directions[rand.nextInt(8)],RobotType.BARRACKS);
@@ -174,7 +174,7 @@ public class RobotPlayer {
 					int numBashers = rc.readBroadcast(2);
 					int numBarracks = rc.readBroadcast(100);
 					
-					if (rc.isMovementActive() && rc.getTeamOre() >= 60 && fate < Math.pow(1.2,15-numSoldiers-numBashers+numBeavers)*10000) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 60 && fate < Math.pow(1.2,15-numSoldiers-numBashers+numBeavers)*10000) {
 						if (rc.getTeamOre() > 80 && fate % 2 == 0) {
 							trySpawn(directions[rand.nextInt(8)],RobotType.BASHER);
 						} else {
