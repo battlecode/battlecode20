@@ -242,7 +242,7 @@ public class RobotPlayer {
 						}
 					}
 					
-					supplyFlowIn = GameConstants.HQ_SUPPLY_GEN + structureCount[1]*GameConstants.DEPOT_SUPPLY_GEN;
+					supplyFlowIn = GameConstants.SUPPLY_GEN_BASE * (GameConstants.SUPPLY_GEN_MULTIPLIER + Math.pow(structureCount[1], GameConstants.SUPPLY_GEN_EXPONENT));
 					supplyFlowOut = 0;
 					for (int i=0; i<unitCount.length; i++) {
 						supplyFlowOut+=unitCount[i]*unitTypes[i].supplyUpkeep;
@@ -320,10 +320,10 @@ public class RobotPlayer {
 					*/
 					
 					
-					if (rc.isAttackActive()) {
+					if (rc.isWeaponReady()) {
 						attackSomething();
 					}
-					if (rc.isMovementActive() && rc.getTeamOre() >= 100 && numBeavers < NUM_BEAVERS && !DONE_SPAWNING) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 100 && numBeavers < NUM_BEAVERS && !DONE_SPAWNING) {
                         Direction spawndir = directions[rand.nextInt(8)];
 						trySpawn(spawndir, RobotType.BEAVER);
 						//rc.transferSupplies((int)(rc.getSupplyLevel()/2), spawndir);
@@ -367,7 +367,7 @@ public class RobotPlayer {
 					if (targetAction == 0) {
 						int mission;
 						int openpointer = rc.readBroadcast(OPEN_CHANNEL);
-						boolean acceptingMissions = rc.isMovementActive();
+						boolean acceptingMissions = rc.isCoreReady();
 						while (acceptingMissions && targetAction == 0 && myMissionPointer < openpointer) {
 							mission = retrieveMission();
 							if (mission > 0) {
@@ -407,10 +407,10 @@ public class RobotPlayer {
 					if (targetAction == 0) {
 						RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(myRange,enemyTeam);
 						if (nearbyEnemies.length > 0) {
-							if (rc.isAttackActive()) {
+							if (rc.isWeaponReady()) {
 								rc.attackLocation(nearbyEnemies[0].location);
 							}
-						} else if (rc.isMovementActive()) {
+						} else if (rc.isCoreReady()) {
 							smartMine();
 						}
 						
@@ -419,7 +419,7 @@ public class RobotPlayer {
 							//supplyWait = 1;
 						}
 					} else if (targetAction == 1) {
-						if (rc.isMovementActive()) {
+						if (rc.isCoreReady()) {
 							boolean building = smartBuild(targetType);
 							if (building) {
 								targetAction = 0;
@@ -427,7 +427,7 @@ public class RobotPlayer {
 						}
 					} else if (targetAction == 2) {
 						//go to HQ and get supply.
-						if (rc.isMovementActive()) {
+						if (rc.isCoreReady()) {
 							navigate(alliedHQ);
 						}
 						if (rc.getLocation().distanceSquaredTo(alliedHQ) <= GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED && Clock.getRoundNum()%3 == 0) {
@@ -451,7 +451,7 @@ public class RobotPlayer {
             if (rc.getType() == RobotType.TOWER) {
                 try {
 					//System.out.println(myRange);
-					if (rc.isAttackActive()) {
+					if (rc.isWeaponReady()) {
 						attackSomething();
 					}
 				} catch (Exception e) {
@@ -562,9 +562,9 @@ public class RobotPlayer {
 					int numBashers = unitCount[3];
 					int numBeavers = unitCount[0];
 					
-					if (rc.isMovementActive() && rc.getTeamOre() >= 200 && numSoldiers < NUM_SOLDIERS) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 200 && numSoldiers < NUM_SOLDIERS) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.SOLDIER);
-					} else if (rc.isMovementActive() && rc.getTeamOre() >= 200 && numBashers < NUM_BASHERS) {
+					} else if (rc.isCoreReady() && rc.getTeamOre() >= 200 && numBashers < NUM_BASHERS) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.BASHER);
 					}
 					
@@ -581,7 +581,7 @@ public class RobotPlayer {
 				try {
 					int numTanks = unitCount[6];
 					
-					if (rc.isMovementActive() && rc.getTeamOre() >= 300 && numTanks < NUM_TANKS) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 300 && numTanks < NUM_TANKS) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.TANK);
 					}
 					
@@ -598,7 +598,7 @@ public class RobotPlayer {
 				try {
 					int numDrones = unitCount[5];
 					
-					if (rc.isMovementActive() && rc.getTeamOre() >= 300 && numDrones < NUM_DRONES) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 300 && numDrones < NUM_DRONES) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.DRONE);
 					}
 					
@@ -632,7 +632,7 @@ public class RobotPlayer {
 				try {
 					int numLaunchers = unitCount[8];
 					
-					if (rc.isMovementActive() && rc.getTeamOre() >= 600 && numLaunchers < NUM_LAUNCHERS) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 600 && numLaunchers < NUM_LAUNCHERS) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.LAUNCHER);
 					}
 					
@@ -647,7 +647,7 @@ public class RobotPlayer {
 			
 			if (rc.getType() == RobotType.SUPPLYDEPOT) {
 				try {
-					rc.transferSuppliesToHQ();
+					//rc.transferSuppliesToHQ();
 				} catch (Exception e) {
 					System.out.println("supply depot exception: " + e.getMessage());
 					e.printStackTrace();
@@ -835,7 +835,7 @@ public class RobotPlayer {
 					closestDistance = trydist;
 				}
 			}
-			if (rc.isMovementActive()) {
+			if (rc.isCoreReady()) {
 				tryMove(closestEnemy.directionTo(rc.getLocation()));
 				return;
 			} else if (rc.getMissileCount() > 0) {
@@ -856,7 +856,7 @@ public class RobotPlayer {
 		} else if (nearbyEnemies.length > 0 && rc.getMissileCount() > 0) {
 			tryLaunch(nearbyEnemies[0].location.add(nearbyEnemies[0].location.directionTo(rc.getLocation())));
 			return;
-		} else if (rc.isMovementActive()) {
+		} else if (rc.isCoreReady()) {
 			navigate(target);
 		}
 	}
@@ -866,7 +866,7 @@ public class RobotPlayer {
 		if (attackableEnemies.length > 1 || rc.getLocation().equals(target)) {
 			rc.explode();
 		}
-		if (rc.isMovementActive()) {
+		if (rc.isCoreReady()) {
 			Direction toMove = rc.getLocation().directionTo(target);
 			if (rc.canMove(toMove)) {
 				rc.move(toMove);
@@ -903,12 +903,12 @@ public class RobotPlayer {
 				}
 			}
 			if (bestdir != null) {
-				if (rc.isMovementActive()) {
+				if (rc.isCoreReady()) {
 					rc.move(bestdir);
 				}
 			}
 			shouldAttack = bestNumEnemies > 0;
-		} else if (rc.isMovementActive()) {
+		} else if (rc.isCoreReady()) {
 			if (nearbyEnemies.length > 0) {
 				MapLocation closestEnemy = rc.getLocation();
 				int closestdist = 999999;
@@ -924,9 +924,10 @@ public class RobotPlayer {
 				navigate(target);
 			}
 		}
-		if (shouldAttack && rc.isAttackActive()) {
-			rc.bash();
-		}
+        // commented out by Alex since bashers always attack
+		//if (shouldAttack && rc.isWeaponReady()) {
+			//rc.bash();
+		//}
 	}
 	
 	//naive attackmove.
@@ -934,10 +935,10 @@ public class RobotPlayer {
 		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(myRange,enemyTeam);
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
 		if (attackableEnemies.length > 0) {
-			if (rc.isAttackActive()) {
+			if (rc.isWeaponReady()) {
 				rc.attackLocation(attackableEnemies[0].location);
 			}
-		} else if (rc.isMovementActive()) {
+		} else if (rc.isCoreReady()) {
 			if (nearbyEnemies.length > 0) {
 				MapLocation closestEnemy = rc.getLocation();
 				int closestdist = 999999;

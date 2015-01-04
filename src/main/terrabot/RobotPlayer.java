@@ -207,10 +207,10 @@ public class RobotPlayer {
 					
 					
 					
-					if (rc.isAttackActive()) {
+					if (rc.isWeaponReady()) {
 						attackSomething();
 					}
-					if (rc.isMovementActive() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numFurbies)*10000) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numFurbies)*10000) {
                         Direction spawndir = directions[rand.nextInt(8)];
 						trySpawn(spawndir, RobotType.BEAVER);
 						//rc.transferSupplies((int)(rc.getSupplyLevel()/2), spawndir);
@@ -235,7 +235,7 @@ public class RobotPlayer {
 			
             if (rc.getType() == RobotType.TOWER) {
                 try {					
-					if (rc.isAttackActive()) {
+					if (rc.isWeaponReady()) {
 						attackSomething();
 					}
 				} catch (Exception e) {
@@ -296,14 +296,14 @@ public class RobotPlayer {
 					if (targetAction == 0) {
 						RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(myRange,enemyTeam);
 						if (nearbyEnemies.length > 0) {
-							if (rc.isAttackActive()) {
+							if (rc.isWeaponReady()) {
 								rc.attackLocation(nearbyEnemies[0].location);
 							}
-						} else if (rc.isMovementActive()) {
+						} else if (rc.isCoreReady()) {
 							smartMine();
 						}
 					} else if (targetAction == 1) {
-						if (rc.isMovementActive()) {
+						if (rc.isCoreReady()) {
 							boolean building = smartBuild(targetType);
 							if (building) {
 								targetAction = 0;
@@ -332,7 +332,7 @@ public class RobotPlayer {
 					int numFurbies = unitCount[0];
 					int numBarracks = structureCount[2];
 					
-					if (rc.isMovementActive() && rc.getTeamOre() >= 50 && fate < Math.pow(1.2,15-numSoldiers-numBashers+numFurbies)*10000) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 50 && fate < Math.pow(1.2,15-numSoldiers-numBashers+numFurbies)*10000) {
 						if (rc.getTeamOre() > 80 && fate % 2 == 0) {
 							trySpawn(directions[rand.nextInt(8)],RobotType.BASHER);
 						} else {
@@ -490,10 +490,10 @@ public class RobotPlayer {
 		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(myRange,enemyTeam);
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
 		if (attackableEnemies.length > 0) {
-			if (rc.isAttackActive()) {
+			if (rc.isWeaponReady()) {
 				rc.attackLocation(attackableEnemies[0].location);
 			}
-		} else if (rc.isMovementActive()) {
+		} else if (rc.isCoreReady()) {
 			if (nearbyEnemies.length > 0) {
 				MapLocation closestEnemy = rc.getLocation();
 				int closestdist = 999999;

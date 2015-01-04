@@ -1,4 +1,4 @@
-package alextestplayer;
+package mintestbot;
 
 import battlecode.common.*;
 import java.util.*;
@@ -15,8 +15,6 @@ public class RobotPlayer {
             myself = new Barracks(rc);
         } else if (rc.getType() == RobotType.SOLDIER) {
             myself = new Soldier(rc);
-        } else if (rc.getType() == RobotType.BASHER) {
-            myself = new Basher(rc);
         } else if (rc.getType() == RobotType.TOWER) {
             myself = new Tower(rc);
         } else {
@@ -39,7 +37,6 @@ public class RobotPlayer {
         protected RobotController rc;
         protected MapLocation myHQ, theirHQ;
         protected Team myTeam, theirTeam;
-        protected RobotType myType;
 
         public BaseBot(RobotController rc) {
             this.rc = rc;
@@ -47,7 +44,6 @@ public class RobotPlayer {
             this.theirHQ = rc.senseEnemyHQLocation();
             this.myTeam = rc.getTeam();
             this.theirTeam = this.myTeam.opponent();
-            this.myType = rc.getType();
         }
 
         public Direction[] getDirectionsTowardEnemy() {
@@ -92,7 +88,7 @@ public class RobotPlayer {
         }
 
         public RobotInfo[] getEnemiesInAttackingRange() {
-            RobotInfo[] enemies = rc.senseNearbyRobots(myType.attackRadiusSquared, theirTeam);
+            RobotInfo[] enemies = rc.senseNearbyRobots(RobotType.SOLDIER.attackRadiusSquared, theirTeam);
             return enemies;
         }
 
@@ -163,6 +159,11 @@ public class RobotPlayer {
         public void execute() throws GameActionException {
             Direction buildDir = getBuildDirection(RobotType.BARRACKS);
 
+            // if can attack, then attack
+            RobotInfo[] enemies = getEnemiesInAttackingRange();
+            if (rc.isWeaponReady() && enemies.length > 0) {
+                attackLeastHealthEnemy(enemies);
+            }
             // if too close to HQ, move
             if (rc.isCoreReady() && rc.getLocation().distanceSquaredTo(myHQ) < MOVE_AWAY_THRESHOLD) {
                 Direction moveDir = getMoveDir();
@@ -186,6 +187,7 @@ public class RobotPlayer {
             // else, build barracks
             else if (buildDir != null && rc.isCoreReady()) {
                 rc.build(buildDir, RobotType.BARRACKS);
+                System.out.println("build");
             }
 
             rc.yield();
@@ -199,9 +201,9 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             // spawn a furby if possible
-            Direction dir = getSpawnDirection(RobotType.BASHER);
+            Direction dir = getSpawnDirection(RobotType.SOLDIER);
             if (dir != null && rc.isCoreReady()) {
-                rc.spawn(dir, RobotType.BASHER);
+                rc.spawn(dir, RobotType.SOLDIER);
             }
 
             rc.yield();
@@ -232,26 +234,11 @@ public class RobotPlayer {
         }
     }
 
-    public static class Basher extends BaseBot {
-        public Basher(RobotController rc) {
-            super(rc);
-        }
-
-        public void execute() throws GameActionException {
-            if (rc.isCoreReady()) {
-                Direction moveDir = getMoveDir();
-                if (moveDir != null) {
-                    rc.move(moveDir);
-                }
-            }
-
-            rc.yield();
-        }
-    }
-
     public static class Tower extends BaseBot {
         public Tower(RobotController rc) {
             super(rc);
+            sdfasfd
+            
         }
 
         public void execute() throws GameActionException {

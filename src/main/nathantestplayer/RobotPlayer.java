@@ -139,13 +139,13 @@ public class RobotPlayer {
         public void execute() throws GameActionException {
             // spawn a furby if possible
             Direction dir = getSpawnDirection(RobotType.BEAVER);
-            if (dir != null && rc.isMovementActive()) {
+            if (dir != null && rc.isCoreReady()) {
                 rc.spawn(dir, RobotType.BEAVER);
             }
 
             // also try to attack
             RobotInfo[] enemies = getEnemiesInAttackingRange();
-            if (rc.isAttackActive() && enemies.length > 0) {
+            if (rc.isWeaponReady() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
             }
 
@@ -162,7 +162,7 @@ public class RobotPlayer {
             Direction buildDir = getBuildDirection(RobotType.BARRACKS);
 
             // if too close to HQ, move
-            if (rc.isMovementActive() && rc.getLocation().distanceSquaredTo(myHQ) < MOVE_AWAY_THRESHOLD) {
+            if (rc.isCoreReady() && rc.getLocation().distanceSquaredTo(myHQ) < MOVE_AWAY_THRESHOLD) {
                 Direction moveDir = getMoveDir();
                 if (moveDir != null) {
                     rc.move(moveDir);
@@ -170,7 +170,7 @@ public class RobotPlayer {
             }
 
             // if ore is low, then mine
-            else if (rc.getTeamOre() < REQUIRED_ORE_LEVEL && rc.isMovementActive()) {
+            else if (rc.getTeamOre() < REQUIRED_ORE_LEVEL && rc.isCoreReady()) {
                 if (rc.senseOre(rc.getLocation()) > 0) {
                     rc.mine();
                 } else {
@@ -182,7 +182,7 @@ public class RobotPlayer {
             }
 
             // else, build barracks
-            else if (buildDir != null && rc.isMovementActive()) {
+            else if (buildDir != null && rc.isCoreReady()) {
                 rc.build(buildDir, RobotType.BARRACKS);
             }
 
@@ -198,7 +198,7 @@ public class RobotPlayer {
         public void execute() throws GameActionException {
             // spawn a furby if possible
             Direction dir = getSpawnDirection(RobotType.SOLDIER);
-            if (dir != null && rc.isMovementActive()) {
+            if (dir != null && rc.isCoreReady()) {
                 rc.spawn(dir, RobotType.SOLDIER);
             }
 
@@ -214,12 +214,12 @@ public class RobotPlayer {
         public void execute() throws GameActionException {
             // if can attack, then attack
             RobotInfo[] enemies = getEnemiesInAttackingRange();
-            if (rc.isAttackActive() && enemies.length > 0) {
+            if (rc.isWeaponReady() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
             }
 
             // else try to move to enemy HQ
-            else if (rc.isMovementActive()) {
+            else if (rc.isCoreReady()) {
                 Direction moveDir = getMoveDir();
                 if (moveDir != null) {
                     rc.move(moveDir);
@@ -237,12 +237,12 @@ public class RobotPlayer {
         public void execute() throws GameActionException {
             // if can attack, then attack
             RobotInfo[] enemies = getEnemiesInAttackingRange();
-            if (rc.isAttackActive() && enemies.length > 0) {
+            if (rc.isWeaponReady() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
             }
 
             // else try to move to enemy HQ
-            else if (rc.isMovementActive()) {
+            else if (rc.isCoreReady()) {
                 Direction moveDir = getMoveDir();
                 if (moveDir != null) {
                     rc.move(moveDir);
@@ -260,7 +260,7 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             RobotInfo[] enemies = getEnemiesInAttackingRange();
-            if (rc.isAttackActive() && enemies.length > 0) {
+            if (rc.isWeaponReady() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
             }
 
