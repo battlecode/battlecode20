@@ -603,7 +603,7 @@ public class RobotPlayer {
 			
 			if (rc.getType() == RobotType.SUPPLYDEPOT) {
 				try {
-					rc.transferSuppliesToHQ();
+					//rc.transferSuppliesToHQ();
 				} catch (Exception e) {
 					System.out.println("supply depot exception: " + e.getMessage());
 					e.printStackTrace();
