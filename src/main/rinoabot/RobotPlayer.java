@@ -56,11 +56,12 @@ public class RobotPlayer {
 	static int NUM_BEAVERS = 12;
 	static int NUM_SOLDIERS = 0;
 	static int NUM_BASHERS = 0;
-	static int NUM_TANKS = 0;
+	static int NUM_TANKS = 1;
 	static int NUM_DRONES = 0;
-	static int NUM_LAUNCHERS = 1;
+	static int NUM_LAUNCHERS = 0;
+	static int NUM_COMMANDERS = 0;
 	static boolean DONE_SPAWNING = false;
-	static int WAIT_TURNS = 1500;
+	static int WAIT_TURNS = 500;
 	
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
@@ -145,7 +146,7 @@ public class RobotPlayer {
 				System.out.println("non-HQ initialization exception: " + e.getMessage());
 				e.printStackTrace();
 			}
-		} else if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.BASHER || rc.getType() == RobotType.TANK || rc.getType() == RobotType.DRONE || rc.getType() == RobotType.LAUNCHER ||rc.getType() == RobotType.COMMANDER) {
+		} else if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.BASHER || rc.getType() == RobotType.TANK || rc.getType() == RobotType.DRONE || rc.getType() == RobotType.LAUNCHER || rc.getType() == RobotType.COMMANDER) {
 			//combat unit
 		}
 		
@@ -261,6 +262,7 @@ public class RobotPlayer {
 					int numTanks = unitCount[6];
 					int numDrones = unitCount[5];
 					int numLaunchers = unitCount[8];
+					int numCommanders = unitCount[7];
 					
 					//check missions
 					int mission;
@@ -304,7 +306,7 @@ public class RobotPlayer {
 						postMission(buildMessage(1,6));
 						myMissionPointer++;
 					} else if (Clock.getRoundNum() == 300) {
-						postMission(buildMessage(1,8));
+						postMission(buildMessage(1,5));
 						myMissionPointer++;
 					}
 					if (netSupply < supplyFlowIn/4 && waitBuildDepot > 20) {
@@ -327,7 +329,7 @@ public class RobotPlayer {
 						//rc.transferSupplies((int)(rc.getSupplyLevel()/2), spawndir);
 					}
 					
-					if (numBeavers == NUM_BEAVERS && numSoldiers == NUM_SOLDIERS && numBashers == NUM_BASHERS && numTanks == NUM_TANKS && numDrones == NUM_DRONES && numLaunchers == NUM_LAUNCHERS) {
+					if (numBeavers == NUM_BEAVERS && numSoldiers == NUM_SOLDIERS && numBashers == NUM_BASHERS && numTanks == NUM_TANKS && numDrones == NUM_DRONES && numLaunchers == NUM_LAUNCHERS && numCommanders == NUM_COMMANDERS) {
 						DONE_SPAWNING = true;
 					}
 					
@@ -499,6 +501,31 @@ public class RobotPlayer {
             }
 			
 			//################################################################################################################################################################################
+			//#COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER #COMMANDER 
+			if (rc.getType() == RobotType.COMMANDER) {
+				try {
+                    if (!supplied) {
+						attackMove(alliedHQ);
+						if (rc.getLocation().distanceSquaredTo(alliedHQ) < GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED && Clock.getRoundNum()%3 == 0) {
+							postSupplyMission();
+							supplied = true;
+						}
+					} else {
+						if (Clock.getRoundNum() == 500) {
+							rc.castFlash(rc.getLocation().add(Direction.NORTH,3));
+						
+						} else {
+							retrieveAttackMission();
+							attackMove(targetLocation);
+						}
+					}
+                } catch (Exception e) {
+					System.out.println("commander exception: " + e.getMessage());
+					e.printStackTrace();
+                }
+			}
+			
+			//################################################################################################################################################################################
 			//#LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER #LAUNCHER 
 			if (rc.getType() == RobotType.LAUNCHER) {
 				try {
@@ -580,6 +607,23 @@ public class RobotPlayer {
 					}
 				} catch (Exception e) {
 					System.out.println("barracks exception: " + e.getMessage());
+                    e.printStackTrace();
+				}
+			}
+			
+			if (rc.getType() == RobotType.TRAININGFIELD && !DONE_SPAWNING) {
+				try {
+					int numCommanders = unitCount[7];
+					
+					if (rc.isMovementActive() && rc.getTeamOre() >= 300 && numCommanders < NUM_COMMANDERS) {
+						trySpawn(directions[rand.nextInt(8)],RobotType.COMMANDER);
+					}
+					
+					if (numCommanders == NUM_COMMANDERS) {
+						DONE_SPAWNING = true;
+					}
+				} catch (Exception e) {
+					System.out.println("training field exception: " + e.getMessage());
                     e.printStackTrace();
 				}
 			}
@@ -777,7 +821,7 @@ public class RobotPlayer {
 	}
 	
 	static void launcherMove(MapLocation target) throws GameActionException {
-		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(15, enemyTeam);
+		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(24, enemyTeam);
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
 		
 		if (attackableEnemies.length > 0) {
@@ -795,7 +839,18 @@ public class RobotPlayer {
 				tryMove(closestEnemy.directionTo(rc.getLocation()));
 				return;
 			} else if (rc.getMissileCount() > 0) {
-				tryLaunch(closestEnemy.add(closestEnemy.directionTo(rc.getLocation())));
+				//find good target location
+				MapLocation closestLoc = null;
+				int dist = 999999;
+				for (MapLocation adj : MapLocation.getAllMapLocationsWithinRadiusSq(closestEnemy,2)) {
+					int trydist = adj.distanceSquaredTo(rc.getLocation());
+					if (trydist > 2 && trydist < dist) {
+						closestLoc = adj;
+						dist = trydist;
+					}
+				}
+				
+				tryLaunch(closestLoc);
 				return;
 			}
 		} else if (nearbyEnemies.length > 0 && rc.getMissileCount() > 0) {

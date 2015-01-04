@@ -53,14 +53,14 @@ public class RobotPlayer {
 	static RobotType targetType;
 	static MapLocation targetLocation;
 	
-	static int NUM_BEAVERS = 0;
+	static int NUM_BEAVERS = 12;
 	static int NUM_SOLDIERS = 0;
 	static int NUM_BASHERS = 0;
 	static int NUM_TANKS = 0;
 	static int NUM_DRONES = 0;
 	static int NUM_LAUNCHERS = 0;
 	static boolean DONE_SPAWNING = false;
-	static int WAIT_TURNS = 1500;
+	static int WAIT_TURNS = 500;
 	
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
@@ -777,7 +777,7 @@ public class RobotPlayer {
 	}
 	
 	static void launcherMove(MapLocation target) throws GameActionException {
-		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(15, enemyTeam);
+		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(24, enemyTeam);
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
 		
 		if (attackableEnemies.length > 0) {
@@ -795,7 +795,18 @@ public class RobotPlayer {
 				tryMove(closestEnemy.directionTo(rc.getLocation()));
 				return;
 			} else if (rc.getMissileCount() > 0) {
-				tryLaunch(closestEnemy.add(closestEnemy.directionTo(rc.getLocation())));
+				//find good target location
+				MapLocation closestLoc = null;
+				int dist = 999999;
+				for (MapLocation adj : MapLocation.getAllMapLocationsWithinRadiusSq(closestEnemy,2)) {
+					int trydist = adj.distanceSquaredTo(rc.getLocation());
+					if (trydist > 2 && trydist < dist) {
+						closestLoc = adj;
+						dist = trydist;
+					}
+				}
+				
+				tryLaunch(closestLoc);
 				return;
 			}
 		} else if (nearbyEnemies.length > 0 && rc.getMissileCount() > 0) {
