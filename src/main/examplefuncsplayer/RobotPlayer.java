@@ -13,8 +13,9 @@ public class RobotPlayer {
 	
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
-		myRange = rc.getType().attackRadiusSquared;
         rand = new Random(rc.getID());
+
+		myRange = rc.getType().attackRadiusSquared;
 		MapLocation enemyLoc = rc.senseEnemyHQLocation();
         Direction lastDirection = null;
 		myTeam = rc.getTeam();
@@ -23,11 +24,11 @@ public class RobotPlayer {
 
 		while(true) {
             try {
-                rc.setIndicatorString(0, "Ore here: " + rc.senseOre(rc.getLocation()));
-                rc.setIndicatorString(1, "Location: " + rc.getLocation());
-                rc.setIndicatorString(2, "My supply level: " + rc.getSupplyLevel());
+                rc.setIndicatorString(0, "This is an indicator string.");
+                rc.setIndicatorString(1, "I am a " + rc.getType());
             } catch (Exception e) {
-                System.out.println("You suck");
+                System.out.println("Unexpected exception");
+                e.printStackTrace();
             }
 
 			if (rc.getType() == RobotType.HQ) {
@@ -50,14 +51,15 @@ public class RobotPlayer {
 							numBarracks++;
 						}
 					}
-					rc.broadcast(0,numBeavers);
-					rc.broadcast(1,numSoldiers);
-					rc.broadcast(2,numBashers);
+					rc.broadcast(0, numBeavers);
+					rc.broadcast(1, numSoldiers);
+					rc.broadcast(2, numBashers);
 					rc.broadcast(100, numBarracks);
 					
 					if (rc.isWeaponReady()) {
 						attackSomething();
 					}
+
 					if (rc.isCoreReady() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numBeavers)*10000) {
 						trySpawn(directions[rand.nextInt(8)], RobotType.BEAVER);
 					}
@@ -82,8 +84,9 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.BASHER) {
                 try {
                     RobotInfo[] adjacentEnemies = rc.senseNearbyRobots(2, enemyTeam);
+
+                    // BASHERs attack automatically, so let's just move around mostly randomly
 					if (rc.isCoreReady()) {
-						
 						int fate = rand.nextInt(1000);
 						if (fate < 800) {
 							tryMove(directions[rand.nextInt(8)]);
@@ -143,6 +146,7 @@ public class RobotPlayer {
 				try {
 					int fate = rand.nextInt(10000);
 					
+                    // get information broadcasted by the HQ
 					int numBeavers = rc.readBroadcast(0);
 					int numSoldiers = rc.readBroadcast(1);
 					int numBashers = rc.readBroadcast(2);
@@ -164,6 +168,7 @@ public class RobotPlayer {
 		}
 	}
 	
+    // This method will attack an enemy in sight, if there is one
 	static void attackSomething() throws GameActionException {
 		RobotInfo[] enemies = rc.senseNearbyRobots(myRange, enemyTeam);
 		if (enemies.length > 0) {
@@ -171,6 +176,7 @@ public class RobotPlayer {
 		}
 	}
 	
+    // This method will attempt to move in Direction d (or as close to it as possible)
 	static void tryMove(Direction d) throws GameActionException {
 		int offsetIndex = 0;
 		int[] offsets = {0,1,-1,2,-2};
@@ -184,6 +190,7 @@ public class RobotPlayer {
 		}
 	}
 	
+    // This method will attempt to spawn in the given direction (or as close to it as possible)
 	static void trySpawn(Direction d, RobotType type) throws GameActionException {
 		int offsetIndex = 0;
 		int[] offsets = {0,1,-1,2,-2,3,-3,4};
@@ -197,6 +204,7 @@ public class RobotPlayer {
 		}
 	}
 	
+    // This method will attempt to build in the given direction (or as close to it as possible)
 	static void tryBuild(Direction d, RobotType type) throws GameActionException {
 		int offsetIndex = 0;
 		int[] offsets = {0,1,-1,2,-2,3,-3,4};
