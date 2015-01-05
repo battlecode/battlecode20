@@ -615,7 +615,7 @@ public class RobotPlayer {
 				try {
 					int numCommanders = unitCount[7];
 					
-					if (rc.isMovementActive() && rc.getTeamOre() >= 300 && numCommanders < NUM_COMMANDERS) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 300 && numCommanders < NUM_COMMANDERS) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.COMMANDER);
 					}
 					

@@ -59,33 +59,7 @@ public class RobotPlayer {
 						attackSomething();
 					}
 					if (rc.isCoreReady() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numBeavers)*10000) {
-                        
 						trySpawn(directions[rand.nextInt(8)], RobotType.BEAVER);
-						
-						/*
-						Direction spawndir;
-						if (enemyLoc != null) {
-							spawndir = rc.getLocation().directionTo(enemyLoc);
-						} else {
-							spawndir = directions[rand.nextInt(8)];
-						}
-						
-						
-						int offsetIndex = 0;
-						int[] offsets = {0,1,-1,2,-2,3,-3,4};
-						int spawndirint = directionToInt(spawndir);
-						boolean blocked = false;
-						while (offsetIndex < 8 && !rc.canMove(directions[(spawndirint+offsets[offsetIndex]+8)%8])) {
-							offsetIndex++;
-						}
-						if (offsetIndex >= 8) {
-							System.out.println("creep blocked");
-						} else {
-							rc.spawn(directions[(spawndirint+offsets[offsetIndex]+8)%8], RobotType.BEAVER);
-							
-							//give the robot some supplies
-						}
-						*/
 					}
 				} catch (Exception e) {
 					System.out.println("HQ Exception");
@@ -114,7 +88,7 @@ public class RobotPlayer {
 						if (fate < 800) {
 							tryMove(directions[rand.nextInt(8)]);
 						} else {
-							tryMove(rc.senseHQLocation().directionTo(rc.getLocation()));
+							tryMove(rc.getLocation().directionTo(rc.senseEnemyHQLocation()));
 						}
 					}
                 } catch (Exception e) {
@@ -133,7 +107,7 @@ public class RobotPlayer {
 						if (fate < 800) {
 							tryMove(directions[rand.nextInt(8)]);
 						} else {
-							tryMove(rc.senseHQLocation().directionTo(rc.getLocation()));
+							tryMove(rc.getLocation().directionTo(rc.senseEnemyHQLocation()));
 						}
 					}
                 } catch (Exception e) {
@@ -149,7 +123,7 @@ public class RobotPlayer {
 					}
 					if (rc.isCoreReady()) {
 						int fate = rand.nextInt(1000);
-						if (fate < 10 && rc.getTeamOre() >= 300) {
+						if (fate < 8 && rc.getTeamOre() >= 300) {
 							tryBuild(directions[rand.nextInt(8)],RobotType.BARRACKS);
 						} else if (fate < 600) {
 							rc.mine();
@@ -172,7 +146,6 @@ public class RobotPlayer {
 					int numBeavers = rc.readBroadcast(0);
 					int numSoldiers = rc.readBroadcast(1);
 					int numBashers = rc.readBroadcast(2);
-					int numBarracks = rc.readBroadcast(100);
 					
 					if (rc.isCoreReady() && rc.getTeamOre() >= 60 && fate < Math.pow(1.2,15-numSoldiers-numBashers+numBeavers)*10000) {
 						if (rc.getTeamOre() > 80 && fate % 2 == 0) {
@@ -216,7 +189,7 @@ public class RobotPlayer {
 		int[] offsets = {0,1,-1,2,-2,3,-3,4};
 		int dirint = directionToInt(d);
 		boolean blocked = false;
-		while (offsetIndex < 8 && !rc.canSpawn(directions[(dirint+offsets[offsetIndex]+8)%8], RobotType.BEAVER)) {
+		while (offsetIndex < 8 && !rc.canSpawn(directions[(dirint+offsets[offsetIndex]+8)%8], type)) {
 			offsetIndex++;
 		}
 		if (offsetIndex < 8) {
