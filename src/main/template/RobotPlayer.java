@@ -4,7 +4,7 @@ import battlecode.common.*;
 import java.util.*;
 
 public class RobotPlayer {
-	public static void run(RobotController rc) {
+    public static void run(RobotController rc) {
         BaseBot myself;
 
         if (rc.getType() == RobotType.HQ) {
@@ -28,7 +28,7 @@ public class RobotPlayer {
                 e.printStackTrace();
             }
         }
-	}
+    }
 
     public static class BaseBot {
         protected RobotController rc;
@@ -46,8 +46,8 @@ public class RobotPlayer {
         public Direction[] getDirectionsToward(MapLocation dest) {
             Direction toDest = rc.getLocation().directionTo(dest);
             Direction[] dirs = {toDest,
-		    		toDest.rotateLeft(), toDest.rotateRight(),
-				toDest.rotateLeft().rotateLeft(), toDest.rotateRight().rotateRight()};
+                toDest.rotateLeft(), toDest.rotateRight(),
+                toDest.rotateLeft().rotateLeft(), toDest.rotateRight().rotateRight()};
 
             return dirs;
         }
