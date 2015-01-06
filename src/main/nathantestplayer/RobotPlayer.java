@@ -4,7 +4,7 @@ import battlecode.common.*;
 import java.util.*;
 
 public class RobotPlayer {
-	public static void run(RobotController rc) {
+    public static void run(RobotController rc) {
         BaseBot myself;
 
         if (rc.getType() == RobotType.HQ) {
@@ -16,8 +16,8 @@ public class RobotPlayer {
         } else if (rc.getType() == RobotType.SOLDIER) {
             myself = new Soldier(rc);
         } else if (rc.getType() == RobotType.COMMANDER) {
-	    myself = new Commander(rc);
-	} else if (rc.getType() == RobotType.TOWER) {
+            myself = new Commander(rc);
+        } else if (rc.getType() == RobotType.TOWER) {
             myself = new Tower(rc);
         } else {
             myself = new BaseBot(rc);
@@ -30,7 +30,7 @@ public class RobotPlayer {
                 e.printStackTrace();
             }
         }
-	}
+    }
 
     public static class BaseBot {
         public static final int REQUIRED_ORE_LEVEL = 2000;
