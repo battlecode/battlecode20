@@ -5,13 +5,38 @@ import static battlecode.common.RobotType.*;
 import java.util.*;
 
 public class RobotPlayer {
+    public static double epsilon = 1.0e-8;
+
     public static void fail(RobotController rc, String message) {
         System.out.println("FAILURE: " + message);
+        try {
+            rc.broadcast(999999, 999999);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         rc.resign();
+    }
+
+    public static void assertTrue(boolean b, RobotController rc, String message) {
+        if (!b) {
+            fail(rc, message + " (not true)");
+        }
+    }
+
+    public static void assertFalse(boolean b, RobotController rc, String message) {
+        if (b) {
+            fail(rc, message + " (not false)");
+        }
     }
 
     public static void assertEquals(int a, int b, RobotController rc, String message) {
         if (a != b) {
+            fail(rc, message + " ( " + a + " != " + b + " )");
+        }
+    }
+
+    public static void assertEquals(double a, double b, RobotController rc, String message) {
+        if (Math.abs(a - b) > epsilon) {
             fail(rc, message + " ( " + a + " != " + b + " )");
         }
     }
@@ -80,6 +105,7 @@ public class RobotPlayer {
                 myself.go();
             } catch (Exception e) {
                 e.printStackTrace();
+                fail(rc, e.getMessage());
             }
         }
     }
@@ -173,6 +199,7 @@ public class RobotPlayer {
         }
 
         public void testBytecodeCounting() throws GameActionException {
+            rc.yield();
             // methods not listed should be free
             String s = "abcdefghijklmnopqrstuvwxyz";
             int bc = Clock.getBytecodeNum();
@@ -222,6 +249,42 @@ public class RobotPlayer {
         // make sure everything works on round 0
         public void testRound0Stuff() {
             assertEquals(0, Clock.getRoundNum(), rc, "Just making sure this test runs on round 0");
+
+            MapLocation[] towers = rc.senseTowerLocations();
+            assertTrue(towers.length <= 6 && towers.length > 0, rc, "6 towers");
+            MapLocation[] etowers = rc.senseEnemyTowerLocations();
+            assertTrue(etowers.length <= 6 && etowers.length > 0, rc, "6 enemy towers");
+
+            // sense terrain tile (my sight range = 35)
+            // sense ore (my sight range = 35)
+            MapLocation[] locs = MapLocation.getAllMapLocationsWithinRadiusSq(rc.getLocation(), 50);
+            for (MapLocation loc : locs) {
+                if (loc.x <= rc.getLocation().x && loc.y <= rc.getLocation().y) {
+                    TerrainTile tile = rc.senseTerrainTile(loc);
+                    double ore = rc.senseOre(loc);
+                    if (loc.distanceSquaredTo(rc.getLocation()) <= 35) {
+                        assertTrue(tile == TerrainTile.NORMAL || tile == TerrainTile.VOID || tile == TerrainTile.OFF_MAP, rc, "tile within sensor");
+                        assertTrue(ore >= 0, rc, "ore within sensor");
+                    } else {
+                        assertTrue(tile == TerrainTile.UNKNOWN, rc, "tile not within sensor");
+                        assertTrue(ore < 0, rc, "ore not within sensor");
+                    }
+                }
+            }
+
+            // assert that all your towers are sense-able
+            for (int i = 0; i < towers.length; ++i) {
+                try {
+                    assertTrue(rc.canSenseLocation(towers[i]), rc, "canSenseLocation");
+                    assertTrue(rc.canSenseLocation(towers[i].add(4, 2)), rc, "canSenseLocation");
+                    RobotInfo r = rc.senseRobotAtLocation(towers[i]);
+                    assertTrue(r.type == RobotType.TOWER, rc, "senseRobotAtLocation");
+                    assertFalse(rc.canSenseLocation(etowers[i]), rc, "canSenseLocation for enemy");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    fail(rc, e.getMessage());
+                }
+            }
 
             System.out.println("Pass round 0 testing");
         }
@@ -340,14 +403,31 @@ public class RobotPlayer {
             System.out.println("Pass java util testing");
         }
 
+        public void testBroadcasts() throws GameActionException {
+            rc.yield();
+            assertEquals(0, rc.readBroadcast(100), rc, "broadcast1");
+            rc.broadcast(100, -1000);
+            assertEquals(-1000, rc.readBroadcast(100), rc, "broadcast2");
+            rc.yield();
+            assertEquals(-1000, rc.readBroadcast(100), rc, "broadcast3");
+            rc.broadcast(65535, 1);
+            rc.broadcast(0, 1);
+            System.out.println("Pass broadcast testing");
+        }
+
         public void execute() throws GameActionException {
-            testGetRoundNum0();
-            testRound0Stuff();
-            testJavaUtil();
-            testBytecodeCounting();
-            testMoreRoundNum();
-            System.out.println("PASSED ALL TESTS!");
-            rc.resign();
+            if (rc.getTeam() == Team.A) {
+                testGetRoundNum0();
+                testRound0Stuff();
+                testJavaUtil();
+                testBytecodeCounting();
+                testMoreRoundNum();
+                testBroadcasts();
+                System.out.println("PASSED ALL TESTS!");
+            }
+            while (true) {
+                rc.yield();
+            }
         }
     }
 
@@ -416,6 +496,14 @@ public class RobotPlayer {
             super(rc);
         }
 
+        public void attackEverything() throws GameActionException {
+            if (myTeam == Team.B) return; // only team A attacks
+            RobotInfo[] nearby = rc.senseNearbyRobots(myType.attackRadiusSquared, Team.B);
+            if (nearby.length > 0) {
+                rc.attackLocation(nearby[0].location);
+            }
+        }
+
         public void execute() throws GameActionException {
         }
     }
@@ -424,23 +512,65 @@ public class RobotPlayer {
         public Beaver(RobotController rc) {
             super(rc);
         }
-    }
 
-    public static class Computer extends BaseUnit {
-        public Computer(RobotController rc) {
-            super(rc);
+        public void mineTests() throws GameActionException {
+            for (int i = 0; i < 100; ++i) {
+                double initialOre = rc.senseOre(rc.getLocation());
+                while (!rc.isCoreReady()) {
+                    rc.yield();
+                }
+                rc.mine();
+                rc.yield();
+                double oreAfter = rc.senseOre(rc.getLocation());
+                double diff = initialOre - oreAfter;
+                if (initialOre < 0.2) {
+                    assertTrue(oreAfter == 0, rc, "mined to 0");
+                } else if (initialOre < 0.2 * 20) {
+                    assertEquals(diff, 0.2, rc, "min ore amount is 0.2");
+                } else if (initialOre < 40) {
+                    assertEquals(diff, initialOre / 20, rc, "min ore amount is div");
+                } else {
+                    assertEquals(diff, 2, rc, "mined max amt");
+                }
+            }
+
+            System.out.println("pass beaver mine tests");
         }
-    }
 
-    public static class Soldier extends BaseUnit {
-        public Soldier(RobotController rc) {
-            super(rc);
+        public void buildTests() throws GameActionException {
+            long what = rc.getControlBits();
+            RobotType type = null;
+            switch ((int) what) {
+                case 0: type = null; break;
+                case 1: type = RobotType.SUPPLYDEPOT; break;
+                case 2: type = RobotType.TECHNOLOGYINSTITUTE; break;
+                case 3: type = RobotType.BARRACKS; break;
+                case 4: type = RobotType.HELIPAD; break;
+                case 5: type = RobotType.TRAININGFIELD; break;
+                case 6: type = RobotType.TANKFACTORY; break;
+                case 7: type = RobotType.MINERFACTORY; break;
+                case 8: type = RobotType.HANDWASHSTATION; break;
+                case 9: type = RobotType.AEROSPACELAB; break;
+            }
+            if (type != null) {
+                rc.build(Direction.NORTH, type);
+            }
         }
-    }
 
-    public static class Basher extends BaseUnit {
-        public Basher(RobotController rc) {
-            super(rc);
+        public void execute() throws GameActionException {
+            if (myTeam == Team.A) {
+                mineTests();
+            } else {
+                for (int i = 0; i < 5; ++i) {
+                    rc.yield(); // gives me time to set control bits
+                }
+                buildTests();
+            }
+
+            System.out.println("PASSED ALL TESTS!");
+            while (true) {
+                rc.yield();
+            }
         }
     }
 
@@ -448,11 +578,79 @@ public class RobotPlayer {
         public Miner(RobotController rc) {
             super(rc);
         }
+
+        public void mineTests() throws GameActionException {
+            for (int i = 0; i < 100; ++i) {
+                double initialOre = rc.senseOre(rc.getLocation());
+                while (!rc.isCoreReady()) {
+                    rc.yield();
+                }
+                rc.mine();
+                rc.yield();
+                double oreAfter = rc.senseOre(rc.getLocation());
+                double diff = initialOre - oreAfter;
+                if (initialOre < 0.2) {
+                    assertTrue(oreAfter == 0, rc, "mined to 0 (miner)");
+                } else if (initialOre < 0.2 * 4) {
+                    assertEquals(diff, 0.2, rc, "min ore amount is 0.2 (miner)");
+                } else if (initialOre < 12) {
+                    assertEquals(diff, initialOre / 4, rc, "min ore amount is div (miner)");
+                } else {
+                    assertEquals(diff, 3, rc, "mined max amt (miner)");
+                }
+            }
+
+            System.out.println("pass beaver mine tests");
+        }
+
+        public void execute() throws GameActionException {
+            mineTests();
+
+            System.out.println("PASSED ALL TESTS!");
+            while (true) {
+                rc.yield();
+            }
+        }
+    }
+
+    public static class Computer extends BaseUnit {
+        public Computer(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+        }
+    }
+
+    public static class Soldier extends BaseUnit {
+        public Soldier(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            while (true) {
+                if (rc.isWeaponReady()) {
+                    attackEverything();
+                }
+            }
+        }
+    }
+
+    public static class Basher extends BaseUnit {
+        public Basher(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+        }
     }
 
     public static class Drone extends BaseUnit {
         public Drone(RobotController rc) {
             super(rc);
+        }
+
+        public void execute() throws GameActionException {
         }
     }
 
@@ -460,11 +658,27 @@ public class RobotPlayer {
         public Tank(RobotController rc) {
             super(rc);
         }
+
+        public void execute() throws GameActionException {
+            while (true) {
+                if (rc.isWeaponReady()) {
+                    attackEverything();
+                }
+            }
+        }
     }
 
     public static class Commander extends BaseUnit {
         public Commander(RobotController rc) {
             super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            while (true) {
+                if (rc.isWeaponReady()) {
+                    attackEverything();
+                }
+            }
         }
     }
 
@@ -472,11 +686,29 @@ public class RobotPlayer {
         public Launcher(RobotController rc) {
             super(rc);
         }
+
+        public void execute() throws GameActionException {
+        }
     }
 
     public static class Missile extends BaseUnit {
         public Missile(RobotController rc) {
             super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            boolean exception = false;
+            try {
+                rc.broadcast(5, 5);
+            } catch (Exception e) {
+                exception = true;
+            }
+            assertTrue(exception, rc, "missile broadcast");
+            System.out.println("Pass missile broadcast test!");
+
+            while (true) {
+                rc.yield();
+            }
         }
     }
 }
