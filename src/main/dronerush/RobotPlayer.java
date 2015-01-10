@@ -5,7 +5,7 @@ import java.util.*;
 
 
 public class RobotPlayer {
-	public static void run(RobotController rc) {
+    public static void run(RobotController rc) {
         BaseBot myself;
 
         if (rc.getType() == RobotType.HQ) {
@@ -14,13 +14,13 @@ public class RobotPlayer {
             myself = new Furby(rc);
         } else if (rc.getType() == RobotType.BARRACKS) {
             myself = new Barracks(rc);
-	} else if (rc.getType() == RobotType.HELIPAD) {
+        } else if (rc.getType() == RobotType.HELIPAD) {
             myself = new Helipad(rc);
         } else if (rc.getType() == RobotType.BASHER) {
             myself = new Basher(rc);
-	} else if (rc.getType() == RobotType.SOLDIER) {
+        } else if (rc.getType() == RobotType.SOLDIER) {
             myself = new Soldier(rc);
-	} else if (rc.getType() == RobotType.DRONE) {
+        } else if (rc.getType() == RobotType.DRONE) {
             myself = new Drone(rc);
         } else if (rc.getType() == RobotType.TOWER) {
             myself = new Tower(rc);
@@ -35,28 +35,28 @@ public class RobotPlayer {
                 e.printStackTrace();
             }
         }
-	}
+    }
 
     public static class BaseBot {
         public static final int REQUIRED_ORE_LEVEL = 2000;
         public static final int MOVE_AWAY_THRESHOLD = 9;
 
-	public static final int CH_ID = 10;
-	public static final int ID_MULTIPLIER = 10000;
-	
-	public static final int CH_TOWER_COUNT = 50;
-	public static final int CH_TOWER_REMOVED = 51;
-	public static final int CH_TOWER_X = 60;
-	public static final int CH_TOWER_Y = 70;
+        public static final int CH_ID = 10;
+        public static final int ID_MULTIPLIER = 10000;
+
+        public static final int CH_TOWER_COUNT = 50;
+        public static final int CH_TOWER_REMOVED = 51;
+        public static final int CH_TOWER_X = 60;
+        public static final int CH_TOWER_Y = 70;
 
         protected RobotController rc;
         protected MapLocation myHQ, theirHQ;
         protected Team myTeam, theirTeam;
-	protected int id;
+        protected int id;
 
-	protected RobotType type;
+        protected RobotType type;
 
-	protected MapLocation targetLocation;
+        protected MapLocation targetLocation;
 
         public BaseBot(RobotController rc) {
             this.rc = rc;
@@ -64,101 +64,101 @@ public class RobotPlayer {
             this.theirHQ = rc.senseEnemyHQLocation();
             this.myTeam = rc.getTeam();
             this.theirTeam = this.myTeam.opponent();
-	    this.type = rc.getType();
+            this.type = rc.getType();
 
-	    try {
-		int ordinal = rc.getType().ordinal();
-		int idChannel = CH_ID + ordinal;
-		this.id = rc.readBroadcast(idChannel);
-		rc.broadcast(idChannel, this.id + 1);
-		this.id += ID_MULTIPLIER * ordinal;
-	    } catch (Exception e) {
-		e.printStackTrace();
-	    }
+            try {
+                int ordinal = rc.getType().ordinal();
+                int idChannel = CH_ID + ordinal;
+                this.id = rc.readBroadcast(idChannel);
+                rc.broadcast(idChannel, this.id + 1);
+                this.id += ID_MULTIPLIER * ordinal;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-	public Direction[] attemptDirections(Direction target) {
-	    Direction[] dirs = {target, target.rotateLeft(), target.rotateRight(), target.rotateLeft().rotateLeft(), target.rotateRight().rotateRight(), target.opposite().rotateLeft(), target.opposite().rotateRight(), target.opposite()};
-	    return dirs;
-	}
+        public Direction[] attemptDirections(Direction target) {
+            Direction[] dirs = {target, target.rotateLeft(), target.rotateRight(), target.rotateLeft().rotateLeft(), target.rotateRight().rotateRight(), target.opposite().rotateLeft(), target.opposite().rotateRight(), target.opposite()};
+            return dirs;
+        }
 
-	public Direction getExploreDirection() {
-	    return Direction.values()[this.id % 8];
-	}
+        public Direction getExploreDirection() {
+            return Direction.values()[this.id % 8];
+        }
 
         public Direction getDirectionTowardEnemy() {
-	    MapLocation enemyTarget = null;
-	    try {
-		int towerBase = rc.readBroadcast(CH_TOWER_REMOVED);
-		int towerCount = rc.readBroadcast(CH_TOWER_COUNT);
-		for (int i = towerBase; i < towerCount + towerCount; i++) {
-		    MapLocation towerLoc = new MapLocation(rc.readBroadcast(CH_TOWER_X + i),
-							   rc.readBroadcast(CH_TOWER_Y + i));
-		    boolean setTarget = true;
-		    if (rc.canSenseLocation(towerLoc)) {
-			RobotInfo allegedTower = rc.senseRobotAtLocation(towerLoc);
-			if (allegedTower == null || allegedTower.type != RobotType.TOWER) {
-			    i++;
-			    System.out.printf("removing tower %d, round %d, count %d\n", i, Clock.getRoundNum(), rc.readBroadcast(CH_TOWER_COUNT));
-			    rc.broadcast(CH_TOWER_REMOVED, i);
-			    towerCount--;
-			    rc.broadcast(CH_TOWER_COUNT, rc.readBroadcast(CH_TOWER_COUNT) - 1);
-			    setTarget = false;
-			    printTowerArray();
-			} 
-		    }
-		    if (setTarget) {
-			enemyTarget = towerLoc;
-			break;
-		    }
-		    
-		}
-	    } catch (Exception e) {
-		e.printStackTrace();
-	    }
-	    if (enemyTarget == null && theirHQ != null) {
-		enemyTarget = theirHQ;
-	    }
+            MapLocation enemyTarget = null;
+            try {
+                int towerBase = rc.readBroadcast(CH_TOWER_REMOVED);
+                int towerCount = rc.readBroadcast(CH_TOWER_COUNT);
+                for (int i = towerBase; i < towerCount + towerCount; i++) {
+                    MapLocation towerLoc = new MapLocation(rc.readBroadcast(CH_TOWER_X + i),
+                        rc.readBroadcast(CH_TOWER_Y + i));
+                    boolean setTarget = true;
+                    if (rc.canSenseLocation(towerLoc)) {
+                        RobotInfo allegedTower = rc.senseRobotAtLocation(towerLoc);
+                        if (allegedTower == null || allegedTower.type != RobotType.TOWER) {
+                            i++;
+                            System.out.printf("removing tower %d, round %d, count %d\n", i, Clock.getRoundNum(), rc.readBroadcast(CH_TOWER_COUNT));
+                            rc.broadcast(CH_TOWER_REMOVED, i);
+                            towerCount--;
+                            rc.broadcast(CH_TOWER_COUNT, rc.readBroadcast(CH_TOWER_COUNT) - 1);
+                            setTarget = false;
+                            printTowerArray();
+                        }
+                    }
+                    if (setTarget) {
+                        enemyTarget = towerLoc;
+                        break;
+                    }
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (enemyTarget == null && theirHQ != null) {
+                enemyTarget = theirHQ;
+            }
             Direction toEnemy = enemyTarget != null ? rc.getLocation().directionTo(enemyTarget)
-		: getExploreDirection();
+                : getExploreDirection();
             return toEnemy;
         }
 
-	public int readCastNE(int channel) {
-	    try {
-		return rc.readBroadcast(channel);
-	    } catch (Exception e) {
-	    }
-	    return 0;
-	}
-	
-	public void printTowerArray() {
-	    int towerBase = readCastNE(CH_TOWER_REMOVED);
-	    System.out.printf("Removed %d ", towerBase);
-	    int towerCount = readCastNE(CH_TOWER_COUNT);
-	    System.out.printf("Count %d ", towerCount);
-	    for (int i = towerBase; i < towerBase + towerCount; i++) {
-		System.out.printf("[%d, %d] ", readCastNE(CH_TOWER_X + i),
-				  readCastNE(CH_TOWER_Y + i));
-	    }
-	    System.out.printf("\n");
-	}
+        public int readCastNE(int channel) {
+            try {
+                return rc.readBroadcast(channel);
+            } catch (Exception e) {
+            }
+            return 0;
+        }
 
-	public boolean canMove(Direction dir) {
-	    if (!rc.canMove(dir)) {
-		return false;
-	    }
-	    MapLocation wouldBe = rc.getLocation().add(dir);
-	    if (theirHQ != null
-		&& readCastNE(CH_TOWER_REMOVED) < 2
-		&& wouldBe.distanceSquaredTo(theirHQ) <= GameConstants.HQ_BUFFED_ATTACK_RADIUS_SQUARED) {
-		return false;
-	    }
-	    return true;
-	}
+        public void printTowerArray() {
+            int towerBase = readCastNE(CH_TOWER_REMOVED);
+            System.out.printf("Removed %d ", towerBase);
+            int towerCount = readCastNE(CH_TOWER_COUNT);
+            System.out.printf("Count %d ", towerCount);
+            for (int i = towerBase; i < towerBase + towerCount; i++) {
+                System.out.printf("[%d, %d] ", readCastNE(CH_TOWER_X + i),
+                    readCastNE(CH_TOWER_Y + i));
+            }
+            System.out.printf("\n");
+        }
+
+        public boolean canMove(Direction dir) {
+            if (!rc.canMove(dir)) {
+                return false;
+            }
+            MapLocation wouldBe = rc.getLocation().add(dir);
+            if (theirHQ != null
+                && readCastNE(CH_TOWER_REMOVED) < 2
+                && wouldBe.distanceSquaredTo(theirHQ) <= GameConstants.HQ_BUFFED_ATTACK_RADIUS_SQUARED) {
+                return false;
+            }
+            return true;
+        }
 
         public Direction getMoveDir(Direction dir) {
-	    Direction[] dirs = attemptDirections(dir);
+            Direction[] dirs = attemptDirections(dir);
             for (Direction d : dirs) {
                 if (canMove(d)) {
                     return d;
@@ -178,7 +178,7 @@ public class RobotPlayer {
         }
 
         public Direction getBuildDirection(RobotType type) {
-	    Direction[] dirs = attemptDirections(getDirectionTowardEnemy());
+            Direction[] dirs = attemptDirections(getDirectionTowardEnemy());
             for (Direction d : dirs) {
                 if (rc.canBuild(d, type)) {
                     return d;
@@ -214,38 +214,38 @@ public class RobotPlayer {
             rc.attackLocation(toAttack);
         }
 
-	public void addTowerToRadio (RobotInfo towerInfo) throws GameActionException{
-	    int prevCount = rc.readBroadcast(CH_TOWER_COUNT);
-	    int towerBase = rc.readBroadcast(CH_TOWER_REMOVED);
-	    for (int i = towerBase; i < towerBase + prevCount; i++) {
-		if (towerInfo.location.x == rc.readBroadcast(CH_TOWER_X + i)
-		    && towerInfo.location.y == rc.readBroadcast(CH_TOWER_Y + i))
-		{
-		    return;
-		}
-	    }
-	    rc.broadcast(CH_TOWER_COUNT, prevCount + 1);
-	    rc.broadcast(CH_TOWER_X + prevCount + towerBase, towerInfo.location.x);
-	    rc.broadcast(CH_TOWER_Y + prevCount + towerBase, towerInfo.location.y);
-	    System.out.printf("%d added tower %s  at round %d, towerCount now %d\n", id,
-			      towerInfo.location.toString(), Clock.getRoundNum(), prevCount + 1);
-	    printTowerArray();
-	}
+        public void addTowerToRadio (RobotInfo towerInfo) throws GameActionException{
+            int prevCount = rc.readBroadcast(CH_TOWER_COUNT);
+            int towerBase = rc.readBroadcast(CH_TOWER_REMOVED);
+            for (int i = towerBase; i < towerBase + prevCount; i++) {
+                if (towerInfo.location.x == rc.readBroadcast(CH_TOWER_X + i)
+                    && towerInfo.location.y == rc.readBroadcast(CH_TOWER_Y + i))
+                {
+                    return;
+                }
+            }
+            rc.broadcast(CH_TOWER_COUNT, prevCount + 1);
+            rc.broadcast(CH_TOWER_X + prevCount + towerBase, towerInfo.location.x);
+            rc.broadcast(CH_TOWER_Y + prevCount + towerBase, towerInfo.location.y);
+            System.out.printf("%d added tower %s  at round %d, towerCount now %d\n", id,
+                towerInfo.location.toString(), Clock.getRoundNum(), prevCount + 1);
+            printTowerArray();
+        }
 
         public void beginningOfTurn() {
             if (rc.senseEnemyHQLocation() != null) {
                 this.theirHQ = rc.senseEnemyHQLocation();
             }
-	    RobotInfo[] nearbyRobots = getEnemiesInRange(rc.getType().sensorRadiusSquared);
-	    for (int i = 0; i < nearbyRobots.length; i++) {
-		RobotInfo rbt = nearbyRobots[i];
-		if (rbt.type == RobotType.TOWER) {
-		    try {
-			addTowerToRadio(rbt);
-		    } catch (Exception e) {
-		    }
-		}
-	    }
+            RobotInfo[] nearbyRobots = getEnemiesInRange(rc.getType().sensorRadiusSquared);
+            for (int i = 0; i < nearbyRobots.length; i++) {
+                RobotInfo rbt = nearbyRobots[i];
+                if (rbt.type == RobotType.TOWER) {
+                    try {
+                        addTowerToRadio(rbt);
+                    } catch (Exception e) {
+                    }
+                }
+            }
         }
 
         public void endOfTurn() {
@@ -254,7 +254,7 @@ public class RobotPlayer {
         public void go() throws GameActionException {
             beginningOfTurn();
             execute();
-	    rc.yield();
+            rc.yield();
             endOfTurn();
         }
 
@@ -263,49 +263,49 @@ public class RobotPlayer {
     }
 
     public static class HQ extends BaseBot {
-	public boolean hasAttacked = false;
+        public boolean hasAttacked = false;
         public HQ(RobotController rc) {
             super(rc);
 
-	    try{
-	    rc.broadcast(3331, 555);
-	    System.out.printf("hq test %d\n", rc.readBroadcast(3331));
-	    } catch (Exception e) {}
+            try{
+                rc.broadcast(3331, 555);
+                System.out.printf("hq test %d\n", rc.readBroadcast(3331));
+            } catch (Exception e) {}
         }
 
         public void execute() throws GameActionException {
-	    // sort the towers by distance to the enemy hq
-	    int towerCount = readCastNE(CH_TOWER_COUNT);
-	    int towerRemoved = readCastNE(CH_TOWER_REMOVED);
-	    if (theirHQ != null) {
-		for (int i = towerRemoved; i < towerRemoved + towerCount - 1; i++) {
-		    MapLocation maxLoc
-			= null;
-		    int distMax = 0;
-		    int maxInd = i;
-		    for (int j = i; j < towerCount; j++) {
-			MapLocation b
-			    = new MapLocation(readCastNE(CH_TOWER_X + j),
-					      readCastNE(CH_TOWER_Y + j));
+            // sort the towers by distance to the enemy hq
+            int towerCount = readCastNE(CH_TOWER_COUNT);
+            int towerRemoved = readCastNE(CH_TOWER_REMOVED);
+            if (theirHQ != null) {
+                for (int i = towerRemoved; i < towerRemoved + towerCount - 1; i++) {
+                    MapLocation maxLoc
+                        = null;
+                    int distMax = 0;
+                    int maxInd = i;
+                    for (int j = i; j < towerCount; j++) {
+                        MapLocation b
+                            = new MapLocation(readCastNE(CH_TOWER_X + j),
+                            readCastNE(CH_TOWER_Y + j));
 
-			int distB = b.distanceSquaredTo(theirHQ);
-			if (distB > distMax) {
-			    distMax = distB;
-			    maxInd = j;
-			    maxLoc = b;
-			}
-		    }
-		    MapLocation a
-			= new MapLocation(readCastNE(CH_TOWER_X + i),
-					  readCastNE(CH_TOWER_Y + i));
-		    if (i != maxInd) {
-			rc.broadcast(CH_TOWER_X + i, maxLoc.x);
-			rc.broadcast(CH_TOWER_Y + i, maxLoc.y);
-			rc.broadcast(CH_TOWER_X + maxInd, a.x);
-			rc.broadcast(CH_TOWER_Y + maxInd, a.y);
-		    }
-		}
-		}
+                        int distB = b.distanceSquaredTo(theirHQ);
+                        if (distB > distMax) {
+                            distMax = distB;
+                            maxInd = j;
+                            maxLoc = b;
+                        }
+                    }
+                    MapLocation a
+                        = new MapLocation(readCastNE(CH_TOWER_X + i),
+                        readCastNE(CH_TOWER_Y + i));
+                    if (i != maxInd) {
+                        rc.broadcast(CH_TOWER_X + i, maxLoc.x);
+                        rc.broadcast(CH_TOWER_Y + i, maxLoc.y);
+                        rc.broadcast(CH_TOWER_X + maxInd, a.x);
+                        rc.broadcast(CH_TOWER_Y + maxInd, a.y);
+                    }
+                }
+            }
             // spawn a furby if possible
             Direction dir = getSpawnDirection(RobotType.BEAVER);
             if (dir != null && rc.isCoreReady()) {
@@ -315,13 +315,13 @@ public class RobotPlayer {
             // also try to attack
             RobotInfo[] enemies = getEnemiesInRange(type.attackRadiusSquared);
             if (rc.isWeaponReady() && enemies.length > 0) {
-		if (!hasAttacked) {
-		    attackLeastHealthEnemy(enemies);
-		    System.out.println("hq attack");
-		    hasAttacked = true;
-		}
+                if (!hasAttacked) {
+                    attackLeastHealthEnemy(enemies);
+                    System.out.println("hq attack");
+                    hasAttacked = true;
+                }
             }
-	    
+
             rc.yield();
         }
     }
@@ -333,7 +333,7 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             Direction buildDir = getBuildDirection(RobotType.BARRACKS);
-	    boolean hasBuilt = false;
+            boolean hasBuilt = false;
 
             // if too close to HQ, move
             if (rc.isCoreReady() && rc.getLocation().distanceSquaredTo(myHQ) < MOVE_AWAY_THRESHOLD) {
@@ -353,17 +353,17 @@ public class RobotPlayer {
                     }
                 }
             }
-	    // else, build barracks
+            // else, build barracks
             else if (buildDir != null && rc.isCoreReady() && !hasBuilt) {
-		if (this.id % ID_MULTIPLIER == 5) {
-		    rc.build(buildDir, RobotType.TECHNOLOGYINSTITUTE);
-		} else if (rc.checkDependencyProgress(RobotType.TECHNOLOGYINSTITUTE)
-			   != DependencyProgress.DONE) {
-		    rc.build(buildDir, RobotType.BARRACKS);
-		} else {
-		    rc.build(buildDir, RobotType.HELIPAD);
-		}
-		hasBuilt = true;
+                if (this.id % ID_MULTIPLIER == 5) {
+                    rc.build(buildDir, RobotType.TECHNOLOGYINSTITUTE);
+                } else if (rc.checkDependencyProgress(RobotType.TECHNOLOGYINSTITUTE)
+                    != DependencyProgress.DONE) {
+                    rc.build(buildDir, RobotType.BARRACKS);
+                } else {
+                    rc.build(buildDir, RobotType.HELIPAD);
+                }
+                hasBuilt = true;
             }
         }
     }
@@ -375,7 +375,7 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             // spawn a furby if possible
-	    RobotType spawnType = RobotType.BASHER;
+            RobotType spawnType = RobotType.BASHER;
             Direction dir = getSpawnDirection(spawnType);
             if (dir != null && rc.isCoreReady()) {
                 rc.spawn(dir, spawnType);
@@ -396,7 +396,7 @@ public class RobotPlayer {
             }
         }
     }
-    
+
 
     public static class Soldier extends BaseBot {
         public Soldier(RobotController rc) {
@@ -407,9 +407,9 @@ public class RobotPlayer {
             // if can attack, then attack
             RobotInfo[] enemies = getEnemiesInRange(type.attackRadiusSquared);
             if (enemies.length > 0) {
-		if (rc.isWeaponReady()) {
-		    attackLeastHealthEnemy(enemies);
-		}
+                if (rc.isWeaponReady()) {
+                    attackLeastHealthEnemy(enemies);
+                }
             }
             // else try to move to enemy HQ
             else if (rc.isCoreReady()) {
@@ -432,8 +432,8 @@ public class RobotPlayer {
 
             // the first if clause is commented out by Alex since bashers auto attack
             //if (rc.isWeaponReady() && enemies.length > 0) {
-                //rc.bash();
-	    //}
+            //rc.bash();
+            //}
 
             // else try to move to enemy HQ
             /*else */if (rc.isCoreReady()) {
@@ -454,22 +454,22 @@ public class RobotPlayer {
         public void execute() throws GameActionException {
             // if can attack, then attack
             RobotInfo[] enemies = getEnemiesInRange(type.attackRadiusSquared);
-	    if (enemies.length > 0) {
-		rc.setIndicatorString(0, "attacking!");
-		if (rc.isWeaponReady()) {
-		    attackLeastHealthEnemy(enemies);
-		}
-	    } else {
-		rc.setIndicatorString(0, "no enemy in range");
+            if (enemies.length > 0) {
+                rc.setIndicatorString(0, "attacking!");
+                if (rc.isWeaponReady()) {
+                    attackLeastHealthEnemy(enemies);
+                }
+            } else {
+                rc.setIndicatorString(0, "no enemy in range");
 
-		// else try to move to enemy HQ
-		if (rc.isCoreReady()) {
-		    Direction moveDir = getMoveDir(getDirectionTowardEnemy());
-		    if (moveDir != null) {
-			rc.move(moveDir);
-		    }
-		}
-	    }
+                // else try to move to enemy HQ
+                if (rc.isCoreReady()) {
+                    Direction moveDir = getMoveDir(getDirectionTowardEnemy());
+                    if (moveDir != null) {
+                        rc.move(moveDir);
+                    }
+                }
+            }
         }
     }
 

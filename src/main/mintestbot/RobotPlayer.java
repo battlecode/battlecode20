@@ -4,7 +4,7 @@ import battlecode.common.*;
 import java.util.*;
 
 public class RobotPlayer {
-	public static void run(RobotController rc) {
+    public static void run(RobotController rc) {
         BaseBot myself;
 
         if (rc.getType() == RobotType.HQ) {
@@ -28,7 +28,7 @@ public class RobotPlayer {
                 e.printStackTrace();
             }
         }
-	}
+    }
 
     public static class BaseBot {
         public static final int REQUIRED_ORE_LEVEL = 2000;
@@ -238,7 +238,7 @@ public class RobotPlayer {
         public Tower(RobotController rc) {
             super(rc);
             sdfasfd
-            
+
         }
 
         public void execute() throws GameActionException {

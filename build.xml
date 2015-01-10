@@ -130,8 +130,6 @@
 			<include name="**/*.java"/>
 		</scalac>
 		-->
-		<echo message="include players ${player.includes}"/>
-		<echo message="exclude players ${player.excludes}"/>
 		<javac encoding="${build.encoding}"
 				srcdir="${src.dir}"
 				includes="${player.includes}"
