@@ -279,7 +279,6 @@ public class RobotPlayer {
                     assertTrue(rc.canSenseLocation(towers[i].add(4, 2)), rc, "canSenseLocation");
                     RobotInfo r = rc.senseRobotAtLocation(towers[i]);
                     assertTrue(r.type == RobotType.TOWER, rc, "senseRobotAtLocation");
-                    assertFalse(rc.canSenseLocation(etowers[i]), rc, "canSenseLocation for enemy");
                 } catch (Exception e) {
                     e.printStackTrace();
                     fail(rc, e.getMessage());
@@ -415,18 +414,120 @@ public class RobotPlayer {
             System.out.println("Pass broadcast testing");
         }
 
+        boolean testsDone = false;
+        double supply = 0.0;
+        int nsd_prev = 0;
+        boolean tests2Done = false;
         public void execute() throws GameActionException {
-            if (rc.getTeam() == Team.A) {
+            if (rc.getTeam() == Team.A && !testsDone) {
                 testGetRoundNum0();
                 testRound0Stuff();
                 testJavaUtil();
                 testBytecodeCounting();
                 testMoreRoundNum();
                 testBroadcasts();
-                System.out.println("PASSED ALL TESTS!");
-            }
-            while (true) {
+                System.out.println("HQ TESTS DONE!");
+                testsDone = true;
+            } else if (rc.getTeam() == Team.A && !tests2Done) {
+                // test supply transfers
+                double currentSupplyLevel = rc.getSupplyLevel();
+                rc.transferSupplies((int) currentSupplyLevel / 2, rc.getLocation().add(Direction.SOUTH_EAST));
                 rc.yield();
+                RobotInfo ri = rc.senseRobotAtLocation(rc.getLocation().add(Direction.SOUTH_EAST));
+                assertEquals(ri.supplyLevel + 8, (int) currentSupplyLevel / 2, rc, "supply transfer");
+                rc.yield();
+                currentSupplyLevel = rc.getSupplyLevel();
+                ri = rc.senseRobotAtLocation(rc.getLocation().add(Direction.SOUTH_EAST));
+                double theirSupply = ri.supplyLevel;
+                rc.transferSupplies((int) currentSupplyLevel / 2, rc.getLocation().add(Direction.SOUTH_EAST));
+                rc.transferSupplies((int) currentSupplyLevel / 2, rc.getLocation().add(Direction.SOUTH_EAST));
+                rc.transferSupplies((int) currentSupplyLevel / 2, rc.getLocation().add(Direction.SOUTH_EAST));
+                rc.yield();
+                ri = rc.senseRobotAtLocation(rc.getLocation().add(Direction.SOUTH_EAST));
+                assertEquals(ri.supplyLevel, theirSupply - 8 + currentSupplyLevel, rc, "supply transfer");
+
+                System.out.println("supply transfer tests done!");
+                tests2Done = true;
+            } else if (rc.getTeam() == Team.B) {
+                if (Clock.getRoundNum() % 40 == 30) {
+                    if (Clock.getRoundNum() < 40) {
+                        RobotInfo[] ri = rc.senseNearbyRobots(rc.getLocation().add(-4, -2), 2, Team.A);
+                        assertEquals(ri.length, 6, rc, "6 things");
+                        rc.attackLocation(rc.getLocation().add(-4, -2));
+                        assertEquals(1, rc.getWeaponDelay(), rc, "weapon delay is 1 from hq");
+                        // make sure we destroyed everything
+                        rc.yield();
+                        ri = rc.senseNearbyRobots(rc.getLocation().add(-4, -2), 2, Team.A);
+                        assertEquals(ri.length, 0, rc, "0 things left");
+                        System.out.println("hq first attack is OP and does splash!");
+                    } else if (Clock.getRoundNum() < 120) {
+                        rc.attackLocation(rc.getLocation().add(-1, -2));
+                        rc.yield();
+                        RobotInfo[] ri = rc.senseNearbyRobots(rc.getLocation().add(-1, -2), 2, Team.A);
+                        if (Clock.getRoundNum() < 80) {
+                            assertEquals(0, rc.getWeaponDelay(), rc, "weapon delay is 1 from hq, x");
+                            // make sure we did splash to everyone
+                            assertEquals(ri.length, 9, rc, "9 bot !!");
+                            for (RobotInfo r : ri) {
+                                if (r.location.equals(rc.getLocation().add(-1, -2))) {
+                                    assertEquals(r.health, 64, rc, "hq 5 tower attack");
+                                } else {
+                                    assertEquals(r.health, 82, rc, "hq 5 tower attack splash");
+                                }
+                            }
+                            System.out.println("hq 2nd attack is good");
+                        } else if (Clock.getRoundNum() < 120) {
+                            assertEquals(1, rc.getWeaponDelay(), rc, "weapon delay is 2 from hq, x");
+                            // no more splash
+                            assertEquals(ri.length, 9, rc, "9 bot !!!");
+                            for (RobotInfo r : ri) {
+                                if (r.location.equals(rc.getLocation().add(-1, -2))) {
+                                    assertEquals(r.health, 28, rc, "hq 4 tower attack");
+                                } else {
+                                    assertEquals(r.health, 82, rc, "hq 4 tower attack splash");
+                                }
+                            }
+                            System.out.println("hq 3rd attack is good");
+                        }
+                    } else {
+                        rc.attackLocation(rc.getLocation().add(-1, -3));
+                        assertEquals(2, rc.getWeaponDelay(), rc, "weapon delay is 2 from hq");
+                        rc.yield();
+                        if (Clock.getRoundNum() < 160) {
+                            RobotInfo ri = rc.senseRobotAtLocation(rc.getLocation().add(-1, -3));
+                            assertEquals(ri.health, 46, rc, "hq 3 tower attack");
+                            System.out.println("hq 4th attack is good");
+                        } else if (Clock.getRoundNum() < 200) {
+                            RobotInfo ri = rc.senseRobotAtLocation(rc.getLocation().add(-1, -3));
+                            assertEquals(ri.health, 22, rc, "hq 2 tower attack");
+                            System.out.println("hq 5th attack is good");
+                        } else if (Clock.getRoundNum() < 240) {
+                            RobotInfo ri = rc.senseRobotAtLocation(rc.getLocation().add(-1, -3));
+                            assertTrue(ri == null, rc, "no more robot due to hq attack");
+                            System.out.println("hq 5th attack is good");
+                        }
+                    }
+                }
+
+                // assert supply generation
+                RobotInfo[] r = rc.senseNearbyRobots(9999, Team.B);
+                int nsd = 0;
+                for (RobotInfo ri : r) {
+                    if (ri.type == RobotType.SUPPLYDEPOT) {
+                        nsd++;
+                    }
+                }
+                double currentSupply = rc.getSupplyLevel();
+                if (Clock.getRoundNum() > 0 && Math.abs(Clock.getRoundNum() % 40 - 30) > 2) {
+                    double diff = currentSupply - supply;
+                    assertEquals(diff, 100 * (2 + Math.pow(nsd_prev, 0.7)), rc, "supply gen");
+                }
+                supply = currentSupply;
+                nsd_prev = nsd;
+                rc.yield();
+                if (Clock.getRoundNum() % 40 == 0) {
+                    System.out.println("HQ supply checks are going okay!");
+                }
             }
         }
     }
@@ -435,11 +536,56 @@ public class RobotPlayer {
         public Tower(RobotController rc) {
             super(rc);
         }
+
+        public void execute() throws GameActionException {
+            // every 100 turns, let's have team B suicide a tower
+            if (myTeam == Team.B) {
+                int nTowers = rc.senseTowerLocations().length;
+                if ((6 - Clock.getRoundNum() / 40) < nTowers) {
+                    rc.disintegrate();
+                }
+            }
+
+            rc.yield();
+        }
     }
 
     public static class SupplyDepot extends BaseStructure {
         public SupplyDepot(RobotController rc) {
             super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            if (myTeam == Team.B) {
+                int nSupplyDepots = 1;
+                RobotInfo[] r = rc.senseNearbyRobots(999999, Team.B);
+                for (RobotInfo ri : r) {
+                    if (ri.type == RobotType.SUPPLYDEPOT) {
+                        nSupplyDepots++;
+                    }
+                }
+                if ((6 - Clock.getRoundNum() / 40) < nSupplyDepots) {
+                    rc.disintegrate();
+                }
+            }
+
+            // try to move
+            boolean exception = false;
+            try {
+                rc.move(Direction.SOUTH);
+            } catch (Exception e) {
+                exception = true;
+            }
+            assertTrue(exception, rc, "structures cannot move");
+            exception = false;
+            try {
+                rc.attackLocation(rc.getLocation().add(Direction.SOUTH));
+            } catch (Exception e) {
+                exception = true;
+            }
+            assertTrue(exception, rc, "structures cannot attack");
+
+            rc.yield();
         }
     }
 
@@ -537,34 +683,50 @@ public class RobotPlayer {
             System.out.println("pass beaver mine tests");
         }
 
-        public void buildTests() throws GameActionException {
-            long what = rc.getControlBits();
-            RobotType type = null;
-            switch ((int) what) {
-                case 0: type = null; break;
-                case 1: type = RobotType.SUPPLYDEPOT; break;
-                case 2: type = RobotType.TECHNOLOGYINSTITUTE; break;
-                case 3: type = RobotType.BARRACKS; break;
-                case 4: type = RobotType.HELIPAD; break;
-                case 5: type = RobotType.TRAININGFIELD; break;
-                case 6: type = RobotType.TANKFACTORY; break;
-                case 7: type = RobotType.MINERFACTORY; break;
-                case 8: type = RobotType.HANDWASHSTATION; break;
-                case 9: type = RobotType.AEROSPACELAB; break;
-            }
-            if (type != null) {
-                rc.build(Direction.NORTH, type);
-            }
-        }
-
         public void execute() throws GameActionException {
             if (myTeam == Team.A) {
                 mineTests();
             } else {
-                for (int i = 0; i < 5; ++i) {
-                    rc.yield(); // gives me time to set control bits
+                for (int i = 0; i < 100; ++i) {
+                    rc.yield();
                 }
-                buildTests();
+                // now try to do your own building
+                int exception = 0;
+                try {
+                    rc.build(Direction.SOUTH, RobotType.TRAININGFIELD);
+                } catch (Exception e) {
+                    exception++;
+                }
+                try {
+                    rc.build(Direction.SOUTH, RobotType.TANKFACTORY);
+                } catch (Exception e) {
+                    exception++;
+                }
+                try {
+                    rc.build(Direction.SOUTH, RobotType.AEROSPACELAB);
+                } catch (Exception e) {
+                    exception++;
+                }
+                assertEquals(exception, 3, rc, "need dependencies to build");
+
+                // let's build a barracks instead
+                rc.build(Direction.SOUTH, RobotType.BARRACKS);
+                rc.yield();
+                boolean except = false;
+                try {
+                    rc.move(Direction.NORTH);
+                } catch (Exception e) {
+                    except = true;
+                }
+                assertTrue(except, rc, "cannot move while building");
+                while (!rc.isCoreReady()) {
+                    rc.yield();
+                }
+                rc.build(Direction.EAST, RobotType.TANKFACTORY);
+                
+                while (!rc.isCoreReady()) {
+                    rc.yield();
+                }
             }
 
             System.out.println("PASSED ALL TESTS!");
@@ -629,8 +791,16 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             while (true) {
-                if (rc.isWeaponReady()) {
+                if (rc.isWeaponReady() && Clock.getRoundNum() != 30) {
                     attackEverything();
+                } else if (rc.isCoreReady() && Clock.getRoundNum() == 30 && myTeam == Team.A && rc.getLocation().distanceSquaredTo(myHQ) <= 8) {
+                    System.out.println("test supply usage");
+                    double initialSupply = rc.getSupplyLevel();
+                    rc.move(Direction.SOUTH_EAST);
+                    rc.yield();
+                    double newSupplyLevel = rc.getSupplyLevel();
+                    assertEquals(newSupplyLevel - initialSupply, -myType.supplyUpkeep, rc, "soldier supply upkeep");
+                    System.out.println("SOLDIER SUPPLY UPKEEP TEST PASSED");
                 }
             }
         }
@@ -660,9 +830,166 @@ public class RobotPlayer {
         }
 
         public void execute() throws GameActionException {
+            if (!rc.canAttackLocation(theirHQ) && rc.getTeam() == Team.A) {
+                // tests related to delays and stuff, to be done on 
+
+                // make sure you can't:
+                // 1) move onto void, path onto void, or attack too far
+                assertFalse(rc.canMove(Direction.EAST), rc, "no move onto void");
+                assertFalse(rc.isPathable(myType, rc.getLocation().add(Direction.EAST)), rc, "path onto void");
+                assertFalse(rc.canAttackLocation(rc.getLocation().add(4, 0)), rc, "attack distance too far");
+                assertTrue(rc.canMove(Direction.NORTH), rc, "move north");
+                assertTrue(rc.isPathable(RobotType.DRONE, rc.getLocation().add(Direction.EAST)), rc, "path onto void with drone");
+                assertTrue(rc.canAttackLocation(rc.getLocation().add(3, 0)), rc, "attack distance is within");
+
+                // try doing some things that might cause exceptions to make sure you can't
+                boolean exception = false;
+
+                try {
+                    rc.mine();
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no mine");
+
+                exception = false;
+                try {
+                    rc.launchMissile(Direction.NORTH);
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no launch missile");
+
+                exception = false;
+                try {
+                    rc.attackLocation(rc.getLocation().add(4, 0));
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no attack far away");
+
+                exception = false;
+                try {
+                    rc.move(Direction.EAST);
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no move onto void");
+
+                rc.move(Direction.SOUTH);
+
+                // now you can't move or attack
+                exception = false;
+                try {
+                    rc.move(Direction.SOUTH);
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no move twice");
+
+                exception = false;
+                try {
+                    rc.attackLocation(rc.getLocation());
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no move and attack same turn");
+
+                rc.yield();
+
+                exception = false;
+                try {
+                    rc.attackLocation(rc.getLocation());
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no move and attack one turn offset");
+                exception = false;
+                try {
+                    rc.move(Direction.SOUTH);
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no move and move one turn offset");
+
+                rc.yield();
+                exception = false;
+                try {
+                    rc.attackLocation(rc.getLocation());
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no attack and attack a little offset");
+                rc.yield();
+                rc.attackLocation(rc.getLocation());
+
+                exception = false;
+                try {
+                    rc.move(Direction.SOUTH);
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no attack and move same turn");
+                exception = false;
+                try {
+                    rc.attackLocation(rc.getLocation());
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no attack and attack same turn");
+
+                rc.yield();
+                exception = false;
+                try {
+                    rc.attackLocation(rc.getLocation());
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no attack and attack one turn offset");
+                exception = false;
+                try {
+                    rc.move(Direction.SOUTH);
+                } catch (Exception e) {
+                    exception = true;
+                }
+                assertTrue(exception, rc, "tank no attack and move one turn offset");
+
+                System.out.println("PASS TANK TESTS!!!!!!!!!!!!!!!!!");
+            }
+
             while (true) {
-                if (rc.isWeaponReady()) {
-                    attackEverything();
+                if (rc.isWeaponReady() && rc.canAttackLocation(theirHQ)) {
+                    // try to transfer negative supply
+                    boolean exception = false;
+                    try {
+                        rc.transferSupplies(-100, theirHQ);
+                    } catch (Exception e) {
+                        exception = true;
+                    }
+                    assertTrue(exception, rc, "no stealing supply");
+
+                    rc.attackLocation(theirHQ);
+                    int enemyTowerCount = rc.senseEnemyTowerLocations().length;
+
+                    double originalHealth = rc.senseRobotAtLocation(theirHQ).health;
+                    rc.yield();
+                    double newHealth = rc.senseRobotAtLocation(theirHQ).health;
+                    double damage = originalHealth - newHealth;
+
+                    double power = myType.attackPower;
+                    if (enemyTowerCount == 6) {
+                        assertEquals(power * 0.3, damage, rc, "0.3 damage nerf");
+                        System.out.println("tank 6 tower attack went okay");
+                    } else if (enemyTowerCount >= 4) {
+                        assertEquals(power * 0.5, damage, rc, "0.5 damage nerf");
+                        System.out.println("tank 4 tower attack went okay");
+                    } else if (enemyTowerCount >= 1) {
+                        assertEquals(power * 0.8, damage, rc, "0.8 damage nerf");
+                        System.out.println("tank 1 tower attack went okay");
+                    } else {
+                        assertEquals(power * 1.0, damage, rc, "no damage nerf");
+                        System.out.println("tank 0 tower attack went okay");
+                    }
                 }
             }
         }
@@ -688,6 +1015,80 @@ public class RobotPlayer {
         }
 
         public void execute() throws GameActionException {
+            // make sure missile generation is going okay
+            rc.yield();
+            assertEquals(1, rc.getMissileCount(), rc, "1 missile");
+            boolean exception = false;
+            rc.launchMissile(Direction.NORTH);
+            try {
+                rc.launchMissile(Direction.SOUTH);
+            } catch (Exception e) {
+                exception = true;
+            }
+            assertTrue(exception, rc, "yay could not launch more missiles than i owned");
+            assertEquals(0, rc.getMissileCount(), rc, "no more missiles");
+            
+            for (int i = 0; i < 12; ++i) {
+                rc.yield();
+            }
+            assertEquals(1, rc.getMissileCount(), rc, "one missile now");
+            // make sure you can't move and then launch
+            rc.move(Direction.NORTH);
+            exception = false;
+            try {
+                rc.launchMissile(Direction.WEST);
+            } catch (Exception e) {
+                exception = true;
+            }
+            assertTrue(exception, rc, "yay move and launch is bad");
+
+            for (int i = 0; i < 24; ++i) {
+                rc.yield();
+            }
+            assertEquals(3, rc.getMissileCount(), rc, "two missiles now");
+            // make sure you can't launch two in the same place
+            rc.launchMissile(Direction.WEST);
+            exception = false;
+            try {
+                rc.launchMissile(Direction.WEST);
+            } catch (Exception e) {
+                exception = true;
+            }
+            assertTrue(exception, rc, "yay move and launch is bad");
+
+            for (int i = 0; i < 24; ++i) {
+                rc.yield();
+            }
+            assertEquals(4, rc.getMissileCount(), rc, "two missiles now");
+            // make sure you can't launch two in the same place
+            rc.launchMissile(Direction.WEST);
+            rc.launchMissile(Direction.NORTH);
+            assertFalse(rc.canMove(Direction.NORTH), rc, "no moving north launcher");
+            assertFalse(rc.canMove(Direction.WEST), rc, "no moving west launcher");
+            assertTrue(rc.canMove(Direction.SOUTH), rc, "yes moving south launcher");
+            exception = false;
+            try {
+                rc.move(Direction.NORTH);
+            } catch (Exception e) {
+                exception = true;
+            }
+            assertTrue(exception, rc, "yay launch and bad move is bad");
+
+            while (!rc.isCoreReady()) {
+                rc.yield();
+            }
+
+            // try to launch then move
+            assertTrue(rc.canLaunch(Direction.EAST), rc, "can launch east");
+            rc.launchMissile(Direction.EAST);
+            assertFalse(rc.canLaunch(Direction.EAST), rc, "no more launch east");
+            rc.move(Direction.SOUTH);
+            assertFalse(rc.canLaunch(Direction.WEST), rc, "no launching after moving yo");
+
+            System.out.println("YAY LAUNCHER PASSED");
+            while (true) {
+                rc.yield();
+            }
         }
     }
 
