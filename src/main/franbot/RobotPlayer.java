@@ -1,7 +1,8 @@
-package rinoabot;
+package franbot;
 
 import battlecode.common.*;
 import java.util.*;
+import javax.script.*;
 
 //author: lygophile
 public class RobotPlayer {
@@ -55,11 +56,11 @@ public class RobotPlayer {
 	
 	static int NUM_BEAVERS = 12;
 	static int NUM_SOLDIERS = 0;
-	static int NUM_BASHERS = 5;
+	static int NUM_BASHERS = 0;
 	static int NUM_TANKS = 0;
 	static int NUM_DRONES = 0;
 	static int NUM_LAUNCHERS = 0;
-	static int NUM_COMMANDERS = 1;
+	static int NUM_COMMANDERS = 0;
 	static boolean DONE_SPAWNING = false;
 	static int WAIT_TURNS = 500;
 	
@@ -88,6 +89,7 @@ public class RobotPlayer {
 					}
 					myMissionPointer--;
 				}
+				System.out.println("TARGET " + targetLocation);
 			} catch (Exception e) {
 				System.out.println("missile initialization exception: " + e.getMessage());
 				e.printStackTrace();
@@ -95,6 +97,7 @@ public class RobotPlayer {
 			while(true) {
 				try {
 					missileMove(targetLocation);
+					System.out.println("IM A MISSILE AT " + rc.getLocation());
 				} catch (Exception e) {
 					System.out.println("missile exception: " + e.getMessage());
 					e.printStackTrace();
@@ -306,8 +309,6 @@ public class RobotPlayer {
 					} else if (Clock.getRoundNum() == 300) {
 						postMission(buildMessage(1,5));
 						myMissionPointer++;
-						postMission(buildMessage(1,8));
-						myMissionPointer++;
 					}
 					if (netSupply < supplyFlowIn/4 && waitBuildDepot > 20) {
 						postMission(buildMessage(1,1));
@@ -451,9 +452,11 @@ public class RobotPlayer {
             if (rc.getType() == RobotType.TOWER) {
                 try {
 					//System.out.println(myRange);
-					if (rc.isWeaponReady()) {
-						attackSomething();
-					}
+					String a = "asdf;slasdfvkha;owasdfifeh;alkhasdfsd;flkahasdfs;dlkfjaasdf;wleasdfkfjasd;flasdfawe";
+					a.replace("asdf","cowcow");
+					a.replace("asdf","cowcow");
+					a.replace("asdf","cowcow");
+					a.replace("asdf","cowcow");
 				} catch (Exception e) {
 					System.out.println("tower exception: " + e.getMessage());
                     e.printStackTrace();
