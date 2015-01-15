@@ -758,10 +758,10 @@ public class RobotPlayer {
 		int threshold;
 		int lowerbound;
 		if (rc.getType() == RobotType.BEAVER) {
-			threshold = GameConstants.BEAVER_MINE_MAX*GameConstants.BEAVER_MINE_RATE;
+			threshold = (int) GameConstants.BEAVER_MINE_MAX*GameConstants.BEAVER_MINE_RATE;
 			lowerbound = GameConstants.BEAVER_MINE_RATE;
 		} else {
-			threshold = GameConstants.MINER_MINE_MAX*GameConstants.MINER_MINE_RATE;
+			threshold = (int) GameConstants.MINER_MINE_MAX*GameConstants.MINER_MINE_RATE;
 			lowerbound = GameConstants.MINER_MINE_RATE;
 		}
 		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(2,myTeam);
