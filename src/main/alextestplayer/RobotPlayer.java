@@ -19,6 +19,10 @@ public class RobotPlayer {
             myself = new Basher(rc);
         } else if (rc.getType() == RobotType.HELIPAD) {
             myself = new Helipad(rc);
+        } else if (rc.getType() == RobotType.LAUNCHER) {
+            myself = new Launcher(rc);
+        } else if (rc.getType() == RobotType.MISSILE) {
+            myself = new Missile(rc);
         } else if (rc.getType() == RobotType.TOWER) {
             myself = new Tower(rc);
         } else if (rc.getType() == RobotType.DRONE) {
@@ -269,6 +273,45 @@ public class RobotPlayer {
                 if (moveDir != null) {
                     rc.move(moveDir);
                 }
+            }
+
+            rc.yield();
+        }
+    }
+
+    public static class Launcher extends BaseBot {
+        public Launcher(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            Direction launch = Direction.NORTH;
+            if (rc.getTeam() == Team.A) {
+                launch = Direction.SOUTH;
+            }
+            if (rc.canLaunch(launch)) {
+                rc.launchMissile(launch);
+            } else if (rc.canMove(launch) && rc.isCoreReady() && rc.senseRobotAtLocation(rc.getLocation().add(launch).add(launch)) == null) {
+                rc.move(launch);
+            }
+
+            rc.yield();
+        }
+    }
+    public static class Missile extends BaseBot {
+        public Missile(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            Direction launch = Direction.NORTH;
+            if (rc.getTeam() == Team.A) {
+                launch = Direction.SOUTH;
+            }
+            if (rc.canMove(launch)) {
+                rc.move(launch);
+            } else {
+                rc.explode();
             }
 
             rc.yield();
