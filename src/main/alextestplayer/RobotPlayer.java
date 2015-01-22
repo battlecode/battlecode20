@@ -13,6 +13,8 @@ public class RobotPlayer {
             myself = new Beaver(rc);
         } else if (rc.getType() == RobotType.BARRACKS) {
             myself = new Barracks(rc);
+        } else if (rc.getType() == RobotType.TRAININGFIELD) {
+            myself = new TrainingField(rc);
         } else if (rc.getType() == RobotType.SOLDIER) {
             myself = new Soldier(rc);
         } else if (rc.getType() == RobotType.BASHER) {
@@ -21,6 +23,8 @@ public class RobotPlayer {
             myself = new Helipad(rc);
         } else if (rc.getType() == RobotType.LAUNCHER) {
             myself = new Launcher(rc);
+        } else if (rc.getType() == RobotType.COMMANDER) {
+            myself = new Commander(rc);
         } else if (rc.getType() == RobotType.MISSILE) {
             myself = new Missile(rc);
         } else if (rc.getType() == RobotType.TOWER) {
@@ -216,6 +220,22 @@ public class RobotPlayer {
         }
     }
 
+    public static class TrainingField extends BaseBot {
+        public TrainingField(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            // spawn a furby if possible
+            Direction dir = getSpawnDirection(RobotType.COMMANDER);
+            if (dir != null && rc.isCoreReady()) {
+                rc.spawn(dir, RobotType.COMMANDER);
+            }
+
+            rc.yield();
+        }
+    }
+
     public static class Helipad extends BaseBot {
         public Helipad(RobotController rc) {
             super(rc);
@@ -330,6 +350,24 @@ public class RobotPlayer {
                     rc.move(moveDir);
                 }
             }
+
+            rc.yield();
+        }
+    }
+
+    public static class Commander extends BaseBot {
+        public Commander(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            RobotInfo[] enemies = getEnemiesInAttackingRange();
+            if (rc.isWeaponReady() && enemies.length > 0) {
+                attackLeastHealthEnemy(enemies);
+            }
+
+            rc.setIndicatorString(0, "cooldown: " + rc.getFlashCooldown());
+            rc.castFlash(rc.getLocation().add(2, 2));
 
             rc.yield();
         }
