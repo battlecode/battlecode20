@@ -15,7 +15,7 @@ public class RobotPlayer {
             myself = new Barracks(rc);
         } else if (rc.getType() == RobotType.TRAININGFIELD) {
             myself = new TrainingField(rc);
-        } else if (rc.getType() == RobotType.SOLDIER) {
+        } else if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.TANK) {
             myself = new Soldier(rc);
         } else if (rc.getType() == RobotType.BASHER) {
             myself = new Basher(rc);
@@ -116,10 +116,18 @@ public class RobotPlayer {
             double minEnergon = Double.MAX_VALUE;
             MapLocation toAttack = null;
             for (RobotInfo info : enemies) {
+                if (info.health < minEnergon && (myType != RobotType.TANK || info.type == RobotType.LAUNCHER)) {
+                    toAttack = info.location;
+                    minEnergon = info.health;
+                }
+            }
+            if (toAttack == null) {
+            for (RobotInfo info : enemies) {
                 if (info.health < minEnergon) {
                     toAttack = info.location;
                     minEnergon = info.health;
                 }
+            }
             }
 
             rc.attackLocation(toAttack);
@@ -282,6 +290,10 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             // if can attack, then attack
+            Direction launch = Direction.SOUTH;
+            if (rc.getTeam() == Team.A) {
+                launch = Direction.NORTH;
+            }
             RobotInfo[] enemies = getEnemiesInAttackingRange();
             if (rc.isWeaponReady() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
@@ -289,9 +301,8 @@ public class RobotPlayer {
 
             // else try to move to enemy HQ
             else if (rc.isCoreReady()) {
-                Direction moveDir = getMoveDir();
-                if (moveDir != null) {
-                    rc.move(moveDir);
+                if (rc.canMove(launch)) {
+                    rc.move(launch);
                 }
             }
 
@@ -305,14 +316,14 @@ public class RobotPlayer {
         }
 
         public void execute() throws GameActionException {
-            Direction launch = Direction.NORTH;
+            Direction launch = Direction.SOUTH;
             if (rc.getTeam() == Team.A) {
-                launch = Direction.SOUTH;
+                launch = Direction.NORTH;
             }
             if (rc.canLaunch(launch)) {
                 rc.launchMissile(launch);
             } else if (rc.canMove(launch) && rc.isCoreReady() && rc.senseRobotAtLocation(rc.getLocation().add(launch).add(launch)) == null) {
-                rc.move(launch);
+                //rc.move(launch);
             }
 
             rc.yield();
@@ -324,9 +335,9 @@ public class RobotPlayer {
         }
 
         public void execute() throws GameActionException {
-            Direction launch = Direction.NORTH;
+            Direction launch = Direction.SOUTH;
             if (rc.getTeam() == Team.A) {
-                launch = Direction.SOUTH;
+                launch = Direction.NORTH;
             }
             if (rc.canMove(launch)) {
                 rc.move(launch);
@@ -345,9 +356,12 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             if (rc.isCoreReady()) {
-                Direction moveDir = getMoveDir();
-                if (moveDir != null) {
-                    rc.move(moveDir);
+                Direction launch = Direction.SOUTH;
+                if (rc.getTeam() == Team.A) {
+                    launch = Direction.NORTH;
+                }
+                if (rc.canMove(launch)) {
+                    rc.move(launch);
                 }
             }
 
