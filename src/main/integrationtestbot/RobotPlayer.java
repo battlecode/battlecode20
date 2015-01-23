@@ -722,6 +722,9 @@ public class RobotPlayer {
                 while (!rc.isCoreReady()) {
                     rc.yield();
                 }
+                while(!rc.canBuild(Direction.EAST, RobotType.TANKFACTORY)) {
+                    rc.yield();
+                }
                 rc.build(Direction.EAST, RobotType.TANKFACTORY);
                 
                 while (!rc.isCoreReady()) {

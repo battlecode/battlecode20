@@ -1,4 +1,4 @@
-package swarmbot;
+package battlebot;
 
 import battlecode.common.*;
 import java.util.*;
@@ -31,11 +31,6 @@ public class RobotPlayer {
     }
 
     public static class BaseBot {
-        public static final int REQUIRED_ORE_LEVEL = 200;
-        public static final int MOVE_AWAY_THRESHOLD = 50;
-        public static final int BARRACKS_GOAL = 3;
-        public static final int TURN_TO_ATTACK = 600;
-
         protected RobotController rc;
         protected MapLocation myHQ, theirHQ;
         protected Team myTeam, theirTeam;
@@ -51,7 +46,7 @@ public class RobotPlayer {
         public Direction[] getDirectionsToward(MapLocation dest) {
             Direction toDest = rc.getLocation().directionTo(dest);
             Direction[] dirs = {toDest,
-                toDest.rotateLeft(), toDest.rotateRight(),
+                    toDest.rotateLeft(), toDest.rotateRight(),
                 toDest.rotateLeft().rotateLeft(), toDest.rotateRight().rotateRight()};
 
             return dirs;
@@ -140,26 +135,25 @@ public class RobotPlayer {
         }
 
         public void execute() throws GameActionException {
-            Direction dir = getSpawnDirection(RobotType.BEAVER);
-            if (dir != null && rc.isCoreReady()) {
-                rc.spawn(dir, RobotType.BEAVER);
-            }
+            int numBeavers = rc.readBroadcast(2);
 
-            // also try to attack
-            RobotInfo[] enemies = getEnemiesInAttackingRange();
-            if (rc.isWeaponReady() && enemies.length > 0) {
-                attackLeastHealthEnemy(enemies);
+            if (rc.isCoreReady() && rc.getTeamOre() > 100 && numBeavers < 10) {
+                Direction newDir = getSpawnDirection(RobotType.BEAVER);
+                if (newDir != null) {
+                    rc.spawn(newDir, RobotType.BEAVER);
+                    rc.broadcast(2, numBeavers + 1);
+                }
             }
-
-            int xpos = rc.readBroadcast(0), ypos = rc.readBroadcast(1);
-            if (xpos == 0 && ypos == 0) {
-                rc.broadcast(0, (this.myHQ.x + this.theirHQ.x) / 2);
-                rc.broadcast(1, (this.myHQ.y + this.theirHQ.y) / 2);
+            MapLocation rallyPoint;
+            if (Clock.getRoundNum() < 600) {
+                rallyPoint = new MapLocation( (this.myHQ.x + this.theirHQ.x) / 2,
+                                              (this.myHQ.y + this.theirHQ.y) / 2);
             }
-            else if (Clock.getRoundNum() == TURN_TO_ATTACK) {
-                rc.broadcast(0, this.theirHQ.x);
-                rc.broadcast(1, this.theirHQ.y);
+            else {
+                rallyPoint = this.theirHQ;
             }
+            rc.broadcast(0, rallyPoint.x);
+            rc.broadcast(1, rallyPoint.y);
 
             rc.yield();
         }
@@ -171,32 +165,25 @@ public class RobotPlayer {
         }
 
         public void execute() throws GameActionException {
-            Direction buildDir = getBuildDirection(RobotType.BARRACKS);
-
-            int numBarracks = rc.readBroadcast(2);
-            rc.setIndicatorString(2, "" + numBarracks);
-
             if (rc.isCoreReady()) {
-                if (rc.getLocation().distanceSquaredTo(myHQ) < MOVE_AWAY_THRESHOLD) {
-                    Direction moveDir = getMoveDir(this.theirHQ);
-                    if (moveDir != null) {
-                        rc.move(moveDir);
-                    }
-                }
-
-                else if (rc.getTeamOre() >= REQUIRED_ORE_LEVEL && numBarracks < BARRACKS_GOAL) {
-                    rc.build(buildDir, RobotType.BARRACKS);
-                    rc.broadcast(2, numBarracks+1);
-                }
-
-                else {
+                if (rc.getTeamOre() < 500) {
+                    //mine
                     if (rc.senseOre(rc.getLocation()) > 0) {
                         rc.mine();
-                    } else {
-                        Direction moveDir = getMoveDir(this.theirHQ);
-                        if (moveDir != null) {
-                            rc.move(moveDir);
+                    }
+                    else {
+                        Direction newDir = getMoveDir(this.theirHQ);
+
+                        if (newDir != null) {
+                            rc.move(newDir);
                         }
+                    }
+                }
+                else {
+                    //build barracks
+                    Direction newDir = getBuildDirection(RobotType.BARRACKS);
+                    if (newDir != null) {
+                        rc.build(newDir, RobotType.BARRACKS);
                     }
                 }
             }
@@ -211,9 +198,11 @@ public class RobotPlayer {
         }
 
         public void execute() throws GameActionException {
-            Direction dir = getSpawnDirection(RobotType.SOLDIER);
-            if (dir != null && rc.isCoreReady()) {
-                rc.spawn(dir, RobotType.SOLDIER);
+            if (rc.isCoreReady() && rc.getTeamOre() > 200) {
+                Direction newDir = getSpawnDirection(RobotType.SOLDIER);
+                if (newDir != null) {
+                    rc.spawn(newDir, RobotType.SOLDIER);
+                }
             }
 
             rc.yield();
@@ -227,24 +216,24 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             RobotInfo[] enemies = getEnemiesInAttackingRange();
+
             if (enemies.length > 0) {
+                //attack!
                 if (rc.isWeaponReady()) {
                     attackLeastHealthEnemy(enemies);
                 }
             }
-            else {
-                // try to move to rally point
-                int xpos = rc.readBroadcast(0), ypos = rc.readBroadcast(1);
-                MapLocation rally = new MapLocation(xpos, ypos);
+            else if (rc.isCoreReady()) {
+                int rallyX = rc.readBroadcast(0);
+                int rallyY = rc.readBroadcast(1);
+                MapLocation rallyPoint = new MapLocation(rallyX, rallyY);
 
-                if (rc.isCoreReady()) {
-                    Direction moveDir = getMoveDir(rally);
-                    if (moveDir != null) {
-                        rc.move(moveDir);
-                    }
+                Direction newDir = getMoveDir(rallyPoint);
+
+                if (newDir != null) {
+                    rc.move(newDir);
                 }
             }
-
             rc.yield();
         }
     }
@@ -255,11 +244,6 @@ public class RobotPlayer {
         }
 
         public void execute() throws GameActionException {
-            RobotInfo[] enemies = getEnemiesInAttackingRange();
-            if (rc.isWeaponReady() && enemies.length > 0) {
-                attackLeastHealthEnemy(enemies);
-            }
-
             rc.yield();
         }
     }

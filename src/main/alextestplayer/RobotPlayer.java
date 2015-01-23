@@ -13,12 +13,20 @@ public class RobotPlayer {
             myself = new Beaver(rc);
         } else if (rc.getType() == RobotType.BARRACKS) {
             myself = new Barracks(rc);
-        } else if (rc.getType() == RobotType.SOLDIER) {
+        } else if (rc.getType() == RobotType.TRAININGFIELD) {
+            myself = new TrainingField(rc);
+        } else if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.TANK) {
             myself = new Soldier(rc);
         } else if (rc.getType() == RobotType.BASHER) {
             myself = new Basher(rc);
         } else if (rc.getType() == RobotType.HELIPAD) {
             myself = new Helipad(rc);
+        } else if (rc.getType() == RobotType.LAUNCHER) {
+            myself = new Launcher(rc);
+        } else if (rc.getType() == RobotType.COMMANDER) {
+            myself = new Commander(rc);
+        } else if (rc.getType() == RobotType.MISSILE) {
+            myself = new Missile(rc);
         } else if (rc.getType() == RobotType.TOWER) {
             myself = new Tower(rc);
         } else if (rc.getType() == RobotType.DRONE) {
@@ -108,10 +116,18 @@ public class RobotPlayer {
             double minEnergon = Double.MAX_VALUE;
             MapLocation toAttack = null;
             for (RobotInfo info : enemies) {
+                if (info.health < minEnergon && (myType != RobotType.TANK || info.type == RobotType.LAUNCHER)) {
+                    toAttack = info.location;
+                    minEnergon = info.health;
+                }
+            }
+            if (toAttack == null) {
+            for (RobotInfo info : enemies) {
                 if (info.health < minEnergon) {
                     toAttack = info.location;
                     minEnergon = info.health;
                 }
+            }
             }
 
             rc.attackLocation(toAttack);
@@ -212,6 +228,22 @@ public class RobotPlayer {
         }
     }
 
+    public static class TrainingField extends BaseBot {
+        public TrainingField(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            // spawn a furby if possible
+            Direction dir = getSpawnDirection(RobotType.COMMANDER);
+            if (dir != null && rc.isCoreReady()) {
+                rc.spawn(dir, RobotType.COMMANDER);
+            }
+
+            rc.yield();
+        }
+    }
+
     public static class Helipad extends BaseBot {
         public Helipad(RobotController rc) {
             super(rc);
@@ -258,6 +290,10 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             // if can attack, then attack
+            Direction launch = Direction.SOUTH;
+            if (rc.getTeam() == Team.A) {
+                launch = Direction.NORTH;
+            }
             RobotInfo[] enemies = getEnemiesInAttackingRange();
             if (rc.isWeaponReady() && enemies.length > 0) {
                 attackLeastHealthEnemy(enemies);
@@ -265,10 +301,48 @@ public class RobotPlayer {
 
             // else try to move to enemy HQ
             else if (rc.isCoreReady()) {
-                Direction moveDir = getMoveDir();
-                if (moveDir != null) {
-                    rc.move(moveDir);
+                if (rc.canMove(launch)) {
+                    rc.move(launch);
                 }
+            }
+
+            rc.yield();
+        }
+    }
+
+    public static class Launcher extends BaseBot {
+        public Launcher(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            Direction launch = Direction.SOUTH;
+            if (rc.getTeam() == Team.A) {
+                launch = Direction.NORTH;
+            }
+            if (rc.canLaunch(launch)) {
+                rc.launchMissile(launch);
+            } else if (rc.canMove(launch) && rc.isCoreReady() && rc.senseRobotAtLocation(rc.getLocation().add(launch).add(launch)) == null) {
+                //rc.move(launch);
+            }
+
+            rc.yield();
+        }
+    }
+    public static class Missile extends BaseBot {
+        public Missile(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            Direction launch = Direction.SOUTH;
+            if (rc.getTeam() == Team.A) {
+                launch = Direction.NORTH;
+            }
+            if (rc.canMove(launch)) {
+                rc.move(launch);
+            } else {
+                rc.explode();
             }
 
             rc.yield();
@@ -282,11 +356,32 @@ public class RobotPlayer {
 
         public void execute() throws GameActionException {
             if (rc.isCoreReady()) {
-                Direction moveDir = getMoveDir();
-                if (moveDir != null) {
-                    rc.move(moveDir);
+                Direction launch = Direction.SOUTH;
+                if (rc.getTeam() == Team.A) {
+                    launch = Direction.NORTH;
+                }
+                if (rc.canMove(launch)) {
+                    rc.move(launch);
                 }
             }
+
+            rc.yield();
+        }
+    }
+
+    public static class Commander extends BaseBot {
+        public Commander(RobotController rc) {
+            super(rc);
+        }
+
+        public void execute() throws GameActionException {
+            RobotInfo[] enemies = getEnemiesInAttackingRange();
+            if (rc.isWeaponReady() && enemies.length > 0) {
+                attackLeastHealthEnemy(enemies);
+            }
+
+            rc.setIndicatorString(0, "cooldown: " + rc.getFlashCooldown());
+            rc.castFlash(rc.getLocation().add(2, 2));
 
             rc.yield();
         }
