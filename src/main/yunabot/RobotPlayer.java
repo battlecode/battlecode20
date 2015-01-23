@@ -54,12 +54,12 @@ public class RobotPlayer {
 	static MapLocation targetLocation;
 
 	static int NUM_BEAVERS = 12;
-	static int NUM_SOLDIERS = 0;
-	static int NUM_BASHERS = 5;
+	static int NUM_SOLDIERS = 20;
+	static int NUM_BASHERS = 0;
 	static int NUM_TANKS = 0;
 	static int NUM_DRONES = 0;
 	static int NUM_LAUNCHERS = 0;
-	static int NUM_COMMANDERS = 1;
+	static int NUM_COMMANDERS = 0;
 	static boolean DONE_SPAWNING = false;
 	static int WAIT_TURNS = 500;
 
@@ -309,7 +309,7 @@ public class RobotPlayer {
 						postMission(buildMessage(1,8));
 						myMissionPointer++;
 					}
-					if (netSupply < supplyFlowIn/4 && waitBuildDepot > 20) {
+					if (netSupply < supplyFlowIn/4 && waitBuildDepot > 40) {
 						postMission(buildMessage(1,1));
 						System.out.println("We require more vespene gas");
 						waitBuildDepot=0;
@@ -661,17 +661,6 @@ public class RobotPlayer {
 		}
 	}
 
-	//evens supply out between self and adjacent units.
-	static void distributeSupplies() {
-		RobotInfo[] nearbyAllies = rc.senseNearbyRobots(2,myTeam);
-		int numAllies = 1;
-		double mySupply = rc.getSupplyLevel();
-		double totalSupply = mySupply;
-		for (RobotInfo r : nearbyAllies) {
-			//if (r.supplyLevel >= 
-		}
-	}
-
 	//builds something smartly.
 	//returns true if the build has started.
 	static boolean smartBuild(RobotType r) throws GameActionException {
@@ -752,7 +741,7 @@ public class RobotPlayer {
 
 	//Mines or moves to a better mining location. Always performs an action.
 	static void smartMine() throws GameActionException {
-		int threshold;
+		double threshold;
 		int lowerbound;
 		if (rc.getType() == RobotType.BEAVER) {
 			threshold = GameConstants.BEAVER_MINE_MAX*GameConstants.BEAVER_MINE_RATE;
@@ -933,7 +922,7 @@ public class RobotPlayer {
 	//naive attackmove.
 	static void attackMove(MapLocation target) throws GameActionException {
 		RobotInfo[] attackableEnemies = rc.senseNearbyRobots(myRange,enemyTeam);
-		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(35, enemyTeam);
+		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(48, enemyTeam);
 		if (attackableEnemies.length > 0) {
 			if (rc.isWeaponReady()) {
 				rc.attackLocation(attackableEnemies[0].location);
