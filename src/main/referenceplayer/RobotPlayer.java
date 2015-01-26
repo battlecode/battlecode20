@@ -132,6 +132,10 @@ public class RobotPlayer {
 
 		if (rc.getType() == RobotType.HQ) {
 			try {
+				for (int i=0; i<77; i++) {
+					rc.yield();
+				}
+				
 				missions = new ArrayList<Integer>();
 				distanceToEnemy = Math.sqrt(alliedHQ.distanceSquaredTo(enemyHQ));
 				attackLocation = rallyPoint;
@@ -319,6 +323,8 @@ public class RobotPlayer {
 					} else if (Clock.getRoundNum() == 333) {
 						postMission(buildMessage(1,9));
 						myMissionPointer++;
+						postMission(buildMessage(1,9));
+						myMissionPointer++;
 					}
 					
 					if (rc.getTeamOre() > 800 && waitBuildCombatStructure > 150) {
@@ -357,14 +363,14 @@ public class RobotPlayer {
 						}
 					}
 					
-					if (power >= 1000) {
+					if (power >= 800) {
 						MapLocation[] enemyTowerLocations = rc.senseEnemyTowerLocations();
 						if (enemyTowerLocations.length > 0) {
 							nextAttackLocation = rc.senseEnemyTowerLocations()[0];
 						} else {
 							nextAttackLocation = enemyHQ;
 						}
-					} else if (power <= 400) {
+					} else if (power <= 350) {
 						attackLocation = rallyPoint;
 						nextAttackLocation = rallyPoint;
 						postAttackMission(attackLocation);
@@ -695,7 +701,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.MINERFACTORY) {
 				try {
 					int numMiners = unitCount[4];
-					if (rc.isCoreReady() && rc.getTeamOre() >= 200 && numMiners < 20) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 200 && numMiners < 15) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.MINER);
 					}
 				} catch (Exception e) {
