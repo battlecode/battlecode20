@@ -62,7 +62,7 @@ public class RobotPlayer {
 	static int NUM_DRONES = 0;
 	static int NUM_LAUNCHERS = 0;
 	static int NUM_COMMANDERS = 0;
-	static int WAIT_TURNS = 500;
+	static int WAIT_TURNS = 77;
 
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
@@ -132,7 +132,7 @@ public class RobotPlayer {
 
 		if (rc.getType() == RobotType.HQ) {
 			try {
-				for (int i=0; i<77; i++) {
+				for (int i=0; i<WAIT_TURNS; i++) {
 					rc.yield();
 				}
 				
@@ -311,16 +311,16 @@ public class RobotPlayer {
 					}
 
 					//econ logic
-					if (Clock.getRoundNum() == 0) {
+					if (Clock.getRoundNum() == 0+WAIT_TURNS) {
 						postMission(buildMessage(1,7));
 						myMissionPointer++;
-					} else if (Clock.getRoundNum() == 100) {
+					} else if (Clock.getRoundNum() == 100+WAIT_TURNS) {
 						postMission(buildMessage(1,2));
 						myMissionPointer++;
-					} else if (Clock.getRoundNum() == 200) {
+					} else if (Clock.getRoundNum() == 200+WAIT_TURNS) {
 						postMission(buildMessage(1,6));
 						myMissionPointer++;
-					} else if (Clock.getRoundNum() == 333) {
+					} else if (Clock.getRoundNum() == 333+WAIT_TURNS) {
 						postMission(buildMessage(1,9));
 						myMissionPointer++;
 						postMission(buildMessage(1,9));
