@@ -701,7 +701,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.MINERFACTORY) {
 				try {
 					int numMiners = unitCount[4];
-					if (rc.isCoreReady() && rc.getTeamOre() >= 200 && numMiners < 15) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 200 && numMiners < 12) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.MINER);
 					}
 				} catch (Exception e) {
@@ -734,7 +734,7 @@ public class RobotPlayer {
 				try {
 					int numTanks = unitCount[6];
 
-					if (rc.isCoreReady() && rc.getTeamOre() >= 300) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 300 && numTanks < 10) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.TANK);
 					}
 				} catch (Exception e) {
