@@ -62,7 +62,7 @@ public class RobotPlayer {
 	static int NUM_DRONES = 0;
 	static int NUM_LAUNCHERS = 0;
 	static int NUM_COMMANDERS = 0;
-	static int WAIT_TURNS = 77;
+	static int WAIT_TURNS = 500;
 
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
@@ -132,10 +132,6 @@ public class RobotPlayer {
 
 		if (rc.getType() == RobotType.HQ) {
 			try {
-				for (int i=0; i<WAIT_TURNS; i++) {
-					rc.yield();
-				}
-				
 				missions = new ArrayList<Integer>();
 				distanceToEnemy = Math.sqrt(alliedHQ.distanceSquaredTo(enemyHQ));
 				attackLocation = rallyPoint;
@@ -311,18 +307,16 @@ public class RobotPlayer {
 					}
 
 					//econ logic
-					if (Clock.getRoundNum() == 0+WAIT_TURNS) {
+					if (Clock.getRoundNum() == 0) {
 						postMission(buildMessage(1,7));
 						myMissionPointer++;
-					} else if (Clock.getRoundNum() == 100+WAIT_TURNS) {
+					} else if (Clock.getRoundNum() == 100) {
 						postMission(buildMessage(1,2));
 						myMissionPointer++;
-					} else if (Clock.getRoundNum() == 200+WAIT_TURNS) {
+					} else if (Clock.getRoundNum() == 200) {
 						postMission(buildMessage(1,6));
 						myMissionPointer++;
-					} else if (Clock.getRoundNum() == 333+WAIT_TURNS) {
-						postMission(buildMessage(1,9));
-						myMissionPointer++;
+					} else if (Clock.getRoundNum() == 333) {
 						postMission(buildMessage(1,9));
 						myMissionPointer++;
 					}
@@ -363,14 +357,14 @@ public class RobotPlayer {
 						}
 					}
 					
-					if (power >= 800) {
+					if (power >= 1000) {
 						MapLocation[] enemyTowerLocations = rc.senseEnemyTowerLocations();
 						if (enemyTowerLocations.length > 0) {
 							nextAttackLocation = rc.senseEnemyTowerLocations()[0];
 						} else {
 							nextAttackLocation = enemyHQ;
 						}
-					} else if (power <= 350) {
+					} else if (power <= 400) {
 						attackLocation = rallyPoint;
 						nextAttackLocation = rallyPoint;
 						postAttackMission(attackLocation);
@@ -701,7 +695,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.MINERFACTORY) {
 				try {
 					int numMiners = unitCount[4];
-					if (rc.isCoreReady() && rc.getTeamOre() >= 200 && numMiners < 12) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 200 && numMiners < 20) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.MINER);
 					}
 				} catch (Exception e) {
@@ -734,7 +728,7 @@ public class RobotPlayer {
 				try {
 					int numTanks = unitCount[6];
 
-					if (rc.isCoreReady() && rc.getTeamOre() >= 300 && numTanks < 10) {
+					if (rc.isCoreReady() && rc.getTeamOre() >= 300) {
 						trySpawn(directions[rand.nextInt(8)],RobotType.TANK);
 					}
 				} catch (Exception e) {
