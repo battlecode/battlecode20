@@ -10,15 +10,19 @@ public class RobotPlayer {
             try {
             
                 // #ARCHON #ARCHON #ARCHON #ARCHON #ARCHON #ARCHON #ARCHON #ARCHON #ARCHON #ARCHON #ARCHON #ARCHON #ARCHON
-                System.out.println(rc.getTeamOre());
+                System.out.println(rc.getTeamParts());
                 System.out.println("Building started");
-                rc.build(Direction.SOUTH_EAST, RobotType.GUARD);
-                System.out.println(rc.getTeamOre());
+                rc.build(Direction.SOUTH_EAST, RobotType.TURRET);
+                System.out.println(rc.getTeamParts());
                 for (int i=0; i<50; i++) {
+                    if (rc.getRoundNum() < 200 && rc.getRoundNum() % 10 == 1) {
+                        System.out.println(" ");
+                    }
                     rc.yield();
                 }
+                System.out.println(rc.getTeamParts());
                 rc.build(Direction.SOUTH, RobotType.SOLDIER);
-                System.out.println(rc.getTeamOre());
+                System.out.println(rc.getTeamParts());
             } catch (Exception e) {
                 System.out.println("Archon initialization exception: " + e.getMessage());
                 e.printStackTrace();
@@ -26,6 +30,9 @@ public class RobotPlayer {
             
             while (true) {
                 try {
+                    if (rc.getRoundNum() < 200 && rc.getRoundNum() % 10 == 1) {
+                        System.out.println(" ");
+                    }
                     rc.yield();
                 } catch (Exception e) {
                     System.out.println("Archon exception: " + e.getMessage());
@@ -56,7 +63,8 @@ public class RobotPlayer {
         } else {
             // #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER #OTHER
             try {
-                
+                rc.pack();
+                System.out.println(rc.getType());
             } catch (Exception e) {
                 System.out.println("Other initialization exception: " + e.getMessage());
                 e.printStackTrace();
@@ -65,8 +73,8 @@ public class RobotPlayer {
             while (true) {
                 try {
                     MapLocation hqloc = rc.getLocation().add(Direction.WEST);
-                    if (rc.canAttackLocation(hqloc) && rc.isWeaponReady()) {
-                        rc.attackLocation(hqloc);
+                    if (rc.canMove(Direction.SOUTH_EAST) && rc.isCoreReady()) {
+                        rc.move(Direction.SOUTH_EAST);
                     }
                     rc.yield();
                 } catch (Exception e) {
