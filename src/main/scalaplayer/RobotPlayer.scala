@@ -7,7 +7,7 @@ object RobotPlayer {
     def run(myRC : RobotController) {
         while(true) {
             try {
-                myRC.`yield`()
+                Clock.`yield`()
             } catch {
                 case e : Exception => {
                     println("caught exception:")
