@@ -6,8 +6,17 @@
     <description>Battlecode</description>
   </info>
 
+  <configurations defaultconfmapping="compile->default;sources->sources;javadoc->javadoc;">
+      <conf name="compile"/>
+      <conf name="sources"/>
+      <conf name="javadoc"/>
+      <conf name="test"/>
+  </configurations>
+
   <dependencies>
     <dependency org="net.sf.proguard" name="proguard-anttask" rev="5.1" />
-    <dependency org="junit" name="junit" rev="4.4" />
+
+    <!-- test dependencies -->
+    <dependency org="junit" name="junit" rev="4.12" conf="test->default"/>
   </dependencies>
 </ivy-module>
