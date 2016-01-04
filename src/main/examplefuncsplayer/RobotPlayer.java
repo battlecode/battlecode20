@@ -35,6 +35,17 @@ public class RobotPlayer {
                 try {
                     int fate = rand.nextInt(1000);
                     // Check if this ARCHON's core is ready
+                    if (fate % 10 == 2) {
+                        // Send a message signal containing the data (6370, 6147)
+                        rc.broadcastMessageSignal(6370,6147,80);
+                    }
+                    Signal[] signals = rc.emptySignalQueue();
+                    if (signals.length > 0) {
+                        // Set an indicator string that can be viewed in the client
+                        rc.setIndicatorString(0, "I received a signal this turn!");
+                    } else {
+                        rc.setIndicatorString(0, "I don't any signal buddies");
+                    }
                     if (rc.isCoreReady()) {
                         if (fate < 800) {
                             // Choose a random direction to try to move in
@@ -91,6 +102,11 @@ public class RobotPlayer {
                 //  at the end of it, the loop will iterate once per game round.
                 try {
                     int fate = rand.nextInt(1000);
+                    
+                    if (fate % 5 == 3) {
+                        // Send a normal signal
+                        rc.broadcastSignal(80);
+                    }
                     
                     boolean shouldAttack = false;
                     
