@@ -52,7 +52,7 @@ public class RobotPlayer {
                 // This is a loop to prevent the run() method from returning. Because of the Clock.yield()
                 //  at the end of it, the loop will iterate once per game round.
                 try {
-					rc.broadcast(CHANNEL, locationToInt(RALLY_LOCATION));
+					//rc.broadcast(CHANNEL, locationToInt(RALLY_LOCATION));
                     if (!GO && rc.isCoreReady()) {
 						if (numSoldiers > 0 && rc.getTeamParts() > RobotType.SOLDIER.partCost) {
 							tryBuild(rc.getLocation().directionTo(RALLY_LOCATION), RobotType.SOLDIER);
@@ -95,7 +95,7 @@ public class RobotPlayer {
                 // This is a loop to prevent the run() method from returning. Because of the Clock.yield()
                 //  at the end of it, the loop will iterate once per game round.
                 try {
-					RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
+					//RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
 					
 					attackMove(RALLY_LOCATION);
                     Clock.yield();
@@ -116,7 +116,7 @@ public class RobotPlayer {
                 // This is a loop to prevent the run() method from returning. Because of the Clock.yield()
                 //  at the end of it, the loop will iterate once per game round.
 				try {
-                    RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
+                    //RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
 					// If this robot type can attack, check for enemies within range and attack one
 					if (rc.getType() == RobotType.TURRET) {
 						if (!turretAttack()) {
@@ -155,7 +155,7 @@ public class RobotPlayer {
                 // This is a loop to prevent the run() method from returning. Because of the Clock.yield()
                 //  at the end of it, the loop will iterate once per game round.
                 try {
-					RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
+					//RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
 					attackMoveViper(RALLY_LOCATION);
                     Clock.yield();
                 } catch (Exception e) {

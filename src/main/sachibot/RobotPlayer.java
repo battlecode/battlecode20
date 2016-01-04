@@ -50,7 +50,7 @@ public class RobotPlayer {
                 // This is a loop to prevent the run() method from returning. Because of the Clock.yield()
                 //  at the end of it, the loop will iterate once per game round.
                 try {
-					rc.broadcast(CHANNEL, locationToInt(RALLY_LOCATION));
+					//rc.broadcast(CHANNEL, locationToInt(RALLY_LOCATION));
                     if (!GO && rc.isCoreReady()) {
 						if (numSoldiers > 0 && rc.getTeamParts() > RobotType.SOLDIER.partCost) {
 							tryBuild(rc.getLocation().directionTo(RALLY_LOCATION), RobotType.SOLDIER);
@@ -78,7 +78,7 @@ public class RobotPlayer {
                     e.printStackTrace();
                 }
             }
-        } else if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.GUARD) {
+		} else if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.GUARD) {
             try {
 				// Any code here gets executed exactly once at the beginning of the game.
                 myAttackRange = rc.getType().attackRadiusSquared;
@@ -93,7 +93,7 @@ public class RobotPlayer {
                 // This is a loop to prevent the run() method from returning. Because of the Clock.yield()
                 //  at the end of it, the loop will iterate once per game round.
                 try {
-					RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
+					//RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
 					
 					attackMove(RALLY_LOCATION);
                     Clock.yield();
@@ -114,16 +114,19 @@ public class RobotPlayer {
                 // This is a loop to prevent the run() method from returning. Because of the Clock.yield()
                 //  at the end of it, the loop will iterate once per game round.
 				try {
-                    RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
+                    //RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
 					// If this robot type can attack, check for enemies within range and attack one
 					if (rc.getType() == RobotType.TURRET) {
 						if (!turretAttack()) {
 							//pack up
+							System.out.println("PACKING");
 							rc.pack();
 						}
 					} else if (rc.getType() == RobotType.TTM) {
-						RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(34, enemyTeam);
-						if (nearbyEnemies.length > 0) {
+						RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(48, enemyTeam);
+						RobotInfo[] nearbyZombies = rc.senseNearbyRobots(48, Team.ZOMBIE);
+						if (nearbyEnemies.length > 0 || nearbyZombies.length > 0) {
+							System.out.println("UNPACKING");
 							rc.unpack();
 						} else {
 							navigate(RALLY_LOCATION);
@@ -150,7 +153,7 @@ public class RobotPlayer {
                 // This is a loop to prevent the run() method from returning. Because of the Clock.yield()
                 //  at the end of it, the loop will iterate once per game round.
                 try {
-					RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
+					//RALLY_LOCATION = intToLocation(rc.readBroadcast(CHANNEL));
 					attackMoveViper(RALLY_LOCATION);
                     Clock.yield();
                 } catch (Exception e) {
@@ -330,6 +333,7 @@ public class RobotPlayer {
 		RobotInfo[] enemiesWithinRange = rc.senseNearbyRobots(myAttackRange, enemyTeam);
 		RobotInfo[] zombiesWithinRange = rc.senseNearbyRobots(myAttackRange, Team.ZOMBIE);
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(80, enemyTeam);
+		RobotInfo[] nearbyZombies = rc.senseNearbyRobots(80, Team.ZOMBIE);
 		if (enemiesWithinRange.length > 0) {
 			if (rc.isWeaponReady()) {
 				double highestPriority = -1;
@@ -376,6 +380,17 @@ public class RobotPlayer {
 					}
 				}
 				navigate(closestEnemyLoc);
+			} else if (nearbyZombies.length > 0) {
+				MapLocation closestZombieLoc = null;
+				int closestDistance = 999999;
+				for (RobotInfo zombie : nearbyZombies) {
+					int currDistance = zombie.location.distanceSquaredTo(rc.getLocation());
+					if (currDistance < closestDistance) {
+						closestZombieLoc = zombie.location;
+						closestDistance = currDistance;
+					}
+				}
+				navigate(closestZombieLoc);
 			} else {
 				navigate(targetloc);
 			}
