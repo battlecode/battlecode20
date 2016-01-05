@@ -198,7 +198,7 @@
     <target name="proguard-run" depends="jar" if="any-players">
         <taskdef resource="proguard/ant/task.properties">
             <classpath>
-                <fileset dir="${lib.dir}">
+                <fileset dir="${lib.compile.dir}">
                     <include name="proguard-*.jar"/>
                 </fileset>
             </classpath>
