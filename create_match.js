@@ -113,7 +113,7 @@ function createGameWrapper(builder, matchCreateFunction) {
   b.TeamData.startTeamData(builder);
   b.TeamData.addTeamID(builder, 1);
   b.TeamData.addName(builder, teamName);
-  b.TeamData.addPackage(builder, teamPackage);
+  b.TeamData.addPackageName(builder, teamPackage);
   var singleTeam = b.TeamData.endTeamData(builder);
 
   var teamsVector = b.GameHeader.createTeamsVector(builder, [singleTeam]);

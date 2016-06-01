@@ -71,12 +71,12 @@ table Map {
 
 // Metadata
 
-/// Data relevant to a particular byte.
+/// Data relevant to a particular team.
 table TeamData {
-    /// The name of the byte.
+    /// The name of the team.
     name: string;
-    /// The java package the byte uses.
-    package: string;
+    /// The java package the team uses.
+    packageName: string;
     /// The ID of the team this data pertains to.
     teamID: ubyte;
 }

@@ -642,7 +642,7 @@ battlecode.schema.Map.endMap = function(builder) {
 };
 
 /**
- * Data relevant to a particular byte.
+ * Data relevant to a particular team.
  *
  * @constructor
  */
@@ -679,7 +679,7 @@ battlecode.schema.TeamData.getRootAsTeamData = function(bb, obj) {
 };
 
 /**
- * The name of the byte.
+ * The name of the team.
  *
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
@@ -690,12 +690,12 @@ battlecode.schema.TeamData.prototype.name = function(optionalEncoding) {
 };
 
 /**
- * The java package the byte uses.
+ * The java package the team uses.
  *
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
-battlecode.schema.TeamData.prototype.package = function(optionalEncoding) {
+battlecode.schema.TeamData.prototype.packageName = function(optionalEncoding) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
@@ -727,10 +727,10 @@ battlecode.schema.TeamData.addName = function(builder, nameOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} packageOffset
+ * @param {flatbuffers.Offset} packageNameOffset
  */
-battlecode.schema.TeamData.addPackage = function(builder, packageOffset) {
-  builder.addFieldOffset(1, packageOffset, 0);
+battlecode.schema.TeamData.addPackageName = function(builder, packageNameOffset) {
+  builder.addFieldOffset(1, packageNameOffset, 0);
 };
 
 /**
