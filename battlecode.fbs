@@ -7,69 +7,131 @@ struct Vec {
     y: float = 0;
 }
 
-/// The 'category' a Body falls into.
-/// We can add more of these later.
-/// It might make sense to encode these dynamically, the way we do teams; this
-/// is simple and easy for now, though.
-enum BodyType : ubyte {
-    /// A simple robot.
-    ROBOT,
-    /// A sitting Body that cannot be destroyed.
-    RUBBLE,
+/// The possible types of things that can exist.
+enum BodyType : byte {
+    /// Archons are the mobile equivalent of a HQ whose sole purpose is to hire
+    /// gardeners to maintain the land.
+    ARCHON,
+    /// Gardeners are caretakers of the land, planting and watering Bullet Trees
+    /// while also cultivating all other player robots.
+    GARDENER,
+    /// Lumberjacks are melee units equipped for felling trees.
+    LUMBERJACK,
+    /// Recruits are all-around units with a tricky shot.
+    RECRUIT,
+    /// Soldiers are all-around units with a tricky shot. But different.
+    SOLDIER,
+    /// Tanks are large, slow units with powerful bullets.
+    TANK,
+    /// Scouts are fast units that move around without obstruction.
+    SCOUT,
     /// A bullet that moves in a perfectly straight line.
     /// Note: bullet location updates are not sent; a bullet is defined to be
     /// in position loc + dt * vel after dt seconds.
     /// This allows us some significant space savings, since there are lots
     /// of bullets, and we don't need to send position updates.
     /// The event stream will say if a bullet has been destroyed.
-    BULLET
+    BULLET,
+    /// A tree that does not belong to a team and may contain objects.
+    TREE_NEUTRAL,
+    /// A tree that belongs to a team and produces bullets.
+    TREE_BULLET
 }
 
 /// A new Body to be placed on the map.
 table SpawnedBody {
     /// The numeric ID of the new Body.
-    robotID: ushort;
+    /// Will never be negative.
+    robotID: int;
     /// The team of the new Body.
-    teamID: ubyte;
+    teamID: byte;
     /// The type of the new Body.
     type: BodyType;
     /// The radius of the Body.
     radius: float;
-    /// The location of the Body, in meters from the center of the map.
+    /// The location of the Body, in distance units from the center of the map.
     loc: Vec;
-    /// The velocity of the Body, in meters PER SECOND (NOT per round).
+    /// The velocity of the Body, in distance units per turn.
     vel: Vec;
-}
-
-/// Types of bounds a map can have.
-union Bounds {
-    RectangleBounds, CircleBounds
-}
-/// A rectangular map.
-table RectangleBounds {
-    width: float;
-    height: float;
-}
-/// A circular map.
-table CircleBounds {
-    radius: float;
 }
 
 /// The map a round is played on.
 table Map {
     /// The name of a map.
     name: string;
-    /// The number of simulation steps a map requires per second.
-    /// The time delta for a simulation step can be calculated as 
-    /// dt = 1s/stepsPerSecond.
-    stepsPerSecond: ubyte = 5;
-    /// The bounds of the map.
-    bounds: Bounds;
+    /// The bottom corner of the map.
+    minCorner: Vec;
+    /// The top corner of the map.
+    maxCorner: Vec;
     /// The bodies on the map.
     bodies: [SpawnedBody];
 }
 
+/// Actions that can be performed.
+/// Purely aesthetic; have no actual effect on simulation.
+/// Actions may have 'targets', which are the units on which
+/// the actions were performed.
+enum Action : byte {
+    /// Fire a bullet.
+    /// Target: spawned bullet.
+    FIRE,
+    /// Fire three bullets.
+    /// Target: spawned bullets.
+    FIRE_TRIAD,
+    /// Fire five bullets.
+    /// Target: spawned bullets.
+    FIRE_PENTAD,
+    /// Perform a lumberjack-chop.
+    /// Target: none
+    CHOP,
+    /// Shake a tree.
+    /// Target: tree
+    SHAKE_TREE,
+    /// Plant a tree.
+    /// Target: tree
+    PLANT_TREE,
+    /// Water a tree.
+    /// Target: tree
+    WATER_TREE,
+    /// Build a unit.
+    /// Target: spawned unit
+    SPAWN_UNIT,
+    /// Die due to an uncaught exception
+    /// Target: none
+    DIE_EXCEPTION,
+    /// Die due to suicide.
+    /// Target: none
+    DIE_SUICIDE
+}
+
 // Metadata
+
+/// Metadata about all bodies of a particular type.
+table BodyTypeMetadata {
+    /// The relevant type.
+    type: BodyType;
+    /// The radius of the type, in distance units.
+    radius: float;
+    /// The cost of the type, in bullets.
+    cost: float;
+    /// The maxiumum health of the type, in health units.
+    maxHealth: float;
+    /// If unset, the same as maxHealth.
+    /// Otherwise, the health a body of this type starts with.
+    startHealth: float;
+    /// The delay penalty added to the core counter after movement.
+    moveDelay: float;
+    /// The delay penalty added to the attack counter after movement.
+    attackDelay: float;
+    /// The delay penalty added to the attack counter after movement, and vice versa.
+    cooldownDelay: float;
+    /// The speed that bullets from this unit move.
+    /// Note: you don't need to keep track of this, SpawnedBody.vel will always be set.
+    bulletSpeed: float;
+    /// The damage that bullets from this unit inflict.
+    /// Note: you don't need to keep track of this.
+    bulletAttack: float;
+}
 
 /// Data relevant to a particular team.
 table TeamData {
@@ -78,7 +140,7 @@ table TeamData {
     /// The java package the team uses.
     packageName: string;
     /// The ID of the team this data pertains to.
-    teamID: ubyte;
+    teamID: byte;
 }
 
 // Events
@@ -104,34 +166,33 @@ union Event {
     GameFooter
 }
 
-/// Necessary due to flatbuffers requiring events to be wrapped in tables.
-table EventWrapper {
-    e: Event;
-}
-
 /// The first event sent in the game. Contains all metadata about the game.
 table GameHeader {
+    /// The version of the spec this game complies with.
+    specVersion: string;
     /// The teams participating in the game.
     teams: [TeamData];
+    /// Information about all body types in the game.
+    bodyTypeMetadata: [BodyTypeMetadata];
 }
 
 /// The final event sent in the game.
 table GameFooter {
     /// The ID of the winning team of the game.
-    winner: ubyte;
+    winner: byte;
 }
 
 /// Sent to start a match.
 table MatchHeader {
     /// The map the match was played on.
     map: Map;
-    maxRounds: uint;
+    maxRounds: int;
 }
 
 /// Sent to end a match.
 table MatchFooter {
     winner: byte;
-    totalRounds: uint;
+    totalRounds: int;
 }
 
 /// A single time-step in a Game.
@@ -139,23 +200,37 @@ table MatchFooter {
 /// Note that a struct-of-arrays format is more space efficient than an array-
 /// of-structs.
 table Round {
-    /// Turns since the start of a match. Rounds may be skipped, so this
-    /// is useful.
-    number: uint;
-
     /// The IDs of bodies that moved.
-    movedIDs: [uint];
+    movedIDs: [int];
     /// The new locations of bodies that have moved. They are defined to be in
     /// their new locations at exactly the time round.number*dt.
     movedLocs: [Vec];
 
-    /// New bodies. They come into existence at round.number*dt.
+    /// New bodies.
     spawned: [SpawnedBody];
 
+    /// The IDs of bodies with changed health.
+    healthChangedIDs: [int];
+    /// The new health levels of bodies with changed health.
+    healthChangeLevels: [float];
+
     /// The IDs of bodies that died. They died at round.number*dt.
-    diedIDs: [uint];
+    diedIDs: [int];
+
+    /// The IDs of robots that performed actions.
+    /// IDs may repeat.
+    actionIDs: [int];
+    /// The actions performed.
+    actions: [Action]; 
+    /// The 'targets' of the performed actions. Actions without targets may have
+    /// any target (typically 0).
+    actionTargets: [int];
 }
 
+/// Necessary due to flatbuffers requiring unions to be wrapped in tables.
+table EventWrapper {
+    e: Event;
+}
 
 /// If events are not otherwise delimited, this wrapper structure
 /// allows a game to be stored in a single buffer.
@@ -167,8 +242,8 @@ table GameWrapper {
     /// The series of events comprising the game.
     events: [EventWrapper];
     /// The indices of the headers of the matches, in order.
-    matchHeaders: [uint];
+    matchHeaders: [int];
     /// The indices of the footers of the matches, in order.
-    matchFooters: [uint];
+    matchFooters: [int];
 }
 
