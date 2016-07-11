@@ -56,7 +56,7 @@ table SpawnedBody {
 }
 
 /// The map a round is played on.
-table Map {
+table GameMap {
     /// The name of a map.
     name: string;
     /// The bottom corner of the map.
@@ -185,7 +185,7 @@ table GameFooter {
 /// Sent to start a match.
 table MatchHeader {
     /// The map the match was played on.
-    map: Map;
+    map: GameMap;
     maxRounds: int;
 }
 
