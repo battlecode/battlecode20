@@ -37,14 +37,19 @@ public final class GameMap extends Table {
   public SpawnedBody bodies(int j) { return bodies(new SpawnedBody(), j); }
   public SpawnedBody bodies(SpawnedBody obj, int j) { int o = __offset(10); return o != 0 ? obj.__init(__indirect(__vector(o) + j * 4), bb) : null; }
   public int bodiesLength() { int o = __offset(10); return o != 0 ? __vector_len(o) : 0; }
+  /**
+   * The random seed of the map.
+   */
+  public int randomSeed() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
-  public static void startGameMap(FlatBufferBuilder builder) { builder.startObject(4); }
+  public static void startGameMap(FlatBufferBuilder builder) { builder.startObject(5); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(0, nameOffset, 0); }
   public static void addMinCorner(FlatBufferBuilder builder, int minCornerOffset) { builder.addStruct(1, minCornerOffset, 0); }
   public static void addMaxCorner(FlatBufferBuilder builder, int maxCornerOffset) { builder.addStruct(2, maxCornerOffset, 0); }
   public static void addBodies(FlatBufferBuilder builder, int bodiesOffset) { builder.addOffset(3, bodiesOffset, 0); }
   public static int createBodiesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
   public static void startBodiesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addRandomSeed(FlatBufferBuilder builder, int randomSeed) { builder.addInt(4, randomSeed, 0); }
   public static int endGameMap(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

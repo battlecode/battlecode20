@@ -65,6 +65,8 @@ table GameMap {
     maxCorner: Vec;
     /// The bodies on the map.
     bodies: [SpawnedBody];
+    /// The random seed of the map.
+    randomSeed: int;
 }
 
 /// Actions that can be performed.
