@@ -18,6 +18,9 @@
 /// @addtogroup flatbuffers_javascript_api
 /// @{
 /// @cond FLATBUFFERS_INTERNAL
+/**
+ * @namespace
+ */
 var flatbuffers = {};
 
 /**

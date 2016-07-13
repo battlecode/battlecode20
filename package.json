@@ -3,7 +3,8 @@
   "version": "2017.0.0",
   "private": "true",
   "description": "flatbuffers parser for battlecode match files",
-  "main": "index.js",
+  "main": "js/index.js",
+  "typings": "js/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
