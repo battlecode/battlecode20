@@ -2,7 +2,8 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "out"
+    "outDir": "out",
+    "target": "es5"
   },
   "exclude": [
     "node_modules",

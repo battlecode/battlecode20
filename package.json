@@ -7,8 +7,8 @@
   "private": true,
   "scripts": {
     "build": "echo building... && tsc -p .",
-    "lint": "echo linting... && tslint \"**/*.ts\" -e \"source/**\" -e \"source-test/**\" -e \"out/**\" -e \"node_modules/**\" -e \"typings/**\"",
-    "test": "echo running server tests... && cd test && ts-node ../node_modules/blue-tape/bin/blue-tape.js \"**/*.ts\" | tap-dots",
+    "lint": "echo linting... && tslint \"**/*.ts\" -e \"source/**\" -e \"out/**\" -e \"typings/**\"",
+    "test": "echo running server tests... && cd test && ts-node ../node_modules/blue-tape/bin/blue-tape.js \"**/*.ts\" | tap-dot",
     "watch": "onchange -w \"**/*.ts\" -i -e \"out/**\" -- npm -s run build+test",
     "publish": "npm -s run lint+build+test && echo please publish to typings/registry",
     "build+test": "npm run build && npm run test",
@@ -20,7 +20,7 @@
     "url": "github.com/battlecode/battlecode-playback"
   },
   "dependencies": {
-    "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#e0bcb42d96bf3d27d426fa54f9e161182bdc7823"
+    "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#a6f1f64fdbd3633caaefafc19e6092d674571acb"
   },
   "devDependencies": {
     "blue-tape": "^0.2.0",

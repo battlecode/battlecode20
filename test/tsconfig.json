@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "target": "es5"
   },
   "files": [
-    "test.ts",
+    "vec.ts",
     "../typings/index.d.ts"
   ]
 }
