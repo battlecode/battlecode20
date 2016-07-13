@@ -7,6 +7,12 @@ struct Vec {
     y: float = 0;
 }
 
+/// A table of vectors.
+table VecTable {
+    xs: [float];
+    ys: [float];
+}
+
 /// The possible types of things that can exist.
 enum BodyType : byte {
     /// Archons are the mobile equivalent of a HQ whose sole purpose is to hire
@@ -38,21 +44,38 @@ enum BodyType : byte {
     TREE_BULLET
 }
 
-/// A new Body to be placed on the map.
-table SpawnedBody {
-    /// The numeric ID of the new Body.
+/// A list of new bodies to be placed on the map.
+table SpawnedBodyTable {
+    /// The numeric ID of the new bodies.
     /// Will never be negative.
-    robotID: int;
-    /// The team of the new Body.
-    teamID: byte;
-    /// The type of the new Body.
-    type: BodyType;
-    /// The radius of the Body.
-    radius: float;
-    /// The location of the Body, in distance units from the center of the map.
-    loc: Vec;
-    /// The velocity of the Body, in distance units per turn.
-    vel: Vec;
+    /// There will only be one body/bullet with a particular ID at a time.
+    /// So, there will never be two robots with the same ID, or a robot and
+    /// a bullet with the same ID.
+    robotIDs: [int];
+    /// The teams of the new bodies.
+    teamIDs: [byte];
+    /// The types of the new bodies.
+    types: [BodyType];
+    /// The radii of the bodies.
+    radii: [float];
+    /// The locations of the bodies.
+    locs: VecTable;
+}
+
+/// A list of new bullets to be placed on the map.
+table SpawnedBulletTable {
+    /// The numeric ID of the new bullets.
+    /// Will never be negative.
+    /// There will only be one body/bullet with a particular ID at a time.
+    /// So, there will never be two robots with the same ID, or a robot and
+    /// a bullet with the same ID.
+    robotIDs: [int];
+    /// The locations of the bodies.
+    locs: VecTable;
+    /// The velocities of the bodies.
+    vels: VecTable;
+    /// The damage levels of the bodies.
+    damages: [float];
 }
 
 /// The map a round is played on.
@@ -64,13 +87,15 @@ table GameMap {
     /// The top corner of the map.
     maxCorner: Vec;
     /// The bodies on the map.
-    bodies: [SpawnedBody];
+    bodies: SpawnedBodyTable;
     /// The random seed of the map.
     randomSeed: int;
 }
 
 /// Actions that can be performed.
 /// Purely aesthetic; have no actual effect on simulation.
+/// (Although the simulation may want to track the 'parents' of
+/// particular robots.)
 /// Actions may have 'targets', which are the units on which
 /// the actions were performed.
 enum Action : byte {
@@ -188,12 +213,15 @@ table GameFooter {
 table MatchHeader {
     /// The map the match was played on.
     map: GameMap;
+    /// The maximum number of rounds in this match.
     maxRounds: int;
 }
 
 /// Sent to end a match.
 table MatchFooter {
+    /// The ID of the winning team.
     winner: byte;
+    /// The number of rounds played.
     totalRounds: int;
 }
 
@@ -206,18 +234,20 @@ table Round {
     movedIDs: [int];
     /// The new locations of bodies that have moved. They are defined to be in
     /// their new locations at exactly the time round.number*dt.
-    movedLocs: [Vec];
+    movedLocs: VecTable;
 
     /// New bodies.
-    spawned: [SpawnedBody];
+    spawned: SpawnedBodyTable;
 
     /// The IDs of bodies with changed health.
     healthChangedIDs: [int];
     /// The new health levels of bodies with changed health.
     healthChangeLevels: [float];
 
-    /// The IDs of bodies that died. They died at round.number*dt.
+    /// The IDs of bodies that died.
     diedIDs: [int];
+    /// The IDs of bullets that died.
+    diedBulletIDs: [int];
 
     /// The IDs of robots that performed actions.
     /// IDs may repeat.

@@ -739,7 +739,7 @@ declare module index {
          *
          * @enum
          */
-        enum BodyType {
+        export enum BodyType {
             /**
              * Archons are the mobile equivalent of a HQ whose sole purpose is to hire
              * gardeners to maintain the land.
@@ -792,12 +792,14 @@ declare module index {
         /**
          * Actions that can be performed.
          * Purely aesthetic; have no actual effect on simulation.
+         * (Although the simulation may want to track the 'parents' of
+         * particular robots.)
          * Actions may have 'targets', which are the units on which
          * the actions were performed.
          *
          * @enum
          */
-        enum Action {
+        export enum Action {
             /**
              * Fire a bullet.
              * Target: spawned bullet.
@@ -861,7 +863,7 @@ declare module index {
          *
          * @enum
          */
-        enum Event {
+        export enum Event {
             NONE,
             /**
              * There should only be one GameHeader, at the start of the stream.
@@ -939,13 +941,13 @@ declare module index {
         }
 
         /**
-         * A new Body to be placed on the map.
+         * A table of vectors.
          *
          * @constructor
          */
-        export class SpawnedBody {
+        export class VecTable {
             /**
-             * A new Body to be placed on the map.
+             * A table of vectors.
              *
              * @constructor
              */
@@ -964,108 +966,429 @@ declare module index {
             /**
              * @param {number} i
              * @param {flatbuffers.ByteBuffer} bb
-             * @returns {schema.SpawnedBody}
+             * @returns {schema.VecTable}
              */
-            __init(i: number, bb: flatbuffers.ByteBuffer): schema.SpawnedBody;
+            __init(i: number, bb: flatbuffers.ByteBuffer): schema.VecTable;
 
             /**
              * @param {flatbuffers.ByteBuffer} bb
-             * @param {schema.SpawnedBody=} obj
-             * @returns {schema.SpawnedBody}
+             * @param {schema.VecTable=} obj
+             * @returns {schema.VecTable}
              */
-            static getRootAsSpawnedBody(bb: flatbuffers.ByteBuffer, obj?: schema.SpawnedBody): schema.SpawnedBody;
+            static getRootAsVecTable(bb: flatbuffers.ByteBuffer, obj?: schema.VecTable): schema.VecTable;
 
             /**
-             * The numeric ID of the new Body.
-             * Will never be negative.
-             *
+             * @param {number} index
              * @returns {number}
              */
-            robotID(): number;
+            xs(index: number): number;
 
             /**
-             * The team of the new Body.
-             *
              * @returns {number}
              */
-            teamID(): number;
+            xsLength(): number;
 
             /**
-             * The type of the new Body.
-             *
-             * @returns {schema.BodyType}
-             */
-            type(): schema.BodyType;
-
-            /**
-             * The radius of the Body.
-             *
+             * @param {number} index
              * @returns {number}
              */
-            radius(): number;
+            ys(index: number): number;
 
             /**
-             * The location of the Body, in distance units from the center of the map.
-             *
-             * @param {schema.Vec=} obj
-             * @returns {schema.Vec}
+             * @returns {number}
              */
-            loc(obj?: schema.Vec): schema.Vec;
-
-            /**
-             * The velocity of the Body, in distance units per turn.
-             *
-             * @param {schema.Vec=} obj
-             * @returns {schema.Vec}
-             */
-            vel(obj?: schema.Vec): schema.Vec;
+            ysLength(): number;
 
             /**
              * @param {flatbuffers.Builder} builder
              */
-            static startSpawnedBody(builder: flatbuffers.Builder): void;
+            static startVecTable(builder: flatbuffers.Builder): void;
 
             /**
              * @param {flatbuffers.Builder} builder
-             * @param {number} robotID
+             * @param {flatbuffers.Offset} xsOffset
              */
-            static addRobotID(builder: flatbuffers.Builder, robotID: number): void;
+            static addXs(builder: flatbuffers.Builder, xsOffset: flatbuffers.Offset): void;
 
             /**
              * @param {flatbuffers.Builder} builder
-             * @param {number} teamID
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
              */
-            static addTeamID(builder: flatbuffers.Builder, teamID: number): void;
+            static createXsVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
 
             /**
              * @param {flatbuffers.Builder} builder
-             * @param {schema.BodyType} type
+             * @param {number} numElems
              */
-            static addType(builder: flatbuffers.Builder, type: schema.BodyType): void;
+            static startXsVector(builder: flatbuffers.Builder, numElems: number): void;
 
             /**
              * @param {flatbuffers.Builder} builder
-             * @param {number} radius
+             * @param {flatbuffers.Offset} ysOffset
              */
-            static addRadius(builder: flatbuffers.Builder, radius: number): void;
+            static addYs(builder: flatbuffers.Builder, ysOffset: flatbuffers.Offset): void;
 
             /**
              * @param {flatbuffers.Builder} builder
-             * @param {flatbuffers.Offset} locOffset
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
              */
-            static addLoc(builder: flatbuffers.Builder, locOffset: flatbuffers.Offset): void;
+            static createYsVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
 
             /**
              * @param {flatbuffers.Builder} builder
-             * @param {flatbuffers.Offset} velOffset
+             * @param {number} numElems
              */
-            static addVel(builder: flatbuffers.Builder, velOffset: flatbuffers.Offset): void;
+            static startYsVector(builder: flatbuffers.Builder, numElems: number): void;
 
             /**
              * @param {flatbuffers.Builder} builder
              * @returns {flatbuffers.Offset}
              */
-            static endSpawnedBody(builder: flatbuffers.Builder): flatbuffers.Offset;
+            static endVecTable(builder: flatbuffers.Builder): flatbuffers.Offset;
+
+        }
+
+        /**
+         * A list of new bodies to be placed on the map.
+         *
+         * @constructor
+         */
+        export class SpawnedBodyTable {
+            /**
+             * A list of new bodies to be placed on the map.
+             *
+             * @constructor
+             */
+            constructor();
+
+            /**
+             * @type {flatbuffers.ByteBuffer}
+             */
+            bb: flatbuffers.ByteBuffer;
+
+            /**
+             * @type {number}
+             */
+            bb_pos: number;
+
+            /**
+             * @param {number} i
+             * @param {flatbuffers.ByteBuffer} bb
+             * @returns {schema.SpawnedBodyTable}
+             */
+            __init(i: number, bb: flatbuffers.ByteBuffer): schema.SpawnedBodyTable;
+
+            /**
+             * @param {flatbuffers.ByteBuffer} bb
+             * @param {schema.SpawnedBodyTable=} obj
+             * @returns {schema.SpawnedBodyTable}
+             */
+            static getRootAsSpawnedBodyTable(bb: flatbuffers.ByteBuffer, obj?: schema.SpawnedBodyTable): schema.SpawnedBodyTable;
+
+            /**
+             * The numeric ID of the new bodies.
+             * Will never be negative.
+             * There will only be one body/bullet with a particular ID at a time.
+             * So, there will never be two robots with the same ID, or a robot and
+             * a bullet with the same ID.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            robotIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            robotIDsLength(): number;
+
+            /**
+             * The teams of the new bodies.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            teamIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            teamIDsLength(): number;
+
+            /**
+             * The types of the new bodies.
+             *
+             * @param {number} index
+             * @returns {schema.BodyType}
+             */
+            types(index: number): schema.BodyType;
+
+            /**
+             * @returns {number}
+             */
+            typesLength(): number;
+
+            /**
+             * The radii of the bodies.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            radii(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            radiiLength(): number;
+
+            /**
+             * The locations of the bodies.
+             *
+             * @param {schema.VecTable=} obj
+             * @returns {schema.VecTable}
+             */
+            locs(obj?: schema.VecTable): schema.VecTable;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             */
+            static startSpawnedBodyTable(builder: flatbuffers.Builder): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} robotIDsOffset
+             */
+            static addRobotIDs(builder: flatbuffers.Builder, robotIDsOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createRobotIDsVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startRobotIDsVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} teamIDsOffset
+             */
+            static addTeamIDs(builder: flatbuffers.Builder, teamIDsOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createTeamIDsVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startTeamIDsVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} typesOffset
+             */
+            static addTypes(builder: flatbuffers.Builder, typesOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<schema.BodyType>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createTypesVector(builder: flatbuffers.Builder, data: schema.BodyType[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startTypesVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} radiiOffset
+             */
+            static addRadii(builder: flatbuffers.Builder, radiiOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createRadiiVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startRadiiVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} locsOffset
+             */
+            static addLocs(builder: flatbuffers.Builder, locsOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @returns {flatbuffers.Offset}
+             */
+            static endSpawnedBodyTable(builder: flatbuffers.Builder): flatbuffers.Offset;
+
+        }
+
+        /**
+         * A list of new bullets to be placed on the map.
+         *
+         * @constructor
+         */
+        export class SpawnedBulletTable {
+            /**
+             * A list of new bullets to be placed on the map.
+             *
+             * @constructor
+             */
+            constructor();
+
+            /**
+             * @type {flatbuffers.ByteBuffer}
+             */
+            bb: flatbuffers.ByteBuffer;
+
+            /**
+             * @type {number}
+             */
+            bb_pos: number;
+
+            /**
+             * @param {number} i
+             * @param {flatbuffers.ByteBuffer} bb
+             * @returns {schema.SpawnedBulletTable}
+             */
+            __init(i: number, bb: flatbuffers.ByteBuffer): schema.SpawnedBulletTable;
+
+            /**
+             * @param {flatbuffers.ByteBuffer} bb
+             * @param {schema.SpawnedBulletTable=} obj
+             * @returns {schema.SpawnedBulletTable}
+             */
+            static getRootAsSpawnedBulletTable(bb: flatbuffers.ByteBuffer, obj?: schema.SpawnedBulletTable): schema.SpawnedBulletTable;
+
+            /**
+             * The numeric ID of the new bullets.
+             * Will never be negative.
+             * There will only be one body/bullet with a particular ID at a time.
+             * So, there will never be two robots with the same ID, or a robot and
+             * a bullet with the same ID.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            robotIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            robotIDsLength(): number;
+
+            /**
+             * The locations of the bodies.
+             *
+             * @param {schema.VecTable=} obj
+             * @returns {schema.VecTable}
+             */
+            locs(obj?: schema.VecTable): schema.VecTable;
+
+            /**
+             * The velocities of the bodies.
+             *
+             * @param {schema.VecTable=} obj
+             * @returns {schema.VecTable}
+             */
+            vels(obj?: schema.VecTable): schema.VecTable;
+
+            /**
+             * The damage levels of the bodies.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            damages(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            damagesLength(): number;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             */
+            static startSpawnedBulletTable(builder: flatbuffers.Builder): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} robotIDsOffset
+             */
+            static addRobotIDs(builder: flatbuffers.Builder, robotIDsOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createRobotIDsVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startRobotIDsVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} locsOffset
+             */
+            static addLocs(builder: flatbuffers.Builder, locsOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} velsOffset
+             */
+            static addVels(builder: flatbuffers.Builder, velsOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} damagesOffset
+             */
+            static addDamages(builder: flatbuffers.Builder, damagesOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createDamagesVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startDamagesVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @returns {flatbuffers.Offset}
+             */
+            static endSpawnedBulletTable(builder: flatbuffers.Builder): flatbuffers.Offset;
 
         }
 
@@ -1074,7 +1397,7 @@ declare module index {
          *
          * @constructor
          */
-        export class Map {
+        export class GameMap {
             /**
              * The map a round is played on.
              *
@@ -1095,16 +1418,16 @@ declare module index {
             /**
              * @param {number} i
              * @param {flatbuffers.ByteBuffer} bb
-             * @returns {schema.Map}
+             * @returns {schema.GameMap}
              */
-            __init(i: number, bb: flatbuffers.ByteBuffer): schema.Map;
+            __init(i: number, bb: flatbuffers.ByteBuffer): schema.GameMap;
 
             /**
              * @param {flatbuffers.ByteBuffer} bb
-             * @param {schema.Map=} obj
-             * @returns {schema.Map}
+             * @param {schema.GameMap=} obj
+             * @returns {schema.GameMap}
              */
-            static getRootAsMap(bb: flatbuffers.ByteBuffer, obj?: schema.Map): schema.Map;
+            static getRootAsGameMap(bb: flatbuffers.ByteBuffer, obj?: schema.GameMap): schema.GameMap;
 
             /**
              * The name of a map.
@@ -1133,21 +1456,22 @@ declare module index {
             /**
              * The bodies on the map.
              *
-             * @param {number} index
-             * @param {schema.SpawnedBody=} obj
-             * @returns {schema.SpawnedBody}
+             * @param {schema.SpawnedBodyTable=} obj
+             * @returns {schema.SpawnedBodyTable}
              */
-            bodies(index: number, obj?: schema.SpawnedBody): schema.SpawnedBody;
+            bodies(obj?: schema.SpawnedBodyTable): schema.SpawnedBodyTable;
 
             /**
+             * The random seed of the map.
+             *
              * @returns {number}
              */
-            bodiesLength(): number;
+            randomSeed(): number;
 
             /**
              * @param {flatbuffers.Builder} builder
              */
-            static startMap(builder: flatbuffers.Builder): void;
+            static startGameMap(builder: flatbuffers.Builder): void;
 
             /**
              * @param {flatbuffers.Builder} builder
@@ -1175,22 +1499,15 @@ declare module index {
 
             /**
              * @param {flatbuffers.Builder} builder
-             * @param {Array.<flatbuffers.Offset>} data
-             * @returns {flatbuffers.Offset}
+             * @param {number} randomSeed
              */
-            static createBodiesVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset;
-
-            /**
-             * @param {flatbuffers.Builder} builder
-             * @param {number} numElems
-             */
-            static startBodiesVector(builder: flatbuffers.Builder, numElems: number): void;
+            static addRandomSeed(builder: flatbuffers.Builder, randomSeed: number): void;
 
             /**
              * @param {flatbuffers.Builder} builder
              * @returns {flatbuffers.Offset}
              */
-            static endMap(builder: flatbuffers.Builder): flatbuffers.Offset;
+            static endGameMap(builder: flatbuffers.Builder): flatbuffers.Offset;
 
         }
 
@@ -1701,12 +2018,14 @@ declare module index {
             /**
              * The map the match was played on.
              *
-             * @param {schema.Map=} obj
-             * @returns {schema.Map}
+             * @param {schema.GameMap=} obj
+             * @returns {schema.GameMap}
              */
-            map(obj?: schema.Map): schema.Map;
+            map(obj?: schema.GameMap): schema.GameMap;
 
             /**
+             * The maximum number of rounds in this match.
+             *
              * @returns {number}
              */
             maxRounds(): number;
@@ -1774,11 +2093,15 @@ declare module index {
             static getRootAsMatchFooter(bb: flatbuffers.ByteBuffer, obj?: schema.MatchFooter): schema.MatchFooter;
 
             /**
+             * The ID of the winning team.
+             *
              * @returns {number}
              */
             winner(): number;
 
             /**
+             * The number of rounds played.
+             *
              * @returns {number}
              */
             totalRounds(): number;
@@ -1868,30 +2191,18 @@ declare module index {
              * The new locations of bodies that have moved. They are defined to be in
              * their new locations at exactly the time round.number*dt.
              *
-             * @param {number} index
-             * @param {schema.Vec=} obj
-             * @returns {schema.Vec}
+             * @param {schema.VecTable=} obj
+             * @returns {schema.VecTable}
              */
-            movedLocs(index: number, obj?: schema.Vec): schema.Vec;
-
-            /**
-             * @returns {number}
-             */
-            movedLocsLength(): number;
+            movedLocs(obj?: schema.VecTable): schema.VecTable;
 
             /**
              * New bodies.
              *
-             * @param {number} index
-             * @param {schema.SpawnedBody=} obj
-             * @returns {schema.SpawnedBody}
+             * @param {schema.SpawnedBodyTable=} obj
+             * @returns {schema.SpawnedBodyTable}
              */
-            spawned(index: number, obj?: schema.SpawnedBody): schema.SpawnedBody;
-
-            /**
-             * @returns {number}
-             */
-            spawnedLength(): number;
+            spawned(obj?: schema.SpawnedBodyTable): schema.SpawnedBodyTable;
 
             /**
              * The IDs of bodies with changed health.
@@ -1920,7 +2231,7 @@ declare module index {
             healthChangeLevelsLength(): number;
 
             /**
-             * The IDs of bodies that died. They died at round.number*dt.
+             * The IDs of bodies that died.
              *
              * @param {number} index
              * @returns {number}
@@ -1931,6 +2242,19 @@ declare module index {
              * @returns {number}
              */
             diedIDsLength(): number;
+
+            /**
+             * The IDs of bullets that died.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            diedBulletIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            diedBulletIDsLength(): number;
 
             /**
              * The IDs of robots that performed actions.
@@ -2005,28 +2329,9 @@ declare module index {
 
             /**
              * @param {flatbuffers.Builder} builder
-             * @param {number} numElems
-             */
-            static startMovedLocsVector(builder: flatbuffers.Builder, numElems: number): void;
-
-            /**
-             * @param {flatbuffers.Builder} builder
              * @param {flatbuffers.Offset} spawnedOffset
              */
             static addSpawned(builder: flatbuffers.Builder, spawnedOffset: flatbuffers.Offset): void;
-
-            /**
-             * @param {flatbuffers.Builder} builder
-             * @param {Array.<flatbuffers.Offset>} data
-             * @returns {flatbuffers.Offset}
-             */
-            static createSpawnedVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset;
-
-            /**
-             * @param {flatbuffers.Builder} builder
-             * @param {number} numElems
-             */
-            static startSpawnedVector(builder: flatbuffers.Builder, numElems: number): void;
 
             /**
              * @param {flatbuffers.Builder} builder
@@ -2084,6 +2389,25 @@ declare module index {
              * @param {number} numElems
              */
             static startDiedIDsVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} diedBulletIDsOffset
+             */
+            static addDiedBulletIDs(builder: flatbuffers.Builder, diedBulletIDsOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createDiedBulletIDsVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startDiedBulletIDsVector(builder: flatbuffers.Builder, numElems: number): void;
 
             /**
              * @param {flatbuffers.Builder} builder
@@ -2377,6 +2701,7 @@ declare module index {
              * @returns {flatbuffers.Offset}
              */
             static endGameWrapper(builder: flatbuffers.Builder): flatbuffers.Offset;
+
         }
     }
 }
