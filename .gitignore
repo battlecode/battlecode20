@@ -42,3 +42,6 @@ typings
 
 # output folder
 out
+
+# any javascript sources
+src/**/*.js

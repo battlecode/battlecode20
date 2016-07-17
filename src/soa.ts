@@ -1,4 +1,8 @@
+///<reference path="../typings/index.d.ts"/>
+
 import {flatbuffers} from 'battlecode-schema';
+// Map polyfill
+import * as Map from 'core-js/library/es6/map';
 
 /**
  * A class that wraps a group of typed buffers.
@@ -19,12 +23,14 @@ export default class StructOfArrays {
     float64: 'float64'
   }
 
-  private _primary: string;
-  private _primLookup: {[key: number]: number};
-  private _types: {[field: string]: TypeName};
-  private _arrays: {[field: string]: TypedArray};
+  private _arrays: Map<string, TypedArray>;
   private _capacity: number;
+  private _fields: string[];
   private _length: number;
+  private _primLookup: Map<number, number>;
+  private _primary: string;
+  private _toDelete: Uint32Array;
+  private _types: Map<string, TypeName>;
 
   /**
    * Use like:
@@ -41,16 +47,20 @@ export default class StructOfArrays {
   constructor(fields: {[field: string]: TypeName},
               primary: string,
               capacity?: number) {
-    this._length = 0;
+    this._arrays = new Map<string, TypedArray>();
     this._capacity = capacity? capacity : DEFAULT_CAPACITY;
-    this._arrays = {};
-    this._types = {};
-    this._primLookup = {};
+    this._fields = [];
+    this._length = 0;
+    this._primLookup = new Map<number, number>();
+    this._primary = primary;
+    this._toDelete = null;
+    this._types = new Map<string, TypeName>();
 
     for (let field in fields) {
       if (fields.hasOwnProperty(field)) {
         this._arrays[field] = new TYPE_MAPPINGS[fields[field]](this._capacity);
         this._types[field] = fields[field];
+        this._fields.push(field);
       }
     }
   }
@@ -58,7 +68,7 @@ export default class StructOfArrays {
   /**
    * Get the length of the entries in the array.
    */
-  length(): number {
+  get length(): number {
     return this._length;
   }
 
@@ -102,26 +112,36 @@ export default class StructOfArrays {
   /**
    * Set at an array index.
    */
-  private _insertAt(index: number, numbers: {[field: string]: number}) {
-    for (const field in numbers) {
-      if (numbers.hasOwnProperty(field) && this._arrays.hasOwnProperty(field)) {
-        this._arrays[field][index] = numbers[field];
+  private _insertAt(index: number, values: {[field: string]: number}) {
+    for (const field in values) {
+      if (values.hasOwnProperty(field) && this._arrays.has(field)) {
+        this._arrays[field][index] = values[field];
       }
     }
+  }
+
+  /**
+   * Delete at an array index.
+   * Very inefficient; prefer deleting in bulk.
+   */
+  delete(key: number) {
+    let arr = new TYPE_MAPPINGS[this._primary](1);
+    arr[0] = key;
+    this.deleteBulk(arr);
   }
 
   /**
    * Insert values in bulk.
    */
   insertBulk(values: {[field: string]: TypedArray}) {
-    if (!(this._primary in values)) {
-      throw new Error('Cannot insert without primary key');
+    if (!values.hasOwnProperty(this._primary)) {
+      throw new Error(`Cannot insert without primary key: '${this._primary}'`);
     }
     const startInsert = this._length;
     this._length += values[this._primary].length;
     this._resize();
     for (let field in values) {
-      if (values.hasOwnProperty(field) && this._arrays.hasOwnProperty(field)) {
+      if (values.hasOwnProperty(field) && this._arrays.has(field)) {
         this._arrays[field].set(values[field], startInsert);
       }
     }
@@ -136,11 +156,11 @@ export default class StructOfArrays {
    * Rows with nonexistent primary keys will be silently ignored.
    */
   alterBulk(values: {[field: string]: TypedArray}) {
-    if (!(this._primary in values)) {
-      throw new Error('Cannot insert without primary key');
+    if (!values.hasOwnProperty(this._primary)) {
+      throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
     for (let field in values) {
-      if (values.hasOwnProperty(field) && this._arrays.hasOwnProperty(field) && field != this._primary) {
+      if (values.hasOwnProperty(field) && this._arrays.has(field) && field != this._primary) {
         this._alterBulkFieldImpl(this._arrays[field], values[this._primary], values[field]);
       }
     }
@@ -154,6 +174,96 @@ export default class StructOfArrays {
     const length = primaries.length;
     for (let i = 0; i < length; i++) {
       target[lookup[primaries[i]]] = source[i];
+    }
+  }
+
+  /**
+   * Zero a TypedArray (or normal array, I suppose)
+   * @param start inclusive
+   * @param end exclusive
+   */
+  private _zero(arr: TypedArray, start: number, end: number) {
+    for (let i = start; i < end; i++) {
+      arr[i] = 0;
+    }
+  }
+
+  /**
+   * Create a sorted array of keys to delete.
+   * May allocate a new array, or reuse an old one.
+   */
+  private _makeToDelete(keys: TypedArray) {
+    if (this._toDelete == null || this._toDelete.length < keys.length) {
+      this._toDelete = new Uint32Array(keys.length);
+    }
+    const n = keys.length;
+    const t = this._toDelete.length === keys.length? this._toDelete :
+        this._toDelete.subarray(0, keys.length);
+
+    const p = this._primLookup;
+    for (let i = 0; i < n; i++) {
+      t[i] = p[keys[i]];
+    }
+
+    if (Uint32Array.prototype.sort) {
+      t.sort((a, b) => a - b);
+    } else {
+      Array.prototype.sort.call(t, (a, b) => a - b);
+    }
+  }
+
+  /**
+   * Delete a set of primary keys.
+   */
+  deleteBulk(keys: TypedArray) {
+    if (keys.length == 0) return;
+
+    // map the keys to indices and sort them
+    this._makeToDelete(keys);
+    for (let name of this._fields) {
+      const array = this._arrays[name];
+      // copy the fields down in the array
+      this._deleteBulkFieldImpl(this._toDelete, array);
+      // zero the new space in the array
+      this._zero(array, this._length - keys.length, this._length);
+    }
+    // update _primLookup
+    this._removePrimariesLookup(keys)
+    this._refreshPrimariesLookup();
+  }
+
+  /**
+   * @param toDelete at least one element; sorted ascending
+   * @param array the array to modify
+   */
+  private _deleteBulkFieldImpl(toDelete: Uint32Array, array: TypedArray) {
+    const n = this._length;
+    for (let i = toDelete[0], offset = 0; i < n; i++) {
+      if (toDelete[offset] == i) {
+        offset++;
+      }
+      array[i] = array[i + offset];
+    }
+  }
+
+  /**
+   * Remove primary keys from lookup table
+   */
+  private _removePrimariesLookup(keys: TypedArray) {
+    const p = this._primLookup;
+    for (let i = 0; i < keys.length; i++) {
+      p.delete(keys[i]);
+    }
+  }
+
+  /**
+   * Update the indices in the lookup table
+   */
+  private _refreshPrimariesLookup() {
+    const l = this._primLookup, p = this._arrays[this._primary];
+    const length = this._length;
+    for (let i = 0; i < length; i++) {
+      l[p[i]] = i;
     }
   }
 
@@ -198,14 +308,14 @@ export default class StructOfArrays {
    * you need to supply it as well.
    *
    * var soa = new StructOfArrays({ soaField: 'float64' }, 'soaField');
-   * soa.insertBulkFlat(table, { soaField: 20 }, 'int32');
+   * soa.insertBulkFlat(table, { soaField: 20 }, { soaField: 'int32'});
    *
    * Does not support int64, uint64, or struct vectors.
    */
   insertBulkFlat(table: flatbuffers.Table,
-                 offsets: {[field: string]: flatbuffers.Offset},
-                 flatType?: TypeName) {
-    this.insertBulk(this._lookupOffsets(table, offsets, flatType));
+                 offsets: {[field: string]: number},
+                 flatTypes?: {[field: string]: TypeName}) {
+    this.insertBulk(this._lookupOffsets(table, offsets, flatTypes));
   }
 
   /**
@@ -213,22 +323,28 @@ export default class StructOfArrays {
    * @see StructOfArrays.insertBulkFlat
    */
   alterBulkFlat(table: flatbuffers.Table,
-                offsets: {[field: string]: flatbuffers.Offset},
-                flatType?: TypeName) {
-    this.alterBulk(this._lookupOffsets(table, offsets, flatType));
+                offsets: {[field: string]: number},
+                flatTypes?: {[field: string]: TypeName}) {
+    this.alterBulk(this._lookupOffsets(table, offsets, flatTypes));
+  }
+
+  deleteBulkFlat(table: flatbuffers.Table,
+                 primaryOffset: number,
+                 primaryType?: TypeName) {
+    this.deleteBulk(this._lookupOffset(
+      table,
+      primaryOffset,
+      primaryType || this._types[this._primary]
+    ));
   }
 
   /**
    * Implementation that turns offsets into TypedArrays.
    */
   private _lookupOffsets(table: flatbuffers.Table,
-                         offsets: {[field: string]: flatbuffers.Offset},
-                         flatType?: TypeName):
+                         offsetIds: {[field: string]: number},
+                         flatTypes?: {[field: string]: TypeName}):
                            {[field: string]: TypedArray} {
-
-    const bb = table.bb;
-    const bb_pos = table.bb_pos;
-
     // Flatbuffers stores things as little endian.
     // If we're not little endian, this won't work.
     // The vast majority of modern systems are little endian, though.
@@ -237,29 +353,48 @@ export default class StructOfArrays {
       throw new Error('Wrong endianness, bucko.');
     }
     let results: {[field: string]: TypedArray} = {};
-    for (let field in offsets) {
-      if (offsets.hasOwnProperty(field) && this._arrays.hasOwnProperty(field)) {
-        // Go through the tables's vtable to find the vector object's
-        // offset in the table
-        let offset = bb.__offset(bb_pos, offsets[field]);
-        if (offset) { // not null
-          // The length of the vector, in terms of the type contained, NOT bytes
-          let length = bb.__vector_len(bb_pos + offset);
-          // The start of the vector
-          let start = bb.__vector(bb_pos + offset);
-
-          let arrayType = TYPE_MAPPINGS[this._types[field]];
-          results[field] = new arrayType(
-            // sneak around privacy limitations
-            bb['bytes_'].buffer,
-            start,
-            length
-          );
+    for (let field in offsetIds) {
+      if (offsetIds.hasOwnProperty(field) && this._arrays.has(field)) {
+        let result = this._lookupOffset(
+          table,
+          offsetIds[field],
+          flatTypes != null && flatTypes.hasOwnProperty(field)?
+            flatTypes[field] :
+            this._types[field]
+        );
+        if (result) {
+          results[field] = result;
         }
       }
     }
     return results;
   }
+
+  private _lookupOffset(table: flatbuffers.Table,
+                        offsetId: number,
+                        type: TypeName): TypedArray {
+    const bb = table.bb;
+    const bb_pos = table.bb_pos;
+
+    // Go through the tables's vtable to find the vector object's
+    // offset in the table
+    let offset = bb.__offset(bb_pos, offsetId);
+    if (offset) { // not null (0)
+      // The length of the vector, in terms of the type contained, NOT bytes
+      let length = bb.__vector_len(bb_pos + offset);
+      // The start of the vector
+      let start = bb.__vector(bb_pos + offset);
+
+      return new TYPE_MAPPINGS[type](
+        // sneak around privacy limitations
+        bb['bytes_'].buffer,
+        start,
+        length
+      );
+    }
+    return null;
+  }
+
 
   /**
    * Resize internal storage, if needed.
@@ -268,7 +403,7 @@ export default class StructOfArrays {
     if (this._length > this._capacity) {
       this._capacity = StructOfArrays._capacityForLength(this._length);
       for (const field in this._arrays) {
-        if (!this._arrays.hasOwnProperty(field)) { continue; }
+        if (!this._arrays.has(field)) { continue; }
         if (this._types[field] === 'string') {
           this._arrays[field].length = this._capacity;
         } else {
