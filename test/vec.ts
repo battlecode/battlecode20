@@ -7,6 +7,5 @@ test('trigonometry works', (t: test.Test) => {
   let v2 = new Vec(1, -1);
   t.equal(v.angleTo(v2), -Math.PI / 2, 'angleTo');
   t.equal(v.angleTo(v2), -v2.angleTo(v), 'opposite angleTo');
-  t.deepEqual(v.rotate(v.angleTo(v2)), v2, 'rotate angleTo');
   t.end();
 });

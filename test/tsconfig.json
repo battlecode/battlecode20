@@ -6,6 +6,7 @@
   },
   "files": [
     "vec.ts",
+    "soa.ts",
     "../typings/index.d.ts"
   ]
 }
