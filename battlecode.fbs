@@ -14,6 +14,7 @@ table VecTable {
 }
 
 /// The possible types of things that can exist.
+/// Note that neutral trees are not treated as bodies.
 enum BodyType : byte {
     /// Archons are the mobile equivalent of a HQ whose sole purpose is to hire
     /// gardeners to maintain the land.
@@ -38,8 +39,6 @@ enum BodyType : byte {
     /// of bullets, and we don't need to send position updates.
     /// The event stream will say if a bullet has been destroyed.
     BULLET,
-    /// A tree that does not belong to a team and may contain objects.
-    TREE_NEUTRAL,
     /// A tree that belongs to a team and produces bullets.
     TREE_BULLET
 }
@@ -56,10 +55,26 @@ table SpawnedBodyTable {
     teamIDs: [byte];
     /// The types of the new bodies.
     types: [BodyType];
-    /// The radii of the bodies.
-    radii: [float];
     /// The locations of the bodies.
     locs: VecTable;
+}
+
+/// A list of neutral trees to be placed on the map.
+table NeutralTreeTable {
+    /// The IDs of the trees.
+    robotIDs: [int];
+    /// The locations of the trees.
+    locs: VecTable;
+    /// The radii of the trees.
+    radii: [float];
+    /// The bullets contained within the trees.
+    containedBullets: [int];
+    /// The bodies contained within the trees (one table for each tree;
+    /// teamIDs and robotIDs will be unset.)
+    containedBodies: [SpawnedBodyTable];
+    /// The trees contained within the trees.
+    /// IT COULD BE COOL SHUT UP.
+    containedTrees: [NeutralTreeTable];
 }
 
 /// A list of new bullets to be placed on the map.
@@ -88,6 +103,8 @@ table GameMap {
     maxCorner: Vec;
     /// The bodies on the map.
     bodies: SpawnedBodyTable;
+    /// The neutral trees on the map.
+    trees: NeutralTreeTable;
     /// The random seed of the map.
     randomSeed: int;
 }
@@ -237,7 +254,9 @@ table Round {
     movedLocs: VecTable;
 
     /// New bodies.
-    spawned: SpawnedBodyTable;
+    spawnedBodies: SpawnedBodyTable;
+    /// New bullets.
+    spawnedBullets: SpawnedBulletTable;
 
     /// The IDs of bodies with changed health.
     healthChangedIDs: [int];
