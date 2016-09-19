@@ -69,7 +69,14 @@ battlecode.schema.BodyType = {
   /**
    * A tree that belongs to a team and produces bullets.
    */
-  TREE_BULLET: 8
+  TREE_BULLET: 8,
+
+  /**
+   * A neutral tree.
+   * This is included for convenience; note this value SHALL NOT appear in
+   * a SpawnedBodyTable.
+   */
+  TREE_NEUTRAL: 9
 };
 
 /**

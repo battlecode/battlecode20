@@ -783,7 +783,13 @@ declare module index {
             /**
              * A tree that belongs to a team and produces bullets.
              */
-            TREE_BULLET
+            TREE_BULLET,
+            /**
+             * A neutral tree.
+             * This is included for convenience; note this value SHALL NOT appear in
+             * a SpawnedBodyTable.
+             */
+            TREE_NEUTRAL
         }
 
         /**

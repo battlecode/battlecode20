@@ -40,7 +40,11 @@ enum BodyType : byte {
     /// The event stream will say if a bullet has been destroyed.
     BULLET,
     /// A tree that belongs to a team and produces bullets.
-    TREE_BULLET
+    TREE_BULLET,
+    /// A neutral tree.
+    /// This is included for convenience; note this value SHALL NOT appear in
+    /// a SpawnedBodyTable.
+    TREE_NEUTRAL
 }
 
 /// A list of new bodies to be placed on the map.

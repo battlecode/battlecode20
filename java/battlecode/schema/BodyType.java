@@ -51,8 +51,14 @@ public final class BodyType {
    * A tree that belongs to a team and produces bullets.
    */
   public static final byte TREE_BULLET = 8;
+  /**
+   * A neutral tree.
+   * This is included for convenience; note this value SHALL NOT appear in
+   * a SpawnedBodyTable.
+   */
+  public static final byte TREE_NEUTRAL = 9;
 
-  public static final String[] names = { "ARCHON", "GARDENER", "LUMBERJACK", "RECRUIT", "SOLDIER", "TANK", "SCOUT", "BULLET", "TREE_BULLET", };
+  public static final String[] names = { "ARCHON", "GARDENER", "LUMBERJACK", "RECRUIT", "SOLDIER", "TANK", "SCOUT", "BULLET", "TREE_BULLET", "TREE_NEUTRAL", };
 
   public static String name(int e) { return names[e]; }
 }
