@@ -740,7 +740,7 @@ declare module index {
          *
          * @enum
          */
-        enum BodyType {
+        export enum BodyType {
             /**
              * Archons are the mobile equivalent of a HQ whose sole purpose is to hire
              * gardeners to maintain the land.
@@ -796,7 +796,7 @@ declare module index {
          *
          * @enum
          */
-        enum Action {
+        export enum Action {
             /**
              * Fire a bullet.
              * Target: spawned bullet.
@@ -860,7 +860,7 @@ declare module index {
          *
          * @enum
          */
-        enum Event {
+        export enum Event {
             NONE,
             /**
              * There should only be one GameHeader, at the start of the stream.
@@ -891,7 +891,7 @@ declare module index {
          *
          * @constructor
          */
-        class Vec {
+        export class Vec {
             /**
              * A vector in two-dimensional space. Continuous space, of course.
              * Defaults to the 0 vector.
@@ -942,7 +942,7 @@ declare module index {
          *
          * @constructor
          */
-        class VecTable {
+        export class VecTable {
             /**
              * A table of vectors.
              *
@@ -1062,7 +1062,7 @@ declare module index {
          *
          * @constructor
          */
-        class SpawnedBodyTable {
+        export class SpawnedBodyTable {
             /**
              * A list of new bodies to be placed on the map.
              *
@@ -1241,7 +1241,7 @@ declare module index {
          *
          * @constructor
          */
-        class NeutralTreeTable {
+        export class NeutralTreeTable {
             /**
              * A list of neutral trees to be placed on the map.
              *
@@ -1484,7 +1484,7 @@ declare module index {
          *
          * @constructor
          */
-        class SpawnedBulletTable {
+        export class SpawnedBulletTable {
             /**
              * A list of new bullets to be placed on the map.
              *
@@ -1640,7 +1640,7 @@ declare module index {
          *
          * @constructor
          */
-        class GameMap {
+        export class GameMap {
             /**
              * The map a round is played on.
              *
@@ -1773,7 +1773,7 @@ declare module index {
          *
          * @constructor
          */
-        class BodyTypeMetadata {
+        export class BodyTypeMetadata {
             /**
              * Metadata about all bodies of a particular type.
              *
@@ -1956,7 +1956,7 @@ declare module index {
          *
          * @constructor
          */
-        class TeamData {
+        export class TeamData {
             /**
              * Data relevant to a particular team.
              *
@@ -2047,7 +2047,7 @@ declare module index {
          *
          * @constructor
          */
-        class GameHeader {
+        export class GameHeader {
             /**
              * The first event sent in the game. Contains all metadata about the game.
              *
@@ -2177,7 +2177,7 @@ declare module index {
          *
          * @constructor
          */
-        class GameFooter {
+        export class GameFooter {
             /**
              * The final event sent in the game.
              *
@@ -2240,7 +2240,7 @@ declare module index {
          *
          * @constructor
          */
-        class MatchHeader {
+        export class MatchHeader {
             /**
              * Sent to start a match.
              *
@@ -2317,7 +2317,7 @@ declare module index {
          *
          * @constructor
          */
-        class MatchFooter {
+        export class MatchFooter {
             /**
              * Sent to end a match.
              *
@@ -2396,7 +2396,7 @@ declare module index {
          *
          * @constructor
          */
-        class Round {
+        export class Round {
             /**
              * A single time-step in a Game.
              * The bulk of the data in the file is stored in tables like this.
@@ -2790,7 +2790,7 @@ declare module index {
          *
          * @constructor
          */
-        class EventWrapper {
+        export class EventWrapper {
             /**
              * Necessary due to flatbuffers requiring unions to be wrapped in tables.
              *
@@ -2868,7 +2868,7 @@ declare module index {
          *
          * @constructor
          */
-        class GameWrapper {
+        export class GameWrapper {
             /**
              * If events are not otherwise delimited, this wrapper structure
              * allows a game to be stored in a single buffer.
