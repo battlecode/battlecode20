@@ -2424,10 +2424,22 @@ battlecode.schema.Round.prototype.actionTargetsArray = function() {
 };
 
 /**
+ * The first sent Round in a match should have index 1. (The starting state,
+ * created by the MatchHeader, can be thought to have index 0.)
+ * It should increase by one for each following round.
+ *
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.roundID = function() {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.Round.startRound = function(builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 };
 
 /**
@@ -2684,6 +2696,14 @@ battlecode.schema.Round.createActionTargetsVector = function(builder, data) {
  */
 battlecode.schema.Round.startActionTargetsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} roundID
+ */
+battlecode.schema.Round.addRoundID = function(builder, roundID) {
+  builder.addFieldInt32(11, roundID, 0);
 };
 
 /**

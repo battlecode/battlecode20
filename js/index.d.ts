@@ -2609,6 +2609,15 @@ declare module index {
             actionTargetsArray(): Int32Array;
 
             /**
+             * The first sent Round in a match should have index 1. (The starting state,
+             * created by the MatchHeader, can be thought to have index 0.)
+             * It should increase by one for each following round.
+             *
+             * @returns {number}
+             */
+            roundID(): number;
+
+            /**
              * @param {flatbuffers.Builder} builder
              */
             static startRound(builder: flatbuffers.Builder): void;
@@ -2782,6 +2791,12 @@ declare module index {
              * @param {number} numElems
              */
             static startActionTargetsVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} roundID
+             */
+            static addRoundID(builder: flatbuffers.Builder, roundID: number): void;
 
             /**
              * @param {flatbuffers.Builder} builder
