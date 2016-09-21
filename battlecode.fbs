@@ -73,12 +73,8 @@ table NeutralTreeTable {
     radii: [float];
     /// The bullets contained within the trees.
     containedBullets: [int];
-    /// The bodies contained within the trees (one table for each tree;
-    /// teamIDs and robotIDs will be unset.)
-    containedBodies: [SpawnedBodyTable];
-    /// The trees contained within the trees.
-    /// IT COULD BE COOL SHUT UP.
-    containedTrees: [NeutralTreeTable];
+    /// The bodies contained within the trees.
+    containedBodies: [BodyType];
 }
 
 /// A list of new bullets to be placed on the map.
@@ -280,6 +276,11 @@ table Round {
     /// The 'targets' of the performed actions. Actions without targets may have
     /// any target (typically 0).
     actionTargets: [int];
+
+    /// The first sent Round in a match should have index 1. (The starting state,
+    /// created by the MatchHeader, can be thought to have index 0.)
+    /// It should increase by one for each following round.
+    roundID: int;
 }
 
 /// Necessary due to flatbuffers requiring unions to be wrapped in tables.

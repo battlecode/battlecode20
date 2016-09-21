@@ -1349,7 +1349,7 @@ declare module index {
              * @param {schema.SpawnedBodyTable=} obj
              * @returns {schema.SpawnedBodyTable}
              */
-            containedBodies(index: number, obj?: schema.SpawnedBodyTable): schema.SpawnedBodyTable;
+            containedBodies(index: number): schema.BodyType;
 
             /**
              * @returns {number}
@@ -1357,19 +1357,9 @@ declare module index {
             containedBodiesLength(): number;
 
             /**
-             * The trees contained within the trees.
-             * IT COULD BE COOL SHUT UP.
-             *
-             * @param {number} index
-             * @param {schema.NeutralTreeTable=} obj
-             * @returns {schema.NeutralTreeTable}
+             * @returns {Int8Array}
              */
-            containedTrees(index: number, obj?: schema.NeutralTreeTable): schema.NeutralTreeTable;
-
-            /**
-             * @returns {number}
-             */
-            containedTreesLength(): number;
+            containedBodiesArray(): Int8Array;
 
             /**
              * @param {flatbuffers.Builder} builder
@@ -2609,6 +2599,15 @@ declare module index {
             actionTargetsArray(): Int32Array;
 
             /**
+             * The first sent Round in a match should have index 1. (The starting state,
+             * created by the MatchHeader, can be thought to have index 0.)
+             * It should increase by one for each following round.
+             *
+             * @returns {number}
+             */
+            roundID(): number;
+
+            /**
              * @param {flatbuffers.Builder} builder
              */
             static startRound(builder: flatbuffers.Builder): void;
@@ -2782,6 +2781,12 @@ declare module index {
              * @param {number} numElems
              */
             static startActionTargetsVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} roundID
+             */
+            static addRoundID(builder: flatbuffers.Builder, roundID: number): void;
 
             /**
              * @param {flatbuffers.Builder} builder
