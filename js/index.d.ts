@@ -2839,10 +2839,10 @@ declare module index {
             eType(): schema.Event;
 
             /**
-             * @param {flatbuffers.Table} obj
-             * @returns {?flatbuffers.Table}
+             * @param obj
+             * @returns {GameHeader|MatchHeader|Round|MatchFooter|GameFooter}
              */
-            e(obj: flatbuffers.Table): flatbuffers.Table;
+            e(obj?: GameHeader | MatchHeader | Round | MatchFooter | GameFooter): GameHeader | MatchHeader | Round | MatchFooter | GameFooter;
 
             /**
              * @param {flatbuffers.Builder} builder
