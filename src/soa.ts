@@ -305,8 +305,12 @@ export default class StructOfArrays {
    * @param end exclusive
    */
   private static _zero(arr: TypedArray, start: number, end: number) {
-    for (let i = start; i < end; i++) {
-      arr[i] = 0;
+    if (arr.fill) {
+      arr.fill(0, start, end);
+    } else {
+      for (let i = start; i < end; i++) {
+        arr[i] = 0;
+      }
     }
   }
 
