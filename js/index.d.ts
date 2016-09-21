@@ -2842,7 +2842,7 @@ declare module index {
              * @param obj
              * @returns {GameHeader|MatchHeader|Round|MatchFooter|GameFooter}
              */
-            e(obj?: GameHeader | MatchHeader | Round | MatchFooter | GameFooter): GameHeader | MatchHeader | Round | MatchFooter | GameFooter;
+            e(obj: GameHeader | MatchHeader | Round | MatchFooter | GameFooter): GameHeader | MatchHeader | Round | MatchFooter | GameFooter;
 
             /**
              * @param {flatbuffers.Builder} builder
