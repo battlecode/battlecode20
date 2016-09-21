@@ -1349,7 +1349,7 @@ declare module index {
              * @param {schema.SpawnedBodyTable=} obj
              * @returns {schema.SpawnedBodyTable}
              */
-            containedBodies(index: number, obj?: schema.SpawnedBodyTable): schema.SpawnedBodyTable;
+            containedBodies(index: number): schema.BodyType;
 
             /**
              * @returns {number}
@@ -1357,19 +1357,9 @@ declare module index {
             containedBodiesLength(): number;
 
             /**
-             * The trees contained within the trees.
-             * IT COULD BE COOL SHUT UP.
-             *
-             * @param {number} index
-             * @param {schema.NeutralTreeTable=} obj
-             * @returns {schema.NeutralTreeTable}
+             * @returns {Int8Array}
              */
-            containedTrees(index: number, obj?: schema.NeutralTreeTable): schema.NeutralTreeTable;
-
-            /**
-             * @returns {number}
-             */
-            containedTreesLength(): number;
+            containedBodiesArray(): Int8Array;
 
             /**
              * @param {flatbuffers.Builder} builder

@@ -73,12 +73,8 @@ table NeutralTreeTable {
     radii: [float];
     /// The bullets contained within the trees.
     containedBullets: [int];
-    /// The bodies contained within the trees (one table for each tree;
-    /// teamIDs and robotIDs will be unset.)
-    containedBodies: [SpawnedBodyTable];
-    /// The trees contained within the trees.
-    /// IT COULD BE COOL SHUT UP.
-    containedTrees: [NeutralTreeTable];
+    /// The bodies contained within the trees.
+    containedBodies: [BodyType];
 }
 
 /// A list of new bullets to be placed on the map.

@@ -783,16 +783,14 @@ battlecode.schema.NeutralTreeTable.prototype.containedBulletsArray = function() 
 };
 
 /**
- * The bodies contained within the trees (one table for each tree;
- * teamIDs and robotIDs will be unset.)
+ * The bodies contained within the trees.
  *
  * @param {number} index
- * @param {battlecode.schema.SpawnedBodyTable=} obj
- * @returns {battlecode.schema.SpawnedBodyTable}
+ * @returns {battlecode.schema.BodyType}
  */
-battlecode.schema.NeutralTreeTable.prototype.containedBodies = function(index, obj) {
+battlecode.schema.NeutralTreeTable.prototype.containedBodies = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? (obj || new battlecode.schema.SpawnedBodyTable).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+  return offset ? /** @type {battlecode.schema.BodyType} */ (this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index)) : 0;
 };
 
 /**
@@ -804,31 +802,18 @@ battlecode.schema.NeutralTreeTable.prototype.containedBodiesLength = function() 
 };
 
 /**
- * The trees contained within the trees.
- * IT COULD BE COOL SHUT UP.
- *
- * @param {number} index
- * @param {battlecode.schema.NeutralTreeTable=} obj
- * @returns {battlecode.schema.NeutralTreeTable}
+ * @returns {Int8Array}
  */
-battlecode.schema.NeutralTreeTable.prototype.containedTrees = function(index, obj) {
-  var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? (obj || new battlecode.schema.NeutralTreeTable).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.NeutralTreeTable.prototype.containedTreesLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+battlecode.schema.NeutralTreeTable.prototype.containedBodiesArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.NeutralTreeTable.startNeutralTreeTable = function(builder) {
-  builder.startObject(6);
+  builder.startObject(5);
 };
 
 /**
@@ -936,13 +921,13 @@ battlecode.schema.NeutralTreeTable.addContainedBodies = function(builder, contai
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {Array.<flatbuffers.Offset>} data
+ * @param {Array.<battlecode.schema.BodyType>} data
  * @returns {flatbuffers.Offset}
  */
 battlecode.schema.NeutralTreeTable.createContainedBodiesVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
+  builder.startVector(1, data.length, 1);
   for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
+    builder.addInt8(data[i]);
   }
   return builder.endVector();
 };
@@ -952,36 +937,7 @@ battlecode.schema.NeutralTreeTable.createContainedBodiesVector = function(builde
  * @param {number} numElems
  */
 battlecode.schema.NeutralTreeTable.startContainedBodiesVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} containedTreesOffset
- */
-battlecode.schema.NeutralTreeTable.addContainedTrees = function(builder, containedTreesOffset) {
-  builder.addFieldOffset(5, containedTreesOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<flatbuffers.Offset>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.NeutralTreeTable.createContainedTreesVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.NeutralTreeTable.startContainedTreesVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+  builder.startVector(1, numElems, 1);
 };
 
 /**
