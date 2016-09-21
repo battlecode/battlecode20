@@ -161,8 +161,10 @@ export default class StructOfArrays {
    * Insert a struct into the array.
    * Note: numbers with no corresponding entry will set their
    * corresponding fields to 0.
+   *
+   * @return index of inserted object
    */
-  insert(numbers: {[field: string]: number}) {
+  insert(numbers: {[field: string]: number}): number {
     if (!(this._primary in numbers)) {
       throw new Error('Cannot insert without primary key');
     }
@@ -177,12 +179,15 @@ export default class StructOfArrays {
     const index = this._length - 1;
     this._primLookup.set(primary, index);
     this._alterAt(index, numbers);
+    return index;
   }
 
   /**
    * Modify an existing struct in the array.
+   *
+   * @return index of altered object (NOT primary key)
    */
-  alter(numbers: {[field: string]: number}) {
+  alter(numbers: {[field: string]: number}): number {
     if (!(this._primary in numbers)) {
       throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
@@ -192,6 +197,7 @@ export default class StructOfArrays {
     }
     const index = this._primLookup.get(numbers[this._primary]);
     this._alterAt(index, numbers);
+    return index;
   }
 
   /**
@@ -207,6 +213,16 @@ export default class StructOfArrays {
       result[field] = this.arrays[field][i];
     }
     return result;
+  }
+
+  /**
+   * @return the index of the object with the given primary key,
+   * or -1.
+   */
+  index(primary: number): number {
+    const index = this._primLookup[primary];
+
+    return index === undefined? -1 : index;
   }
 
   /**
@@ -233,8 +249,11 @@ export default class StructOfArrays {
   /**
    * Insert values in bulk.
    * O(values[...].length).
+   *
+   * Values will be inserted in a contiguous chunk.
+   * @return index of first inserted object in chunk.
    */
-  insertBulk(values: {[field: string]: TypedArray}) {
+  insertBulk(values: {[field: string]: TypedArray}): number {
     if (!values.hasOwnProperty(this._primary)) {
       throw new Error(`Cannot insert without primary key: '${this._primary}'`);
     }
@@ -250,6 +269,7 @@ export default class StructOfArrays {
     for (let i = 0; i < primaries.length; i++) {
       this._primLookup.set(primaries[i], startInsert + i);
     }
+    return startInsert;
   }
 
   /**
