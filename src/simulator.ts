@@ -8,11 +8,11 @@ import {schema, flatbuffers} from 'battlecode-schema';
  *
  * Intended for testing.
  */
-function crunch(game: schema.GameWrapper): GameWorld {
-  const gameHeader = game.events(0).e() as schema.GameHeader;
+export function crunch(game: schema.GameWrapper): GameWorld {
+  const gameHeader = game.events(0).e(new schema.GameHeader()) as schema.GameHeader;
   const metadata = new Metadata().parse(gameHeader);
   const world = new GameWorld(metadata, false);
-  const matchHeader = game.events(1).e() as schema.MatchHeader;
+  const matchHeader = game.events(1).e(new schema.MatchHeader()) as schema.MatchHeader;
   world.loadFromMatchHeader(matchHeader);
 
   for (let i = 2;; i++) {
@@ -21,6 +21,6 @@ function crunch(game: schema.GameWrapper): GameWorld {
       return world;
     }
     // must be a Round
-    world.processRound(event.e() as schema.Round);
+    world.processRound(event.e(new schema.Round()) as schema.Round);
   }
 }

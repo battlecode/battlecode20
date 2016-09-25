@@ -1,7 +1,9 @@
 import StructOfArrays from './soa';
 import Metadata from './metadata';
 import {schema, flatbuffers} from 'battlecode-schema';
-import 'victor'; // imports 'Victor' class, which is a 2d vector
+
+const Victor = require('victor');
+type Victor = any;
 
 /**
  * A frozen image of the game world.
@@ -111,15 +113,24 @@ export default class GameWorld {
 
   loadFromMatchHeader(header: schema.MatchHeader) {
     const map = header.map();
-    this.insertBodies(map.bodies(this._bodiesSlot));
-    this.insertTrees(map.trees());
+    const bodies = map.bodies(this._bodiesSlot);
+    if (bodies) {
+      this.insertBodies(bodies);
+    }
+    const trees = map.trees();
+    if (trees) {
+      this.insertTrees(map.trees());
+    }
     const minCorner = map.minCorner();
     this.minCorner.x = minCorner.x();
     this.minCorner.y = minCorner.y();
     const maxCorner = map.maxCorner();
     this.maxCorner.x = maxCorner.x();
     this.maxCorner.y = maxCorner.y();
-    this.mapName = map.name() as string;
+    const name = map.name() as string;
+    if (name) {
+      this.mapName = map.name() as string;
+    }
   }
 
   /**
