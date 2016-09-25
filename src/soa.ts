@@ -89,13 +89,10 @@ export default class StructOfArrays {
   // (Not needed, just to avoid allocating)
 
   /**
-   * A sorted list of indices to delete.
+   * An array we use to store intermediate indices generated while working.
+   * May be null.
    */
-  private _toDelete: Uint32Array;
-
-  /**
-   * Cached views into our arrays.
-  private _views:
+  private _indexBuffer: Uint32Array;
 
   /**
    * Use like:
@@ -122,7 +119,7 @@ export default class StructOfArrays {
     this._length = 0;
     this._primLookup = new Map<number, number>();
     this._primary = primary;
-    this._toDelete = null;
+    this._indexBuffer = null;
 
     for (const field in fields) {
       if (fields.hasOwnProperty(field)) {
@@ -281,22 +278,38 @@ export default class StructOfArrays {
     if (!values.hasOwnProperty(this._primary)) {
       throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
+    const indices = this._lookupIndices(values[this._primary]);
     for (const field in values) {
       if (values.hasOwnProperty(field) && (field in this.arrays)
           && field != this._primary && values[field] != null) {
-        this._alterBulkFieldImpl(this.arrays[field], values[this._primary], values[field]);
+        this._alterBulkFieldImpl(this.arrays[field], indices, values[field]);
       }
     }
   }
 
   /**
+   * Lookup the indices of a set of primary keys.
+   * Returned array may not be the length of primaries; ignore extra entries.
+   */
+  private _lookupIndices(primaries: TypedArray): Uint32Array {
+    if (this._indexBuffer == null || this._indexBuffer.length < primaries.length) {
+      this._indexBuffer = new Uint32Array(StructOfArrays._capacityForLength(primaries.length));
+    }
+    const p = this._primLookup;
+    let indexCount = 0;
+    for (let i = 0; i < primaries.length; i++) {
+      const key = p.get(primaries[i]);
+      this._indexBuffer[i] = key === undefined? -1 : key;
+    }
+    return this._indexBuffer;
+  }
+
+  /**
    * Let the JIT have a small, well-typed chunk of array code to work with.
    */
-  private _alterBulkFieldImpl(target: TypedArray, primaries: TypedArray, source: TypedArray) {
-    const lookup = this._primLookup;
-    const length = primaries.length;
-    for (let i = 0; i < length; i++) {
-      target[lookup.get(primaries[i])] = source[i];
+  private _alterBulkFieldImpl(target: TypedArray, indices: TypedArray, source: TypedArray) {
+    for (let i = 0; i < source.length; i++) {
+      target[indices[i]] = source[i];
     }
   }
 
@@ -321,19 +334,19 @@ export default class StructOfArrays {
    * Supplying nonexistent or repeated keys is not allowed.
    */
   private _makeToDelete(keys: TypedArray): TypedArray {
-    if (this._toDelete === null || this._toDelete.length < keys.length) {
-      this._toDelete = new Uint32Array(StructOfArrays._capacityForLength(keys.length));
+    if (this._indexBuffer === null || this._indexBuffer.length < keys.length) {
+      this._indexBuffer = new Uint32Array(StructOfArrays._capacityForLength(keys.length));
     }
     let indexCount = 0;
     for (let i = 0; i < keys.length; i++) {
       const key = this._primLookup.get(keys[i]);
       if (key === undefined) continue;
 
-      this._toDelete[indexCount] = key
+      this._indexBuffer[indexCount] = key
       indexCount++;
     }
 
-    let t = this._toDelete.subarray(0, indexCount);
+    let t = this._indexBuffer.subarray(0, indexCount);
 
     if (Uint32Array.prototype.sort) {
       // note: sort, by default, sorts lexicographically.
