@@ -21,7 +21,7 @@
     "url": "github.com/battlecode/battlecode-playback"
   },
   "dependencies": {
-    "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#fa49f86974df4d9738306348c652dd245c2450bb",
+    "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#daef9a371e822a07d8ae86700d285288f8781a22",
     "core-js": "^2.4.0",
     "victor": "^1.1.0"
   },

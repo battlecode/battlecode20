@@ -45,3 +45,6 @@ out
 
 # any javascript sources
 src/**/*.js
+
+# any battlecode files
+*.bc17

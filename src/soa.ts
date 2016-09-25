@@ -89,13 +89,10 @@ export default class StructOfArrays {
   // (Not needed, just to avoid allocating)
 
   /**
-   * A sorted list of indices to delete.
+   * An array we use to store intermediate indices generated while working.
+   * May be null.
    */
-  private _toDelete: Uint32Array;
-
-  /**
-   * Cached views into our arrays.
-  private _views:
+  private _indexBuffer: Uint32Array;
 
   /**
    * Use like:
@@ -122,7 +119,7 @@ export default class StructOfArrays {
     this._length = 0;
     this._primLookup = new Map<number, number>();
     this._primary = primary;
-    this._toDelete = null;
+    this._indexBuffer = null;
 
     for (const field in fields) {
       if (fields.hasOwnProperty(field)) {
@@ -173,8 +170,7 @@ export default class StructOfArrays {
       throw new Error('Primary key already exists');
     }
 
-    this._length++;
-    this._resize();
+    this._resize(this._length + 1);
 
     const index = this._length - 1;
     this._primLookup.set(primary, index);
@@ -258,10 +254,11 @@ export default class StructOfArrays {
       throw new Error(`Cannot insert without primary key: '${this._primary}'`);
     }
     const startInsert = this._length;
-    this._length += values[this._primary].length;
-    this._resize();
+    this._resize(this._length + values[this._primary].length);
+    let err = false;
+
     for (const field in values) {
-      if (values.hasOwnProperty(field) && field in this.arrays) {
+      if (values.hasOwnProperty(field) && field in this.arrays && values[field] != null) {
         this.arrays[field].set(values[field], startInsert);
       }
     }
@@ -281,21 +278,38 @@ export default class StructOfArrays {
     if (!values.hasOwnProperty(this._primary)) {
       throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
+    const indices = this._lookupIndices(values[this._primary]);
     for (const field in values) {
-      if (values.hasOwnProperty(field) && (field in this.arrays) && field != this._primary) {
-        this._alterBulkFieldImpl(this.arrays[field], values[this._primary], values[field]);
+      if (values.hasOwnProperty(field) && (field in this.arrays)
+          && field != this._primary && values[field] != null) {
+        this._alterBulkFieldImpl(this.arrays[field], indices, values[field]);
       }
     }
   }
 
   /**
+   * Lookup the indices of a set of primary keys.
+   * Returned array may not be the length of primaries; ignore extra entries.
+   */
+  private _lookupIndices(primaries: TypedArray): Uint32Array {
+    if (this._indexBuffer == null || this._indexBuffer.length < primaries.length) {
+      this._indexBuffer = new Uint32Array(StructOfArrays._capacityForLength(primaries.length));
+    }
+    const p = this._primLookup;
+    let indexCount = 0;
+    for (let i = 0; i < primaries.length; i++) {
+      const key = p.get(primaries[i]);
+      this._indexBuffer[i] = key === undefined? -1 : key;
+    }
+    return this._indexBuffer;
+  }
+
+  /**
    * Let the JIT have a small, well-typed chunk of array code to work with.
    */
-  private _alterBulkFieldImpl(target: TypedArray, primaries: TypedArray, source: TypedArray) {
-    const lookup = this._primLookup;
-    const length = primaries.length;
-    for (let i = 0; i < length; i++) {
-      target[lookup.get(primaries[i])] = source[i];
+  private _alterBulkFieldImpl(target: TypedArray, indices: TypedArray, source: TypedArray) {
+    for (let i = 0; i < source.length; i++) {
+      target[indices[i]] = source[i];
     }
   }
 
@@ -320,46 +334,49 @@ export default class StructOfArrays {
    * Supplying nonexistent or repeated keys is not allowed.
    */
   private _makeToDelete(keys: TypedArray): TypedArray {
-    if (this._toDelete === null || this._toDelete.length < keys.length) {
-      this._toDelete = new Uint32Array(StructOfArrays._capacityForLength(keys.length));
+    if (this._indexBuffer === null || this._indexBuffer.length < keys.length) {
+      this._indexBuffer = new Uint32Array(StructOfArrays._capacityForLength(keys.length));
     }
-    let t = this._toDelete;
+    let indexCount = 0;
     for (let i = 0; i < keys.length; i++) {
-      t[i] = this._primLookup.get(keys[i]);
+      const key = this._primLookup.get(keys[i]);
+      if (key === undefined) continue;
+
+      this._indexBuffer[indexCount] = key
+      indexCount++;
     }
+
+    let t = this._indexBuffer.subarray(0, indexCount);
 
     if (Uint32Array.prototype.sort) {
       // note: sort, by default, sorts lexicographically.
       // Javascript!
-      t.sort((a, b) => a - b);
+      t.sort(SENSIBLE_SORT);
     } else {
-      Array.prototype.sort.call(t, (a, b) => a - b);
+      Array.prototype.sort.call(t, SENSIBLE_SORT);
     }
     return t;
   }
 
   /**
    * Delete a set of primary keys.
-   *
-   * Note: this is the only thing that might be slower than just using objects.
-   * TODO benchmark.
    */
   deleteBulk(keys: TypedArray) {
     if (keys.length === 0) return;
 
     // map the keys to indices and sort them
-    const deleteIndices = this._makeToDelete(keys);
+    const toDelete = this._makeToDelete(keys);
+
     for (const name of this._fieldNames) {
       const array = this.arrays[name];
       // copy the fields down in the array
-      this._deleteBulkFieldImpl(deleteIndices, array);
+      this._deleteBulkFieldImpl(toDelete, array);
+
       // zero the new space in the array
-      StructOfArrays._zero(array, this._length - keys.length, this._length);
+      StructOfArrays._zero(array, this._length - toDelete.length, this._length);
     }
-    // update _primLookup
-    this._removePrimariesLookup(keys)
-    this._refreshPrimariesLookup();
-    this._length -= deleteIndices.length;
+    this._length -= toDelete.length;
+    this._refreshPrimariesLookup(this._length);
   }
 
   /**
@@ -367,59 +384,63 @@ export default class StructOfArrays {
    * @param array the array to modify
    */
   private _deleteBulkFieldImpl(toDelete: Uint32Array, array: TypedArray) {
-    const n = this._length;
-    for (let i = toDelete[0], offset = 0; i < n; i++) {
-      if (toDelete[offset] === i) {
-        offset++;
+    let length = this._length;
+    let off = 1;
+    for (let i = toDelete[0]+1; i < length; i++) {
+      if (toDelete[off] === i) {
+        off++;
+      } else {
+        array[i-off] = array[i];
       }
-      array[i] = array[i + offset];
-    }
-  }
-
-  /**
-   * Remove primary keys from lookup table
-   */
-  private _removePrimariesLookup(keys: TypedArray) {
-    const p = this._primLookup;
-    for (let i = 0; i < keys.length; i++) {
-      p.delete(keys[i]);
     }
   }
 
   /**
    * Update the indices in the lookup table
    */
-  private _refreshPrimariesLookup() {
-    const l = this._primLookup, p = this.arrays[this._primary];
-    const length = this._length;
-    for (let i = 0; i < length; i++) {
-      l.set(p[i], i);
+  private _refreshPrimariesLookup(newLength: number) {
+    const p = this.arrays[this._primary];
+    this._primLookup.clear();
+    for (let i = 0; i < newLength; i++) {
+      this._primLookup.set(p[i], i);
     }
   }
 
   /**
    * Resize internal storage, if needed.
    */
-  private _resize() {
-    if (this._length > this._capacity) {
-      this._capacity = StructOfArrays._capacityForLength(this._length);
+  private _resize(newLength: number) {
+    if (newLength > this._capacity) {
+      this._capacity = StructOfArrays._capacityForLength(newLength);
       for (const field in this.arrays) {
-        if (!(field in this.arrays)) { continue; }
         const oldArray = this.arrays[field];
         const newArray = new (oldArray.constructor as TypeSelector)(this._capacity);
         newArray.set(oldArray);
+        this.arrays[field] = newArray;
       }
     }
+
+    this._length = newLength;
   }
 
   /**
    * Round up to the nearest power of two.
    */
   private static _capacityForLength(size: number): number {
-    if ((Math.log(size) / Math.LN2) % 1 === 0) {
+    // see http://graphics.stanford.edu/~seander/bithacks.html
+    // size is a power of two
+    if ((size & (size-1)) === 0) {
       return size;
     }
-    return Math.pow(2, Math.floor(Math.log(size) / Math.LN2) + 1);
+    // round up to the next power of two
+    size--;
+    size |= size >> 1;
+    size |= size >> 2;
+    size |= size >> 4;
+    size |= size >> 8;
+    size |= size >> 16;
+    size++;
+    return size
   }
 
   /**
@@ -446,6 +467,12 @@ export default class StructOfArrays {
   }
 }
 
+const SENSIBLE_SORT = (a,b) => a-b;
+
+/**
+ * An array allocated as a contiguous block of memory.
+ * Backed by an ArrayBuffer.
+ */
 export type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 
 /**
@@ -453,4 +480,8 @@ export type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array
  */
 export type TypeSelector = new (...args: any[]) => TypedArray;
 
+/**
+ * The default capacity of our arrays.
+ * TODO(jhgilles): tune.
+ */
 const DEFAULT_CAPACITY = 16;
