@@ -258,9 +258,10 @@ export default class StructOfArrays {
     }
     const startInsert = this._length;
     this._resize(this._length + values[this._primary].length);
+    let err = false;
 
     for (const field in values) {
-      if (values.hasOwnProperty(field) && field in this.arrays) {
+      if (values.hasOwnProperty(field) && field in this.arrays && values[field] != null) {
         this.arrays[field].set(values[field], startInsert);
       }
     }
@@ -281,7 +282,8 @@ export default class StructOfArrays {
       throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
     for (const field in values) {
-      if (values.hasOwnProperty(field) && (field in this.arrays) && field != this._primary) {
+      if (values.hasOwnProperty(field) && (field in this.arrays)
+          && field != this._primary && values[field] != null) {
         this._alterBulkFieldImpl(this.arrays[field], values[this._primary], values[field]);
       }
     }
@@ -395,8 +397,8 @@ export default class StructOfArrays {
    * Resize internal storage, if needed.
    */
   private _resize(newLength: number) {
-    if (this._length > this._capacity) {
-      this._capacity = StructOfArrays._capacityForLength(this._length);
+    if (newLength > this._capacity) {
+      this._capacity = StructOfArrays._capacityForLength(newLength);
       for (const field in this.arrays) {
         const oldArray = this.arrays[field];
         const newArray = new (oldArray.constructor as TypeSelector)(this._capacity);
@@ -412,10 +414,20 @@ export default class StructOfArrays {
    * Round up to the nearest power of two.
    */
   private static _capacityForLength(size: number): number {
-    if ((Math.log(size) / Math.LN2) % 1 === 0) {
+    // see http://graphics.stanford.edu/~seander/bithacks.html
+    // size is a power of two
+    if ((size & (size-1)) === 0) {
       return size;
     }
-    return Math.pow(2, Math.floor(Math.log(size) / Math.LN2) + 1);
+    // round up to the next power of two
+    size--;
+    size |= size >> 1;
+    size |= size >> 2;
+    size |= size >> 4;
+    size |= size >> 8;
+    size |= size >> 16;
+    size++;
+    return size
   }
 
   /**
