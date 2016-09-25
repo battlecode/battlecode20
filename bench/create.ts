@@ -90,11 +90,63 @@ function createBenchGame(aliveCount: number, churnCount: number, moveCount: numb
   schema.MatchHeader.addMap(builder, map);
   events.push(createEventWrapper(builder, schema.MatchHeader.endMatchHeader(builder), schema.Event.MatchHeader));
 
+  const diedIDs = new Array(churnCount);
+
+  const bornIDs = new Array(churnCount);
+  const bornXs = new Array(churnCount);
+  const bornYs = new Array(churnCount);
+
+  const movedIDs = new Array(moveCount);
+  const movedXs = new Array(moveCount);
+  const movedYs = new Array(moveCount);
+
+  let nextID = aliveCount;
+
+  for (let i = 0; i < moveCount; i++) {
+    movedXs[i] = i;
+    movedYs[i] = i;
+  }
+
+  const movedLocs = createVecTable(builder, movedXs, movedYs);
+
+  for (let i = 0; i < churnCount; i++) {
+    bornXs[i] = i;
+    bornYs[i] = i;
+  }
+
+  const bornLocs = createVecTable(builder, bornXs, bornYs);
+
   for (let i = 1; i < turns+1; i++) {
+    for (let j = 0; j < churnCount; j++) {
+      diedIDs[j] = alive[j];
+      bornIDs[j] = nextID++;
+      alive.push(bornIDs[j]);
+    }
+    alive.splice(0, churnCount);
+
+    for (let j = 0; j < moveCount; j++) {
+      movedIDs[j] = alive[j];
+    }
+    const diedP = schema.Round.createDiedIDsVector(builder, diedIDs);
+
+    const bornP = schema.SpawnedBodyTable.createRobotIDsVector(builder, bornIDs);
+    schema.SpawnedBodyTable.startSpawnedBodyTable(builder);
+    schema.SpawnedBodyTable.addLocs(builder, bornLocs);
+    schema.SpawnedBodyTable.addRobotIDs(builder, bornP);
+    const spawnedP = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
+
+    const movedP = schema.Round.createMovedIDsVector(builder, movedIDs);
+
     schema.Round.startRound(builder);
-    schema.Round.addMovedLocs(builder, locs);
-    schema.Round.addMovedIDs(builder, initialIDs);
     schema.Round.addRoundID(builder, i);
+
+    schema.Round.addMovedLocs(builder, movedLocs);
+    schema.Round.addMovedIDs(builder, movedP);
+
+    schema.Round.addSpawnedBodies(builder, spawnedP);
+
+    schema.Round.addDiedIDs(builder, diedP);
+
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }
 
@@ -121,5 +173,5 @@ function createBenchGame(aliveCount: number, churnCount: number, moveCount: numb
 }
 
 let stream = createWriteStream('test.bc17');
-stream.write(new Buffer(createBenchGame(4096, 0, 0, 4096)));
+stream.write(new Buffer(createBenchGame(512, 64, 64, 4096)));
 stream.end();
