@@ -116,13 +116,29 @@ test('deleteBulk', (t: test.Test) => {
   });
   // Note: the 18 entry should avoid deleting anything
   db.deleteBulk(new Uint8Array([4, 2, 5, 7, 18]));
-  t.throws(() => db.lookup(8));
-  t.deepEqual(db.lookup(2), {id: 2, radius: .5, color: 0});
-  t.deepEqual(db.lookup(4), {id: 4, radius: .6, color: 0});
-  t.deepEqual(db.lookup(5), {id: 5, radius: .5, color: 1});
-  t.deepEqual(db.lookup(7), {id: 7, radius: 1, color: 0});
+  t.throws(() => db.lookup(4));
+  t.throws(() => db.lookup(2));
+  t.throws(() => db.lookup(5));
+  t.throws(() => db.lookup(7));
+  t.deepEqual(db.lookup(0), {id: 0, radius: 7, color: 3});
+  t.deepEqual(db.lookup(8), {id: 8, radius: 2, color: 0x18});
   t.deepEqual(db.lookup(11), {id: 11, radius: 1, color: 0x36});
   t.deepEqual(db.lookup(255), {id: 255, radius: 8, color: 34});
   db.assertValid();
+  t.end();
+});
+
+test('resize', (t: test.Test) => {
+  const db = new StructOfArrays({
+    id: Uint8Array,
+    radius: Float64Array,
+    color: Uint8Array,
+  }, 'id', 0);
+  db.insertBulk({
+    id: new Uint8Array([0, 4, 2, 5, 7, 8, 11, 255]),
+    radius: new Float64Array([7, .6, .5, .5, 1, 2, 1, 8]),
+    color: new Uint8Array([3, 0, 0, 1, 0, 0x18, 0x36, 34])
+  });
+
   t.end();
 });

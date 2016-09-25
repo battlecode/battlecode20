@@ -173,8 +173,7 @@ export default class StructOfArrays {
       throw new Error('Primary key already exists');
     }
 
-    this._length++;
-    this._resize();
+    this._resize(this._length + 1);
 
     const index = this._length - 1;
     this._primLookup.set(primary, index);
@@ -258,8 +257,8 @@ export default class StructOfArrays {
       throw new Error(`Cannot insert without primary key: '${this._primary}'`);
     }
     const startInsert = this._length;
-    this._length += values[this._primary].length;
-    this._resize();
+    this._resize(this._length + values[this._primary].length);
+
     for (const field in values) {
       if (values.hasOwnProperty(field) && field in this.arrays) {
         this.arrays[field].set(values[field], startInsert);
@@ -305,8 +304,12 @@ export default class StructOfArrays {
    * @param end exclusive
    */
   private static _zero(arr: TypedArray, start: number, end: number) {
-    for (let i = start; i < end; i++) {
-      arr[i] = 0;
+    if (arr.fill) {
+      arr.fill(0, start, end);
+    } else {
+      for (let i = start; i < end; i++) {
+        arr[i] = 0;
+      }
     }
   }
 
@@ -319,43 +322,46 @@ export default class StructOfArrays {
     if (this._toDelete === null || this._toDelete.length < keys.length) {
       this._toDelete = new Uint32Array(StructOfArrays._capacityForLength(keys.length));
     }
-    let t = this._toDelete;
+    let indexCount = 0;
     for (let i = 0; i < keys.length; i++) {
-      t[i] = this._primLookup.get(keys[i]);
+      const key = this._primLookup.get(keys[i]);
+      if (key === undefined) continue;
+
+      this._toDelete[indexCount] = key
+      indexCount++;
     }
+
+    let t = this._toDelete.subarray(0, indexCount);
 
     if (Uint32Array.prototype.sort) {
       // note: sort, by default, sorts lexicographically.
       // Javascript!
-      t.sort((a, b) => a - b);
+      t.sort(SENSIBLE_SORT);
     } else {
-      Array.prototype.sort.call(t, (a, b) => a - b);
+      Array.prototype.sort.call(t, SENSIBLE_SORT);
     }
     return t;
   }
 
   /**
    * Delete a set of primary keys.
-   *
-   * Note: this is the only thing that might be slower than just using objects.
-   * TODO benchmark.
    */
   deleteBulk(keys: TypedArray) {
     if (keys.length === 0) return;
 
     // map the keys to indices and sort them
-    const deleteIndices = this._makeToDelete(keys);
+    const toDelete = this._makeToDelete(keys);
+
     for (const name of this._fieldNames) {
       const array = this.arrays[name];
       // copy the fields down in the array
-      this._deleteBulkFieldImpl(deleteIndices, array);
+      this._deleteBulkFieldImpl(toDelete, array);
+
       // zero the new space in the array
-      StructOfArrays._zero(array, this._length - keys.length, this._length);
+      StructOfArrays._zero(array, this._length - toDelete.length, this._length);
     }
-    // update _primLookup
-    this._removePrimariesLookup(keys)
-    this._refreshPrimariesLookup();
-    this._length -= deleteIndices.length;
+    this._length -= toDelete.length;
+    this._refreshPrimariesLookup(this._length);
   }
 
   /**
@@ -363,49 +369,43 @@ export default class StructOfArrays {
    * @param array the array to modify
    */
   private _deleteBulkFieldImpl(toDelete: Uint32Array, array: TypedArray) {
-    const n = this._length;
-    for (let i = toDelete[0], offset = 0; i < n; i++) {
-      if (toDelete[offset] === i) {
-        offset++;
+    let length = this._length;
+    let off = 1;
+    for (let i = toDelete[0]+1; i < length; i++) {
+      if (toDelete[off] === i) {
+        off++;
+      } else {
+        array[i-off] = array[i];
       }
-      array[i] = array[i + offset];
-    }
-  }
-
-  /**
-   * Remove primary keys from lookup table
-   */
-  private _removePrimariesLookup(keys: TypedArray) {
-    const p = this._primLookup;
-    for (let i = 0; i < keys.length; i++) {
-      p.delete(keys[i]);
     }
   }
 
   /**
    * Update the indices in the lookup table
    */
-  private _refreshPrimariesLookup() {
-    const l = this._primLookup, p = this.arrays[this._primary];
-    const length = this._length;
-    for (let i = 0; i < length; i++) {
-      l.set(p[i], i);
+  private _refreshPrimariesLookup(newLength: number) {
+    const p = this.arrays[this._primary];
+    this._primLookup.clear();
+    for (let i = 0; i < newLength; i++) {
+      this._primLookup.set(p[i], i);
     }
   }
 
   /**
    * Resize internal storage, if needed.
    */
-  private _resize() {
+  private _resize(newLength: number) {
     if (this._length > this._capacity) {
       this._capacity = StructOfArrays._capacityForLength(this._length);
       for (const field in this.arrays) {
-        if (!(field in this.arrays)) { continue; }
         const oldArray = this.arrays[field];
         const newArray = new (oldArray.constructor as TypeSelector)(this._capacity);
         newArray.set(oldArray);
+        this.arrays[field] = newArray;
       }
     }
+
+    this._length = newLength;
   }
 
   /**
@@ -442,6 +442,12 @@ export default class StructOfArrays {
   }
 }
 
+const SENSIBLE_SORT = (a,b) => a-b;
+
+/**
+ * An array allocated as a contiguous block of memory.
+ * Backed by an ArrayBuffer.
+ */
 export type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 
 /**
@@ -449,4 +455,8 @@ export type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array
  */
 export type TypeSelector = new (...args: any[]) => TypedArray;
 
+/**
+ * The default capacity of our arrays.
+ * TODO(jhgilles): tune.
+ */
 const DEFAULT_CAPACITY = 16;
