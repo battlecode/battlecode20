@@ -3,7 +3,7 @@ import * as Map from 'core-js/library/es6/map';
 import {createWriteStream} from 'fs';
 
 function createHeader(builder: flatbuffers.Builder): number {
-  const bodies = [];
+  const bodies: number[] = [];
   for (const body of [schema.BodyType.ARCHON, schema.BodyType.GARDENER, schema.BodyType.LUMBERJACK, schema.BodyType.RECRUIT, schema.BodyType.SOLDIER, schema.BodyType.TANK, schema.BodyType.SCOUT, schema.BodyType.BULLET, schema.BodyType.TREE_BULLET, schema.BodyType.TREE_NEUTRAL]) {
     schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
     schema.BodyTypeMetadata.addAttackDelay(builder, 1);
@@ -19,7 +19,7 @@ function createHeader(builder: flatbuffers.Builder): number {
     bodies.push(schema.BodyTypeMetadata.endBodyTypeMetadata(builder));
   }
 
-  const teams = [];
+  const teams: number[] = [];
   for (let team of [1, 2]) {
     const name = builder.createString('team'+team);
     const packageName = builder.createString('big'+team+'.memes.big.dreams');
@@ -59,7 +59,7 @@ function createEventWrapper(builder: flatbuffers.Builder, event: number, type: s
 
 function createBenchGame(aliveCount: number, churnCount: number, moveCount: number, turns: number) {
   let builder = new flatbuffers.Builder();
-  let events = [];
+  let events: number[] = [];
 
   events.push(createEventWrapper(builder, createHeader(builder), schema.Event.GameHeader));
 

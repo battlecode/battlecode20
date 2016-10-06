@@ -1,9 +1,7 @@
 import StructOfArrays from './soa';
 import Metadata from './metadata';
 import {schema, flatbuffers} from 'battlecode-schema';
-
-const Victor = require('victor');
-type Victor = any;
+import Victor = require('victor');
 
 /**
  * A frozen image of the game world.

@@ -54,7 +54,7 @@ export default class StructOfArrays {
    * In particular, you can't trust the length field of these TypedArrays;
    * you have to use soa.length.
    */
-  arrays: {[id: string]: TypedArray};
+  readonly arrays: {[id: string]: TypedArray};
 
   /**
    * The actual length of all arrays.
@@ -71,19 +71,19 @@ export default class StructOfArrays {
   /**
    * The names of our fields.
    */
-  private _fieldNames: string[];
+  private readonly _fieldNames: string[];
 
   /**
    * The lookup table for our primary key. Maps keys to indices.
    * We attempt to use an ES6 Map for this, since it won't stringify
    * keys all the time.
    */
-  private _primLookup: Map<number, number>;
+  private readonly _primLookup: Map<number, number>;
 
   /**
    * The name of our primary key.
    */
-  private _primary: string;
+  private readonly _primary: string;
 
   // Cache fields
   // (Not needed, just to avoid allocating)
@@ -92,7 +92,7 @@ export default class StructOfArrays {
    * An array we use to store intermediate indices generated while working.
    * May be null.
    */
-  private _indexBuffer: Uint32Array;
+  private _indexBuffer?: Uint32Array;
 
   /**
    * Use like:
@@ -119,7 +119,7 @@ export default class StructOfArrays {
     this._length = 0;
     this._primLookup = new Map<number, number>();
     this._primary = primary;
-    this._indexBuffer = null;
+    this._indexBuffer = undefined;
 
     for (const field in fields) {
       if (fields.hasOwnProperty(field)) {
@@ -334,7 +334,7 @@ export default class StructOfArrays {
    * Supplying nonexistent or repeated keys is not allowed.
    */
   private _makeToDelete(keys: TypedArray): TypedArray {
-    if (this._indexBuffer === null || this._indexBuffer.length < keys.length) {
+    if (this._indexBuffer == undefined || this._indexBuffer.length < keys.length) {
       this._indexBuffer = new Uint32Array(StructOfArrays._capacityForLength(keys.length));
     }
     let indexCount = 0;
@@ -415,7 +415,7 @@ export default class StructOfArrays {
       for (const field in this.arrays) {
         const oldArray = this.arrays[field];
         const newArray = new (oldArray.constructor as TypeSelector)(this._capacity);
-        newArray.set(oldArray);
+        newArray.set(oldArray as ArrayLike<number>);
         this.arrays[field] = newArray;
       }
     }
@@ -473,7 +473,7 @@ const SENSIBLE_SORT = (a,b) => a-b;
  * An array allocated as a contiguous block of memory.
  * Backed by an ArrayBuffer.
  */
-export type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
+export type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 
 /**
  * A constructor for a TypedArray.

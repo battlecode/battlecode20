@@ -1,4 +1,4 @@
-import StructOfArrays from '../src/soa.ts';
+import StructOfArrays from '../src/soa';
 import * as test from 'blue-tape';
 
 test('no primary', (t: test.Test) => {
