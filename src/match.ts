@@ -64,6 +64,11 @@ export default class Match {
   private _seekTo: number;
 
   /**
+   * Whether we've arrived at the seek point.
+   */
+  get arrived() { return this._seekTo === this._current.turn; }
+
+  /**
    * The last turn in the match.
    */
   get lastTurn() { return this._lastTurn; }
