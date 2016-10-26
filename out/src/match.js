@@ -54,6 +54,14 @@ var Match = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Match.prototype, "arrived", {
+        /**
+         * Whether we've arrived at the seek point.
+         */
+        get: function () { return this._seekTo === this._current.turn; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Match.prototype, "lastTurn", {
         /**
          * The last turn in the match.

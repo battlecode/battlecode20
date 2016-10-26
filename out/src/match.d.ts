@@ -51,6 +51,10 @@ export default class Match {
     readonly seekTo: number;
     private _seekTo;
     /**
+     * Whether we've arrived at the seek point.
+     */
+    readonly arrived: boolean;
+    /**
      * The last turn in the match.
      */
     readonly lastTurn: number | null;
