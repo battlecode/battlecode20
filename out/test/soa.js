@@ -133,3 +133,23 @@ test('resize', function (t) {
     });
     t.end();
 });
+test('copy', function (t) {
+    var db = new soa_1.default({
+        id: Uint8Array,
+        radius: Float64Array,
+        color: Uint8Array,
+    }, 'id', 0);
+    db.insertBulk({
+        id: new Uint8Array([0, 4, 2, 5, 7, 8, 11, 255]),
+        radius: new Float64Array([7, .6, .5, .5, 1, 2, 1, 8]),
+        color: new Uint8Array([3, 0, 0, 1, 0, 0x18, 0x36, 34])
+    });
+    var db2 = db.copy();
+    t.equal(db.length, db2.length);
+    t.equal(db.length, db2.length);
+    for (var array in db.arrays) {
+        t.deepEqual(db.arrays[array].slice(0, db.length), db2.arrays[array].slice(0, db2.length));
+    }
+    t.deepEqual(db['_primLookup'], db2['_primLookup']);
+    t.end();
+});

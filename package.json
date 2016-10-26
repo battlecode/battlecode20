@@ -23,7 +23,7 @@
   "dependencies": {
     "@types/core-js": "^0.9.34",
     "@types/node": "^6.0.43",
-    "@types/victor": "^0.2.27",
+    "@types/victor": "^0.2.28",
     "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#daef9a371e822a07d8ae86700d285288f8781a22",
     "core-js": "^2.4.0",
     "victor": "^1.1.0"

@@ -1,6 +1,9 @@
 "use strict";
 // Map polyfill
 var Map = require('core-js/library/es6/map');
+function hasOwnProperty(obj, prop) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
+}
 /**
  * A class that wraps a group of typed buffers.
  *
@@ -61,7 +64,7 @@ var StructOfArrays = (function () {
      */
     function StructOfArrays(fields, primary, capacity) {
         if (capacity === void 0) { capacity = 8; }
-        if (!fields.hasOwnProperty(primary)) {
+        if (!hasOwnProperty(fields, primary)) {
             throw new Error("Primary key must exist, '" + primary + "' not found");
         }
         this.arrays = Object.create(null);
@@ -72,7 +75,7 @@ var StructOfArrays = (function () {
         this._primary = primary;
         this._indexBuffer = undefined;
         for (var field in fields) {
-            if (fields.hasOwnProperty(field)) {
+            if (hasOwnProperty(fields, field)) {
                 this.arrays[field] = new fields[field](this._capacity);
                 this._fieldNames.push(field);
             }
@@ -89,13 +92,32 @@ var StructOfArrays = (function () {
             types[field] = this.arrays[field].constructor;
         }
         var result = new StructOfArrays(types, this._primary, this._length);
-        var toInsert = Object.create(null);
-        for (var _b = 0, _c = this._fieldNames; _b < _c.length; _b++) {
-            var field = _c[_b];
-            toInsert[field] = new this.arrays[field].constructor(this.arrays[field].buffer, 0, this._length);
-        }
-        result.insertBulk(toInsert);
+        result.copyFrom(this);
         return result;
+    };
+    /**
+     * Copy source's buffers into ours, overwriting all values.
+     * @throws Error if source is missing any of our arrays
+     */
+    StructOfArrays.prototype.copyFrom = function (source) {
+        this._length = source.length;
+        if (this._capacity < source.length) {
+            this._capacity = source.length;
+            for (var field in this.arrays) {
+                var oldArray = this.arrays[field];
+                var newArray = new oldArray.constructor(this._capacity);
+                this.arrays[field] = newArray;
+            }
+        }
+        for (var _i = 0, _a = this._fieldNames; _i < _a.length; _i++) {
+            var field = _a[_i];
+            if (!(field in source.arrays)) {
+                throw new Error("Can't copyFrom, source missing field " + field);
+            }
+            this.arrays[field].set(source.arrays[field].slice(0, source.length));
+            StructOfArrays._zero(this.arrays[field], source.length, this._capacity);
+        }
+        this._refreshPrimariesLookup(this._length);
     };
     Object.defineProperty(StructOfArrays.prototype, "length", {
         /**
@@ -173,7 +195,7 @@ var StructOfArrays = (function () {
      */
     StructOfArrays.prototype._alterAt = function (index, values) {
         for (var field in values) {
-            if (values.hasOwnProperty(field) && field in this.arrays) {
+            if (hasOwnProperty(values, field) && field in this.arrays) {
                 this.arrays[field][index] = values[field];
             }
         }
@@ -195,14 +217,14 @@ var StructOfArrays = (function () {
      * @return index of first inserted object in chunk.
      */
     StructOfArrays.prototype.insertBulk = function (values) {
-        if (!values.hasOwnProperty(this._primary)) {
+        if (!hasOwnProperty(values, this._primary)) {
             throw new Error("Cannot insert without primary key: '" + this._primary + "'");
         }
         var startInsert = this._length;
         this._resize(this._length + values[this._primary].length);
         var err = false;
         for (var field in values) {
-            if (values.hasOwnProperty(field) && field in this.arrays && values[field] != null) {
+            if (hasOwnProperty(values, field) && field in this.arrays && values[field] != null) {
                 this.arrays[field].set(values[field], startInsert);
             }
         }
@@ -218,12 +240,12 @@ var StructOfArrays = (function () {
      * Rows with nonexistent primary keys will be silently ignored.
      */
     StructOfArrays.prototype.alterBulk = function (values) {
-        if (!values.hasOwnProperty(this._primary)) {
+        if (!hasOwnProperty(values, this._primary)) {
             throw new Error("Cannot alter without primary key: '" + this._primary + "'");
         }
         var indices = this._lookupIndices(values[this._primary]);
         for (var field in values) {
-            if (values.hasOwnProperty(field) && (field in this.arrays)
+            if (hasOwnProperty(values, field) && (field in this.arrays)
                 && field != this._primary && values[field] != null) {
                 this._alterBulkFieldImpl(this.arrays[field], indices, values[field]);
             }

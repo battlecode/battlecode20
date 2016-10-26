@@ -11,7 +11,7 @@ var battlecode_schema_1 = require('battlecode-schema');
 function crunch(game) {
     var gameHeader = game.events(0).e(new battlecode_schema_1.schema.GameHeader());
     var metadata = new metadata_1.default().parse(gameHeader);
-    var world = new gameworld_1.default(metadata, false);
+    var world = new gameworld_1.default(metadata);
     var matchHeader = game.events(1).e(new battlecode_schema_1.schema.MatchHeader());
     world.loadFromMatchHeader(matchHeader);
     for (var i = 2;; i++) {
@@ -20,7 +20,7 @@ function crunch(game) {
             return world;
         }
         // must be a Round
-        world.processRound(event_1.e(new battlecode_schema_1.schema.Round()));
+        world.processDelta(event_1.e(new battlecode_schema_1.schema.Round()));
     }
 }
 exports.crunch = crunch;

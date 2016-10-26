@@ -2,8 +2,8 @@ import {schema, flatbuffers} from 'battlecode-schema';
 import * as Map from 'core-js/library/es6/map';
 import {createWriteStream} from 'fs';
 
-function createHeader(builder: flatbuffers.Builder): number {
-  const bodies: number[] = [];
+export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
+  const bodies: flatbuffers.Offset[] = [];
   for (const body of [schema.BodyType.ARCHON, schema.BodyType.GARDENER, schema.BodyType.LUMBERJACK, schema.BodyType.RECRUIT, schema.BodyType.SOLDIER, schema.BodyType.TANK, schema.BodyType.SCOUT, schema.BodyType.BULLET, schema.BodyType.TREE_BULLET, schema.BodyType.TREE_NEUTRAL]) {
     schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
     schema.BodyTypeMetadata.addAttackDelay(builder, 1);
@@ -19,7 +19,7 @@ function createHeader(builder: flatbuffers.Builder): number {
     bodies.push(schema.BodyTypeMetadata.endBodyTypeMetadata(builder));
   }
 
-  const teams: number[] = [];
+  const teams: flatbuffers.Offset[] = [];
   for (let team of [1, 2]) {
     const name = builder.createString('team'+team);
     const packageName = builder.createString('big'+team+'.memes.big.dreams');
@@ -41,7 +41,7 @@ function createHeader(builder: flatbuffers.Builder): number {
   return schema.GameHeader.endGameHeader(builder);
 }
 
-function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: number[]) {
+export function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: number[]) {
   const xsP = schema.VecTable.createXsVector(builder, xs);
   const ysP = schema.VecTable.createYsVector(builder, ys);
   schema.VecTable.startVecTable(builder);
@@ -50,16 +50,16 @@ function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: number[]
   return schema.VecTable.endVecTable(builder);
 }
 
-function createEventWrapper(builder: flatbuffers.Builder, event: number, type: schema.Event): number {
+export function createEventWrapper(builder: flatbuffers.Builder, event: flatbuffers.Offset, type: schema.Event): flatbuffers.Offset {
   schema.EventWrapper.startEventWrapper(builder);
   schema.EventWrapper.addEType(builder, type);
   schema.EventWrapper.addE(builder, event);
   return schema.EventWrapper.endEventWrapper(builder);
 }
 
-function createBenchGame(aliveCount: number, churnCount: number, moveCount: number, turns: number) {
+export function createBenchGame(aliveCount: number, churnCount: number, moveCount: number, turns: number) {
   let builder = new flatbuffers.Builder();
-  let events: number[] = [];
+  let events: flatbuffers.Offset[] = [];
 
   events.push(createEventWrapper(builder, createHeader(builder), schema.Event.GameHeader));
 

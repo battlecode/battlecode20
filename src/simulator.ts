@@ -11,7 +11,7 @@ import {schema, flatbuffers} from 'battlecode-schema';
 export function crunch(game: schema.GameWrapper): GameWorld {
   const gameHeader = game.events(0).e(new schema.GameHeader()) as schema.GameHeader;
   const metadata = new Metadata().parse(gameHeader);
-  const world = new GameWorld(metadata, false);
+  const world = new GameWorld(metadata);
   const matchHeader = game.events(1).e(new schema.MatchHeader()) as schema.MatchHeader;
   world.loadFromMatchHeader(matchHeader);
 
@@ -21,6 +21,6 @@ export function crunch(game: schema.GameWrapper): GameWorld {
       return world;
     }
     // must be a Round
-    world.processRound(event.e(new schema.Round()) as schema.Round);
+    world.processDelta(event.e(new schema.Round()) as schema.Round);
   }
 }

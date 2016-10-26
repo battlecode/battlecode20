@@ -104,6 +104,11 @@ export default class StructOfArrays {
      */
     copy(): StructOfArrays;
     /**
+     * Copy source's buffers into ours, overwriting all values.
+     * @throws Error if source is missing any of our arrays
+     */
+    copyFrom(source: StructOfArrays): void;
+    /**
      * Get the length of the entries in the array.
      */
     readonly length: number;
