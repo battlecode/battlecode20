@@ -163,12 +163,8 @@ table BodyTypeMetadata {
     /// If unset, the same as maxHealth.
     /// Otherwise, the health a body of this type starts with.
     startHealth: float;
-    /// The delay penalty added to the core counter after movement.
-    moveDelay: float;
-    /// The delay penalty added to the attack counter after movement.
-    attackDelay: float;
-    /// The delay penalty added to the attack counter after movement, and vice versa.
-    cooldownDelay: float;
+    /// The maximum distance this type can move each turn
+    strideRadius: float;
     /// The speed that bullets from this unit move.
     /// Note: you don't need to keep track of this, SpawnedBody.vel will always be set.
     bulletSpeed: float;
