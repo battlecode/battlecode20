@@ -13,4 +13,8 @@ var soa = require('./soa');
 exports.soa = soa;
 var simulator = require('./simulator');
 exports.simulator = simulator;
+var match_1 = require('./match');
+exports.Match = match_1.default;
+var game_1 = require('./game');
+exports.Game = game_1.default;
 // TODO provide ergonomic main export

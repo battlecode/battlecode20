@@ -5,6 +5,8 @@ import { schema } from 'battlecode-schema';
 import Victor = require('victor');
 /**
  * A frozen image of the game world.
+ *
+ * TODO(jhgilles): better access control on contents.
  */
 export default class GameWorld {
     /**
@@ -41,27 +43,20 @@ export default class GameWorld {
      * Metadata about the current game.
      */
     meta: Metadata;
-    /**
-     * Whether to simulate cosmetic effects (next locations, orientations...)
-     * We can avoid doing this if we're just running a simulation, and not animating
-     * things.
-     */
-    cosmetic: boolean;
     private _bodiesSlot;
     private _bulletsSlot;
     private _vecTableSlot;
-    constructor(meta: Metadata, cosmetic: boolean);
+    constructor(meta: Metadata);
     loadFromMatchHeader(header: schema.MatchHeader): void;
     /**
      * Create a copy of the world in its current state.
      */
     copy(): GameWorld;
+    copyFrom(source: GameWorld): void;
     /**
-     * Process a round.
-     * If there is a round after this round, and you're simulating cosmetics,
-     * you need to pass it.
+     * Process a set of changes.
      */
-    processRound(current: schema.Round, next?: schema.Round): void;
+    processDelta(delta: schema.Round): void;
     private insertBodies(bodies);
     private insertBullets(bullets);
     private insertTrees(trees);

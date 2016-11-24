@@ -1,6 +1,10 @@
 // Map polyfill
 import * as Map from 'core-js/library/es6/map';
 
+function hasOwnProperty(obj: any, prop: string) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
 /**
  * A class that wraps a group of typed buffers.
  *
@@ -109,7 +113,7 @@ export default class StructOfArrays {
   constructor(fields: {[field: string]: TypeSelector},
               primary: string,
               capacity: number = 8) {
-    if (!fields.hasOwnProperty(primary)) {
+    if (!hasOwnProperty(fields, primary)) {
       throw new Error(`Primary key must exist, '${primary}' not found`);
     }
 
@@ -122,7 +126,7 @@ export default class StructOfArrays {
     this._indexBuffer = undefined;
 
     for (const field in fields) {
-      if (fields.hasOwnProperty(field)) {
+      if (hasOwnProperty(fields, field)) {
         this.arrays[field] = new fields[field](this._capacity);
         this._fieldNames.push(field);
       }
@@ -139,12 +143,35 @@ export default class StructOfArrays {
       types[field] = this.arrays[field].constructor;
     }
     const result = new StructOfArrays(types, this._primary, this._length);
-    const toInsert: {[field: string]: TypedArray} = Object.create(null);
-    for (const field of this._fieldNames) {
-      toInsert[field] = new (this.arrays[field].constructor as TypeSelector)(this.arrays[field].buffer, 0, this._length);
-    }
-    result.insertBulk(toInsert);
+    result.copyFrom(this);
     return result;
+  }
+
+  /**
+   * Copy source's buffers into ours, overwriting all values.
+   * @throws Error if source is missing any of our arrays
+   */
+  copyFrom(source: StructOfArrays) {
+    this._length = source.length;
+
+    if (this._capacity < source.length) {
+      this._capacity = source.length;
+      for (const field in this.arrays) {
+        const oldArray = this.arrays[field];
+        const newArray = new (oldArray.constructor as TypeSelector)(this._capacity);
+        this.arrays[field] = newArray;
+      }
+    }
+
+    for (const field of this._fieldNames) {
+      if (!(field in source.arrays)) {
+        throw new Error(`Can't copyFrom, source missing field ${field}`);
+      }
+      this.arrays[field].set(source.arrays[field].slice(0, source.length));
+      StructOfArrays._zero(this.arrays[field], source.length, this._capacity);
+    }
+
+    this._refreshPrimariesLookup(this._length)
   }
 
   /**
@@ -226,7 +253,7 @@ export default class StructOfArrays {
    */
   private _alterAt(index: number, values: {[field: string]: number}) {
     for (const field in values) {
-      if (values.hasOwnProperty(field) && field in this.arrays) {
+      if (hasOwnProperty(values, field) && field in this.arrays) {
         this.arrays[field][index] = values[field];
       }
     }
@@ -250,7 +277,7 @@ export default class StructOfArrays {
    * @return index of first inserted object in chunk.
    */
   insertBulk(values: {[field: string]: TypedArray}): number {
-    if (!values.hasOwnProperty(this._primary)) {
+    if (!hasOwnProperty(values, this._primary)) {
       throw new Error(`Cannot insert without primary key: '${this._primary}'`);
     }
     const startInsert = this._length;
@@ -258,7 +285,7 @@ export default class StructOfArrays {
     let err = false;
 
     for (const field in values) {
-      if (values.hasOwnProperty(field) && field in this.arrays && values[field] != null) {
+      if (hasOwnProperty(values, field) && field in this.arrays && values[field] != null) {
         this.arrays[field].set(values[field], startInsert);
       }
     }
@@ -275,12 +302,12 @@ export default class StructOfArrays {
    * Rows with nonexistent primary keys will be silently ignored.
    */
   alterBulk(values: {[field: string]: TypedArray}) {
-    if (!values.hasOwnProperty(this._primary)) {
+    if (!hasOwnProperty(values, this._primary)) {
       throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
     const indices = this._lookupIndices(values[this._primary]);
     for (const field in values) {
-      if (values.hasOwnProperty(field) && (field in this.arrays)
+      if (hasOwnProperty(values, field) && (field in this.arrays)
           && field != this._primary && values[field] != null) {
         this._alterBulkFieldImpl(this.arrays[field], indices, values[field]);
       }

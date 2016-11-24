@@ -38,6 +38,7 @@ function createHeader(builder) {
     battlecode_schema_1.schema.GameHeader.addTeams(builder, teamsPacked);
     return battlecode_schema_1.schema.GameHeader.endGameHeader(builder);
 }
+exports.createHeader = createHeader;
 function createVecTable(builder, xs, ys) {
     var xsP = battlecode_schema_1.schema.VecTable.createXsVector(builder, xs);
     var ysP = battlecode_schema_1.schema.VecTable.createYsVector(builder, ys);
@@ -46,12 +47,14 @@ function createVecTable(builder, xs, ys) {
     battlecode_schema_1.schema.VecTable.addYs(builder, ysP);
     return battlecode_schema_1.schema.VecTable.endVecTable(builder);
 }
+exports.createVecTable = createVecTable;
 function createEventWrapper(builder, event, type) {
     battlecode_schema_1.schema.EventWrapper.startEventWrapper(builder);
     battlecode_schema_1.schema.EventWrapper.addEType(builder, type);
     battlecode_schema_1.schema.EventWrapper.addE(builder, event);
     return battlecode_schema_1.schema.EventWrapper.endEventWrapper(builder);
 }
+exports.createEventWrapper = createEventWrapper;
 function createBenchGame(aliveCount, churnCount, moveCount, turns) {
     var builder = new battlecode_schema_1.flatbuffers.Builder();
     var events = [];
@@ -140,6 +143,7 @@ function createBenchGame(aliveCount, churnCount, moveCount, turns) {
     builder.finish(wrapper);
     return builder.asUint8Array();
 }
+exports.createBenchGame = createBenchGame;
 var stream = fs_1.createWriteStream('test.bc17');
 stream.write(new Buffer(createBenchGame(512, 64, 64, 4096)));
 stream.end();

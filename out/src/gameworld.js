@@ -1,14 +1,16 @@
 "use strict";
 var soa_1 = require('./soa');
 var battlecode_schema_1 = require('battlecode-schema');
+// necessary because victor doesn't use exports.default
 var Victor = require('victor');
 /**
  * A frozen image of the game world.
+ *
+ * TODO(jhgilles): better access control on contents.
  */
 var GameWorld = (function () {
-    function GameWorld(meta, cosmetic) {
+    function GameWorld(meta) {
         this.meta = meta;
-        this.cosmetic = cosmetic;
         this.bodies = new soa_1.default({
             id: Int32Array,
             team: Int8Array,
@@ -61,63 +63,59 @@ var GameWorld = (function () {
      * Create a copy of the world in its current state.
      */
     GameWorld.prototype.copy = function () {
-        var result = new GameWorld(this.meta, this.cosmetic);
-        result.turn = this.turn;
-        result.minCorner = this.minCorner;
-        result.maxCorner = this.maxCorner;
-        result.mapName = this.mapName;
-        result.bodies = this.bodies.copy();
-        result.bullets = this.bullets.copy();
+        var result = new GameWorld(this.meta);
+        result.copyFrom(this);
         return result;
     };
+    GameWorld.prototype.copyFrom = function (source) {
+        this.turn = source.turn;
+        this.minCorner = source.minCorner;
+        this.maxCorner = source.maxCorner;
+        this.mapName = source.mapName;
+        this.bodies.copyFrom(source.bodies);
+        this.bullets.copyFrom(source.bullets);
+    };
     /**
-     * Process a round.
-     * If there is a round after this round, and you're simulating cosmetics,
-     * you need to pass it.
+     * Process a set of changes.
      */
-    GameWorld.prototype.processRound = function (current, next) {
-        if (current.roundID() != this.turn + 1) {
-            throw new Error("Bad Round: this.turn = " + this.turn + ", round.roundID() = " + current.roundID());
-        }
-        if (next && next.roundID() != current.roundID() + 1) {
-            throw new Error("Bad Round pair: current.roundID() = " + current.roundID() + ", next.roundID() = " + next.roundID());
+    GameWorld.prototype.processDelta = function (delta) {
+        if (delta.roundID() != this.turn + 1) {
+            throw new Error("Bad Round: this.turn = " + this.turn + ", round.roundID() = " + delta.roundID());
         }
         // Increase the turn count
         this.turn += 1;
         // Simulate deaths
-        if (current.diedIDsLength() > 0) {
-            this.bodies.deleteBulk(current.diedIDsArray());
+        if (delta.diedIDsLength() > 0) {
+            this.bodies.deleteBulk(delta.diedIDsArray());
         }
-        if (current.diedBulletIDsLength() > 0) {
-            this.bullets.deleteBulk(current.diedBulletIDsArray());
+        if (delta.diedBulletIDsLength() > 0) {
+            this.bullets.deleteBulk(delta.diedBulletIDsArray());
         }
         // Simulate changed health levels
-        if (current.healthChangedIDsLength() > 0) {
+        if (delta.healthChangedIDsLength() > 0) {
             this.bodies.alterBulk({
-                id: current.healthChangedIDsArray(),
-                health: current.healthChangeLevelsArray()
+                id: delta.healthChangedIDsArray(),
+                health: delta.healthChangeLevelsArray()
             });
         }
         // Simulate movement
-        var movedLocs = current.movedLocs(this._vecTableSlot);
+        var movedLocs = delta.movedLocs(this._vecTableSlot);
         if (movedLocs) {
             this.bodies.alterBulk({
-                id: current.movedIDsArray(),
+                id: delta.movedIDsArray(),
                 x: movedLocs.xsArray(),
                 y: movedLocs.ysArray(),
             });
         }
         // Simulate spawning
-        var bodies = current.spawnedBodies(this._bodiesSlot);
+        var bodies = delta.spawnedBodies(this._bodiesSlot);
         if (bodies) {
             this.insertBodies(bodies);
         }
         // Simulate spawning
-        var bullets = current.spawnedBullets(this._bulletsSlot);
+        var bullets = delta.spawnedBullets(this._bulletsSlot);
         if (bullets) {
             this.insertBullets(bullets);
-        }
-        if (this.cosmetic && next) {
         }
     };
     GameWorld.prototype.insertBodies = function (bodies) {

@@ -1,10 +1,14 @@
 import StructOfArrays from './soa';
 import Metadata from './metadata';
 import {schema, flatbuffers} from 'battlecode-schema';
+
+// necessary because victor doesn't use exports.default
 import Victor = require('victor');
 
 /**
  * A frozen image of the game world.
+ *
+ * TODO(jhgilles): better access control on contents.
  */
 export default class GameWorld {
   /**
@@ -19,7 +23,7 @@ export default class GameWorld {
    *   radius: Float32Array
    * }
    */
-  public bodies: StructOfArrays;
+  bodies: StructOfArrays;
 
   /*
    * Bullets.
@@ -33,7 +37,7 @@ export default class GameWorld {
    *   spawnedTime: Uint16Array
    * }, 'id', capacity)
    */
-  public bullets: StructOfArrays;
+  bullets: StructOfArrays;
 
   /**
    * The current turn.
@@ -60,13 +64,6 @@ export default class GameWorld {
    */
   meta: Metadata;
 
-  /**
-   * Whether to simulate cosmetic effects (next locations, orientations...)
-   * We can avoid doing this if we're just running a simulation, and not animating
-   * things.
-   */
-  cosmetic: boolean;
-
   // Cache fields
   // We pass these into flatbuffers functions to avoid allocations, but that's
   // it, they don't hold any state
@@ -74,9 +71,8 @@ export default class GameWorld {
   private _bulletsSlot: schema.SpawnedBulletTable;
   private _vecTableSlot: schema.VecTable;
 
-  constructor(meta: Metadata, cosmetic: boolean) {
+  constructor(meta: Metadata) {
     this.meta = meta;
-    this.cosmetic = cosmetic;
 
     this.bodies = new StructOfArrays({
       id: Int32Array,
@@ -135,75 +131,67 @@ export default class GameWorld {
    * Create a copy of the world in its current state.
    */
   copy(): GameWorld {
-    const result = new GameWorld(this.meta, this.cosmetic);
-    result.turn = this.turn;
-    result.minCorner = this.minCorner;
-    result.maxCorner = this.maxCorner;
-    result.mapName = this.mapName;
-    result.bodies = this.bodies.copy();
-    result.bullets = this.bullets.copy();
+    const result = new GameWorld(this.meta);
+    result.copyFrom(this);
     return result;
   }
 
+  copyFrom(source: GameWorld) {
+    this.turn = source.turn;
+    this.minCorner = source.minCorner;
+    this.maxCorner = source.maxCorner;
+    this.mapName = source.mapName;
+    this.bodies.copyFrom(source.bodies);
+    this.bullets.copyFrom(source.bullets);
+  }
+
   /**
-   * Process a round.
-   * If there is a round after this round, and you're simulating cosmetics,
-   * you need to pass it.
+   * Process a set of changes.
    */
-  processRound(current: schema.Round, next?: schema.Round) {
-    if (current.roundID() != this.turn + 1) {
-      throw new Error(`Bad Round: this.turn = ${this.turn}, round.roundID() = ${current.roundID()}`);
-    }
-    if (next && next.roundID() != current.roundID() + 1) {
-      throw new Error(`Bad Round pair: current.roundID() = ${current.roundID()}, next.roundID() = ${next.roundID()}`);
+  processDelta(delta: schema.Round) {
+    if (delta.roundID() != this.turn + 1) {
+      throw new Error(`Bad Round: this.turn = ${this.turn}, round.roundID() = ${delta.roundID()}`);
     }
 
     // Increase the turn count
     this.turn += 1;
 
     // Simulate deaths
-    if (current.diedIDsLength() > 0) {
-      this.bodies.deleteBulk(current.diedIDsArray());
+    if (delta.diedIDsLength() > 0) {
+      this.bodies.deleteBulk(delta.diedIDsArray());
     }
-    if (current.diedBulletIDsLength() > 0) {
-      this.bullets.deleteBulk(current.diedBulletIDsArray());
+    if (delta.diedBulletIDsLength() > 0) {
+      this.bullets.deleteBulk(delta.diedBulletIDsArray());
     }
 
     // Simulate changed health levels
-    if (current.healthChangedIDsLength() > 0) {
+    if (delta.healthChangedIDsLength() > 0) {
       this.bodies.alterBulk({
-        id: current.healthChangedIDsArray(),
-        health: current.healthChangeLevelsArray()
+        id: delta.healthChangedIDsArray(),
+        health: delta.healthChangeLevelsArray()
       });
     }
 
     // Simulate movement
-    const movedLocs = current.movedLocs(this._vecTableSlot);
+    const movedLocs = delta.movedLocs(this._vecTableSlot);
     if (movedLocs) {
       this.bodies.alterBulk({
-        id: current.movedIDsArray(),
+        id: delta.movedIDsArray(),
         x: movedLocs.xsArray(),
         y: movedLocs.ysArray(),
       });
     }
 
     // Simulate spawning
-    const bodies = current.spawnedBodies(this._bodiesSlot);
+    const bodies = delta.spawnedBodies(this._bodiesSlot);
     if (bodies) {
       this.insertBodies(bodies);
     }
 
     // Simulate spawning
-    const bullets = current.spawnedBullets(this._bulletsSlot);
+    const bullets = delta.spawnedBullets(this._bulletsSlot);
     if (bullets) {
       this.insertBullets(bullets);
-    }
-
-    if (this.cosmetic && next) {
-      // Eventually we'll simulate some stuff here...
-      // Track where robots will be in the next simulation step,
-      // which way they're facing, if they're doing an animation, etc.
-      // We can use that to make things pretty :)
     }
   }
 

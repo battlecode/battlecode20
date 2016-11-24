@@ -5,4 +5,6 @@ import * as metadata from './metadata';
 import StructOfArrays from './soa';
 import * as soa from './soa';
 import * as simulator from './simulator';
-export { GameWorld, gameworld, Metadata, metadata, StructOfArrays, soa, simulator };
+import Match from './match';
+import Game from './game';
+export { Game, Match, GameWorld, gameworld, Metadata, metadata, StructOfArrays, soa, simulator };
