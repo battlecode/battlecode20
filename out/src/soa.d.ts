@@ -156,8 +156,12 @@ export default class StructOfArrays {
      * Insert values in bulk.
      * O(values[...].length).
      *
-     * Values will be inserted in a contiguous chunk.
-     * @return index of first inserted object in chunk.
+     * Values are guaranteed to be inserted in a single block.
+     * You can perform extra initialization on this block after insertion.
+     *
+     * The block is in range [startI, this.length)
+     *
+     * @return startI
      */
     insertBulk(values: {
         [field: string]: TypedArray;
@@ -180,11 +184,14 @@ export default class StructOfArrays {
      */
     private _alterBulkFieldImpl(target, indices, source);
     /**
-     * Zero a TypedArray (or normal array, I suppose)
+     * Zero a TypedArray (or normal array, I suppose).
+     *
+     * Just a polyfill.
+     *
      * @param start inclusive
      * @param end exclusive
      */
-    private static _zero(arr, start, end);
+    static fill(arr: TypedArray, value: number, start: number, end: number): void;
     /**
      * Create a sorted array of keys to delete.
      * May allocate a new array, or reuse an old one.

@@ -11,7 +11,7 @@ export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
     schema.BodyTypeMetadata.addBulletSpeed(builder, 1);
     schema.BodyTypeMetadata.addCooldownDelay(builder, 1);
     schema.BodyTypeMetadata.addCost(builder, 100);
-    schema.BodyTypeMetadata.addMaxHealth(builder, 10);
+    schema.BodyTypeMetadata.addMaxHealth(builder, 100);
     schema.BodyTypeMetadata.addMoveDelay(builder, 1);
     schema.BodyTypeMetadata.addRadius(builder, 1);
     schema.BodyTypeMetadata.addStartHealth(builder, 100);

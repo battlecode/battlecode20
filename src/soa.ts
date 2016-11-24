@@ -168,7 +168,7 @@ export default class StructOfArrays {
         throw new Error(`Can't copyFrom, source missing field ${field}`);
       }
       this.arrays[field].set(source.arrays[field].slice(0, source.length));
-      StructOfArrays._zero(this.arrays[field], source.length, this._capacity);
+      StructOfArrays.fill(this.arrays[field], 0, source.length, this._capacity);
     }
 
     this._refreshPrimariesLookup(this._length)
@@ -273,8 +273,12 @@ export default class StructOfArrays {
    * Insert values in bulk.
    * O(values[...].length).
    *
-   * Values will be inserted in a contiguous chunk.
-   * @return index of first inserted object in chunk.
+   * Values are guaranteed to be inserted in a single block.
+   * You can perform extra initialization on this block after insertion.
+   *
+   * The block is in range [startI, this.length)
+   *
+   * @return startI
    */
   insertBulk(values: {[field: string]: TypedArray}): number {
     if (!hasOwnProperty(values, this._primary)) {
@@ -341,16 +345,19 @@ export default class StructOfArrays {
   }
 
   /**
-   * Zero a TypedArray (or normal array, I suppose)
+   * Zero a TypedArray (or normal array, I suppose).
+   *
+   * Just a polyfill.
+   *
    * @param start inclusive
    * @param end exclusive
    */
-  private static _zero(arr: TypedArray, start: number, end: number) {
+  static fill(arr: TypedArray, value: number, start: number, end: number) {
     if (arr.fill) {
-      arr.fill(0, start, end);
+      arr.fill(value, start, end);
     } else {
       for (let i = start; i < end; i++) {
-        arr[i] = 0;
+        arr[i] = value;
       }
     }
   }
@@ -400,7 +407,7 @@ export default class StructOfArrays {
       this._deleteBulkFieldImpl(toDelete, array);
 
       // zero the new space in the array
-      StructOfArrays._zero(array, this._length - toDelete.length, this._length);
+      StructOfArrays.fill(array, 0, this._length - toDelete.length, this._length);
     }
     this._length -= toDelete.length;
     this._refreshPrimariesLookup(this._length);

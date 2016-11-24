@@ -22,7 +22,6 @@ var GameWorld = (function () {
         }, 'id');
         this.bullets = new soa_1.default({
             id: Int32Array,
-            radius: Float32Array,
             x: Float32Array,
             y: Float32Array,
             velX: Float32Array,
@@ -147,27 +146,33 @@ var GameWorld = (function () {
     };
     GameWorld.prototype.insertBullets = function (bullets) {
         var locs = bullets.locs(this._vecTableSlot);
-        var xs = locs.xsArray(), ys = locs.ysArray();
         var vels = bullets.vels(this._vecTableSlot);
-        this.bullets.insertBulk({
+        var startI = this.bullets.insertBulk({
             id: bullets.robotIDsArray(),
-            x: xs,
-            y: ys,
+            x: locs.xsArray(),
+            y: locs.ysArray(),
             velX: vels.xsArray(),
             velY: vels.ysArray(),
             damage: bullets.damagesArray(),
         });
+        // There may be an off-by-one error here but I think this is right
+        soa_1.default.fill(this.bullets.arrays['spawnedTime'], this.turn, startI, this.bullets.length);
     };
     GameWorld.prototype.insertTrees = function (trees) {
         var locs = trees.locs(this._vecTableSlot);
-        this.bodies.insertBulk({
+        var startI = this.bodies.insertBulk({
             id: trees.robotIDsArray(),
             radius: trees.radiiArray(),
             x: locs.xsArray(),
             y: locs.ysArray(),
         });
+        soa_1.default.fill(this.bodies.arrays['team'], NEUTRAL_TEAM, startI, this.bodies.length);
+        soa_1.default.fill(this.bodies.arrays['type'], battlecode_schema_1.schema.BodyType.TREE_NEUTRAL, startI, this.bodies.length);
+        soa_1.default.fill(this.bodies.arrays['health'], this.meta.types[battlecode_schema_1.schema.BodyType.TREE_NEUTRAL].startHealth, startI, this.bodies.length);
     };
     return GameWorld;
 }());
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = GameWorld;
+// TODO(jhgilles): encode in flatbuffers
+var NEUTRAL_TEAM = 2;

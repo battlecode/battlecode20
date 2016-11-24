@@ -115,7 +115,7 @@ var StructOfArrays = (function () {
                 throw new Error("Can't copyFrom, source missing field " + field);
             }
             this.arrays[field].set(source.arrays[field].slice(0, source.length));
-            StructOfArrays._zero(this.arrays[field], source.length, this._capacity);
+            StructOfArrays.fill(this.arrays[field], 0, source.length, this._capacity);
         }
         this._refreshPrimariesLookup(this._length);
     };
@@ -213,8 +213,12 @@ var StructOfArrays = (function () {
      * Insert values in bulk.
      * O(values[...].length).
      *
-     * Values will be inserted in a contiguous chunk.
-     * @return index of first inserted object in chunk.
+     * Values are guaranteed to be inserted in a single block.
+     * You can perform extra initialization on this block after insertion.
+     *
+     * The block is in range [startI, this.length)
+     *
+     * @return startI
      */
     StructOfArrays.prototype.insertBulk = function (values) {
         if (!hasOwnProperty(values, this._primary)) {
@@ -276,17 +280,20 @@ var StructOfArrays = (function () {
         }
     };
     /**
-     * Zero a TypedArray (or normal array, I suppose)
+     * Zero a TypedArray (or normal array, I suppose).
+     *
+     * Just a polyfill.
+     *
      * @param start inclusive
      * @param end exclusive
      */
-    StructOfArrays._zero = function (arr, start, end) {
+    StructOfArrays.fill = function (arr, value, start, end) {
         if (arr.fill) {
-            arr.fill(0, start, end);
+            arr.fill(value, start, end);
         }
         else {
             for (var i = start; i < end; i++) {
-                arr[i] = 0;
+                arr[i] = value;
             }
         }
     };
@@ -332,7 +339,7 @@ var StructOfArrays = (function () {
             // copy the fields down in the array
             this._deleteBulkFieldImpl(toDelete, array);
             // zero the new space in the array
-            StructOfArrays._zero(array, this._length - toDelete.length, this._length);
+            StructOfArrays.fill(array, 0, this._length - toDelete.length, this._length);
         }
         this._length -= toDelete.length;
         this._refreshPrimariesLookup(this._length);

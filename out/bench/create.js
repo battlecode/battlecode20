@@ -11,7 +11,7 @@ function createHeader(builder) {
         battlecode_schema_1.schema.BodyTypeMetadata.addBulletSpeed(builder, 1);
         battlecode_schema_1.schema.BodyTypeMetadata.addCooldownDelay(builder, 1);
         battlecode_schema_1.schema.BodyTypeMetadata.addCost(builder, 100);
-        battlecode_schema_1.schema.BodyTypeMetadata.addMaxHealth(builder, 10);
+        battlecode_schema_1.schema.BodyTypeMetadata.addMaxHealth(builder, 100);
         battlecode_schema_1.schema.BodyTypeMetadata.addMoveDelay(builder, 1);
         battlecode_schema_1.schema.BodyTypeMetadata.addRadius(builder, 1);
         battlecode_schema_1.schema.BodyTypeMetadata.addStartHealth(builder, 100);

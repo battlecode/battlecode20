@@ -29,11 +29,11 @@ export default class GameWorld {
    * Bullets.
    * {
    *   id: Int32Array,
-   *   radius: Float32Array,
    *   x: Float32Array,
    *   y: Float32Array,
    *   velX: Float32Array,
    *   velY: Float32Array,
+   *   damage: Float32Array,
    *   spawnedTime: Uint16Array
    * }, 'id', capacity)
    */
@@ -86,7 +86,6 @@ export default class GameWorld {
 
     this.bullets = new StructOfArrays({
       id: Int32Array,
-      radius: Float32Array,
       x: Float32Array,
       y: Float32Array,
       velX: Float32Array,
@@ -226,27 +225,53 @@ export default class GameWorld {
 
   private insertBullets(bullets: schema.SpawnedBulletTable) {
     const locs = bullets.locs(this._vecTableSlot);
-    const xs = locs.xsArray(), ys = locs.ysArray();
     const vels = bullets.vels(this._vecTableSlot);
 
-    this.bullets.insertBulk({
+    const startI = this.bullets.insertBulk({
       id: bullets.robotIDsArray(),
-      x: xs,
-      y: ys,
+      x: locs.xsArray(),
+      y: locs.ysArray(),
       velX: vels.xsArray(),
       velY: vels.ysArray(),
       damage: bullets.damagesArray(),
     });
+
+    // There may be an off-by-one error here but I think this is right
+    StructOfArrays.fill(this.bullets.arrays['spawnedTime'], this.turn, startI, this.bullets.length);
   }
 
   private insertTrees(trees: schema.NeutralTreeTable) {
     const locs = trees.locs(this._vecTableSlot);
 
-    this.bodies.insertBulk({
+    const startI = this.bodies.insertBulk({
       id: trees.robotIDsArray(),
       radius: trees.radiiArray(),
       x: locs.xsArray(),
       y: locs.ysArray(),
     });
+
+    StructOfArrays.fill(
+      this.bodies.arrays['team'],
+      NEUTRAL_TEAM,
+      startI,
+      this.bodies.length
+    );
+
+    StructOfArrays.fill(
+      this.bodies.arrays['type'],
+      schema.BodyType.TREE_NEUTRAL,
+      startI,
+      this.bodies.length
+    );
+
+    StructOfArrays.fill(
+      this.bodies.arrays['health'],
+      this.meta.types[schema.BodyType.TREE_NEUTRAL].startHealth,
+      startI,
+      this.bodies.length
+    );
   }
 }
+
+// TODO(jhgilles): encode in flatbuffers
+const NEUTRAL_TEAM = 2;
