@@ -97,7 +97,6 @@ export default class Game {
         break;
 
       case schema.Event.GameFooter:
-        console.log('gamefooter');
         const gameFooter = event.e(new schema.GameFooter()) as schema.GameFooter;
         if (gameStarted && matchCount > 0 && lastMatchFinished) {
           this._winner = gameFooter.winner();

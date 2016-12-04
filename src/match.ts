@@ -98,6 +98,7 @@ export default class Match {
     this._current.loadFromMatchHeader(header);
     this._farthest = this._current;
     this.snapshots = new Array();
+    this.snapshotEvery = 50;
     this.snapshots.push(this._current.copy());
     // leave [0] undefined
     this.deltas = new Array(1);

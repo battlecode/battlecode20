@@ -98,7 +98,6 @@ var Game = (function () {
                 }
                 break;
             case battlecode_schema_1.schema.Event.GameFooter:
-                console.log('gamefooter');
                 var gameFooter = event.e(new battlecode_schema_1.schema.GameFooter());
                 if (gameStarted && matchCount > 0 && lastMatchFinished) {
                     this._winner = gameFooter.winner();
