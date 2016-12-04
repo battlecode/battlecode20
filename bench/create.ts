@@ -2,6 +2,9 @@ import {schema, flatbuffers} from 'battlecode-schema';
 import * as Map from 'core-js/library/es6/map';
 import {createWriteStream} from 'fs';
 
+const SIZE = 200;
+const SIZE2 = SIZE / 2;
+
 export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const bodies: flatbuffers.Offset[] = [];
   for (const body of [schema.BodyType.ARCHON, schema.BodyType.GARDENER, schema.BodyType.LUMBERJACK, schema.BodyType.RECRUIT, schema.BodyType.SOLDIER, schema.BodyType.TANK, schema.BodyType.SCOUT, schema.BodyType.BULLET, schema.BodyType.TREE_BULLET, schema.BodyType.TREE_NEUTRAL]) {
@@ -81,8 +84,8 @@ export function createBenchGame(aliveCount: number, churnCount: number, moveCoun
 
   schema.GameMap.startGameMap(builder);
   schema.GameMap.addBodies(builder, bodies);
-  schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, -1000, -1000));
-  schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, 100000, 100000));
+  schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, 0, 0));
+  schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, SIZE, SIZE));
   const map = schema.GameMap.endGameMap(builder);
 
   schema.MatchHeader.startMatchHeader(builder);
@@ -102,13 +105,6 @@ export function createBenchGame(aliveCount: number, churnCount: number, moveCoun
 
   let nextID = aliveCount;
 
-  for (let i = 0; i < moveCount; i++) {
-    movedXs[i] = i;
-    movedYs[i] = i;
-  }
-
-  const movedLocs = createVecTable(builder, movedXs, movedYs);
-
   for (let i = 0; i < churnCount; i++) {
     bornXs[i] = i;
     bornYs[i] = i;
@@ -123,6 +119,13 @@ export function createBenchGame(aliveCount: number, churnCount: number, moveCoun
       alive.push(bornIDs[j]);
     }
     alive.splice(0, churnCount);
+
+    for (let i = 0; i < moveCount; i++) {
+      const t = Math.random() * Math.PI;
+      movedXs[i] = SIZE2 + Math.cos(t) * SIZE2;
+      movedYs[i] = SIZE2 + Math.sin(t) * SIZE2;
+    }
+    const movedLocs = createVecTable(builder, movedXs, movedYs);
 
     for (let j = 0; j < moveCount; j++) {
       movedIDs[j] = alive[j];
@@ -173,5 +176,5 @@ export function createBenchGame(aliveCount: number, churnCount: number, moveCoun
 }
 
 let stream = createWriteStream('test.bc17');
-stream.write(new Buffer(createBenchGame(512, 64, 64, 4096)));
+stream.write(new Buffer(createBenchGame(128, 64, 64, 4096)));
 stream.end();

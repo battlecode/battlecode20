@@ -214,7 +214,7 @@ export default class GameWorld {
     const endIndex = startIndex + bodies.robotIDsLength();
     const typeArray = this.bodies.arrays['type'];
     const radiusArray = this.bodies.arrays['radius'];
-    const healthArray = this.bodies.arrays['radius'];
+    const healthArray = this.bodies.arrays['health'];
     for (let i = startIndex; i < endIndex; i++) {
       const type = typeArray[i];
       const typeInfo = this.meta.types[type];

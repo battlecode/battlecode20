@@ -1,6 +1,8 @@
 "use strict";
 var battlecode_schema_1 = require('battlecode-schema');
 var fs_1 = require('fs');
+var SIZE = 200;
+var SIZE2 = SIZE / 2;
 function createHeader(builder) {
     var bodies = [];
     for (var _i = 0, _a = [battlecode_schema_1.schema.BodyType.ARCHON, battlecode_schema_1.schema.BodyType.GARDENER, battlecode_schema_1.schema.BodyType.LUMBERJACK, battlecode_schema_1.schema.BodyType.RECRUIT, battlecode_schema_1.schema.BodyType.SOLDIER, battlecode_schema_1.schema.BodyType.TANK, battlecode_schema_1.schema.BodyType.SCOUT, battlecode_schema_1.schema.BodyType.BULLET, battlecode_schema_1.schema.BodyType.TREE_BULLET, battlecode_schema_1.schema.BodyType.TREE_NEUTRAL]; _i < _a.length; _i++) {
@@ -75,8 +77,8 @@ function createBenchGame(aliveCount, churnCount, moveCount, turns) {
     var bodies = battlecode_schema_1.schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
     battlecode_schema_1.schema.GameMap.startGameMap(builder);
     battlecode_schema_1.schema.GameMap.addBodies(builder, bodies);
-    battlecode_schema_1.schema.GameMap.addMinCorner(builder, battlecode_schema_1.schema.Vec.createVec(builder, -1000, -1000));
-    battlecode_schema_1.schema.GameMap.addMaxCorner(builder, battlecode_schema_1.schema.Vec.createVec(builder, 100000, 100000));
+    battlecode_schema_1.schema.GameMap.addMinCorner(builder, battlecode_schema_1.schema.Vec.createVec(builder, 0, 0));
+    battlecode_schema_1.schema.GameMap.addMaxCorner(builder, battlecode_schema_1.schema.Vec.createVec(builder, SIZE, SIZE));
     var map = battlecode_schema_1.schema.GameMap.endGameMap(builder);
     battlecode_schema_1.schema.MatchHeader.startMatchHeader(builder);
     battlecode_schema_1.schema.MatchHeader.addMaxRounds(builder, turns);
@@ -90,11 +92,6 @@ function createBenchGame(aliveCount, churnCount, moveCount, turns) {
     var movedXs = new Array(moveCount);
     var movedYs = new Array(moveCount);
     var nextID = aliveCount;
-    for (var i = 0; i < moveCount; i++) {
-        movedXs[i] = i;
-        movedYs[i] = i;
-    }
-    var movedLocs = createVecTable(builder, movedXs, movedYs);
     for (var i = 0; i < churnCount; i++) {
         bornXs[i] = i;
         bornYs[i] = i;
@@ -107,6 +104,12 @@ function createBenchGame(aliveCount, churnCount, moveCount, turns) {
             alive.push(bornIDs[j]);
         }
         alive.splice(0, churnCount);
+        for (var i_1 = 0; i_1 < moveCount; i_1++) {
+            var t = Math.random() * Math.PI;
+            movedXs[i_1] = SIZE2 + Math.cos(t) * SIZE2;
+            movedYs[i_1] = SIZE2 + Math.sin(t) * SIZE2;
+        }
+        var movedLocs = createVecTable(builder, movedXs, movedYs);
         for (var j = 0; j < moveCount; j++) {
             movedIDs[j] = alive[j];
         }
@@ -145,5 +148,5 @@ function createBenchGame(aliveCount, churnCount, moveCount, turns) {
 }
 exports.createBenchGame = createBenchGame;
 var stream = fs_1.createWriteStream('test.bc17');
-stream.write(new Buffer(createBenchGame(512, 64, 64, 4096)));
+stream.write(new Buffer(createBenchGame(128, 64, 64, 4096)));
 stream.end();
