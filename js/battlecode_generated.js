@@ -756,13 +756,40 @@ battlecode.schema.NeutralTreeTable.prototype.radiiArray = function() {
 };
 
 /**
+ * The healths of the trees.
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.NeutralTreeTable.prototype.healths = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.NeutralTreeTable.prototype.healthsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Float32Array}
+ */
+battlecode.schema.NeutralTreeTable.prototype.healthsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
  * The bullets contained within the trees.
  *
  * @param {number} index
  * @returns {number}
  */
 battlecode.schema.NeutralTreeTable.prototype.containedBullets = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 10);
+  var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -770,7 +797,7 @@ battlecode.schema.NeutralTreeTable.prototype.containedBullets = function(index) 
  * @returns {number}
  */
 battlecode.schema.NeutralTreeTable.prototype.containedBulletsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 10);
+  var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -778,7 +805,7 @@ battlecode.schema.NeutralTreeTable.prototype.containedBulletsLength = function()
  * @returns {Int32Array}
  */
 battlecode.schema.NeutralTreeTable.prototype.containedBulletsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 10);
+  var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -789,7 +816,7 @@ battlecode.schema.NeutralTreeTable.prototype.containedBulletsArray = function() 
  * @returns {battlecode.schema.BodyType}
  */
 battlecode.schema.NeutralTreeTable.prototype.containedBodies = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 12);
+  var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? /** @type {battlecode.schema.BodyType} */ (this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index)) : 0;
 };
 
@@ -797,7 +824,7 @@ battlecode.schema.NeutralTreeTable.prototype.containedBodies = function(index) {
  * @returns {number}
  */
 battlecode.schema.NeutralTreeTable.prototype.containedBodiesLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 12);
+  var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -805,7 +832,7 @@ battlecode.schema.NeutralTreeTable.prototype.containedBodiesLength = function() 
  * @returns {Int8Array}
  */
 battlecode.schema.NeutralTreeTable.prototype.containedBodiesArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 12);
+  var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -813,7 +840,7 @@ battlecode.schema.NeutralTreeTable.prototype.containedBodiesArray = function() {
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.NeutralTreeTable.startNeutralTreeTable = function(builder) {
-  builder.startObject(5);
+  builder.startObject(6);
 };
 
 /**
@@ -884,10 +911,39 @@ battlecode.schema.NeutralTreeTable.startRadiiVector = function(builder, numElems
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} healthsOffset
+ */
+battlecode.schema.NeutralTreeTable.addHealths = function(builder, healthsOffset) {
+  builder.addFieldOffset(3, healthsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.NeutralTreeTable.createHealthsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addFloat32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.NeutralTreeTable.startHealthsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} containedBulletsOffset
  */
 battlecode.schema.NeutralTreeTable.addContainedBullets = function(builder, containedBulletsOffset) {
-  builder.addFieldOffset(3, containedBulletsOffset, 0);
+  builder.addFieldOffset(4, containedBulletsOffset, 0);
 };
 
 /**
@@ -916,7 +972,7 @@ battlecode.schema.NeutralTreeTable.startContainedBulletsVector = function(builde
  * @param {flatbuffers.Offset} containedBodiesOffset
  */
 battlecode.schema.NeutralTreeTable.addContainedBodies = function(builder, containedBodiesOffset) {
-  builder.addFieldOffset(4, containedBodiesOffset, 0);
+  builder.addFieldOffset(5, containedBodiesOffset, 0);
 };
 
 /**

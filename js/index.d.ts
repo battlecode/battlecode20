@@ -1324,6 +1324,24 @@ declare module index {
             radiiArray(): Float32Array;
 
             /**
+             * The healths of the trees.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            healths(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            health(): number;
+
+            /**
+             * @returns {Float32Array}
+             */
+            healthsArray(): Float32Array;
+
+            /**
              * The bullets contained within the trees.
              *
              * @param {number} index

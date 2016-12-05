@@ -71,6 +71,8 @@ table NeutralTreeTable {
     locs: VecTable;
     /// The radii of the trees.
     radii: [float];
+    /// The healths of the trees.
+    healths: [float];
     /// The bullets contained within the trees.
     containedBullets: [int];
     /// The bodies contained within the trees.
