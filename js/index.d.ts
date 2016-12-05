@@ -1915,21 +1915,9 @@ declare module index {
 
             /**
              * @param {flatbuffers.Builder} builder
-             * @param {number} moveDelay
+             * @param {number} strideRadius
              */
-            static addMoveDelay(builder: flatbuffers.Builder, moveDelay: number): void;
-
-            /**
-             * @param {flatbuffers.Builder} builder
-             * @param {number} attackDelay
-             */
-            static addAttackDelay(builder: flatbuffers.Builder, attackDelay: number): void;
-
-            /**
-             * @param {flatbuffers.Builder} builder
-             * @param {number} cooldownDelay
-             */
-            static addCooldownDelay(builder: flatbuffers.Builder, cooldownDelay: number): void;
+            static addStrideRadius(builder: flatbuffers.Builder, strideRadius: number): void;
 
             /**
              * @param {flatbuffers.Builder} builder
