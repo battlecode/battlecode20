@@ -151,7 +151,7 @@ export default class Match {
         if (this._current.turn < snapBefore || this._seekTo < this._current.turn) {
           // If current < snapBefore <= seekTo, set current = snapBefore.
           // If snapBefore <= seekTo < current, set current = snapBefore.
-          this._current.copyFrom(this.snapshots[Math.floor(this.current.turn / this.snapshotEvery)]);
+          this._current.copyFrom(this.snapshots[Math.floor(snapBefore / this.snapshotEvery)]);
         }
         // Otherwise, snapBefore < current <= seekTo, so we're fine.
       }

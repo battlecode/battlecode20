@@ -2,7 +2,7 @@ import {schema, flatbuffers} from 'battlecode-schema';
 import * as Map from 'core-js/library/es6/map';
 import {createWriteStream} from 'fs';
 
-const SIZE = 200;
+const SIZE = 50;
 const SIZE2 = SIZE / 2;
 
 export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {

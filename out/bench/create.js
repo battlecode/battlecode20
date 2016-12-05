@@ -1,7 +1,7 @@
 "use strict";
 var battlecode_schema_1 = require('battlecode-schema');
 var fs_1 = require('fs');
-var SIZE = 200;
+var SIZE = 50;
 var SIZE2 = SIZE / 2;
 function createHeader(builder) {
     var bodies = [];
