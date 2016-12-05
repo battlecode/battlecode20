@@ -163,12 +163,12 @@ var GameWorld = (function () {
         var startI = this.bodies.insertBulk({
             id: trees.robotIDsArray(),
             radius: trees.radiiArray(),
+            health: trees.healthsArray(),
             x: locs.xsArray(),
             y: locs.ysArray(),
         });
         soa_1.default.fill(this.bodies.arrays['team'], NEUTRAL_TEAM, startI, this.bodies.length);
         soa_1.default.fill(this.bodies.arrays['type'], battlecode_schema_1.schema.BodyType.TREE_NEUTRAL, startI, this.bodies.length);
-        soa_1.default.fill(this.bodies.arrays['health'], this.meta.types[battlecode_schema_1.schema.BodyType.TREE_NEUTRAL].startHealth, startI, this.bodies.length);
     };
     return GameWorld;
 }());

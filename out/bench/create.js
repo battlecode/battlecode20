@@ -8,15 +8,13 @@ function createHeader(builder) {
     for (var _i = 0, _a = [battlecode_schema_1.schema.BodyType.ARCHON, battlecode_schema_1.schema.BodyType.GARDENER, battlecode_schema_1.schema.BodyType.LUMBERJACK, battlecode_schema_1.schema.BodyType.RECRUIT, battlecode_schema_1.schema.BodyType.SOLDIER, battlecode_schema_1.schema.BodyType.TANK, battlecode_schema_1.schema.BodyType.SCOUT, battlecode_schema_1.schema.BodyType.BULLET, battlecode_schema_1.schema.BodyType.TREE_BULLET, battlecode_schema_1.schema.BodyType.TREE_NEUTRAL]; _i < _a.length; _i++) {
         var body = _a[_i];
         battlecode_schema_1.schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
-        battlecode_schema_1.schema.BodyTypeMetadata.addAttackDelay(builder, 1);
         battlecode_schema_1.schema.BodyTypeMetadata.addBulletAttack(builder, 1);
         battlecode_schema_1.schema.BodyTypeMetadata.addBulletSpeed(builder, 1);
-        battlecode_schema_1.schema.BodyTypeMetadata.addCooldownDelay(builder, 1);
         battlecode_schema_1.schema.BodyTypeMetadata.addCost(builder, 100);
         battlecode_schema_1.schema.BodyTypeMetadata.addMaxHealth(builder, 100);
-        battlecode_schema_1.schema.BodyTypeMetadata.addMoveDelay(builder, 1);
         battlecode_schema_1.schema.BodyTypeMetadata.addRadius(builder, 1);
         battlecode_schema_1.schema.BodyTypeMetadata.addStartHealth(builder, 100);
+        battlecode_schema_1.schema.BodyTypeMetadata.addStrideRadius(builder, 5);
         battlecode_schema_1.schema.BodyTypeMetadata.addType(builder, body);
         bodies.push(battlecode_schema_1.schema.BodyTypeMetadata.endBodyTypeMetadata(builder));
     }

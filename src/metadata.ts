@@ -50,9 +50,7 @@ export default class Metadata {
         body.cost(),
         body.maxHealth(),
         body.startHealth(),
-        body.moveDelay(),
-        body.attackDelay(),
-        body.cooldownDelay(),
+        body.strideRadius(),
         body.bulletSpeed(),
         body.bulletAttack()
       ));
@@ -120,19 +118,9 @@ export class BodyType {
   startHealth: number;
 
   /**
-   * The delay penalty added to the core counter after movement.
+   * The distance this robot can move in a turn.
    */
-  moveDelay: number;
-
-  /**
-   * The delay penalty added to the attack counter after movement.
-   */
-  attackDelay: number;
-
-  /**
-   * The delay penalty added to the attack counter after movement, and vice versa.
-   */
-  cooldownDelay: number;
+  strideRadius: number;
 
   /**
    * The speed that bullets from this unit move.
@@ -146,15 +134,13 @@ export class BodyType {
    */
   bulletAttack: number;
 
-  constructor(type: schema.BodyType, radius: number, cost: number, maxHealth: number, startHealth: number, moveDelay: number, attackDelay: number, cooldownDelay: number, bulletSpeed: number, bulletAttack: number) {
+  constructor(type: schema.BodyType, radius: number, cost: number, maxHealth: number, startHealth: number, strideRadius: number, bulletSpeed: number, bulletAttack: number) {
     this.type = type;
     this.radius = radius;
     this.cost = cost;
     this.maxHealth = maxHealth;
     this.startHealth = startHealth;
-    this.moveDelay = moveDelay;
-    this.attackDelay = attackDelay;
-    this.cooldownDelay = cooldownDelay;
+    this.strideRadius = strideRadius;
     this.bulletSpeed = bulletSpeed;
     this.bulletAttack = bulletAttack;
     Object.freeze(this);

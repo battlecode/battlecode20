@@ -63,17 +63,9 @@ export declare class BodyType {
      */
     startHealth: number;
     /**
-     * The delay penalty added to the core counter after movement.
+     * The distance this robot can move in a turn.
      */
-    moveDelay: number;
-    /**
-     * The delay penalty added to the attack counter after movement.
-     */
-    attackDelay: number;
-    /**
-     * The delay penalty added to the attack counter after movement, and vice versa.
-     */
-    cooldownDelay: number;
+    strideRadius: number;
     /**
      * The speed that bullets from this unit move.
      * Note: you don't need to keep track of this, SpawnedBody.vel will always be set.
@@ -84,5 +76,5 @@ export declare class BodyType {
      * Note: you don't need to keep track of this.
      */
     bulletAttack: number;
-    constructor(type: schema.BodyType, radius: number, cost: number, maxHealth: number, startHealth: number, moveDelay: number, attackDelay: number, cooldownDelay: number, bulletSpeed: number, bulletAttack: number);
+    constructor(type: schema.BodyType, radius: number, cost: number, maxHealth: number, startHealth: number, strideRadius: number, bulletSpeed: number, bulletAttack: number);
 }

@@ -9,15 +9,13 @@ export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const bodies: flatbuffers.Offset[] = [];
   for (const body of [schema.BodyType.ARCHON, schema.BodyType.GARDENER, schema.BodyType.LUMBERJACK, schema.BodyType.RECRUIT, schema.BodyType.SOLDIER, schema.BodyType.TANK, schema.BodyType.SCOUT, schema.BodyType.BULLET, schema.BodyType.TREE_BULLET, schema.BodyType.TREE_NEUTRAL]) {
     schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
-    schema.BodyTypeMetadata.addAttackDelay(builder, 1);
     schema.BodyTypeMetadata.addBulletAttack(builder, 1);
     schema.BodyTypeMetadata.addBulletSpeed(builder, 1);
-    schema.BodyTypeMetadata.addCooldownDelay(builder, 1);
     schema.BodyTypeMetadata.addCost(builder, 100);
     schema.BodyTypeMetadata.addMaxHealth(builder, 100);
-    schema.BodyTypeMetadata.addMoveDelay(builder, 1);
     schema.BodyTypeMetadata.addRadius(builder, 1);
     schema.BodyTypeMetadata.addStartHealth(builder, 100);
+    schema.BodyTypeMetadata.addStrideRadius(builder, 5);
     schema.BodyTypeMetadata.addType(builder, body);
     bodies.push(schema.BodyTypeMetadata.endBodyTypeMetadata(builder));
   }

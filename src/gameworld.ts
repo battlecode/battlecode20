@@ -246,6 +246,7 @@ export default class GameWorld {
     const startI = this.bodies.insertBulk({
       id: trees.robotIDsArray(),
       radius: trees.radiiArray(),
+      health: trees.healthsArray(),
       x: locs.xsArray(),
       y: locs.ysArray(),
     });
@@ -260,13 +261,6 @@ export default class GameWorld {
     StructOfArrays.fill(
       this.bodies.arrays['type'],
       schema.BodyType.TREE_NEUTRAL,
-      startI,
-      this.bodies.length
-    );
-
-    StructOfArrays.fill(
-      this.bodies.arrays['health'],
-      this.meta.types[schema.BodyType.TREE_NEUTRAL].startHealth,
       startI,
       this.bodies.length
     );
