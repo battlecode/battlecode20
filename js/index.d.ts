@@ -1838,25 +1838,11 @@ declare module index {
             startHealth(): number;
 
             /**
-             * The delay penalty added to the core counter after movement.
+             * The maximum distance this type can move each turn
              *
              * @returns {number}
              */
-            moveDelay(): number;
-
-            /**
-             * The delay penalty added to the attack counter after movement.
-             *
-             * @returns {number}
-             */
-            attackDelay(): number;
-
-            /**
-             * The delay penalty added to the attack counter after movement, and vice versa.
-             *
-             * @returns {number}
-             */
-            cooldownDelay(): number;
+            strideRadius(): number;
 
             /**
              * The speed that bullets from this unit move.

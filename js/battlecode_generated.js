@@ -1411,32 +1411,12 @@ battlecode.schema.BodyTypeMetadata.prototype.startHealth = function() {
 };
 
 /**
- * The delay penalty added to the core counter after movement.
+ * The maximum distance this type can move each turn
  *
  * @returns {number}
  */
-battlecode.schema.BodyTypeMetadata.prototype.moveDelay = function() {
+battlecode.schema.BodyTypeMetadata.prototype.strideRadius = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-};
-
-/**
- * The delay penalty added to the attack counter after movement.
- *
- * @returns {number}
- */
-battlecode.schema.BodyTypeMetadata.prototype.attackDelay = function() {
-  var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
-};
-
-/**
- * The delay penalty added to the attack counter after movement, and vice versa.
- *
- * @returns {number}
- */
-battlecode.schema.BodyTypeMetadata.prototype.cooldownDelay = function() {
-  var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
@@ -1447,7 +1427,7 @@ battlecode.schema.BodyTypeMetadata.prototype.cooldownDelay = function() {
  * @returns {number}
  */
 battlecode.schema.BodyTypeMetadata.prototype.bulletSpeed = function() {
-  var offset = this.bb.__offset(this.bb_pos, 20);
+  var offset = this.bb.__offset(this.bb_pos, 16);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
@@ -1458,7 +1438,7 @@ battlecode.schema.BodyTypeMetadata.prototype.bulletSpeed = function() {
  * @returns {number}
  */
 battlecode.schema.BodyTypeMetadata.prototype.bulletAttack = function() {
-  var offset = this.bb.__offset(this.bb_pos, 22);
+  var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
@@ -1466,7 +1446,7 @@ battlecode.schema.BodyTypeMetadata.prototype.bulletAttack = function() {
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.BodyTypeMetadata.startBodyTypeMetadata = function(builder) {
-  builder.startObject(10);
+  builder.startObject(8);
 };
 
 /**
@@ -1511,26 +1491,10 @@ battlecode.schema.BodyTypeMetadata.addStartHealth = function(builder, startHealt
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {number} moveDelay
+ * @param {number} strideRadius
  */
-battlecode.schema.BodyTypeMetadata.addMoveDelay = function(builder, moveDelay) {
-  builder.addFieldFloat32(5, moveDelay, 0.0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} attackDelay
- */
-battlecode.schema.BodyTypeMetadata.addAttackDelay = function(builder, attackDelay) {
-  builder.addFieldFloat32(6, attackDelay, 0.0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} cooldownDelay
- */
-battlecode.schema.BodyTypeMetadata.addCooldownDelay = function(builder, cooldownDelay) {
-  builder.addFieldFloat32(7, cooldownDelay, 0.0);
+battlecode.schema.BodyTypeMetadata.addStrideRadius = function(builder, strideRadius) {
+  builder.addFieldFloat32(5, strideRadius, 0.0);
 };
 
 /**
@@ -1538,7 +1502,7 @@ battlecode.schema.BodyTypeMetadata.addCooldownDelay = function(builder, cooldown
  * @param {number} bulletSpeed
  */
 battlecode.schema.BodyTypeMetadata.addBulletSpeed = function(builder, bulletSpeed) {
-  builder.addFieldFloat32(8, bulletSpeed, 0.0);
+  builder.addFieldFloat32(6, bulletSpeed, 0.0);
 };
 
 /**
@@ -1546,7 +1510,7 @@ battlecode.schema.BodyTypeMetadata.addBulletSpeed = function(builder, bulletSpee
  * @param {number} bulletAttack
  */
 battlecode.schema.BodyTypeMetadata.addBulletAttack = function(builder, bulletAttack) {
-  builder.addFieldFloat32(9, bulletAttack, 0.0);
+  builder.addFieldFloat32(7, bulletAttack, 0.0);
 };
 
 /**
