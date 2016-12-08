@@ -1,5 +1,5 @@
 "use strict";
-var gameworld_1 = require('./gameworld');
+var gameworld_1 = require("./gameworld");
 // Return a timestamp representing the _current time in ms, not necessarily from
 // any particular epoch.
 var timeMS = typeof window !== 'undefined' && window.performance && window.performance.now ?

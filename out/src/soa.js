@@ -1,9 +1,6 @@
 "use strict";
 // Map polyfill
-var Map = require('core-js/library/es6/map');
-function hasOwnProperty(obj, prop) {
-    return Object.prototype.hasOwnProperty.call(obj, prop);
-}
+var Map = require("core-js/library/es6/map");
 /**
  * A class that wraps a group of typed buffers.
  *
@@ -29,18 +26,19 @@ function hasOwnProperty(obj, prop) {
  * arrays in directly.
  *
  * It is more awkward to use, though. This class makes it easier.
- * let entities = new StructOfArrays({
+ * type EntitySchema = {
  *   id: Uint16Array,
  *   x: Float64Array,
  *   y: Float64Array,
- *   size: Float64Array
- * }, 'id');
- * entities.insertBulk({
+ *   size: Float64Array;
+ * }
+ *
+ * let entities = new StructOfArrays<EntitySchema>({
  *   id: new Uint16Array([0, 1, ...]),
  *   x: new Float64Array([100, 300, ...]),
  *   y: new Float64Array([35, 24, ...]),
  *   size: new Float64Array([56, 73, ...]),
- * });
+ * }, 'id');
  *
  * Note that one field is treated as the 'primary key' (although there aren't
  * actually secondary keys), and is used to uniquely identify objects.
@@ -62,38 +60,34 @@ var StructOfArrays = (function () {
      * @param primary the primary key of the SOA
      * @param capacity the initial capacity of the SOA
      */
-    function StructOfArrays(fields, primary, capacity) {
-        if (capacity === void 0) { capacity = 8; }
+    function StructOfArrays(fields, primary) {
         if (!hasOwnProperty(fields, primary)) {
+            // redundant unless somebody gets cocky
             throw new Error("Primary key must exist, '" + primary + "' not found");
         }
         this.arrays = Object.create(null);
-        this._capacity = capacity ? capacity : DEFAULT_CAPACITY;
-        this._fieldNames = [];
-        this._length = 0;
+        this._length = fields[primary].length;
+        this._capacity = this._length;
+        this._fieldNames = new Array();
         this._primLookup = new Map();
         this._primary = primary;
         this._indexBuffer = undefined;
         for (var field in fields) {
             if (hasOwnProperty(fields, field)) {
-                this.arrays[field] = new fields[field](this._capacity);
+                var arr = fields[field];
+                this.arrays[field] = new arr.constructor(this._capacity);
+                this.arrays[field].set(arr.slice(0, this._length));
                 this._fieldNames.push(field);
             }
         }
+        this._refreshPrimariesLookup(this._length);
     }
     /**
      * Create a copy of this StructOfArrays.
      * Capacity of the copy will be shrunk to this.length.
      */
     StructOfArrays.prototype.copy = function () {
-        var types = Object.create(null);
-        for (var _i = 0, _a = this._fieldNames; _i < _a.length; _i++) {
-            var field = _a[_i];
-            types[field] = this.arrays[field].constructor;
-        }
-        var result = new StructOfArrays(types, this._primary, this._length);
-        result.copyFrom(this);
-        return result;
+        return new StructOfArrays(this.arrays, this._primary);
     };
     /**
      * Copy source's buffers into ours, overwriting all values.
@@ -141,7 +135,7 @@ var StructOfArrays = (function () {
             throw new Error('Cannot insert without primary key');
         }
         var primary = numbers[this._primary];
-        if (primary in this._primLookup) {
+        if (this._primLookup.has(primary)) {
             throw new Error('Primary key already exists');
         }
         this._resize(this._length + 1);
@@ -163,7 +157,7 @@ var StructOfArrays = (function () {
         if (!this._primLookup.has(p)) {
             throw new Error("Record with primary key does not exist: " + p);
         }
-        var index = this._primLookup.get(numbers[this._primary]);
+        var index = this._primLookup.get(p);
         this._alterAt(index, numbers);
         return index;
     };
@@ -224,15 +218,15 @@ var StructOfArrays = (function () {
         if (!hasOwnProperty(values, this._primary)) {
             throw new Error("Cannot insert without primary key: '" + this._primary + "'");
         }
+        var primaries = values[this._primary];
         var startInsert = this._length;
-        this._resize(this._length + values[this._primary].length);
+        this._resize(this._length + primaries.length);
         var err = false;
         for (var field in values) {
             if (hasOwnProperty(values, field) && field in this.arrays && values[field] != null) {
                 this.arrays[field].set(values[field], startInsert);
             }
         }
-        var primaries = values[this._primary];
         for (var i = 0; i < primaries.length; i++) {
             this._primLookup.set(primaries[i], startInsert + i);
         }
@@ -280,10 +274,12 @@ var StructOfArrays = (function () {
         }
     };
     /**
-     * Zero a TypedArray (or normal array, I suppose).
+     * Copy a value into a TypedArray (or normal array, I suppose).
      *
      * Just a polyfill.
      *
+     * @param arr the array
+     * @param value the value to fill with
      * @param start inclusive
      * @param end exclusive
      */
@@ -390,6 +386,9 @@ var StructOfArrays = (function () {
      */
     StructOfArrays._capacityForLength = function (size) {
         // see http://graphics.stanford.edu/~seander/bithacks.html
+        if (size <= 0) {
+            return 0;
+        }
         // size is a power of two
         if ((size & (size - 1)) === 0) {
             return size;
@@ -431,9 +430,18 @@ var StructOfArrays = (function () {
 }());
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = StructOfArrays;
-var SENSIBLE_SORT = function (a, b) { return a - b; };
 /**
  * The default capacity of our arrays.
  * TODO(jhgilles): tune.
  */
-var DEFAULT_CAPACITY = 16;
+var DEFAULT_CAPACITY = 8;
+/**
+ * In case the object has deleted hasOwnProperty.
+ */
+function hasOwnProperty(obj, prop) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+/**
+ * Javascript, everybody!
+ */
+var SENSIBLE_SORT = function (a, b) { return a - b; };

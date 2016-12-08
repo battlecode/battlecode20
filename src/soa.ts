@@ -1,10 +1,6 @@
 // Map polyfill
 import * as Map from 'core-js/library/es6/map';
 
-function hasOwnProperty(obj: any, prop: string) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
 /**
  * A class that wraps a group of typed buffers.
  *
@@ -30,18 +26,19 @@ function hasOwnProperty(obj: any, prop: string) {
  * arrays in directly.
  *
  * It is more awkward to use, though. This class makes it easier.
- * let entities = new StructOfArrays({
+ * type EntitySchema = {
  *   id: Uint16Array,
  *   x: Float64Array,
  *   y: Float64Array,
- *   size: Float64Array
- * }, 'id');
- * entities.insertBulk({
+ *   size: Float64Array;
+ * }
+ *
+ * let entities = new StructOfArrays<EntitySchema>({
  *   id: new Uint16Array([0, 1, ...]),
  *   x: new Float64Array([100, 300, ...]),
  *   y: new Float64Array([35, 24, ...]),
  *   size: new Float64Array([56, 73, ...]),
- * });
+ * }, 'id');
  *
  * Note that one field is treated as the 'primary key' (although there aren't
  * actually secondary keys), and is used to uniquely identify objects.
@@ -50,7 +47,7 @@ function hasOwnProperty(obj: any, prop: string) {
  * All data in the arrays is stored from index 0 to index soa.length - 1.
  * Primary keys may not be repeated.
  */
-export default class StructOfArrays {
+export default class StructOfArrays<Schema extends ValidSchema> {
   /**
    * The actual storage.
    * You can access this, but you have to be careful not to break any
@@ -58,7 +55,7 @@ export default class StructOfArrays {
    * In particular, you can't trust the length field of these TypedArrays;
    * you have to use soa.length.
    */
-  readonly arrays: {[id: string]: TypedArray};
+  readonly arrays: Schema & ValidSchema;
 
   /**
    * The actual length of all arrays.
@@ -75,7 +72,7 @@ export default class StructOfArrays {
   /**
    * The names of our fields.
    */
-  private readonly _fieldNames: string[];
+  private readonly _fieldNames: Array<keyof Schema>;
 
   /**
    * The lookup table for our primary key. Maps keys to indices.
@@ -87,7 +84,7 @@ export default class StructOfArrays {
   /**
    * The name of our primary key.
    */
-  private readonly _primary: string;
+  private readonly _primary: keyof Schema;
 
   // Cache fields
   // (Not needed, just to avoid allocating)
@@ -110,55 +107,52 @@ export default class StructOfArrays {
    * @param primary the primary key of the SOA
    * @param capacity the initial capacity of the SOA
    */
-  constructor(fields: {[field: string]: TypeSelector},
-              primary: string,
-              capacity: number = 8) {
+  constructor(fields: Schema & ValidSchema, primary: keyof Schema) {
     if (!hasOwnProperty(fields, primary)) {
+      // redundant unless somebody gets cocky
       throw new Error(`Primary key must exist, '${primary}' not found`);
     }
 
     this.arrays = Object.create(null);
-    this._capacity = capacity? capacity : DEFAULT_CAPACITY;
-    this._fieldNames = [];
-    this._length = 0;
+    this._length = fields[primary].length;
+    this._capacity = this._length;
+    this._fieldNames = new Array<keyof Schema>();
     this._primLookup = new Map<number, number>();
     this._primary = primary;
     this._indexBuffer = undefined;
 
     for (const field in fields) {
       if (hasOwnProperty(fields, field)) {
-        this.arrays[field] = new fields[field](this._capacity);
+        const arr = fields[field];
+        this.arrays[field] = new (<any>arr).constructor(this._capacity);
+        this.arrays[field].set(arr.slice(0, this._length));
         this._fieldNames.push(field);
       }
     }
+
+    this._refreshPrimariesLookup(this._length)
   }
 
   /**
    * Create a copy of this StructOfArrays.
    * Capacity of the copy will be shrunk to this.length.
    */
-  copy(): StructOfArrays {
-    const types = Object.create(null);
-    for (const field of this._fieldNames) {
-      types[field] = this.arrays[field].constructor;
-    }
-    const result = new StructOfArrays(types, this._primary, this._length);
-    result.copyFrom(this);
-    return result;
+  copy(): StructOfArrays<Schema> {
+    return new StructOfArrays<Schema>(this.arrays, this._primary);
   }
 
   /**
    * Copy source's buffers into ours, overwriting all values.
    * @throws Error if source is missing any of our arrays
    */
-  copyFrom(source: StructOfArrays) {
+  copyFrom<LargerSchema extends Schema>(source: StructOfArrays<LargerSchema>) {
     this._length = source.length;
 
     if (this._capacity < source.length) {
       this._capacity = source.length;
       for (const field in this.arrays) {
         const oldArray = this.arrays[field];
-        const newArray = new (oldArray.constructor as TypeSelector)(this._capacity);
+        const newArray = new (<any>oldArray.constructor)(this._capacity);
         this.arrays[field] = newArray;
       }
     }
@@ -168,7 +162,7 @@ export default class StructOfArrays {
         throw new Error(`Can't copyFrom, source missing field ${field}`);
       }
       this.arrays[field].set(source.arrays[field].slice(0, source.length));
-      StructOfArrays.fill(this.arrays[field], 0, source.length, this._capacity);
+      StructOfArrays.fill(<any>this.arrays[field], 0, source.length, this._capacity);
     }
 
     this._refreshPrimariesLookup(this._length)
@@ -188,12 +182,12 @@ export default class StructOfArrays {
    *
    * @return index of inserted object
    */
-  insert(numbers: {[field: string]: number}): number {
+  insert(numbers: Partial<Row<Schema>>): number {
     if (!(this._primary in numbers)) {
       throw new Error('Cannot insert without primary key');
     }
-    const primary = numbers[this._primary];
-    if (primary in this._primLookup) {
+    const primary = <number> numbers[this._primary];
+    if (this._primLookup.has(primary)) {
       throw new Error('Primary key already exists');
     }
 
@@ -210,15 +204,15 @@ export default class StructOfArrays {
    *
    * @return index of altered object (NOT primary key)
    */
-  alter(numbers: {[field: string]: number}): number {
+  alter(numbers: Partial<Row<Schema>>): number {
     if (!(this._primary in numbers)) {
       throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
-    const p = numbers[this._primary];
+    const p = <number> numbers[this._primary];
     if (!this._primLookup.has(p)) {
       throw new Error(`Record with primary key does not exist: ${p}`);
     }
-    const index = this._primLookup.get(numbers[this._primary]);
+    const index = this._primLookup.get(p);
     this._alterAt(index, numbers);
     return index;
   }
@@ -226,8 +220,8 @@ export default class StructOfArrays {
   /**
    * Look up a primary key in the array.
    */
-  lookup(primary: number, result: {[field: string]: number}=Object.create(null)):
-      {[field: string]: number} {
+  lookup(primary: number, result: Partial<Row<Schema>>=Object.create(null)):
+      Row<Schema> {
     if (!this._primLookup.has(primary)) {
       throw new Error(`Record with primary key does not exist: ${primary}`);
     }
@@ -235,7 +229,7 @@ export default class StructOfArrays {
     for (const field of this._fieldNames) {
       result[field] = this.arrays[field][i];
     }
-    return result;
+    return <Row<Schema>> result;
   }
 
   /**
@@ -251,10 +245,10 @@ export default class StructOfArrays {
   /**
    * Set at an array index.
    */
-  private _alterAt(index: number, values: {[field: string]: number}) {
+  private _alterAt(index: number, values: Partial<Row<Schema>>) {
     for (const field in values) {
       if (hasOwnProperty(values, field) && field in this.arrays) {
-        this.arrays[field][index] = values[field];
+        this.arrays[field][index] = <number> values[field];
       }
     }
   }
@@ -264,7 +258,7 @@ export default class StructOfArrays {
    * O(this.length); prefer deleting in bulk.
    */
   delete(key: number) {
-    const arr = new (this.arrays[this._primary].constructor as TypeSelector)(1);
+    const arr = new (<any> this.arrays[this._primary].constructor)(1);
     arr[0] = key;
     this.deleteBulk(arr);
   }
@@ -280,20 +274,21 @@ export default class StructOfArrays {
    *
    * @return startI
    */
-  insertBulk(values: {[field: string]: TypedArray}): number {
+  insertBulk(values: Partial<Schema & ValidSchema>): number {
     if (!hasOwnProperty(values, this._primary)) {
       throw new Error(`Cannot insert without primary key: '${this._primary}'`);
     }
+    const primaries = <any> values[this._primary];
+
     const startInsert = this._length;
-    this._resize(this._length + values[this._primary].length);
+    this._resize(this._length + primaries.length);
     let err = false;
 
     for (const field in values) {
       if (hasOwnProperty(values, field) && field in this.arrays && values[field] != null) {
-        this.arrays[field].set(values[field], startInsert);
+        this.arrays[field].set(<any> values[field], startInsert);
       }
     }
-    const primaries = values[this._primary];
     for (let i = 0; i < primaries.length; i++) {
       this._primLookup.set(primaries[i], startInsert + i);
     }
@@ -305,15 +300,15 @@ export default class StructOfArrays {
    * O(values[...].length).
    * Rows with nonexistent primary keys will be silently ignored.
    */
-  alterBulk(values: {[field: string]: TypedArray}) {
+  alterBulk(values: Partial<Schema & ValidSchema>) {
     if (!hasOwnProperty(values, this._primary)) {
       throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
-    const indices = this._lookupIndices(values[this._primary]);
+    const indices = this._lookupIndices(<any> values[this._primary]);
     for (const field in values) {
       if (hasOwnProperty(values, field) && (field in this.arrays)
           && field != this._primary && values[field] != null) {
-        this._alterBulkFieldImpl(this.arrays[field], indices, values[field]);
+        this._alterBulkFieldImpl(<any> this.arrays[field], indices, <any> values[field]);
       }
     }
   }
@@ -345,10 +340,12 @@ export default class StructOfArrays {
   }
 
   /**
-   * Zero a TypedArray (or normal array, I suppose).
+   * Copy a value into a TypedArray (or normal array, I suppose).
    *
    * Just a polyfill.
    *
+   * @param arr the array
+   * @param value the value to fill with
    * @param start inclusive
    * @param end exclusive
    */
@@ -404,10 +401,10 @@ export default class StructOfArrays {
     for (const name of this._fieldNames) {
       const array = this.arrays[name];
       // copy the fields down in the array
-      this._deleteBulkFieldImpl(toDelete, array);
+      this._deleteBulkFieldImpl(toDelete, <any>array);
 
       // zero the new space in the array
-      StructOfArrays.fill(array, 0, this._length - toDelete.length, this._length);
+      StructOfArrays.fill(<any> array, 0, this._length - toDelete.length, this._length);
     }
     this._length -= toDelete.length;
     this._refreshPrimariesLookup(this._length);
@@ -448,8 +445,8 @@ export default class StructOfArrays {
       this._capacity = StructOfArrays._capacityForLength(newLength);
       for (const field in this.arrays) {
         const oldArray = this.arrays[field];
-        const newArray = new (oldArray.constructor as TypeSelector)(this._capacity);
-        newArray.set(oldArray as ArrayLike<number>);
+        const newArray = new (<any> oldArray.constructor)(this._capacity);
+        newArray.set(oldArray);
         this.arrays[field] = newArray;
       }
     }
@@ -462,6 +459,9 @@ export default class StructOfArrays {
    */
   private static _capacityForLength(size: number): number {
     // see http://graphics.stanford.edu/~seander/bithacks.html
+    if (size <= 0) {
+      return 0;
+    }
     // size is a power of two
     if ((size & (size-1)) === 0) {
       return size;
@@ -501,7 +501,11 @@ export default class StructOfArrays {
   }
 }
 
-const SENSIBLE_SORT = (a,b) => a-b;
+/**
+ * An object corresponding to a  row in the database.
+ */
+export type Row<Schema> = {[P in keyof Schema]: number};
+
 
 /**
  * An array allocated as a contiguous block of memory.
@@ -510,12 +514,27 @@ const SENSIBLE_SORT = (a,b) => a-b;
 export type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 
 /**
- * A constructor for a TypedArray.
+ * Valid schema types.
+ * Schemas cannot contain types aside from typed arrays.
+ * Amazingly, this works.
  */
-export type TypeSelector = new (...args: any[]) => TypedArray;
+export type ValidSchema = {[id: string]: TypedArray};
 
 /**
  * The default capacity of our arrays.
  * TODO(jhgilles): tune.
  */
-const DEFAULT_CAPACITY = 16;
+const DEFAULT_CAPACITY = 8;
+
+/**
+ * In case the object has deleted hasOwnProperty.
+ */
+function hasOwnProperty(obj: any, prop: string) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+/**
+ * Javascript, everybody!
+ */
+const SENSIBLE_SORT = (a,b) => a-b;
+

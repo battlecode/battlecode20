@@ -1,7 +1,7 @@
 import { schema } from 'battlecode-schema';
-export declare const UNKNOWN_SPEC_VERSION: string;
-export declare const UNKNOWN_TEAM: string;
-export declare const UNKNOWN_PACKAGE: string;
+export declare const UNKNOWN_SPEC_VERSION = "UNKNOWN SPEC";
+export declare const UNKNOWN_TEAM = "UNKNOWN TEAM";
+export declare const UNKNOWN_PACKAGE = "UNKNOWN PACKAGE";
 /**
  * Metadata about a game.
  */

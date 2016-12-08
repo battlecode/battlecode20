@@ -1,6 +1,6 @@
 "use strict";
-var battlecode_schema_1 = require('battlecode-schema');
-var create_1 = require('../bench/create');
+var battlecode_schema_1 = require("battlecode-schema");
+var create_1 = require("../bench/create");
 function createMatch(matches, turnsPerMatch) {
     var builder = new battlecode_schema_1.flatbuffers.Builder();
     var header = create_1.createHeader(builder);

@@ -5,6 +5,27 @@ import {schema, flatbuffers} from 'battlecode-schema';
 // necessary because victor doesn't use exports.default
 import Victor = require('victor');
 
+export type BodiesSchema = {
+  id: Int32Array,
+  team: Int8Array,
+  type: Int8Array,
+  x: Float32Array,
+  y: Float32Array,
+  health: Float32Array,
+  radius: Float32Array
+};
+
+export type BulletsSchema = {
+  id: Int32Array,
+  x: Float32Array,
+  y: Float32Array,
+  velX: Float32Array,
+  velY: Float32Array,
+  damage: Float32Array,
+  spawnedTime: Uint16Array
+};
+
+
 /**
  * A frozen image of the game world.
  *
@@ -23,7 +44,7 @@ export default class GameWorld {
    *   radius: Float32Array
    * }
    */
-  bodies: StructOfArrays;
+  bodies: StructOfArrays<BodiesSchema>;
 
   /*
    * Bullets.
@@ -37,7 +58,7 @@ export default class GameWorld {
    *   spawnedTime: Uint16Array
    * }, 'id', capacity)
    */
-  bullets: StructOfArrays;
+  bullets: StructOfArrays<BulletsSchema>;
 
   /**
    * The current turn.
@@ -75,23 +96,23 @@ export default class GameWorld {
     this.meta = meta;
 
     this.bodies = new StructOfArrays({
-      id: Int32Array,
-      team: Int8Array,
-      type: Int8Array,
-      x: Float32Array,
-      y: Float32Array,
-      health: Float32Array,
-      radius: Float32Array
+      id: new Int32Array(0),
+      team: new Int8Array(0),
+      type: new Int8Array(0),
+      x: new Float32Array(0),
+      y: new Float32Array(0),
+      health: new Float32Array(0),
+      radius: new Float32Array(0)
     }, 'id');
 
     this.bullets = new StructOfArrays({
-      id: Int32Array,
-      x: Float32Array,
-      y: Float32Array,
-      velX: Float32Array,
-      velY: Float32Array,
-      spawnedTime: Uint16Array,
-      damage: Float32Array
+      id: new Int32Array(0),
+      x: new Float32Array(0),
+      y: new Float32Array(0),
+      velX: new Float32Array(0),
+      velY: new Float32Array(0),
+      spawnedTime: new Uint16Array(0),
+      damage: new Float32Array(0)
     }, 'id');
 
     this.turn = 0;

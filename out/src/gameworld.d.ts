@@ -3,6 +3,24 @@ import StructOfArrays from './soa';
 import Metadata from './metadata';
 import { schema } from 'battlecode-schema';
 import Victor = require('victor');
+export declare type BodiesSchema = {
+    id: Int32Array;
+    team: Int8Array;
+    type: Int8Array;
+    x: Float32Array;
+    y: Float32Array;
+    health: Float32Array;
+    radius: Float32Array;
+};
+export declare type BulletsSchema = {
+    id: Int32Array;
+    x: Float32Array;
+    y: Float32Array;
+    velX: Float32Array;
+    velY: Float32Array;
+    damage: Float32Array;
+    spawnedTime: Uint16Array;
+};
 /**
  * A frozen image of the game world.
  *
@@ -21,8 +39,8 @@ export default class GameWorld {
      *   radius: Float32Array
      * }
      */
-    bodies: StructOfArrays;
-    bullets: StructOfArrays;
+    bodies: StructOfArrays<BodiesSchema>;
+    bullets: StructOfArrays<BulletsSchema>;
     /**
      * The current turn.
      */

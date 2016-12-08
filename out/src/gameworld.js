@@ -1,8 +1,8 @@
 "use strict";
-var soa_1 = require('./soa');
-var battlecode_schema_1 = require('battlecode-schema');
+var soa_1 = require("./soa");
+var battlecode_schema_1 = require("battlecode-schema");
 // necessary because victor doesn't use exports.default
-var Victor = require('victor');
+var Victor = require("victor");
 /**
  * A frozen image of the game world.
  *
@@ -12,22 +12,22 @@ var GameWorld = (function () {
     function GameWorld(meta) {
         this.meta = meta;
         this.bodies = new soa_1.default({
-            id: Int32Array,
-            team: Int8Array,
-            type: Int8Array,
-            x: Float32Array,
-            y: Float32Array,
-            health: Float32Array,
-            radius: Float32Array
+            id: new Int32Array(0),
+            team: new Int8Array(0),
+            type: new Int8Array(0),
+            x: new Float32Array(0),
+            y: new Float32Array(0),
+            health: new Float32Array(0),
+            radius: new Float32Array(0)
         }, 'id');
         this.bullets = new soa_1.default({
-            id: Int32Array,
-            x: Float32Array,
-            y: Float32Array,
-            velX: Float32Array,
-            velY: Float32Array,
-            spawnedTime: Uint16Array,
-            damage: Float32Array
+            id: new Int32Array(0),
+            x: new Float32Array(0),
+            y: new Float32Array(0),
+            velX: new Float32Array(0),
+            velY: new Float32Array(0),
+            spawnedTime: new Uint16Array(0),
+            damage: new Float32Array(0)
         }, 'id');
         this.turn = 0;
         this.minCorner = new Victor(0, 0);

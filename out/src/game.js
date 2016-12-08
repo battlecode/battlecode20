@@ -1,7 +1,7 @@
 "use strict";
-var metadata_1 = require('./metadata');
-var battlecode_schema_1 = require('battlecode-schema');
-var match_1 = require('./match');
+var metadata_1 = require("./metadata");
+var battlecode_schema_1 = require("battlecode-schema");
+var match_1 = require("./match");
 /**
  * Represents an entire game.
  * Contains a Match for every match in a game.

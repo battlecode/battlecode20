@@ -23,18 +23,19 @@
  * arrays in directly.
  *
  * It is more awkward to use, though. This class makes it easier.
- * let entities = new StructOfArrays({
+ * type EntitySchema = {
  *   id: Uint16Array,
  *   x: Float64Array,
  *   y: Float64Array,
- *   size: Float64Array
- * }, 'id');
- * entities.insertBulk({
+ *   size: Float64Array;
+ * }
+ *
+ * let entities = new StructOfArrays<EntitySchema>({
  *   id: new Uint16Array([0, 1, ...]),
  *   x: new Float64Array([100, 300, ...]),
  *   y: new Float64Array([35, 24, ...]),
  *   size: new Float64Array([56, 73, ...]),
- * });
+ * }, 'id');
  *
  * Note that one field is treated as the 'primary key' (although there aren't
  * actually secondary keys), and is used to uniquely identify objects.
@@ -43,7 +44,7 @@
  * All data in the arrays is stored from index 0 to index soa.length - 1.
  * Primary keys may not be repeated.
  */
-export default class StructOfArrays {
+export default class StructOfArrays<Schema extends ValidSchema> {
     /**
      * The actual storage.
      * You can access this, but you have to be careful not to break any
@@ -51,9 +52,7 @@ export default class StructOfArrays {
      * In particular, you can't trust the length field of these TypedArrays;
      * you have to use soa.length.
      */
-    readonly arrays: {
-        [id: string]: TypedArray;
-    };
+    readonly arrays: Schema & ValidSchema;
     /**
      * The actual length of all arrays.
      * Arrays are resized asymptotically to power-of-two lengths
@@ -95,19 +94,17 @@ export default class StructOfArrays {
      * @param primary the primary key of the SOA
      * @param capacity the initial capacity of the SOA
      */
-    constructor(fields: {
-        [field: string]: TypeSelector;
-    }, primary: string, capacity?: number);
+    constructor(fields: Schema & ValidSchema, primary: keyof Schema);
     /**
      * Create a copy of this StructOfArrays.
      * Capacity of the copy will be shrunk to this.length.
      */
-    copy(): StructOfArrays;
+    copy(): StructOfArrays<Schema>;
     /**
      * Copy source's buffers into ours, overwriting all values.
      * @throws Error if source is missing any of our arrays
      */
-    copyFrom(source: StructOfArrays): void;
+    copyFrom<LargerSchema extends Schema>(source: StructOfArrays<LargerSchema>): void;
     /**
      * Get the length of the entries in the array.
      */
@@ -119,25 +116,17 @@ export default class StructOfArrays {
      *
      * @return index of inserted object
      */
-    insert(numbers: {
-        [field: string]: number;
-    }): number;
+    insert(numbers: Partial<Row<Schema>>): number;
     /**
      * Modify an existing struct in the array.
      *
      * @return index of altered object (NOT primary key)
      */
-    alter(numbers: {
-        [field: string]: number;
-    }): number;
+    alter(numbers: Partial<Row<Schema>>): number;
     /**
      * Look up a primary key in the array.
      */
-    lookup(primary: number, result?: {
-        [field: string]: number;
-    }): {
-        [field: string]: number;
-    };
+    lookup(primary: number, result?: Partial<Row<Schema>>): Row<Schema>;
     /**
      * @return the index of the object with the given primary key,
      * or -1.
@@ -163,17 +152,13 @@ export default class StructOfArrays {
      *
      * @return startI
      */
-    insertBulk(values: {
-        [field: string]: TypedArray;
-    }): number;
+    insertBulk(values: Partial<Schema & ValidSchema>): number;
     /**
      * Alter values in bulk.
      * O(values[...].length).
      * Rows with nonexistent primary keys will be silently ignored.
      */
-    alterBulk(values: {
-        [field: string]: TypedArray;
-    }): void;
+    alterBulk(values: Partial<Schema & ValidSchema>): void;
     /**
      * Lookup the indices of a set of primary keys.
      * Returned array may not be the length of primaries; ignore extra entries.
@@ -184,10 +169,12 @@ export default class StructOfArrays {
      */
     private _alterBulkFieldImpl(target, indices, source);
     /**
-     * Zero a TypedArray (or normal array, I suppose).
+     * Copy a value into a TypedArray (or normal array, I suppose).
      *
      * Just a polyfill.
      *
+     * @param arr the array
+     * @param value the value to fill with
      * @param start inclusive
      * @param end exclusive
      */
@@ -225,11 +212,21 @@ export default class StructOfArrays {
     assertValid(): void;
 }
 /**
+ * An object corresponding to a  row in the database.
+ */
+export declare type Row<Schema> = {
+    [P in keyof Schema]: number;
+};
+/**
  * An array allocated as a contiguous block of memory.
  * Backed by an ArrayBuffer.
  */
 export declare type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 /**
- * A constructor for a TypedArray.
+ * Valid schema types.
+ * Schemas cannot contain types aside from typed arrays.
+ * Amazingly, this works.
  */
-export declare type TypeSelector = new (...args: any[]) => TypedArray;
+export declare type ValidSchema = {
+    [id: string]: TypedArray;
+};
