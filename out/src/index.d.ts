@@ -7,4 +7,5 @@ import * as soa from './soa';
 import * as simulator from './simulator';
 import Match from './match';
 import Game from './game';
-export { Game, Match, GameWorld, gameworld, Metadata, metadata, StructOfArrays, soa, simulator };
+import { flatbuffers, schema } from 'battlecode-schema';
+export { Game, Match, GameWorld, gameworld, Metadata, metadata, StructOfArrays, soa, simulator, flatbuffers, schema };

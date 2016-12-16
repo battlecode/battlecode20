@@ -11,10 +11,8 @@
     "clean": "rm -rf out",
     "build": "tsc -p .",
     "lint": "tslint \"**/*.ts\" -e \"out/**\"",
-    "test": "npm run build && blue-tape \"out/test/**/*.js\" | tap-dot",
-    "watch": "onchange -w \"**/*.ts\" -i -e \"out/**\" -- npm -s run build+test",
-    "publish": "npm -s run lint+build+test && echo please publish to typings/registry",
-    "lint+build+test": "npm run lint && npm run build+test"
+    "test": "npm run -s build && blue-tape \"out/test/**/*.js\" | tap-dot",
+    "watch": "onchange -w \"**/*.ts\" -i -e \"out/**\" -- npm -s run build+test"
   },
   "repository": {
     "type": "git",

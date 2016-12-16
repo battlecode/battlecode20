@@ -17,4 +17,7 @@ var match_1 = require("./match");
 exports.Match = match_1.default;
 var game_1 = require("./game");
 exports.Game = game_1.default;
+var battlecode_schema_1 = require("battlecode-schema");
+exports.flatbuffers = battlecode_schema_1.flatbuffers;
+exports.schema = battlecode_schema_1.schema;
 // TODO provide ergonomic main export
