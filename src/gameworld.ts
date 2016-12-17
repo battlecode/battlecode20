@@ -90,7 +90,8 @@ export default class GameWorld {
   // it, they don't hold any state
   private _bodiesSlot: schema.SpawnedBodyTable;
   private _bulletsSlot: schema.SpawnedBulletTable;
-  private _vecTableSlot: schema.VecTable;
+  private _vecTableSlot1: schema.VecTable;
+  private _vecTableSlot2: schema.VecTable;
 
   constructor(meta: Metadata) {
     this.meta = meta;
@@ -122,7 +123,8 @@ export default class GameWorld {
 
     this._bodiesSlot = new schema.SpawnedBodyTable()
     this._bulletsSlot = new schema.SpawnedBulletTable()
-    this._vecTableSlot = new schema.VecTable();
+    this._vecTableSlot1 = new schema.VecTable();
+    this._vecTableSlot2 = new schema.VecTable();
   }
 
   loadFromMatchHeader(header: schema.MatchHeader) {
@@ -193,7 +195,7 @@ export default class GameWorld {
     }
 
     // Simulate movement
-    const movedLocs = delta.movedLocs(this._vecTableSlot);
+    const movedLocs = delta.movedLocs(this._vecTableSlot1);
     if (movedLocs) {
       this.bodies.alterBulk({
         id: delta.movedIDsArray(),
@@ -216,7 +218,7 @@ export default class GameWorld {
   }
 
   private insertBodies(bodies: schema.SpawnedBodyTable) {
-    const locs = bodies.locs(this._vecTableSlot);
+    const locs = bodies.locs(this._vecTableSlot1);
     // Note: this allocates 6 objects with each call.
     // (One for the container, one for each TypedArray.)
     // All of the objects are small; the TypedArrays are basically
@@ -245,8 +247,8 @@ export default class GameWorld {
   }
 
   private insertBullets(bullets: schema.SpawnedBulletTable) {
-    const locs = bullets.locs(this._vecTableSlot);
-    const vels = bullets.vels(this._vecTableSlot);
+    const locs = bullets.locs(this._vecTableSlot1);
+    const vels = bullets.vels(this._vecTableSlot2);
 
     const startI = this.bullets.insertBulk({
       id: bullets.robotIDsArray(),
@@ -262,7 +264,7 @@ export default class GameWorld {
   }
 
   private insertTrees(trees: schema.NeutralTreeTable) {
-    const locs = trees.locs(this._vecTableSlot);
+    const locs = trees.locs(this._vecTableSlot1);
 
     const startI = this.bodies.insertBulk({
       id: trees.robotIDsArray(),

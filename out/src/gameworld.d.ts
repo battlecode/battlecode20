@@ -63,7 +63,8 @@ export default class GameWorld {
     meta: Metadata;
     private _bodiesSlot;
     private _bulletsSlot;
-    private _vecTableSlot;
+    private _vecTableSlot1;
+    private _vecTableSlot2;
     constructor(meta: Metadata);
     loadFromMatchHeader(header: schema.MatchHeader): void;
     /**

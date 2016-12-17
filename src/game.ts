@@ -117,6 +117,9 @@ export default class Game {
   loadFullGame(wrapper: schema.GameWrapper) {
     const eventSlot = new schema.EventWrapper();
     const eventCount = wrapper.eventsLength();
+    if (eventCount < 5) {
+      throw new Error(`Too few events for well-formed game: ${eventCount}`);
+    }
     for (let i = 0; i < eventCount; i++) {
       this.applyEvent(wrapper.events(i, eventSlot));
     }

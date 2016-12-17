@@ -117,6 +117,9 @@ var Game = (function () {
     Game.prototype.loadFullGame = function (wrapper) {
         var eventSlot = new battlecode_schema_1.schema.EventWrapper();
         var eventCount = wrapper.eventsLength();
+        if (eventCount < 5) {
+            throw new Error("Too few events for well-formed game: " + eventCount);
+        }
         for (var i = 0; i < eventCount; i++) {
             this.applyEvent(wrapper.events(i, eventSlot));
         }

@@ -35,7 +35,8 @@ var GameWorld = (function () {
         this.mapName = '????';
         this._bodiesSlot = new battlecode_schema_1.schema.SpawnedBodyTable();
         this._bulletsSlot = new battlecode_schema_1.schema.SpawnedBulletTable();
-        this._vecTableSlot = new battlecode_schema_1.schema.VecTable();
+        this._vecTableSlot1 = new battlecode_schema_1.schema.VecTable();
+        this._vecTableSlot2 = new battlecode_schema_1.schema.VecTable();
     }
     GameWorld.prototype.loadFromMatchHeader = function (header) {
         var map = header.map();
@@ -98,7 +99,7 @@ var GameWorld = (function () {
             });
         }
         // Simulate movement
-        var movedLocs = delta.movedLocs(this._vecTableSlot);
+        var movedLocs = delta.movedLocs(this._vecTableSlot1);
         if (movedLocs) {
             this.bodies.alterBulk({
                 id: delta.movedIDsArray(),
@@ -118,7 +119,7 @@ var GameWorld = (function () {
         }
     };
     GameWorld.prototype.insertBodies = function (bodies) {
-        var locs = bodies.locs(this._vecTableSlot);
+        var locs = bodies.locs(this._vecTableSlot1);
         // Note: this allocates 6 objects with each call.
         // (One for the container, one for each TypedArray.)
         // All of the objects are small; the TypedArrays are basically
@@ -145,8 +146,8 @@ var GameWorld = (function () {
         }
     };
     GameWorld.prototype.insertBullets = function (bullets) {
-        var locs = bullets.locs(this._vecTableSlot);
-        var vels = bullets.vels(this._vecTableSlot);
+        var locs = bullets.locs(this._vecTableSlot1);
+        var vels = bullets.vels(this._vecTableSlot2);
         var startI = this.bullets.insertBulk({
             id: bullets.robotIDsArray(),
             x: locs.xsArray(),
@@ -159,7 +160,7 @@ var GameWorld = (function () {
         soa_1.default.fill(this.bullets.arrays['spawnedTime'], this.turn, startI, this.bullets.length);
     };
     GameWorld.prototype.insertTrees = function (trees) {
-        var locs = trees.locs(this._vecTableSlot);
+        var locs = trees.locs(this._vecTableSlot1);
         var startI = this.bodies.insertBulk({
             id: trees.robotIDsArray(),
             radius: trees.radiiArray(),
