@@ -32,7 +32,7 @@ public class RobotPlayer {
         while (true) {
             Direction dir = new Direction((float) Math.random() * 2 * (float) Math.PI);
             if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01 && rc.isBuildReady()) {
-                rc.plantRobot(RobotType.SOLDIER, dir);
+                rc.buildRobot(RobotType.SOLDIER, dir);
             }
             moveRandom();
             Clock.yield();
@@ -44,7 +44,7 @@ public class RobotPlayer {
         while (true) {
             Direction dir = new Direction((float) Math.random() * 2 * (float) Math.PI);
             if (rc.canBuildRobot(RobotType.GARDENER, dir) && Math.random() < .01 && rc.isBuildReady()) {
-                rc.plantRobot(RobotType.GARDENER, dir);
+                rc.buildRobot(RobotType.GARDENER, dir);
             }
             moveRandom();
             Clock.yield();
