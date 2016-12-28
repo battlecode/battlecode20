@@ -1,0 +1,30 @@
+apply plugin: 'java'
+
+sourceSets {
+  main {
+    java.srcDirs = ["src/main"]
+
+    output.classesDir = "$buildDir/classes"
+  }
+  test {
+    java.srcDirs = ["src/test"]
+
+    output.classesDir = "$buildDir/tests"
+  }
+}
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile project(':battlecode-server')
+  
+  // The production code uses the SLF4J logging API at compile time
+  compile 'org.slf4j:slf4j-api:1.7.21'
+
+  compile 'net.sf.proguard:proguard-gradle:5.1'
+
+  // Testing dependencies
+  testCompile 'junit:junit:4.12'
+}
