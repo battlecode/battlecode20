@@ -45,3 +45,5 @@ src/**/*.js
 
 # any battlecode files
 *.bc17
+
+.DS_Store

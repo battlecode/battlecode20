@@ -18,17 +18,17 @@ export default class Metadata {
    * All the body types in a game.
    * Access like: meta.types[schema.BodyType.ARCHON].radius
    */
-  types: BodyType[];
+  types: {[key: number]: BodyType};
 
   /**
    * All the teams in a game.
    */
-  teams: Team[];
+  teams: {[key: number]: Team};
 
   constructor() {
     this.specVersion = UNKNOWN_SPEC_VERSION;
-    this.types = [];
-    this.teams = [];
+    this.types = Object.create(null);
+    this.teams = Object.create(null);
   }
 
   parse(header: schema.GameHeader): Metadata {
@@ -36,16 +36,17 @@ export default class Metadata {
     const teamCount = header.teamsLength();
     for (let i = 0; i < teamCount; i++) {
       const team = header.teams(i);
-      this.teams.push(new Team(
+      this.teams[team.teamID()] = new Team(
         team.teamID(),
         team.packageName() as string || UNKNOWN_PACKAGE,
         team.name() as string || UNKNOWN_TEAM
-      ));
+      );
     }
     const bodyCount = header.bodyTypeMetadataLength();
     for (let i = 0; i < bodyCount; i++) {
       const body = header.bodyTypeMetadata(i);
-      this.types.push(new BodyType(body.type(),
+      this.types[body.type()] = new BodyType(
+        body.type(),
         body.radius(),
         body.cost(),
         body.maxHealth(),
@@ -53,7 +54,7 @@ export default class Metadata {
         body.strideRadius(),
         body.bulletSpeed(),
         body.bulletAttack()
-      ));
+      );
     }
     // SAFE
     Object.freeze(this.types);

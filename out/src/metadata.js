@@ -8,20 +8,20 @@ exports.UNKNOWN_PACKAGE = "UNKNOWN PACKAGE";
 var Metadata = (function () {
     function Metadata() {
         this.specVersion = exports.UNKNOWN_SPEC_VERSION;
-        this.types = [];
-        this.teams = [];
+        this.types = Object.create(null);
+        this.teams = Object.create(null);
     }
     Metadata.prototype.parse = function (header) {
         this.specVersion = header.specVersion() || exports.UNKNOWN_SPEC_VERSION;
         var teamCount = header.teamsLength();
         for (var i = 0; i < teamCount; i++) {
             var team = header.teams(i);
-            this.teams.push(new Team(team.teamID(), team.packageName() || exports.UNKNOWN_PACKAGE, team.name() || exports.UNKNOWN_TEAM));
+            this.teams[team.teamID()] = new Team(team.teamID(), team.packageName() || exports.UNKNOWN_PACKAGE, team.name() || exports.UNKNOWN_TEAM);
         }
         var bodyCount = header.bodyTypeMetadataLength();
         for (var i = 0; i < bodyCount; i++) {
             var body = header.bodyTypeMetadata(i);
-            this.types.push(new BodyType(body.type(), body.radius(), body.cost(), body.maxHealth(), body.startHealth(), body.strideRadius(), body.bulletSpeed(), body.bulletAttack()));
+            this.types[body.type()] = new BodyType(body.type(), body.radius(), body.cost(), body.maxHealth(), body.startHealth(), body.strideRadius(), body.bulletSpeed(), body.bulletAttack());
         }
         // SAFE
         Object.freeze(this.types);
