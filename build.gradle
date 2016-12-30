@@ -32,6 +32,4 @@ dependencies {
 
   // Testing dependencies
   testCompile 'junit:junit:4.12'
-
-  compile ([group: 'net.sf.jsi', name: 'jsi', version: '1.1.0-SNAPSHOT'])
 }
