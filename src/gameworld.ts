@@ -25,6 +25,19 @@ export type BulletsSchema = {
   spawnedTime: Uint16Array
 };
 
+export type StatsSchema = {
+    team: Int8Array,
+    bullets: Int8Array,
+    victoryPoints: Int8Array,
+    archon: Int8Array,
+    gardener: Int8Array,
+    lumberjack: Int8Array,
+    recruit: Int8Array,
+    soldier: Int8Array,
+    tank: Int8Array,
+    scout: Int8Array
+};
+
 
 /**
  * A frozen image of the game world.
@@ -59,6 +72,23 @@ export default class GameWorld {
    * }, 'id', capacity)
    */
   bullets: StructOfArrays<BulletsSchema>;
+  
+  /*
+   * Stats for each team
+   * {
+   *   team: Int8Array,
+   *   bullets: Int8Array,
+   *   victoryPoints: Int8Array,
+   *   archon: Int8Array,
+   *   gardener: Int8Array,
+   *   lumberjack: Int8Array,
+   *   recruit: Int8Array,
+   *   soldier: Int8Array,
+   *   tank: Int8Array,
+   *   scout: Int8Array
+   * }
+   */
+  stats: StructOfArrays<StatsSchema>;
 
   /**
    * The current turn.
@@ -115,6 +145,19 @@ export default class GameWorld {
       spawnedTime: new Uint16Array(0),
       damage: new Float32Array(0)
     }, 'id');
+    
+    this.stats = new StructOfArrays({
+      team: Int8Array(0),
+      bullets: Int8Array(0),
+      victoryPoints: Int8Array(0),
+      archon: Int8Array(0),
+      gardener: Int8Array(0),
+      lumberjack: Int8Array(0),
+      recruit: Int8Array(0),
+      soldier: Int8Array(0),
+      tank: Int8Array(0),
+      scout: Int8Array(0)
+    }, 'team');
 
     this.turn = 0;
     this.minCorner = new Victor(0, 0);
