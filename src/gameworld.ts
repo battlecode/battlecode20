@@ -25,17 +25,20 @@ export type BulletsSchema = {
   spawnedTime: Uint16Array
 };
 
-export type StatsSchema = {
-    team: Int8Array,
-    bullets: Int8Array,
-    victoryPoints: Int8Array,
-    archon: Int8Array,
-    gardener: Int8Array,
-    lumberjack: Int8Array,
-    recruit: Int8Array,
-    soldier: Int8Array,
-    tank: Int8Array,
-    scout: Int8Array
+export type TeamStats = {
+    bullets: number,
+    victoryPoints: number,
+    archons: number,
+    gardeners: number,
+    lumberjacks: number,
+    recruits: number,
+    soldiers: number,
+    tanks: number,
+    scouts: number
+};
+
+export type StatsTable = {
+    [teamID: number]: TeamStats
 };
 
 
@@ -75,20 +78,8 @@ export default class GameWorld {
   
   /*
    * Stats for each team
-   * {
-   *   team: Int8Array,
-   *   bullets: Int8Array,
-   *   victoryPoints: Int8Array,
-   *   archon: Int8Array,
-   *   gardener: Int8Array,
-   *   lumberjack: Int8Array,
-   *   recruit: Int8Array,
-   *   soldier: Int8Array,
-   *   tank: Int8Array,
-   *   scout: Int8Array
-   * }
    */
-  stats: StructOfArrays<StatsSchema>;
+  stats: StatsTable;
 
   /**
    * The current turn.
@@ -146,18 +137,21 @@ export default class GameWorld {
       damage: new Float32Array(0)
     }, 'id');
     
-    this.stats = new StructOfArrays({
-      team: Int8Array(0),
-      bullets: Int8Array(0),
-      victoryPoints: Int8Array(0),
-      archon: Int8Array(0),
-      gardener: Int8Array(0),
-      lumberjack: Int8Array(0),
-      recruit: Int8Array(0),
-      soldier: Int8Array(0),
-      tank: Int8Array(0),
-      scout: Int8Array(0)
-    }, 'team');
+    // Instantiate stats
+    this.stats = {};
+    for (let i = 0; i < this.meta.teams.length; i++) {
+        this.stats[i] = {
+            bullets: 0,
+            victoryPoints: 0,
+            archons: 0,
+            gardeners: 0,
+            lumberjacks: 0,
+            recruits: 0,
+            soldiers: 0,
+            tanks: 0,
+            scouts: 0
+        };
+    }
 
     this.turn = 0;
     this.minCorner = new Victor(0, 0);
