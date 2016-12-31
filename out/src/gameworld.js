@@ -107,8 +107,8 @@ var GameWorld = (function () {
             var indices = this.bodies.lookupIndices(delta.diedIDsArray());
             for (var i = 0; i < indices.length; i++) {
                 var index = indices[i];
-                var team = this.bodies[index].team;
-                var type = this.bodies[index].type;
+                var team = this.bodies.arrays.team[index];
+                var type = this.bodies.arrays.type[index];
                 this.stats[team][type] = this.stats[team][type] - 1;
             }
             this.bodies.deleteBulk(delta.diedIDsArray());

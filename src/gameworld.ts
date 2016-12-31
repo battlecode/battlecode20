@@ -227,8 +227,8 @@ export default class GameWorld {
       var indices = this.bodies.lookupIndices(delta.diedIDsArray());
       for(let i = 0; i < indices.length; i++) {
           let index = indices[i];
-          let team = this.bodies[index].team;
-          let type = this.bodies[index].type;
+          let team = this.bodies.arrays.team[index];
+          let type = this.bodies.arrays.type[index];
           this.stats[team][type] = this.stats[team][type] - 1;
       }
       
