@@ -32,18 +32,18 @@ var GameWorld = (function () {
         // Instantiate stats
         this.stats = {};
         for (var i = 0; i < this.meta.teams.length; i++) {
-            this.stats[i] = {
-                0: 0,
-                1: 0,
-                2: 0,
-                3: 0,
-                4: 0,
-                5: 0,
-                6: 0,
-                7: 0,
-                8: 0,
-                9: 0 // VICTORY POINTS (DONT USED TREES NEUTRAL BY ACCIDENT)
-            };
+            this.stats[i] = [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0 // VICTORY POINTS (DONT USED TREES NEUTRAL BY ACCIDENT)
+            ];
         }
         this.turn = 0;
         this.minCorner = new Victor(0, 0);

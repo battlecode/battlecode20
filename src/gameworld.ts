@@ -25,18 +25,20 @@ export type BulletsSchema = {
   spawnedTime: Uint16Array
 };
 
-export type TeamStats = {
-    0: number, // ARCHONS
-    1: number, // GARDENERS
-    2: number, // LUMBERJACKS
-    3: number, // RECRUITS
-    4: number, // SOLDIERS
-    5: number, // TANKS
-    6: number, // SCOUTS
-    7: number, // BULLETS
-    8: number, // TREES
-    9: number  // VICTORY POINTS
-};
+// An array of numbers corresponding to team stats, which map to RobotTypes
+export type TeamStats = [
+    //0: number, // ARCHONS
+    //1: number, // GARDENERS
+    //2: number, // LUMBERJACKS
+    //3: number, // RECRUITS
+    //4: number, // SOLDIERS
+    //5: number, // TANKS
+    //6: number, // SCOUTS
+    //7: number, // BULLETS
+    //8: number, // TREES
+    //9: number  // VICTORY POINTS
+    number
+];
 
 export type StatsTable = {
     [teamID: number]: TeamStats
@@ -81,11 +83,6 @@ export default class GameWorld {
    * Stats for each team
    */
   stats: StatsTable;
-  
-  /*
-   * Mapping from the BodyType enumerated type to indices in a dictionary
-   */
-  typeMap: string[];
 
   /**
    * The current turn.
@@ -146,18 +143,18 @@ export default class GameWorld {
     // Instantiate stats
     this.stats = {};
     for (let i = 0; i < this.meta.teams.length; i++) {
-        this.stats[i] = {
-            0: 0, // ARCHONS
-            1: 0, // GARDENERS
-            2: 0, // LUMBERJACKS
-            3: 0, // RECRUITS
-            4: 0, // SOLDIERS
-            5: 0, // TANKS
-            6: 0, // SCOUTS
-            7: 0, // BULLETS
-            8: 0, // TREES
-            9: 0  // VICTORY POINTS (DONT USED TREES NEUTRAL BY ACCIDENT)
-        };
+        this.stats[i] = [
+            0, // ARCHONS
+            0, // GARDENERS
+            0, // LUMBERJACKS
+            0, // RECRUITS
+            0, // SOLDIERS
+            0, // TANKS
+            0, // SCOUTS
+            0, // BULLETS
+            0, // TREES
+            0  // VICTORY POINTS (DONT USED TREES NEUTRAL BY ACCIDENT)
+        ];
     }
 
     this.turn = 0;
