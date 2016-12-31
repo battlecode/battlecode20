@@ -143,7 +143,7 @@ export default class GameWorld {
     // Instantiate stats
     this.stats = {};
     for (let i = 0; i < this.meta.teams.length; i++) {
-        this.stats[i] = [
+        this.stats[this.meta.teams[i].teamID] = [
             0, // ARCHONS
             0, // GARDENERS
             0, // LUMBERJACKS
