@@ -32,7 +32,7 @@ var GameWorld = (function () {
         // Instantiate stats
         this.stats = {};
         for (var i = 0; i < this.meta.teams.length; i++) {
-            this.stats[i] = [
+            this.stats[this.meta.teams[i].teamID] = [
                 0,
                 0,
                 0,
