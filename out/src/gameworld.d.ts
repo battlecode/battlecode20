@@ -22,16 +22,16 @@ export declare type BulletsSchema = {
     spawnedTime: Uint16Array;
 };
 export declare type TeamStats = {
-    bullets: number;
-    victoryPoints: number;
-    archons: number;
-    gardeners: number;
-    lumberjacks: number;
-    recruits: number;
-    soldiers: number;
-    tanks: number;
-    scouts: number;
-    trees: number;
+    0: number;
+    1: number;
+    2: number;
+    3: number;
+    4: number;
+    5: number;
+    6: number;
+    7: number;
+    8: number;
+    9: number;
 };
 export declare type StatsTable = {
     [teamID: number]: TeamStats;

@@ -26,16 +26,16 @@ export type BulletsSchema = {
 };
 
 export type TeamStats = {
-    bullets: number,
-    victoryPoints: number,
-    archons: number,
-    gardeners: number,
-    lumberjacks: number,
-    recruits: number,
-    soldiers: number,
-    tanks: number,
-    scouts: number,
-    trees: number
+    0: number, // ARCHONS
+    1: number, // GARDENERS
+    2: number, // LUMBERJACKS
+    3: number, // RECRUITS
+    4: number, // SOLDIERS
+    5: number, // TANKS
+    6: number, // SCOUTS
+    7: number, // BULLETS
+    8: number, // TREES
+    9: number  // VICTORY POINTS
 };
 
 export type StatsTable = {
@@ -147,21 +147,18 @@ export default class GameWorld {
     this.stats = {};
     for (let i = 0; i < this.meta.teams.length; i++) {
         this.stats[i] = {
-            bullets: 0,
-            victoryPoints: 0,
-            archons: 0,
-            gardeners: 0,
-            lumberjacks: 0,
-            recruits: 0,
-            soldiers: 0,
-            tanks: 0,
-            scouts: 0,
-            trees: 0
+            0: 0, // ARCHONS
+            1: 0, // GARDENERS
+            2: 0, // LUMBERJACKS
+            3: 0, // RECRUITS
+            4: 0, // SOLDIERS
+            5: 0, // TANKS
+            6: 0, // SCOUTS
+            7: 0, // BULLETS
+            8: 0, // TREES
+            9: 0  // VICTORY POINTS (DONT USED TREES NEUTRAL BY ACCIDENT)
         };
     }
-    
-    // Use mapping to get dictionary string from robot BodyType (from schema, which is a num)
-    this.typeMap = ["archons", "gardeners", "lumberjacks", "recruits", "soldiers", "tanks", "scouts", "bullets", "trees"]
 
     this.turn = 0;
     this.minCorner = new Victor(0, 0);
@@ -260,7 +257,7 @@ export default class GameWorld {
       var teams = bodies.teamIDsArray();
       var types = bodies.typesArray();
       for(let i = 0; i < bodies.robotIDsArray().length; i++) {
-          this.stats[teams[i]][this.typeMap[types[i]]] = this.stats[teams[i]][this.typeMap[types[i]]] + 1;
+          this.stats[teams[i]][types[i]] = this.stats[teams[i]][types[i]] + 1;
       }
       
       this.insertBodies(bodies);
