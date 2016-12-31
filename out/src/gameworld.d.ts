@@ -21,6 +21,21 @@ export declare type BulletsSchema = {
     damage: Float32Array;
     spawnedTime: Uint16Array;
 };
+export declare type TeamStats = {
+    bullets: number;
+    victoryPoints: number;
+    archons: number;
+    gardeners: number;
+    lumberjacks: number;
+    recruits: number;
+    soldiers: number;
+    tanks: number;
+    scouts: number;
+    trees: number;
+};
+export declare type StatsTable = {
+    [teamID: number]: TeamStats;
+};
 /**
  * A frozen image of the game world.
  *
@@ -41,6 +56,8 @@ export default class GameWorld {
      */
     bodies: StructOfArrays<BodiesSchema>;
     bullets: StructOfArrays<BulletsSchema>;
+    stats: StatsTable;
+    typeMap: string[];
     /**
      * The current turn.
      */

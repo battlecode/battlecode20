@@ -34,7 +34,8 @@ export type TeamStats = {
     recruits: number,
     soldiers: number,
     tanks: number,
-    scouts: number
+    scouts: number,
+    trees: number
 };
 
 export type StatsTable = {
@@ -80,6 +81,11 @@ export default class GameWorld {
    * Stats for each team
    */
   stats: StatsTable;
+  
+  /*
+   * Mapping from the BodyType enumerated type to indices in a dictionary
+   */
+  typeMap: string[];
 
   /**
    * The current turn.
@@ -149,9 +155,13 @@ export default class GameWorld {
             recruits: 0,
             soldiers: 0,
             tanks: 0,
-            scouts: 0
+            scouts: 0,
+            trees: 0
         };
     }
+    
+    // Use mapping to get dictionary string from robot BodyType (from schema, which is a num)
+    this.typeMap = ["archons", "gardeners", "lumberjacks", "recruits", "soldiers", "tanks", "scouts", "bullets", "trees"]
 
     this.turn = 0;
     this.minCorner = new Victor(0, 0);
@@ -200,6 +210,7 @@ export default class GameWorld {
     this.minCorner = source.minCorner;
     this.maxCorner = source.maxCorner;
     this.mapName = source.mapName;
+    this.stats = source.stats;
     this.bodies.copyFrom(source.bodies);
     this.bullets.copyFrom(source.bullets);
   }
@@ -244,7 +255,16 @@ export default class GameWorld {
     // Simulate spawning
     const bodies = delta.spawnedBodies(this._bodiesSlot);
     if (bodies) {
+      
+      // Update stats
+      var teams = bodies.teamIDsArray();
+      var types = bodies.typesArray();
+      for(let i = 0; i < bodies.robotIDsArray().length; i++) {
+          this.stats[teams[i]][this.typeMap[types[i]]] = this.stats[teams[i]][this.typeMap[types[i]]] + 1;
+      }
+      
       this.insertBodies(bodies);
+      
     }
 
     // Simulate spawning
@@ -252,6 +272,7 @@ export default class GameWorld {
     if (bullets) {
       this.insertBullets(bullets);
     }
+      
   }
 
   private insertBodies(bodies: schema.SpawnedBodyTable) {

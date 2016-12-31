@@ -29,6 +29,24 @@ var GameWorld = (function () {
             spawnedTime: new Uint16Array(0),
             damage: new Float32Array(0)
         }, 'id');
+        // Instantiate stats
+        this.stats = {};
+        for (var i = 0; i < this.meta.teams.length; i++) {
+            this.stats[i] = {
+                bullets: 0,
+                victoryPoints: 0,
+                archons: 0,
+                gardeners: 0,
+                lumberjacks: 0,
+                recruits: 0,
+                soldiers: 0,
+                tanks: 0,
+                scouts: 0,
+                trees: 0
+            };
+        }
+        // Use mapping to get dictionary string from robot BodyType (from schema, which is a num)
+        this.typeMap = ["archons", "gardeners", "lumberjacks", "recruits", "soldiers", "tanks", "scouts", "bullets", "trees"];
         this.turn = 0;
         this.minCorner = new Victor(0, 0);
         this.maxCorner = new Victor(0, 0);
@@ -72,6 +90,7 @@ var GameWorld = (function () {
         this.minCorner = source.minCorner;
         this.maxCorner = source.maxCorner;
         this.mapName = source.mapName;
+        this.stats = source.stats;
         this.bodies.copyFrom(source.bodies);
         this.bullets.copyFrom(source.bullets);
     };
@@ -110,6 +129,12 @@ var GameWorld = (function () {
         // Simulate spawning
         var bodies = delta.spawnedBodies(this._bodiesSlot);
         if (bodies) {
+            // Update stats
+            var teams = bodies.teamIDsArray();
+            var types = bodies.typesArray();
+            for (var i = 0; i < bodies.robotIDsArray().length; i++) {
+                this.stats[teams[i]][this.typeMap[types[i]]] = this.stats[teams[i]][this.typeMap[types[i]]] + 1;
+            }
             this.insertBodies(bodies);
         }
         // Simulate spawning
