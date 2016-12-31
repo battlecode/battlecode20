@@ -167,7 +167,7 @@ var StructOfArrays = (function () {
     StructOfArrays.prototype.lookup = function (primary, result) {
         if (result === void 0) { result = Object.create(null); }
         if (!this._primLookup.has(primary)) {
-            throw new Error("Record with primary key does not exist: " + primary);
+            throw new Error('Record with primary key does not exist: ${primary}');
         }
         var i = this._primLookup.get(primary);
         for (var _i = 0, _a = this._fieldNames; _i < _a.length; _i++) {
@@ -241,7 +241,7 @@ var StructOfArrays = (function () {
         if (!hasOwnProperty(values, this._primary)) {
             throw new Error("Cannot alter without primary key: '" + this._primary + "'");
         }
-        var indices = this._lookupIndices(values[this._primary]);
+        var indices = this.lookupIndices(values[this._primary]);
         for (var field in values) {
             if (hasOwnProperty(values, field) && (field in this.arrays)
                 && field != this._primary && values[field] != null) {
@@ -253,7 +253,7 @@ var StructOfArrays = (function () {
      * Lookup the indices of a set of primary keys.
      * Returned array may not be the length of primaries; ignore extra entries.
      */
-    StructOfArrays.prototype._lookupIndices = function (primaries) {
+    StructOfArrays.prototype.lookupIndices = function (primaries) {
         if (this._indexBuffer == null || this._indexBuffer.length < primaries.length) {
             this._indexBuffer = new Uint32Array(StructOfArrays._capacityForLength(primaries.length));
         }

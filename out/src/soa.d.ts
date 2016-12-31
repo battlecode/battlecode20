@@ -163,7 +163,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
      * Lookup the indices of a set of primary keys.
      * Returned array may not be the length of primaries; ignore extra entries.
      */
-    private _lookupIndices(primaries);
+    lookupIndices(primaries: TypedArray): Uint32Array;
     /**
      * Let the JIT have a small, well-typed chunk of array code to work with.
      */

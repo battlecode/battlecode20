@@ -103,6 +103,14 @@ var GameWorld = (function () {
         this.turn += 1;
         // Simulate deaths
         if (delta.diedIDsLength() > 0) {
+            // Update died stats
+            var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+            for (var i = 0; i < indices.length; i++) {
+                var index = indices[i];
+                var team = this.bodies[index].team;
+                var type = this.bodies[index].type;
+                this.stats[team][type] = this.stats[team][type] - 1;
+            }
             this.bodies.deleteBulk(delta.diedIDsArray());
         }
         if (delta.diedBulletIDsLength() > 0) {
@@ -127,7 +135,7 @@ var GameWorld = (function () {
         // Simulate spawning
         var bodies = delta.spawnedBodies(this._bodiesSlot);
         if (bodies) {
-            // Update stats
+            // Update spawn stats
             var teams = bodies.teamIDsArray();
             var types = bodies.typesArray();
             for (var i = 0; i < bodies.robotIDsArray().length; i++) {
