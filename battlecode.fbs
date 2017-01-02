@@ -252,6 +252,13 @@ table MatchFooter {
 /// Note that a struct-of-arrays format is more space efficient than an array-
 /// of-structs.
 table Round {
+    /// The IDs of teams in the Game.
+    teamIDs: [int];
+    /// The bullet counts of the teams.
+    teamBullets: [float];
+    /// The victory points of the teams.
+    teamVictoryPoints: [int];
+
     /// The IDs of bodies that moved.
     movedIDs: [int];
     /// The new locations of bodies that have moved. They are defined to be in
