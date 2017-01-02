@@ -13,6 +13,13 @@ table VecTable {
     ys: [float];
 }
 
+/// A table of RGB values.
+table RGBTable {
+    red: [int];
+    green: [int];
+    blue: [int];
+}
+
 /// The possible types of things that can exist.
 /// Note that neutral trees are not treated as bodies.
 enum BodyType : byte {
@@ -245,6 +252,13 @@ table MatchFooter {
 /// Note that a struct-of-arrays format is more space efficient than an array-
 /// of-structs.
 table Round {
+    /// The IDs of teams in the Game.
+    teamIDs: [int];
+    /// The bullet counts of the teams.
+    teamBullets: [float];
+    /// The victory points of the teams.
+    teamVictoryPoints: [int];
+
     /// The IDs of bodies that moved.
     movedIDs: [int];
     /// The new locations of bodies that have moved. They are defined to be in
@@ -274,6 +288,27 @@ table Round {
     /// The 'targets' of the performed actions. Actions without targets may have
     /// any target (typically 0).
     actionTargets: [int];
+
+    /// The indices of the indicator strings that were set.
+    indicatorStringIndices: [int];
+    /// The values of the indicator strings that were set.
+    indicatorStringValues: [string];
+
+    /// The IDs of bodies that set indicator dots
+    indicatorDotIDs: [int];
+    /// The location of the indicator dots
+    indicatorDotLocs: VecTable;
+    /// The RGB values of the indicator dots
+    indicatorDotRGBs: RGBTable;
+
+    /// The IDs of bodies that set indicator lines
+    indicatorLineIDs: [int];
+    /// The start location of the indicator lines
+    indicatorLineStartLocs: VecTable;
+    /// The end location of the indicator lines
+    indicatorLineEndLocs: VecTable;
+    /// The RGB values of the indicator lines
+    indicatorLineRGBs: RGBTable;
 
     /// The first sent Round in a match should have index 1. (The starting state,
     /// created by the MatchHeader, can be thought to have index 0.)
