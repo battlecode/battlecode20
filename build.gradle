@@ -33,3 +33,9 @@ dependencies {
   // Testing dependencies
   testCompile 'junit:junit:4.12'
 }
+
+jar {
+  from {
+    configurations.testCompile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
+}
