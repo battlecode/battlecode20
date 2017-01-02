@@ -25,6 +25,31 @@ export type BulletsSchema = {
   spawnedTime: Uint16Array
 };
 
+export type IndicatorStringsSchema = {
+  id: Int32Array,
+  index: Int32Array,
+  value: Int32Array
+}
+
+export type IndicatorDotsSchema = {
+  id: Int32Array,
+  x: Float32Array,
+  y: Float32Array,
+  red: Int32Array,
+  green: Int32Array,
+  blue: Int32Array
+}
+
+export type IndicatorLinesSchema = {
+  id: Int32Array,
+  startX: Float32Array,
+  startY: Float32Array,
+  endX: Float32Array,
+  endY: Float32Array,
+  red: Int32Array,
+  green: Int32Array,
+  blue: Int32Array
+}
 
 /**
  * A frozen image of the game world.
@@ -33,7 +58,7 @@ export type BulletsSchema = {
  */
 export default class GameWorld {
   /**
-   * Everything that isn't a bullet.
+   * Everything that isn't a bullet or indicator string.
    * {
    *   id: Int32Array,
    *   team: Int8Array,
@@ -59,6 +84,44 @@ export default class GameWorld {
    * }, 'id', capacity)
    */
   bullets: StructOfArrays<BulletsSchema>;
+
+  /**
+   * Indicator strings.
+   * {
+   *   id: Int32Array,
+   *   index: Int32Array,
+   *   value: Array<string>
+   * }
+   */
+  indicatorStrings: StructOfArrays<IndicatorStringsSchema>;
+
+  /**
+   * Indicator dots.
+   * {
+   *   id: Int32Array,
+   *   x: Float32Array,
+   *   y: Float32Array,
+   *   red: Int32Array,
+   *   green: Int32Array,
+   *   blue: Int32Array
+   * }
+   */
+  indicatorDots: StructOfArrays<IndicatorDotsSchema>;
+
+  /**
+   * Indicator lines.
+   * {
+   *   id: Int32Array,
+   *   startX: Float32Array,
+   *   startY: Float32Array,
+   *   endX: Float32Array,
+   *   endY: Float32Array,
+   *   red: Int32Array,
+   *   green: Int32Array,
+   *   blue: Int32Array
+   * }
+   */
+  indicatorLines: StructOfArrays<IndicatorLinesSchema>;
 
   /**
    * The current turn.
@@ -92,6 +155,7 @@ export default class GameWorld {
   private _bulletsSlot: schema.SpawnedBulletTable;
   private _vecTableSlot1: schema.VecTable;
   private _vecTableSlot2: schema.VecTable;
+  private _rgbTableSlot: schema.RGBTable;
 
   constructor(meta: Metadata) {
     this.meta = meta;
@@ -116,6 +180,32 @@ export default class GameWorld {
       damage: new Float32Array(0)
     }, 'id');
 
+    this.indicatorStrings = new StructOfArrays({
+      id: new Int32Array(0),
+      index: new Int32Array(0),
+      value: new Int32Array(0)
+    }, 'id', 'index');
+
+    this.indicatorDots = new StructOfArrays({
+      id: new Int32Array(0),
+      x: new Float32Array(0),
+      y: new Float32Array(0),
+      red: new Int32Array(0),
+      green: new Int32Array(0),
+      blue: new Int32Array(0)
+    }, 'id');
+
+    this.indicatorLines = new StructOfArrays({
+      id: new Int32Array(0),
+      startX: new Float32Array(0),
+      startY: new Float32Array(0),
+      endX: new Float32Array(0),
+      endY: new Float32Array(0),
+      red: new Int32Array(0),
+      green: new Int32Array(0),
+      blue: new Int32Array(0)
+    }, 'id');
+
     this.turn = 0;
     this.minCorner = new Victor(0, 0);
     this.maxCorner = new Victor(0, 0);
@@ -125,6 +215,7 @@ export default class GameWorld {
     this._bulletsSlot = new schema.SpawnedBulletTable()
     this._vecTableSlot1 = new schema.VecTable();
     this._vecTableSlot2 = new schema.VecTable();
+    this._rgbTableSlot = new schema.RGBTable();
   }
 
   loadFromMatchHeader(header: schema.MatchHeader) {
@@ -178,9 +269,23 @@ export default class GameWorld {
     // Increase the turn count
     this.turn += 1;
 
+    // Simulate indicator strings
+    if (delta.indicatorStringIDsLength() > 0) {
+      // TODO: I want indicatorStrings to have one entry for each id, index pair
+      // TODO: How do you get a string array of the indicator strings?
+      this.indicatorStrings.insertBulk({
+        id: delta.indicatorStringIDsArray(),
+        index: delta.indicatorStringIndicesArray()
+        // value: delta.indicatorStringValues()
+      })
+    }
+    this.insertIndicatorDots(delta);
+    this.insertIndicatorLines(delta);
+
     // Simulate deaths
     if (delta.diedIDsLength() > 0) {
       this.bodies.deleteBulk(delta.diedIDsArray());
+      this.indicatorStrings.deleteBulk(delta.diedIDsArray());
     }
     if (delta.diedBulletIDsLength() > 0) {
       this.bullets.deleteBulk(delta.diedBulletIDsArray());
@@ -214,6 +319,63 @@ export default class GameWorld {
     const bullets = delta.spawnedBullets(this._bulletsSlot);
     if (bullets) {
       this.insertBullets(bullets);
+    }
+  }
+
+  private insertIndicatorDots(delta: schema.Round) {
+    // Delete the dots from the previous round
+    this.indicatorDots = new StructOfArrays({
+      id: new Int32Array(0),
+      x: new Float32Array(0),
+      y: new Float32Array(0),
+      red: new Int32Array(0),
+      green: new Int32Array(0),
+      blue: new Int32Array(0)
+    }, 'id');
+
+    // Insert the dots from the current round
+    if (delta.indicatorDotIDsLength() > 0) {
+      const locs = delta.indicatorDotLocs(this._vecTableSlot1);
+      const rgbs = delta.indicatorDotRGBs(this._rgbTableSlot);
+      this.indicatorDots.insertBulk({
+        id: delta.indicatorDotIDsArray(),
+        x: locs.xsArray(),
+        y: locs.ysArray(),
+        red: rgbs.redArray(),
+        green: rgbs.greenArray(),
+        blue: rgbs.blueArray()
+      })
+    }
+  }
+
+  private insertIndicatorLines(delta: schema.Round) {
+    // Delete the lines from the previous round
+    this.indicatorLines = new StructOfArrays({
+      id: new Int32Array(0),
+      startX: new Float32Array(0),
+      startY: new Float32Array(0),
+      endX: new Float32Array(0),
+      endY: new Float32Array(0),
+      red: new Int32Array(0),
+      green: new Int32Array(0),
+      blue: new Int32Array(0)
+    }, 'id');
+
+    // Insert the lines from the current round
+    if (delta.indicatorLineIDsLength() > 0) {
+      const startLocs = delta.indicatorLineStartLocs(this._vecTableSlot1);
+      const endLocs = delta.indicatorLineEndLocs(this._vecTableSlot2);
+      const rgbs = delta.indicatorLineRGBs(this._rgbTableSlot);
+      this.indicatorDots.insertBulk({
+        id: delta.indicatorLineIDsArray(),
+        startX: startLocs.xsArray(),
+        startY: startLocs.ysArray(),
+        endX: endLocs.xsArray(),
+        endY: endLocs.ysArray(),
+        red: rgbs.redArray(),
+        green: rgbs.greenArray(),
+        blue: rgbs.blueArray()
+      })
     }
   }
 
