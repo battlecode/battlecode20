@@ -292,7 +292,7 @@ table Round {
     /// The indices of the indicator strings that were set.
     indicatorStringIndices: [int];
     /// The values of the indicator strings that were set.
-    indicatorStringValues: [str];
+    indicatorStringValues: [string];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
