@@ -2824,7 +2824,7 @@ battlecode.schema.Round.prototype.indicatorLineIDsArray = function() {
  * @param {battlecode.schema.VecTable=} obj
  * @returns {battlecode.schema.VecTable}
  */
-battlecode.schema.Round.prototype.indicatorDotStartLocs = function(obj) {
+battlecode.schema.Round.prototype.indicatorLineStartLocs = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 44);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
@@ -2835,7 +2835,7 @@ battlecode.schema.Round.prototype.indicatorDotStartLocs = function(obj) {
  * @param {battlecode.schema.VecTable=} obj
  * @returns {battlecode.schema.VecTable}
  */
-battlecode.schema.Round.prototype.indicatorDotEndLocs = function(obj) {
+battlecode.schema.Round.prototype.indicatorLineEndLocs = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 46);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
@@ -3347,18 +3347,18 @@ battlecode.schema.Round.startIndicatorLineIDsVector = function(builder, numElems
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} indicatorDotStartLocsOffset
+ * @param {flatbuffers.Offset} indicatorLineStartLocsOffset
  */
-battlecode.schema.Round.addIndicatorDotStartLocs = function(builder, indicatorDotStartLocsOffset) {
-  builder.addFieldOffset(20, indicatorDotStartLocsOffset, 0);
+battlecode.schema.Round.addIndicatorLineStartLocs = function(builder, indicatorLineStartLocsOffset) {
+  builder.addFieldOffset(20, indicatorLineStartLocsOffset, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} indicatorDotEndLocsOffset
+ * @param {flatbuffers.Offset} indicatorLineEndLocsOffset
  */
-battlecode.schema.Round.addIndicatorDotEndLocs = function(builder, indicatorDotEndLocsOffset) {
-  builder.addFieldOffset(21, indicatorDotEndLocsOffset, 0);
+battlecode.schema.Round.addIndicatorLineEndLocs = function(builder, indicatorLineEndLocsOffset) {
+  builder.addFieldOffset(21, indicatorLineEndLocsOffset, 0);
 };
 
 /**

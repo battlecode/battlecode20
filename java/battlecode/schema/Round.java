@@ -139,13 +139,13 @@ public final class Round extends Table {
   /**
    * The start location of the indicator lines
    */
-  public VecTable indicatorDotStartLocs() { return indicatorDotStartLocs(new VecTable()); }
-  public VecTable indicatorDotStartLocs(VecTable obj) { int o = __offset(44); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
+  public VecTable indicatorLineStartLocs() { return indicatorLineStartLocs(new VecTable()); }
+  public VecTable indicatorLineStartLocs(VecTable obj) { int o = __offset(44); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The end location of the indicator lines
    */
-  public VecTable indicatorDotEndLocs() { return indicatorDotEndLocs(new VecTable()); }
-  public VecTable indicatorDotEndLocs(VecTable obj) { int o = __offset(46); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
+  public VecTable indicatorLineEndLocs() { return indicatorLineEndLocs(new VecTable()); }
+  public VecTable indicatorLineEndLocs(VecTable obj) { int o = __offset(46); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The RGB values of the indicator lines
    */
@@ -179,15 +179,15 @@ public final class Round extends Table {
       int indicatorDotLocsOffset,
       int indicatorDotRGBsOffset,
       int indicatorLineIDsOffset,
-      int indicatorDotStartLocsOffset,
-      int indicatorDotEndLocsOffset,
+      int indicatorLineStartLocsOffset,
+      int indicatorLineEndLocsOffset,
       int indicatorLineRGBsOffset,
       int roundID) {
     builder.startObject(24);
     Round.addRoundID(builder, roundID);
     Round.addIndicatorLineRGBs(builder, indicatorLineRGBsOffset);
-    Round.addIndicatorDotEndLocs(builder, indicatorDotEndLocsOffset);
-    Round.addIndicatorDotStartLocs(builder, indicatorDotStartLocsOffset);
+    Round.addIndicatorLineEndLocs(builder, indicatorLineEndLocsOffset);
+    Round.addIndicatorLineStartLocs(builder, indicatorLineStartLocsOffset);
     Round.addIndicatorLineIDs(builder, indicatorLineIDsOffset);
     Round.addIndicatorDotRGBs(builder, indicatorDotRGBsOffset);
     Round.addIndicatorDotLocs(builder, indicatorDotLocsOffset);
@@ -262,8 +262,8 @@ public final class Round extends Table {
   public static void addIndicatorLineIDs(FlatBufferBuilder builder, int indicatorLineIDsOffset) { builder.addOffset(19, indicatorLineIDsOffset, 0); }
   public static int createIndicatorLineIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startIndicatorLineIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addIndicatorDotStartLocs(FlatBufferBuilder builder, int indicatorDotStartLocsOffset) { builder.addOffset(20, indicatorDotStartLocsOffset, 0); }
-  public static void addIndicatorDotEndLocs(FlatBufferBuilder builder, int indicatorDotEndLocsOffset) { builder.addOffset(21, indicatorDotEndLocsOffset, 0); }
+  public static void addIndicatorLineStartLocs(FlatBufferBuilder builder, int indicatorLineStartLocsOffset) { builder.addOffset(20, indicatorLineStartLocsOffset, 0); }
+  public static void addIndicatorLineEndLocs(FlatBufferBuilder builder, int indicatorLineEndLocsOffset) { builder.addOffset(21, indicatorLineEndLocsOffset, 0); }
   public static void addIndicatorLineRGBs(FlatBufferBuilder builder, int indicatorLineRGBsOffset) { builder.addOffset(22, indicatorLineRGBsOffset, 0); }
   public static void addRoundID(FlatBufferBuilder builder, int roundID) { builder.addInt(23, roundID, 0); }
   public static int endRound(FlatBufferBuilder builder) {
