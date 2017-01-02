@@ -2802,6 +2802,24 @@ declare module index {
             actionTargetsArray(): Int32Array;
 
             /**
+             * The IDs of bodies that set indicator strings.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            indicatorStringIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            indicatorStringIDsLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            indicatorStringIDsArray(): Int32Array;
+
+            /**
              * The indices of the indicator strings that were set.
              *
              * @param {number} index

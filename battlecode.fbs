@@ -284,11 +284,13 @@ table Round {
     /// IDs may repeat.
     actionIDs: [int];
     /// The actions performed.
-    actions: [Action]; 
+    actions: [Action];
     /// The 'targets' of the performed actions. Actions without targets may have
     /// any target (typically 0).
     actionTargets: [int];
 
+    /// The IDs of bodies that set indicator strings.
+    indicatorStringIDs: [int];
     /// The indices of the indicator strings that were set.
     indicatorStringIndices: [int];
     /// The values of the indicator strings that were set.

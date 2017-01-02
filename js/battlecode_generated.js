@@ -2696,12 +2696,12 @@ battlecode.schema.Round.prototype.actionTargetsArray = function() {
 };
 
 /**
- * The indices of the indicator strings that were set.
+ * The IDs of bodies that set indicator strings.
  *
  * @param {number} index
  * @returns {number}
  */
-battlecode.schema.Round.prototype.indicatorStringIndices = function(index) {
+battlecode.schema.Round.prototype.indicatorStringIDs = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 32);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2709,7 +2709,7 @@ battlecode.schema.Round.prototype.indicatorStringIndices = function(index) {
 /**
  * @returns {number}
  */
-battlecode.schema.Round.prototype.indicatorStringIndicesLength = function() {
+battlecode.schema.Round.prototype.indicatorStringIDsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 32);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2717,8 +2717,35 @@ battlecode.schema.Round.prototype.indicatorStringIndicesLength = function() {
 /**
  * @returns {Int32Array}
  */
-battlecode.schema.Round.prototype.indicatorStringIndicesArray = function() {
+battlecode.schema.Round.prototype.indicatorStringIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 32);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * The indices of the indicator strings that were set.
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.indicatorStringIndices = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 34);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.indicatorStringIndicesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 34);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.Round.prototype.indicatorStringIndicesArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 34);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2730,7 +2757,7 @@ battlecode.schema.Round.prototype.indicatorStringIndicesArray = function() {
  * @returns {string|Uint8Array}
  */
 battlecode.schema.Round.prototype.indicatorStringValues = function(index, optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 34);
+  var offset = this.bb.__offset(this.bb_pos, 36);
   return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
 };
 
@@ -2738,7 +2765,7 @@ battlecode.schema.Round.prototype.indicatorStringValues = function(index, option
  * @returns {number}
  */
 battlecode.schema.Round.prototype.indicatorStringValuesLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 34);
+  var offset = this.bb.__offset(this.bb_pos, 36);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2749,7 +2776,7 @@ battlecode.schema.Round.prototype.indicatorStringValuesLength = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.indicatorDotIDs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 36);
+  var offset = this.bb.__offset(this.bb_pos, 38);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2757,7 +2784,7 @@ battlecode.schema.Round.prototype.indicatorDotIDs = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.indicatorDotIDsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 36);
+  var offset = this.bb.__offset(this.bb_pos, 38);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2765,7 +2792,7 @@ battlecode.schema.Round.prototype.indicatorDotIDsLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.indicatorDotIDsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 36);
+  var offset = this.bb.__offset(this.bb_pos, 38);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2776,7 +2803,7 @@ battlecode.schema.Round.prototype.indicatorDotIDsArray = function() {
  * @returns {battlecode.schema.VecTable}
  */
 battlecode.schema.Round.prototype.indicatorDotLocs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 38);
+  var offset = this.bb.__offset(this.bb_pos, 40);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -2787,7 +2814,7 @@ battlecode.schema.Round.prototype.indicatorDotLocs = function(obj) {
  * @returns {battlecode.schema.RGBTable}
  */
 battlecode.schema.Round.prototype.indicatorDotRGBs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 40);
+  var offset = this.bb.__offset(this.bb_pos, 42);
   return offset ? (obj || new battlecode.schema.RGBTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -2798,7 +2825,7 @@ battlecode.schema.Round.prototype.indicatorDotRGBs = function(obj) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.indicatorLineIDs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 42);
+  var offset = this.bb.__offset(this.bb_pos, 44);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2806,7 +2833,7 @@ battlecode.schema.Round.prototype.indicatorLineIDs = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.indicatorLineIDsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 42);
+  var offset = this.bb.__offset(this.bb_pos, 44);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2814,7 +2841,7 @@ battlecode.schema.Round.prototype.indicatorLineIDsLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.indicatorLineIDsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 42);
+  var offset = this.bb.__offset(this.bb_pos, 44);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2825,7 +2852,7 @@ battlecode.schema.Round.prototype.indicatorLineIDsArray = function() {
  * @returns {battlecode.schema.VecTable}
  */
 battlecode.schema.Round.prototype.indicatorLineStartLocs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 44);
+  var offset = this.bb.__offset(this.bb_pos, 46);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -2836,7 +2863,7 @@ battlecode.schema.Round.prototype.indicatorLineStartLocs = function(obj) {
  * @returns {battlecode.schema.VecTable}
  */
 battlecode.schema.Round.prototype.indicatorLineEndLocs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 46);
+  var offset = this.bb.__offset(this.bb_pos, 48);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -2847,7 +2874,7 @@ battlecode.schema.Round.prototype.indicatorLineEndLocs = function(obj) {
  * @returns {battlecode.schema.RGBTable}
  */
 battlecode.schema.Round.prototype.indicatorLineRGBs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 48);
+  var offset = this.bb.__offset(this.bb_pos, 50);
   return offset ? (obj || new battlecode.schema.RGBTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -2859,7 +2886,7 @@ battlecode.schema.Round.prototype.indicatorLineRGBs = function(obj) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.roundID = function() {
-  var offset = this.bb.__offset(this.bb_pos, 50);
+  var offset = this.bb.__offset(this.bb_pos, 52);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -2867,7 +2894,7 @@ battlecode.schema.Round.prototype.roundID = function() {
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.Round.startRound = function(builder) {
-  builder.startObject(24);
+  builder.startObject(25);
 };
 
 /**
@@ -3215,10 +3242,39 @@ battlecode.schema.Round.startActionTargetsVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} indicatorStringIDsOffset
+ */
+battlecode.schema.Round.addIndicatorStringIDs = function(builder, indicatorStringIDsOffset) {
+  builder.addFieldOffset(14, indicatorStringIDsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createIndicatorStringIDsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startIndicatorStringIDsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} indicatorStringIndicesOffset
  */
 battlecode.schema.Round.addIndicatorStringIndices = function(builder, indicatorStringIndicesOffset) {
-  builder.addFieldOffset(14, indicatorStringIndicesOffset, 0);
+  builder.addFieldOffset(15, indicatorStringIndicesOffset, 0);
 };
 
 /**
@@ -3247,7 +3303,7 @@ battlecode.schema.Round.startIndicatorStringIndicesVector = function(builder, nu
  * @param {flatbuffers.Offset} indicatorStringValuesOffset
  */
 battlecode.schema.Round.addIndicatorStringValues = function(builder, indicatorStringValuesOffset) {
-  builder.addFieldOffset(15, indicatorStringValuesOffset, 0);
+  builder.addFieldOffset(16, indicatorStringValuesOffset, 0);
 };
 
 /**
@@ -3276,7 +3332,7 @@ battlecode.schema.Round.startIndicatorStringValuesVector = function(builder, num
  * @param {flatbuffers.Offset} indicatorDotIDsOffset
  */
 battlecode.schema.Round.addIndicatorDotIDs = function(builder, indicatorDotIDsOffset) {
-  builder.addFieldOffset(16, indicatorDotIDsOffset, 0);
+  builder.addFieldOffset(17, indicatorDotIDsOffset, 0);
 };
 
 /**
@@ -3305,7 +3361,7 @@ battlecode.schema.Round.startIndicatorDotIDsVector = function(builder, numElems)
  * @param {flatbuffers.Offset} indicatorDotLocsOffset
  */
 battlecode.schema.Round.addIndicatorDotLocs = function(builder, indicatorDotLocsOffset) {
-  builder.addFieldOffset(17, indicatorDotLocsOffset, 0);
+  builder.addFieldOffset(18, indicatorDotLocsOffset, 0);
 };
 
 /**
@@ -3313,7 +3369,7 @@ battlecode.schema.Round.addIndicatorDotLocs = function(builder, indicatorDotLocs
  * @param {flatbuffers.Offset} indicatorDotRGBsOffset
  */
 battlecode.schema.Round.addIndicatorDotRGBs = function(builder, indicatorDotRGBsOffset) {
-  builder.addFieldOffset(18, indicatorDotRGBsOffset, 0);
+  builder.addFieldOffset(19, indicatorDotRGBsOffset, 0);
 };
 
 /**
@@ -3321,7 +3377,7 @@ battlecode.schema.Round.addIndicatorDotRGBs = function(builder, indicatorDotRGBs
  * @param {flatbuffers.Offset} indicatorLineIDsOffset
  */
 battlecode.schema.Round.addIndicatorLineIDs = function(builder, indicatorLineIDsOffset) {
-  builder.addFieldOffset(19, indicatorLineIDsOffset, 0);
+  builder.addFieldOffset(20, indicatorLineIDsOffset, 0);
 };
 
 /**
@@ -3350,7 +3406,7 @@ battlecode.schema.Round.startIndicatorLineIDsVector = function(builder, numElems
  * @param {flatbuffers.Offset} indicatorLineStartLocsOffset
  */
 battlecode.schema.Round.addIndicatorLineStartLocs = function(builder, indicatorLineStartLocsOffset) {
-  builder.addFieldOffset(20, indicatorLineStartLocsOffset, 0);
+  builder.addFieldOffset(21, indicatorLineStartLocsOffset, 0);
 };
 
 /**
@@ -3358,7 +3414,7 @@ battlecode.schema.Round.addIndicatorLineStartLocs = function(builder, indicatorL
  * @param {flatbuffers.Offset} indicatorLineEndLocsOffset
  */
 battlecode.schema.Round.addIndicatorLineEndLocs = function(builder, indicatorLineEndLocsOffset) {
-  builder.addFieldOffset(21, indicatorLineEndLocsOffset, 0);
+  builder.addFieldOffset(22, indicatorLineEndLocsOffset, 0);
 };
 
 /**
@@ -3366,7 +3422,7 @@ battlecode.schema.Round.addIndicatorLineEndLocs = function(builder, indicatorLin
  * @param {flatbuffers.Offset} indicatorLineRGBsOffset
  */
 battlecode.schema.Round.addIndicatorLineRGBs = function(builder, indicatorLineRGBsOffset) {
-  builder.addFieldOffset(22, indicatorLineRGBsOffset, 0);
+  builder.addFieldOffset(23, indicatorLineRGBsOffset, 0);
 };
 
 /**
@@ -3374,7 +3430,7 @@ battlecode.schema.Round.addIndicatorLineRGBs = function(builder, indicatorLineRG
  * @param {number} roundID
  */
 battlecode.schema.Round.addRoundID = function(builder, roundID) {
-  builder.addFieldInt32(23, roundID, 0);
+  builder.addFieldInt32(24, roundID, 0);
 };
 
 /**
