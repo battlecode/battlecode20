@@ -1064,6 +1064,161 @@ declare module index {
         }
 
         /**
+         * A table of RGB values.
+         *
+         * @constructor
+         */
+        export class RGBTable {
+            /**
+             * A table of RGB values.
+             *
+             * @constructor
+             */
+            constructor();
+
+            /**
+             * @type {flatbuffers.ByteBuffer}
+             */
+            bb: flatbuffers.ByteBuffer;
+
+            /**
+             * @type {number}
+             */
+            bb_pos: number;
+
+            /**
+             * @param {number} i
+             * @param {flatbuffers.ByteBuffer} bb
+             * @returns {schema.RGBTable}
+             */
+            __init(i: number, bb: flatbuffers.ByteBuffer): schema.RGBTable;
+
+            /**
+             * @param {flatbuffers.ByteBuffer} bb
+             * @param {schema.RGBTable=} obj
+             * @returns {schema.RGBTable}
+             */
+            static getRootAsRGBTable(bb: flatbuffers.ByteBuffer, obj?: schema.RGBTable): schema.RGBTable;
+
+            /**
+             * @param {number} index
+             * @returns {number}
+             */
+            red(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            redLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            redArray(): Int32Array;
+
+            /**
+             * @param {number} index
+             * @returns {number}
+             */
+            green(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            greenLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            greenArray(): Int32Array;
+
+            /**
+             * @param {number} index
+             * @returns {number}
+             */
+            blue(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            blueLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            blueArray(): Int32Array;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             */
+            static startRGBTable(builder: flatbuffers.Builder): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} redOffset
+             */
+            static addRed(builder: flatbuffers.Builder, redOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createRedVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startRedVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} greenOffset
+             */
+            static addGreen(builder: flatbuffers.Builder, greenOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createGreenVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startGreenVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} blueOffset
+             */
+            static addBlue(builder: flatbuffers.Builder, blueOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createBlueVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startBlueVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @returns {flatbuffers.Offset}
+             */
+            static endRGBTable(builder: flatbuffers.Builder): flatbuffers.Offset;
+
+        }
+
+        /**
          * A list of new bodies to be placed on the map.
          *
          * @constructor
@@ -1717,7 +1872,7 @@ declare module index {
              * @returns {schema.SpawnedBodyTable}
              */
             bodies(obj?: schema.SpawnedBodyTable): schema.SpawnedBodyTable;
-            
+
             /**
              * The neutral trees on the map.
              *
@@ -2419,6 +2574,62 @@ declare module index {
              */
             static getRootAsRound(bb: flatbuffers.ByteBuffer, obj?: schema.Round): schema.Round;
 
+
+
+            /**
+             * The IDs of teams in the Game.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            teamIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            teamIDsLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            teamIDsArray(): Int32Array;
+
+            /**
+             * The bullet counts of the teams.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            teamBullets(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            teamBulletsLength(): number;
+
+            /**
+             * @returns {Float32Array}
+             */
+            teamBulletsArray(): Float32Array;
+
+            /**
+             * The victory points of the teams.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            teamVictoryPoints(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            teamVictoryPointsLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            teamVictoryPointsArray(): Int32Array;
+
             /**
              * The IDs of bodies that moved.
              *
@@ -2589,6 +2800,114 @@ declare module index {
              * @returns {Int32Array}
              */
             actionTargetsArray(): Int32Array;
+
+            /**
+             * The indices of the indicator strings that were set.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            indicatorStringIndices(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            indicatorStringIndicesLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            indicatorStringIndicesArray(): Int32Array;
+
+            /**
+             * The values of the indicator strings that were set.
+             *
+             * @param {number} index
+             * @param {flatbuffers.Encoding=} optionalEncoding
+             * @returns {string|Uint8Array}
+             */
+            indicatorStringValues(index: number, optionalEncoding: flatbuffers.Encoding): string | Uint8Array;
+
+            /**
+             * @returns {number}
+             */
+            indicatorStringValuesLength(): number;
+
+            /**
+             * The IDs of bodies that set indicator dots.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            indicatorDotIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            indicatorDotIDsLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            indicatorDotIDsArray(): Int32Array;
+
+            /**
+             * The location of the indicator dots
+             *
+             * @param {battlecode.schema.VecTable=} obj
+             * @returns {battlecode.schema.VecTable}
+             */
+            indicatorDotLocs(obj?: schema.VecTable): schema.VecTable;
+
+            /**
+             * The RGB values of the indicator dots
+             *
+             * @param {battlecode.schema.RGBTable=} obj
+             * @returns {battlecode.schema.RGBTable}
+             */
+            indicatorDotRGBs(obj?: schema.RGBTable): schema.RGBTable;
+
+            /**
+             * The IDs of bodies that set indicator lines.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            indicatorLineIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            indicatorLineIDsLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            indicatorLineIDsArray(): Int32Array;
+
+            /**
+             * The start location of the indicator lines
+             *
+             * @param {battlecode.schema.VecTable=} obj
+             * @returns {battlecode.schema.VecTable}
+             */
+            indicatorLineStartLocs(obj?: schema.VecTable): schema.VecTable;
+
+            /**
+             * The end location of the indicator lines
+             *
+             * @param {battlecode.schema.VecTable=} obj
+             * @returns {battlecode.schema.VecTable}
+             */
+            indicatorLineEndLocs(obj?: schema.VecTable): schema.VecTable;
+
+            /**
+             * The RGB values of the indicator lines
+             *
+             * @param {battlecode.schema.RGBTable=} obj
+             * @returns {battlecode.schema.RGBTable}
+             */
+            indicatorLineRGBs(obj?: schema.RGBTable): schema.RGBTable;
 
             /**
              * The first sent Round in a match should have index 1. (The starting state,
