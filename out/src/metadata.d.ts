@@ -14,11 +14,15 @@ export default class Metadata {
      * All the body types in a game.
      * Access like: meta.types[schema.BodyType.ARCHON].radius
      */
-    types: BodyType[];
+    types: {
+        [key: number]: BodyType;
+    };
     /**
      * All the teams in a game.
      */
-    teams: Team[];
+    teams: {
+        [key: number]: Team;
+    };
     constructor();
     parse(header: schema.GameHeader): Metadata;
 }
