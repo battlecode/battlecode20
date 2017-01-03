@@ -90,7 +90,7 @@ export default class GameWorld {
    * {
    *   id: Int32Array,
    *   index: Int32Array,
-   *   value: Array<string>
+   *   value: Int32Array
    * }
    */
   indicatorStrings: StructOfArrays<IndicatorStringsSchema>;
@@ -184,7 +184,7 @@ export default class GameWorld {
       id: new Int32Array(0),
       index: new Int32Array(0),
       value: new Int32Array(0)
-    }, 'id', 'index');
+    }, 'id');
 
     this.indicatorDots = new StructOfArrays({
       id: new Int32Array(0),
@@ -270,13 +270,15 @@ export default class GameWorld {
     this.turn += 1;
 
     // Simulate indicator strings
+
     if (delta.indicatorStringIDsLength() > 0) {
-      // TODO: I want indicatorStrings to have one entry for each id, index pair
-      // TODO: How do you get a string array of the indicator strings?
+      // TODO: each id can have 3 indicator strings, so we want to have 2 keys
       this.indicatorStrings.insertBulk({
         id: delta.indicatorStringIDsArray(),
-        index: delta.indicatorStringIndicesArray()
-        // value: delta.indicatorStringValues()
+        index: delta.indicatorStringIndicesArray(),
+        value: delta.indicatorStringIndicesArray() // PLACEHOLDER
+        // TODO: either soa needs to take string arrays, or we have to
+        // decode the indicator string values to an int array
       })
     }
     this.insertIndicatorDots(delta);
