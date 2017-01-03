@@ -29,6 +29,29 @@ var GameWorld = (function () {
             spawnedTime: new Uint16Array(0),
             damage: new Float32Array(0)
         }, 'id');
+        this.indicatorStrings = new soa_1.default({
+            id: new Int32Array(0),
+            index: new Int32Array(0),
+            value: new Int32Array(0)
+        }, 'id');
+        this.indicatorDots = new soa_1.default({
+            id: new Int32Array(0),
+            x: new Float32Array(0),
+            y: new Float32Array(0),
+            red: new Int32Array(0),
+            green: new Int32Array(0),
+            blue: new Int32Array(0)
+        }, 'id');
+        this.indicatorLines = new soa_1.default({
+            id: new Int32Array(0),
+            startX: new Float32Array(0),
+            startY: new Float32Array(0),
+            endX: new Float32Array(0),
+            endY: new Float32Array(0),
+            red: new Int32Array(0),
+            green: new Int32Array(0),
+            blue: new Int32Array(0)
+        }, 'id');
         this.turn = 0;
         this.minCorner = new Victor(0, 0);
         this.maxCorner = new Victor(0, 0);
@@ -37,6 +60,7 @@ var GameWorld = (function () {
         this._bulletsSlot = new battlecode_schema_1.schema.SpawnedBulletTable();
         this._vecTableSlot1 = new battlecode_schema_1.schema.VecTable();
         this._vecTableSlot2 = new battlecode_schema_1.schema.VecTable();
+        this._rgbTableSlot = new battlecode_schema_1.schema.RGBTable();
     }
     GameWorld.prototype.loadFromMatchHeader = function (header) {
         var map = header.map();
@@ -84,9 +108,21 @@ var GameWorld = (function () {
         }
         // Increase the turn count
         this.turn += 1;
+        // Simulate indicator strings
+        if (delta.indicatorStringIDsLength() > 0) {
+            // TODO: each id can have 3 indicator strings, so we want to have 2 keys
+            this.indicatorStrings.insertBulk({
+                id: delta.indicatorStringIDsArray(),
+                index: delta.indicatorStringIndicesArray(),
+                value: delta.indicatorStringIndicesArray() // PLACEHOLDER
+            });
+        }
+        this.insertIndicatorDots(delta);
+        this.insertIndicatorLines(delta);
         // Simulate deaths
         if (delta.diedIDsLength() > 0) {
             this.bodies.deleteBulk(delta.diedIDsArray());
+            this.indicatorStrings.deleteBulk(delta.diedIDsArray());
         }
         if (delta.diedBulletIDsLength() > 0) {
             this.bullets.deleteBulk(delta.diedBulletIDsArray());
@@ -116,6 +152,59 @@ var GameWorld = (function () {
         var bullets = delta.spawnedBullets(this._bulletsSlot);
         if (bullets) {
             this.insertBullets(bullets);
+        }
+    };
+    GameWorld.prototype.insertIndicatorDots = function (delta) {
+        // Delete the dots from the previous round
+        this.indicatorDots = new soa_1.default({
+            id: new Int32Array(0),
+            x: new Float32Array(0),
+            y: new Float32Array(0),
+            red: new Int32Array(0),
+            green: new Int32Array(0),
+            blue: new Int32Array(0)
+        }, 'id');
+        // Insert the dots from the current round
+        if (delta.indicatorDotIDsLength() > 0) {
+            var locs = delta.indicatorDotLocs(this._vecTableSlot1);
+            var rgbs = delta.indicatorDotRGBs(this._rgbTableSlot);
+            this.indicatorDots.insertBulk({
+                id: delta.indicatorDotIDsArray(),
+                x: locs.xsArray(),
+                y: locs.ysArray(),
+                red: rgbs.redArray(),
+                green: rgbs.greenArray(),
+                blue: rgbs.blueArray()
+            });
+        }
+    };
+    GameWorld.prototype.insertIndicatorLines = function (delta) {
+        // Delete the lines from the previous round
+        this.indicatorLines = new soa_1.default({
+            id: new Int32Array(0),
+            startX: new Float32Array(0),
+            startY: new Float32Array(0),
+            endX: new Float32Array(0),
+            endY: new Float32Array(0),
+            red: new Int32Array(0),
+            green: new Int32Array(0),
+            blue: new Int32Array(0)
+        }, 'id');
+        // Insert the lines from the current round
+        if (delta.indicatorLineIDsLength() > 0) {
+            var startLocs = delta.indicatorLineStartLocs(this._vecTableSlot1);
+            var endLocs = delta.indicatorLineEndLocs(this._vecTableSlot2);
+            var rgbs = delta.indicatorLineRGBs(this._rgbTableSlot);
+            this.indicatorDots.insertBulk({
+                id: delta.indicatorLineIDsArray(),
+                startX: startLocs.xsArray(),
+                startY: startLocs.ysArray(),
+                endX: endLocs.xsArray(),
+                endY: endLocs.ysArray(),
+                red: rgbs.redArray(),
+                green: rgbs.greenArray(),
+                blue: rgbs.blueArray()
+            });
         }
     };
     GameWorld.prototype.insertBodies = function (bodies) {

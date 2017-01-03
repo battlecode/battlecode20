@@ -21,6 +21,29 @@ export declare type BulletsSchema = {
     damage: Float32Array;
     spawnedTime: Uint16Array;
 };
+export declare type IndicatorStringsSchema = {
+    id: Int32Array;
+    index: Int32Array;
+    value: Int32Array;
+};
+export declare type IndicatorDotsSchema = {
+    id: Int32Array;
+    x: Float32Array;
+    y: Float32Array;
+    red: Int32Array;
+    green: Int32Array;
+    blue: Int32Array;
+};
+export declare type IndicatorLinesSchema = {
+    id: Int32Array;
+    startX: Float32Array;
+    startY: Float32Array;
+    endX: Float32Array;
+    endY: Float32Array;
+    red: Int32Array;
+    green: Int32Array;
+    blue: Int32Array;
+};
 /**
  * A frozen image of the game world.
  *
@@ -28,7 +51,7 @@ export declare type BulletsSchema = {
  */
 export default class GameWorld {
     /**
-     * Everything that isn't a bullet.
+     * Everything that isn't a bullet or indicator string.
      * {
      *   id: Int32Array,
      *   team: Int8Array,
@@ -41,6 +64,41 @@ export default class GameWorld {
      */
     bodies: StructOfArrays<BodiesSchema>;
     bullets: StructOfArrays<BulletsSchema>;
+    /**
+     * Indicator strings.
+     * {
+     *   id: Int32Array,
+     *   index: Int32Array,
+     *   value: Int32Array
+     * }
+     */
+    indicatorStrings: StructOfArrays<IndicatorStringsSchema>;
+    /**
+     * Indicator dots.
+     * {
+     *   id: Int32Array,
+     *   x: Float32Array,
+     *   y: Float32Array,
+     *   red: Int32Array,
+     *   green: Int32Array,
+     *   blue: Int32Array
+     * }
+     */
+    indicatorDots: StructOfArrays<IndicatorDotsSchema>;
+    /**
+     * Indicator lines.
+     * {
+     *   id: Int32Array,
+     *   startX: Float32Array,
+     *   startY: Float32Array,
+     *   endX: Float32Array,
+     *   endY: Float32Array,
+     *   red: Int32Array,
+     *   green: Int32Array,
+     *   blue: Int32Array
+     * }
+     */
+    indicatorLines: StructOfArrays<IndicatorLinesSchema>;
     /**
      * The current turn.
      */
@@ -65,6 +123,7 @@ export default class GameWorld {
     private _bulletsSlot;
     private _vecTableSlot1;
     private _vecTableSlot2;
+    private _rgbTableSlot;
     constructor(meta: Metadata);
     loadFromMatchHeader(header: schema.MatchHeader): void;
     /**
@@ -76,6 +135,8 @@ export default class GameWorld {
      * Process a set of changes.
      */
     processDelta(delta: schema.Round): void;
+    private insertIndicatorDots(delta);
+    private insertIndicatorLines(delta);
     private insertBodies(bodies);
     private insertBullets(bullets);
     private insertTrees(trees);
