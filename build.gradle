@@ -1,5 +1,11 @@
 apply plugin: 'java'
 
+// You can specify players to release here, or on the command line,
+// with the setting here taking priority. Note that leaving this
+// blank (i.e., an empty string) results in the release of all players.
+// To release no players, set this to 'NONE'.
+project.ext.release_players='NONE'
+
 repositories {
   mavenCentral()
   maven {url "https://oss.sonatype.org/content/repositories/snapshots/"}
@@ -38,7 +44,17 @@ buildscript {
   }
 }
 
-task proguard(type: proguard.gradle.ProGuardTask, dependsOn: 'jar') {
+jar {
+  if (project.hasProperty('release_players'))
+    for (String player : project.property('release_players').split(','))
+      include "**/" + player + "/*.class"
+
+  includeEmptyDirs = false
+}
+
+task proguard(dependsOn: ['proguard_run', 'proguard_copy'])
+
+task proguard_run(type: proguard.gradle.ProGuardTask, dependsOn: 'jar') {
   injars new File(project.libsDir, 'battlecode-player.jar')
   outjars new File(project.projectDir, 'proguard/battlecode-player.jar')
 
@@ -52,4 +68,21 @@ task proguard(type: proguard.gradle.ProGuardTask, dependsOn: 'jar') {
   keepclasseswithmembers 'public class *.RobotPlayer { \
     public static void run(battlecode.common.RobotController); \
   }'
+}
+
+task proguard_copy(type: Copy, dependsOn: 'jar') {
+  from new File(project.libsDir, 'battlecode-player.jar')
+  into new File(project.projectDir, 'proguard/')
+}
+
+// Proguard crashes when ran with an empty input jar. To get around this,
+// we just copy the jar when no players are released.
+proguard_run.onlyIf { proguard_check() }
+proguard_copy.onlyIf { !proguard_check() }
+
+boolean proguard_check() {
+  if (!project.hasProperty('release_players'))
+    throw new InvalidUserDataException("Must provide property \"release_players\"")
+
+  return project.property('release_players') != 'NONE'
 }
