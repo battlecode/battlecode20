@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'scala'
 
 // You can specify players to release here, or on the command line,
 // with the setting here taking priority. Note that leaving this
@@ -14,12 +15,12 @@ repositories {
 
 sourceSets {
   main {
-    java.srcDirs = ["src/main"]
+    scala.srcDirs = ["src/main"]
 
     output.classesDir = "$buildDir/classes"
   }
   test {
-    java.srcDirs = ["src/test"]
+    scala.srcDirs = ["src/test"]
 
     output.classesDir = "$buildDir/tests"
   }
@@ -30,6 +31,9 @@ dependencies {
 
   // The production code uses the SLF4J logging API at compile time
   compile 'org.slf4j:slf4j-api:1.7.21'
+
+  // SCALA
+  compile group: 'org.scala-lang', name: 'scala-library', version: '2.12.1'
 
   // Testing dependencies
   testCompile 'junit:junit:4.12'
