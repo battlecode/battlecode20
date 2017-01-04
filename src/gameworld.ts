@@ -25,12 +25,6 @@ export type BulletsSchema = {
   spawnedTime: Uint16Array
 };
 
-export type IndicatorStringsSchema = {
-  id: Int32Array,
-  index: Int32Array,
-  value: Int32Array
-}
-
 export type IndicatorDotsSchema = {
   id: Int32Array,
   x: Float32Array,
@@ -50,6 +44,8 @@ export type IndicatorLinesSchema = {
   green: Int32Array,
   blue: Int32Array
 }
+
+const NUMBER_OF_INDICATOR_STRINGS = 3;
 
 /**
  * A frozen image of the game world.
@@ -93,7 +89,7 @@ export default class GameWorld {
    *   value: Int32Array
    * }
    */
-  indicatorStrings: StructOfArrays<IndicatorStringsSchema>;
+  indicatorStrings: Map<number, Array<string>>;
 
   /**
    * Indicator dots.
@@ -180,11 +176,7 @@ export default class GameWorld {
       damage: new Float32Array(0)
     }, 'id');
 
-    this.indicatorStrings = new StructOfArrays({
-      id: new Int32Array(0),
-      index: new Int32Array(0),
-      value: new Int32Array(0)
-    }, 'id');
+    this.indicatorStrings = new Map<number, Array<string>>();
 
     this.indicatorDots = new StructOfArrays({
       id: new Int32Array(0),
@@ -269,25 +261,9 @@ export default class GameWorld {
     // Increase the turn count
     this.turn += 1;
 
-    // Simulate indicator strings
-
-    if (delta.indicatorStringIDsLength() > 0) {
-      // TODO: each id can have 3 indicator strings, so we want to have 2 keys
-      this.indicatorStrings.insertBulk({
-        id: delta.indicatorStringIDsArray(),
-        index: delta.indicatorStringIndicesArray(),
-        value: delta.indicatorStringIndicesArray() // PLACEHOLDER
-        // TODO: either soa needs to take string arrays, or we have to
-        // decode the indicator string values to an int array
-      })
-    }
-    this.insertIndicatorDots(delta);
-    this.insertIndicatorLines(delta);
-
     // Simulate deaths
     if (delta.diedIDsLength() > 0) {
       this.bodies.deleteBulk(delta.diedIDsArray());
-      this.indicatorStrings.deleteBulk(delta.diedIDsArray());
     }
     if (delta.diedBulletIDsLength() > 0) {
       this.bullets.deleteBulk(delta.diedBulletIDsArray());
@@ -321,6 +297,45 @@ export default class GameWorld {
     const bullets = delta.spawnedBullets(this._bulletsSlot);
     if (bullets) {
       this.insertBullets(bullets);
+    }
+
+    // Insert indicator strings, dots, and lines
+    this.insertIndicatorStrings(delta);
+    this.insertIndicatorDots(delta);
+    this.insertIndicatorLines(delta);
+  }
+
+  private insertIndicatorStrings(delta: schema.Round) {
+    // Add spawned bodies
+    const indicatorStrings: Map<number, Array<string>> = this.indicatorStrings;
+    const spawnedBodies = delta.spawnedBodies(this._bodiesSlot);
+    if (spawnedBodies) {
+      spawnedBodies.robotIDsArray().forEach(function(robotID) {
+        let defaultStrings: Array<string> = [];
+        for (let i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
+          defaultStrings.push("");
+        }
+        indicatorStrings.set(robotID, defaultStrings);
+      });
+    }
+
+    // Remove dead bodies
+    if (delta.diedIDsLength() > 0) {
+      delta.diedIDsArray().forEach(function(diedID) {
+        indicatorStrings.delete(diedID);
+      });
+    }
+
+    // Update current bodies
+    const length: number = delta.indicatorStringIDsLength();
+    const ids: Int32Array = delta.indicatorStringIDsArray();
+    const indices: Int32Array = delta.indicatorStringIndicesArray();
+    const encoding: flatbuffers.Encoding = flatbuffers.Encoding.UTF16_STRING;
+    for (let i = 0; i < length; i++) {
+      let id = ids[i];
+      let index = indices[i];
+      let value: string = <string>delta.indicatorStringValues(i, encoding);
+      indicatorStrings.get(id)[index] = value;
     }
   }
 
