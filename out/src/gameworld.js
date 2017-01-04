@@ -169,12 +169,6 @@ var GameWorld = (function () {
         if (spawnedBodies) {
             this.addIDsToIndicatorStrings(spawnedBodies.robotIDsArray());
         }
-        // Remove dead bodies
-        if (delta.diedIDsLength() > 0) {
-            delta.diedIDsArray().forEach(function (diedID) {
-                indicatorStrings.delete(diedID);
-            });
-        }
         // Update current bodies
         var length = delta.indicatorStringIDsLength();
         var ids = delta.indicatorStringIDsArray();
@@ -185,6 +179,12 @@ var GameWorld = (function () {
             var index = indices[i];
             var value = delta.indicatorStringValues(i, encoding);
             indicatorStrings.get(id)[index] = value;
+        }
+        // Remove dead bodies
+        if (delta.diedIDsLength() > 0) {
+            delta.diedIDsArray().forEach(function (diedID) {
+                indicatorStrings.delete(diedID);
+            });
         }
     };
     GameWorld.prototype.insertIndicatorDots = function (delta) {

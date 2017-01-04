@@ -332,13 +332,6 @@ export default class GameWorld {
       this.addIDsToIndicatorStrings(spawnedBodies.robotIDsArray());
     }
 
-    // Remove dead bodies
-    if (delta.diedIDsLength() > 0) {
-      delta.diedIDsArray().forEach(function(diedID) {
-        indicatorStrings.delete(diedID);
-      });
-    }
-
     // Update current bodies
     const length: number = delta.indicatorStringIDsLength();
     const ids: Int32Array = delta.indicatorStringIDsArray();
@@ -349,6 +342,13 @@ export default class GameWorld {
       let index = indices[i];
       let value: string = <string>delta.indicatorStringValues(i, encoding);
       indicatorStrings.get(id)[index] = value;
+    }
+
+    // Remove dead bodies
+    if (delta.diedIDsLength() > 0) {
+      delta.diedIDsArray().forEach(function(diedID) {
+        indicatorStrings.delete(diedID);
+      });
     }
   }
 
