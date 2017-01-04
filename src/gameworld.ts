@@ -252,7 +252,10 @@ export default class GameWorld {
     this.bullets.copyFrom(source.bullets);
     this.indicatorDots.copyFrom(source.indicatorDots);
     this.indicatorLines.copyFrom(source.indicatorLines);
-    this.indicatorStrings = deepcopy(source.indicatorStrings);
+    this.indicatorStrings = new Map<number, string[]>();
+    source.indicatorStrings.forEach((value: string[], key: number) => {
+      this.indicatorStrings.set(key, deepcopy(value));
+    });
   }
 
   /**

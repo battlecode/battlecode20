@@ -91,6 +91,7 @@ var GameWorld = (function () {
         return result;
     };
     GameWorld.prototype.copyFrom = function (source) {
+        var _this = this;
         this.turn = source.turn;
         this.minCorner = source.minCorner;
         this.maxCorner = source.maxCorner;
@@ -99,7 +100,10 @@ var GameWorld = (function () {
         this.bullets.copyFrom(source.bullets);
         this.indicatorDots.copyFrom(source.indicatorDots);
         this.indicatorLines.copyFrom(source.indicatorLines);
-        this.indicatorStrings = deepcopy(source.indicatorStrings);
+        this.indicatorStrings = new Map();
+        source.indicatorStrings.forEach(function (value, key) {
+            _this.indicatorStrings.set(key, deepcopy(value));
+        });
     };
     /**
      * Process a set of changes.
