@@ -216,6 +216,7 @@ export default class GameWorld {
     const bodies = map.bodies(this._bodiesSlot);
     if (bodies) {
       this.insertBodies(bodies);
+      this.addIDsToIndicatorStrings(bodies.robotIDsArray());
     }
     const trees = map.trees();
     if (trees) {
@@ -309,18 +310,23 @@ export default class GameWorld {
     this.insertIndicatorLines(delta);
   }
 
+  private addIDsToIndicatorStrings(ids: Int32Array) {
+    const indicatorStrings: Map<number, string[]> = this.indicatorStrings;
+    ids.forEach(function(robotID) {
+      let defaultStrings: string[] = [];
+        for (let i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
+          defaultStrings[i] = "";
+        }
+        indicatorStrings.set(robotID, defaultStrings);
+    });
+  }
+
   private insertIndicatorStrings(delta: schema.Round) {
     // Add spawned bodies
     const indicatorStrings: Map<number, string[]> = this.indicatorStrings;
     const spawnedBodies = delta.spawnedBodies(this._bodiesSlot);
     if (spawnedBodies) {
-      spawnedBodies.robotIDsArray().forEach(function(robotID) {
-        let defaultStrings: string[] = [];
-        for (let i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
-          defaultStrings[i] = "";
-        }
-        indicatorStrings.set(robotID, defaultStrings);
-      });
+      this.addIDsToIndicatorStrings(spawnedBodies.robotIDsArray());
     }
 
     // Remove dead bodies

@@ -131,6 +131,7 @@ export default class GameWorld {
      * Process a set of changes.
      */
     processDelta(delta: schema.Round): void;
+    private addIDsToIndicatorStrings(ids);
     private insertIndicatorStrings(delta);
     private insertIndicatorDots(delta);
     private insertIndicatorLines(delta);

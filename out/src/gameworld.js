@@ -65,6 +65,7 @@ var GameWorld = (function () {
         var bodies = map.bodies(this._bodiesSlot);
         if (bodies) {
             this.insertBodies(bodies);
+            this.addIDsToIndicatorStrings(bodies.robotIDsArray());
         }
         var trees = map.trees();
         if (trees) {
@@ -147,18 +148,22 @@ var GameWorld = (function () {
         this.insertIndicatorDots(delta);
         this.insertIndicatorLines(delta);
     };
+    GameWorld.prototype.addIDsToIndicatorStrings = function (ids) {
+        var indicatorStrings = this.indicatorStrings;
+        ids.forEach(function (robotID) {
+            var defaultStrings = [];
+            for (var i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
+                defaultStrings[i] = "";
+            }
+            indicatorStrings.set(robotID, defaultStrings);
+        });
+    };
     GameWorld.prototype.insertIndicatorStrings = function (delta) {
         // Add spawned bodies
         var indicatorStrings = this.indicatorStrings;
         var spawnedBodies = delta.spawnedBodies(this._bodiesSlot);
         if (spawnedBodies) {
-            spawnedBodies.robotIDsArray().forEach(function (robotID) {
-                var defaultStrings = [];
-                for (var i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
-                    defaultStrings[i] = "";
-                }
-                indicatorStrings.set(robotID, defaultStrings);
-            });
+            this.addIDsToIndicatorStrings(spawnedBodies.robotIDsArray());
         }
         // Remove dead bodies
         if (delta.diedIDsLength() > 0) {
