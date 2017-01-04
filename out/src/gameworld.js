@@ -3,6 +3,7 @@ var soa_1 = require("./soa");
 var battlecode_schema_1 = require("battlecode-schema");
 // necessary because victor doesn't use exports.default
 var Victor = require("victor");
+var deepcopy = require("deepcopy");
 var NUMBER_OF_INDICATOR_STRINGS = 3;
 /**
  * A frozen image of the game world.
@@ -95,6 +96,9 @@ var GameWorld = (function () {
         this.mapName = source.mapName;
         this.bodies.copyFrom(source.bodies);
         this.bullets.copyFrom(source.bullets);
+        this.indicatorDots.copyFrom(source.indicatorDots);
+        this.indicatorLines.copyFrom(source.indicatorLines);
+        this.indicatorStrings = deepcopy(source.indicatorStrings);
     };
     /**
      * Process a set of changes.

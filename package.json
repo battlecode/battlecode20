@@ -24,6 +24,7 @@
     "@types/victor": "^0.2.28",
     "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#5299e7b8078d48031e4146abc31e21772da98507",
     "core-js": "^2.4.0",
+    "deepcopy": "^0.6.3",
     "typescript": "^2.1.4",
     "victor": "^1.1.0"
   },

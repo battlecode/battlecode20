@@ -4,6 +4,7 @@ import {schema, flatbuffers} from 'battlecode-schema';
 
 // necessary because victor doesn't use exports.default
 import Victor = require('victor');
+import deepcopy = require('deepcopy');
 
 export type BodiesSchema = {
   id: Int32Array,
@@ -248,6 +249,9 @@ export default class GameWorld {
     this.mapName = source.mapName;
     this.bodies.copyFrom(source.bodies);
     this.bullets.copyFrom(source.bullets);
+    this.indicatorDots.copyFrom(source.indicatorDots);
+    this.indicatorLines.copyFrom(source.indicatorLines);
+    this.indicatorStrings = deepcopy(source.indicatorStrings);
   }
 
   /**
