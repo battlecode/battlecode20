@@ -56,7 +56,7 @@ task proguard(dependsOn: ['proguard_run', 'proguard_copy'])
 
 task proguard_run(type: proguard.gradle.ProGuardTask, dependsOn: 'jar') {
   injars new File(project.libsDir, 'battlecode-player.jar')
-  outjars new File(project.projectDir, 'proguard/battlecode-player.jar')
+  outjars new File(project.libsDir, 'battlecode-player-proguard.jar')
 
   libraryjars project.sourceSets.main.compileClasspath
   libraryjars new File(System.getenv('JAVA_HOME'), 'jre/lib/rt.jar')
@@ -72,7 +72,9 @@ task proguard_run(type: proguard.gradle.ProGuardTask, dependsOn: 'jar') {
 
 task proguard_copy(type: Copy, dependsOn: 'jar') {
   from new File(project.libsDir, 'battlecode-player.jar')
-  into new File(project.projectDir, 'proguard/')
+  into project.libsDir
+
+  rename { 'battlecode-player-proguard.jar' }
 }
 
 // Proguard crashes when ran with an empty input jar. To get around this,
