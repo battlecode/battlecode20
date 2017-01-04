@@ -90,7 +90,7 @@ export default class GameWorld {
    *   value: Int32Array
    * }
    */
-  indicatorStrings: Map<number, Array<string>>;
+  indicatorStrings: Map<number, string[]>;
 
   /**
    * Indicator dots.
@@ -177,7 +177,7 @@ export default class GameWorld {
       damage: new Float32Array(0)
     }, 'id');
 
-    this.indicatorStrings = new Map<number, Array<string>>();
+    this.indicatorStrings = new Map<number, string[]>();
 
     this.indicatorDots = new StructOfArrays({
       id: new Int32Array(0),
@@ -311,13 +311,13 @@ export default class GameWorld {
 
   private insertIndicatorStrings(delta: schema.Round) {
     // Add spawned bodies
-    const indicatorStrings: Map<number, Array<string>> = this.indicatorStrings;
+    const indicatorStrings: Map<number, string[]> = this.indicatorStrings;
     const spawnedBodies = delta.spawnedBodies(this._bodiesSlot);
     if (spawnedBodies) {
       spawnedBodies.robotIDsArray().forEach(function(robotID) {
-        let defaultStrings: Array<string> = [];
+        let defaultStrings: string[] = [];
         for (let i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
-          defaultStrings.push("");
+          defaultStrings[i] = "";
         }
         indicatorStrings.set(robotID, defaultStrings);
       });

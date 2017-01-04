@@ -68,7 +68,7 @@ export default class GameWorld {
      *   value: Int32Array
      * }
      */
-    indicatorStrings: Map<number, Array<string>>;
+    indicatorStrings: Map<number, string[]>;
     /**
      * Indicator dots.
      * {

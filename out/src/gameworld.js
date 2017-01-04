@@ -155,7 +155,7 @@ var GameWorld = (function () {
             spawnedBodies.robotIDsArray().forEach(function (robotID) {
                 var defaultStrings = [];
                 for (var i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
-                    defaultStrings.push("");
+                    defaultStrings[i] = "";
                 }
                 indicatorStrings.set(robotID, defaultStrings);
             });
