@@ -1,3 +1,4 @@
+/// <reference types="core-js" />
 /// <reference types="victor" />
 import StructOfArrays from './soa';
 import Metadata from './metadata';
@@ -20,11 +21,6 @@ export declare type BulletsSchema = {
     velY: Float32Array;
     damage: Float32Array;
     spawnedTime: Uint16Array;
-};
-export declare type IndicatorStringsSchema = {
-    id: Int32Array;
-    index: Int32Array;
-    value: Int32Array;
 };
 export declare type IndicatorDotsSchema = {
     id: Int32Array;
@@ -72,7 +68,7 @@ export default class GameWorld {
      *   value: Int32Array
      * }
      */
-    indicatorStrings: StructOfArrays<IndicatorStringsSchema>;
+    indicatorStrings: Map<number, Array<string>>;
     /**
      * Indicator dots.
      * {
@@ -135,6 +131,7 @@ export default class GameWorld {
      * Process a set of changes.
      */
     processDelta(delta: schema.Round): void;
+    private insertIndicatorStrings(delta);
     private insertIndicatorDots(delta);
     private insertIndicatorLines(delta);
     private insertBodies(bodies);
