@@ -3,6 +3,7 @@ apply plugin: 'java'
 repositories {
   mavenCentral()
   maven {url "https://oss.sonatype.org/content/repositories/snapshots/"}
+  jcenter()
 }
 
 sourceSets {
@@ -18,24 +19,37 @@ sourceSets {
   }
 }
 
-repositories {
-  jcenter()
-}
-
 dependencies {
   compile project(':battlecode-server')
-  
+
   // The production code uses the SLF4J logging API at compile time
   compile 'org.slf4j:slf4j-api:1.7.21'
-
-  compile 'net.sf.proguard:proguard-gradle:5.1'
 
   // Testing dependencies
   testCompile 'junit:junit:4.12'
 }
 
-jar {
-  from {
-    configurations.testCompile.collect { it.isDirectory() ? it : zipTree(it) }
+buildscript {
+  repositories {
+    mavenCentral()
   }
+  dependencies {
+    classpath 'net.sf.proguard:proguard-gradle:5.1'
+  }
+}
+
+task proguard(type: proguard.gradle.ProGuardTask, dependsOn: 'jar') {
+  injars new File(project.libsDir, 'battlecode-player.jar')
+  outjars new File(project.projectDir, 'proguard/battlecode-player.jar')
+
+  libraryjars project.sourceSets.main.compileClasspath
+  libraryjars new File(System.getenv('JAVA_HOME'), 'jre/lib/rt.jar')
+
+  dontoptimize
+  overloadaggressively
+  dontusemixedcaseclassnames
+
+  keepclasseswithmembers 'public class *.RobotPlayer { \
+    public static void run(battlecode.common.RobotController); \
+  }'
 }
