@@ -228,7 +228,7 @@ var GameWorld = (function () {
             var startLocs = delta.indicatorLineStartLocs(this._vecTableSlot1);
             var endLocs = delta.indicatorLineEndLocs(this._vecTableSlot2);
             var rgbs = delta.indicatorLineRGBs(this._rgbTableSlot);
-            this.indicatorDots.insertBulk({
+            this.indicatorLines.insertBulk({
                 id: delta.indicatorLineIDsArray(),
                 startX: startLocs.xsArray(),
                 startY: startLocs.ysArray(),

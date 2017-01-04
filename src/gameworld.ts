@@ -396,7 +396,7 @@ export default class GameWorld {
       const startLocs = delta.indicatorLineStartLocs(this._vecTableSlot1);
       const endLocs = delta.indicatorLineEndLocs(this._vecTableSlot2);
       const rgbs = delta.indicatorLineRGBs(this._rgbTableSlot);
-      this.indicatorDots.insertBulk({
+      this.indicatorLines.insertBulk({
         id: delta.indicatorLineIDsArray(),
         startX: startLocs.xsArray(),
         startY: startLocs.ysArray(),
