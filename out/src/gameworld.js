@@ -32,10 +32,10 @@ var GameWorld = (function () {
             damage: new Float32Array(0)
         }, 'id');
         // Instantiate stats
-        console.log(this.meta.teams);
         this.stats = new Map();
-        for (var team in Object.keys(this.meta.teams)) {
-            this.stats.set(this.meta.teams[team].teamID, [
+        for (var team in this.meta.teams) {
+            var teamID = this.meta.teams[team].teamID;
+            this.stats.set(teamID, [
                 0,
                 0,
                 0,

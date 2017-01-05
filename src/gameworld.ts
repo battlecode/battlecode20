@@ -198,10 +198,10 @@ export default class GameWorld {
     }, 'id');
     
     // Instantiate stats
-    console.log(this.meta.teams);
     this.stats = new Map<number, TeamStats>();
-    for (var team in Object.keys(this.meta.teams)) {
-        this.stats.set(this.meta.teams[team].teamID, [
+    for (let team in this.meta.teams) {
+        var teamID = this.meta.teams[team].teamID;
+        this.stats.set(teamID, [
             0, // ARCHONS
             0, // GARDENERS
             0, // LUMBERJACKS
