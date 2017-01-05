@@ -179,14 +179,6 @@ var GameWorld = (function () {
         // Simulate spawning
         var bodies = delta.spawnedBodies(this._bodiesSlot);
         if (bodies) {
-            // Update spawn stats
-            var teams = bodies.teamIDsArray();
-            var types = bodies.typesArray();
-            for (var i = 0; i < bodies.robotIDsArray().length; i++) {
-                var stats = this.stats.get(teams[i]);
-                stats[types[i]] += 1;
-                this.stats.set(teams[i], stats);
-            }
             this.insertBodies(bodies);
         }
         // Simulate spawning
@@ -288,6 +280,14 @@ var GameWorld = (function () {
         }
     };
     GameWorld.prototype.insertBodies = function (bodies) {
+        // Update spawn stats
+        var teams = bodies.teamIDsArray();
+        var types = bodies.typesArray();
+        for (var i = 0; i < bodies.robotIDsArray().length; i++) {
+            var stats = this.stats.get(teams[i]);
+            stats[types[i]] += 1;
+            this.stats.set(teams[i], stats);
+        }
         var locs = bodies.locs(this._vecTableSlot1);
         // Note: this allocates 6 objects with each call.
         // (One for the container, one for each TypedArray.)
