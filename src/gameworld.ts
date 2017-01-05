@@ -308,10 +308,15 @@ export default class GameWorld {
       throw new Error(`Bad Round: this.turn = ${this.turn}, round.roundID() = ${delta.roundID()}`);
     }
     
-    // Count bullets for stats
-    for (var team in Object.keys(this.meta.teams)) {
+    // Update all stats
+    for (var team in this.meta.teams) {
         var teamID = this.meta.teams[team].teamID;
-        this.stats.get(teamID)[7] = delta.teamBullets(teamID);
+        var statArr = this.stats.get(teamID);
+
+        statArr[7] = delta.teamBullets(teamID);
+        statArr[9] = delta.teamVictoryPoints(teamID);
+
+        this.stats.set(teamID, statArr);
     }
 
     // Increase the turn count
@@ -321,13 +326,15 @@ export default class GameWorld {
     if (delta.diedIDsLength() > 0) {
       
       // Update died stats
-      /*var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
       for(let i = 0; i < indices.length; i++) {
           let index = indices[i];
           let team = this.bodies.arrays.team[index];
           let type = this.bodies.arrays.type[index];
-          this.stats[team][type] = this.stats[team][type] - 1;
-      }*/
+          var statArr = this.stats.get(team);
+          statArr[type] += 1;
+          this.stats.set(team, statArr);
+      }
       
       this.bodies.deleteBulk(delta.diedIDsArray());
     }
@@ -358,12 +365,13 @@ export default class GameWorld {
     if (bodies) {
       
       // Update spawn stats
-      /*
       var teams = bodies.teamIDsArray();
       var types = bodies.typesArray();
       for(let i = 0; i < bodies.robotIDsArray().length; i++) {
-          this.stats[teams[i]][types[i]] = this.stats[teams[i]][types[i]] + 1;
-      }*/
+          var stats = this.stats.get(teams[i]);
+          stats[types[i]] += 1;
+          this.stats.set(teams[i], stats);
+      }
       
       this.insertBodies(bodies);
       

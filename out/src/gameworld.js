@@ -133,23 +133,28 @@ var GameWorld = (function () {
         if (delta.roundID() != this.turn + 1) {
             throw new Error("Bad Round: this.turn = " + this.turn + ", round.roundID() = " + delta.roundID());
         }
-        // Count bullets for stats
-        for (var team in Object.keys(this.meta.teams)) {
+        // Update all stats
+        for (var team in this.meta.teams) {
             var teamID = this.meta.teams[team].teamID;
-            this.stats.get(teamID)[7] = delta.teamBullets(teamID);
+            var statArr = this.stats.get(teamID);
+            statArr[7] = delta.teamBullets(teamID);
+            statArr[9] = delta.teamVictoryPoints(teamID);
+            this.stats.set(teamID, statArr);
         }
         // Increase the turn count
         this.turn += 1;
         // Simulate deaths
         if (delta.diedIDsLength() > 0) {
             // Update died stats
-            /*var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-            for(let i = 0; i < indices.length; i++) {
-                let index = indices[i];
-                let team = this.bodies.arrays.team[index];
-                let type = this.bodies.arrays.type[index];
-                this.stats[team][type] = this.stats[team][type] - 1;
-            }*/
+            var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+            for (var i = 0; i < indices.length; i++) {
+                var index = indices[i];
+                var team_1 = this.bodies.arrays.team[index];
+                var type = this.bodies.arrays.type[index];
+                var statArr = this.stats.get(team_1);
+                statArr[type] += 1;
+                this.stats.set(team_1, statArr);
+            }
             this.bodies.deleteBulk(delta.diedIDsArray());
         }
         if (delta.diedBulletIDsLength() > 0) {
@@ -175,12 +180,13 @@ var GameWorld = (function () {
         var bodies = delta.spawnedBodies(this._bodiesSlot);
         if (bodies) {
             // Update spawn stats
-            /*
             var teams = bodies.teamIDsArray();
             var types = bodies.typesArray();
-            for(let i = 0; i < bodies.robotIDsArray().length; i++) {
-                this.stats[teams[i]][types[i]] = this.stats[teams[i]][types[i]] + 1;
-            }*/
+            for (var i = 0; i < bodies.robotIDsArray().length; i++) {
+                var stats = this.stats.get(teams[i]);
+                stats[types[i]] += 1;
+                this.stats.set(teams[i], stats);
+            }
             this.insertBodies(bodies);
         }
         // Simulate spawning
