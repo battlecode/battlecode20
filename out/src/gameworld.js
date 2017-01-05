@@ -134,8 +134,8 @@ var GameWorld = (function () {
             throw new Error("Bad Round: this.turn = " + this.turn + ", round.roundID() = " + delta.roundID());
         }
         // Update all stats
-        for (var i = 0; i < delta.teamIDs.length; i++) {
-            var teamID = delta.teamIDs[i];
+        for (var i = 0; i < delta.teamIDsArray().length; i++) {
+            var teamID = delta.teamIDsArray()[i];
             var statArr = this.stats.get(teamID);
             statArr[7] = delta.teamBullets(i);
             statArr[9] = delta.teamVictoryPoints(i);

@@ -309,8 +309,8 @@ export default class GameWorld {
     }
     
     // Update all stats
-    for (var i = 0; i < delta.teamIDs.length; i++) {
-        var teamID = delta.teamIDs[i];
+    for (var i = 0; i < delta.teamIDsArray().length; i++) {
+        var teamID = delta.teamIDsArray()[i];
         var statArr = this.stats.get(teamID);
 
         statArr[7] = delta.teamBullets(i);
