@@ -134,11 +134,11 @@ var GameWorld = (function () {
             throw new Error("Bad Round: this.turn = " + this.turn + ", round.roundID() = " + delta.roundID());
         }
         // Update all stats
-        for (var team in this.meta.teams) {
-            var teamID = this.meta.teams[team].teamID;
+        for (var i = 0; i < delta.teamIDs.length; i++) {
+            var teamID = delta.teamIDs[i];
             var statArr = this.stats.get(teamID);
-            statArr[7] = delta.teamBullets(teamID);
-            statArr[9] = delta.teamVictoryPoints(teamID);
+            statArr[7] = delta.teamBullets(i);
+            statArr[9] = delta.teamVictoryPoints(i);
             this.stats.set(teamID, statArr);
         }
         // Increase the turn count
@@ -147,13 +147,13 @@ var GameWorld = (function () {
         if (delta.diedIDsLength() > 0) {
             // Update died stats
             var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-            for (var i = 0; i < delta.diedIDsLength(); i++) {
-                var index = indices[i];
-                var team_1 = this.bodies.arrays.team[index];
+            for (var i_1 = 0; i_1 < delta.diedIDsLength(); i_1++) {
+                var index = indices[i_1];
+                var team = this.bodies.arrays.team[index];
                 var type = this.bodies.arrays.type[index];
-                var statArr = this.stats.get(team_1);
+                var statArr = this.stats.get(team);
                 statArr[type] -= 1;
-                this.stats.set(team_1, statArr);
+                this.stats.set(team, statArr);
             }
             this.bodies.deleteBulk(delta.diedIDsArray());
         }
