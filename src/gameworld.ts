@@ -327,12 +327,12 @@ export default class GameWorld {
       
       // Update died stats
       var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-      for(let i = 0; i < indices.length; i++) {
+      for(let i = 0; i < delta.diedIDsLength(); i++) {
           let index = indices[i];
           let team = this.bodies.arrays.team[index];
           let type = this.bodies.arrays.type[index];
           var statArr = this.stats.get(team);
-          statArr[type] += 1;
+          statArr[type] -= 1;
           this.stats.set(team, statArr);
       }
       

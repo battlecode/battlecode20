@@ -147,12 +147,12 @@ var GameWorld = (function () {
         if (delta.diedIDsLength() > 0) {
             // Update died stats
             var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-            for (var i = 0; i < indices.length; i++) {
+            for (var i = 0; i < delta.diedIDsLength(); i++) {
                 var index = indices[i];
                 var team_1 = this.bodies.arrays.team[index];
                 var type = this.bodies.arrays.type[index];
                 var statArr = this.stats.get(team_1);
-                statArr[type] += 1;
+                statArr[type] -= 1;
                 this.stats.set(team_1, statArr);
             }
             this.bodies.deleteBulk(delta.diedIDsArray());
