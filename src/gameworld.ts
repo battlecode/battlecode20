@@ -153,7 +153,7 @@ export default class GameWorld {
             0, // SCOUTS
             0, // BULLETS
             0, // TREES
-            0  // VICTORY POINTS (DONT USED TREES NEUTRAL BY ACCIDENT)
+            0  // VICTORY POINTS (DONT USE TREES NEUTRAL BY ACCIDENT)
         ];
     }
 
@@ -350,6 +350,16 @@ export default class GameWorld {
       this.bodies.length
     );
   }
+  
+  /*
+   * Given a stats table, calculate the number of victory
+   * points from robot, tree, and bullet counts. Then insert
+   * this value into the victory points section of stats
+   */
+  private calculateVictoryPoints(stats: StatsTable) {
+    
+  }
+  
 }
 
 // TODO(jhgilles): encode in flatbuffers
