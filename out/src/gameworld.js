@@ -3,6 +3,8 @@ var soa_1 = require("./soa");
 var battlecode_schema_1 = require("battlecode-schema");
 // necessary because victor doesn't use exports.default
 var Victor = require("victor");
+var deepcopy = require("deepcopy");
+var NUMBER_OF_INDICATOR_STRINGS = 3;
 /**
  * A frozen image of the game world.
  *
@@ -30,9 +32,10 @@ var GameWorld = (function () {
             damage: new Float32Array(0)
         }, 'id');
         // Instantiate stats
-        this.stats = {};
-        for (var i = 0; i < this.meta.teams.length; i++) {
-            this.stats[this.meta.teams[i].teamID] = [
+        console.log(this.meta.teams);
+        this.stats = new Map();
+        for (var team in Object.keys(this.meta.teams)) {
+            this.stats.set(this.meta.teams[team].teamID, [
                 0,
                 0,
                 0,
@@ -42,9 +45,28 @@ var GameWorld = (function () {
                 0,
                 0,
                 0,
-                0 // VICTORY POINTS (DONT USED TREES NEUTRAL BY ACCIDENT)
-            ];
+                0 // VICTORY POINTS (DONT USE TREES NEUTRAL BY ACCIDENT)
+            ]);
         }
+        this.indicatorStrings = new Map();
+        this.indicatorDots = new soa_1.default({
+            id: new Int32Array(0),
+            x: new Float32Array(0),
+            y: new Float32Array(0),
+            red: new Int32Array(0),
+            green: new Int32Array(0),
+            blue: new Int32Array(0)
+        }, 'id');
+        this.indicatorLines = new soa_1.default({
+            id: new Int32Array(0),
+            startX: new Float32Array(0),
+            startY: new Float32Array(0),
+            endX: new Float32Array(0),
+            endY: new Float32Array(0),
+            red: new Int32Array(0),
+            green: new Int32Array(0),
+            blue: new Int32Array(0)
+        }, 'id');
         this.turn = 0;
         this.minCorner = new Victor(0, 0);
         this.maxCorner = new Victor(0, 0);
@@ -53,12 +75,14 @@ var GameWorld = (function () {
         this._bulletsSlot = new battlecode_schema_1.schema.SpawnedBulletTable();
         this._vecTableSlot1 = new battlecode_schema_1.schema.VecTable();
         this._vecTableSlot2 = new battlecode_schema_1.schema.VecTable();
+        this._rgbTableSlot = new battlecode_schema_1.schema.RGBTable();
     }
     GameWorld.prototype.loadFromMatchHeader = function (header) {
         var map = header.map();
         var bodies = map.bodies(this._bodiesSlot);
         if (bodies) {
             this.insertBodies(bodies);
+            this.addIDsToIndicatorStrings(bodies.robotIDsArray());
         }
         var trees = map.trees();
         if (trees) {
@@ -84,13 +108,23 @@ var GameWorld = (function () {
         return result;
     };
     GameWorld.prototype.copyFrom = function (source) {
+        var _this = this;
         this.turn = source.turn;
         this.minCorner = source.minCorner;
         this.maxCorner = source.maxCorner;
         this.mapName = source.mapName;
-        this.stats = source.stats;
         this.bodies.copyFrom(source.bodies);
         this.bullets.copyFrom(source.bullets);
+        this.indicatorDots.copyFrom(source.indicatorDots);
+        this.indicatorLines.copyFrom(source.indicatorLines);
+        this.indicatorStrings = new Map();
+        source.indicatorStrings.forEach(function (value, key) {
+            _this.indicatorStrings.set(key, deepcopy(value));
+        });
+        this.stats = new Map();
+        source.stats.forEach(function (value, key) {
+            _this.stats.set(key, deepcopy(value));
+        });
     };
     /**
      * Process a set of changes.
@@ -99,18 +133,23 @@ var GameWorld = (function () {
         if (delta.roundID() != this.turn + 1) {
             throw new Error("Bad Round: this.turn = " + this.turn + ", round.roundID() = " + delta.roundID());
         }
+        // Count bullets for stats
+        for (var team in Object.keys(this.meta.teams)) {
+            var teamID = this.meta.teams[team].teamID;
+            this.stats.get(teamID)[7] = delta.teamBullets(teamID);
+        }
         // Increase the turn count
         this.turn += 1;
         // Simulate deaths
         if (delta.diedIDsLength() > 0) {
             // Update died stats
-            var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-            for (var i = 0; i < indices.length; i++) {
-                var index = indices[i];
-                var team = this.bodies.arrays.team[index];
-                var type = this.bodies.arrays.type[index];
+            /*var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+            for(let i = 0; i < indices.length; i++) {
+                let index = indices[i];
+                let team = this.bodies.arrays.team[index];
+                let type = this.bodies.arrays.type[index];
                 this.stats[team][type] = this.stats[team][type] - 1;
-            }
+            }*/
             this.bodies.deleteBulk(delta.diedIDsArray());
         }
         if (delta.diedBulletIDsLength() > 0) {
@@ -136,17 +175,110 @@ var GameWorld = (function () {
         var bodies = delta.spawnedBodies(this._bodiesSlot);
         if (bodies) {
             // Update spawn stats
+            /*
             var teams = bodies.teamIDsArray();
             var types = bodies.typesArray();
-            for (var i = 0; i < bodies.robotIDsArray().length; i++) {
+            for(let i = 0; i < bodies.robotIDsArray().length; i++) {
                 this.stats[teams[i]][types[i]] = this.stats[teams[i]][types[i]] + 1;
-            }
+            }*/
             this.insertBodies(bodies);
         }
         // Simulate spawning
         var bullets = delta.spawnedBullets(this._bulletsSlot);
         if (bullets) {
             this.insertBullets(bullets);
+        }
+        // Insert indicator strings, dots, and lines
+        this.insertIndicatorStrings(delta);
+        this.insertIndicatorDots(delta);
+        this.insertIndicatorLines(delta);
+    };
+    GameWorld.prototype.addIDsToIndicatorStrings = function (ids) {
+        var indicatorStrings = this.indicatorStrings;
+        ids.forEach(function (robotID) {
+            var defaultStrings = [];
+            for (var i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
+                defaultStrings[i] = "";
+            }
+            indicatorStrings.set(robotID, defaultStrings);
+        });
+    };
+    GameWorld.prototype.insertIndicatorStrings = function (delta) {
+        // Add spawned bodies
+        var indicatorStrings = this.indicatorStrings;
+        var spawnedBodies = delta.spawnedBodies(this._bodiesSlot);
+        if (spawnedBodies) {
+            this.addIDsToIndicatorStrings(spawnedBodies.robotIDsArray());
+        }
+        // Update current bodies
+        var length = delta.indicatorStringIDsLength();
+        var ids = delta.indicatorStringIDsArray();
+        var indices = delta.indicatorStringIndicesArray();
+        var encoding = battlecode_schema_1.flatbuffers.Encoding.UTF16_STRING;
+        for (var i = 0; i < length; i++) {
+            var id = ids[i];
+            var index = indices[i];
+            var value = delta.indicatorStringValues(i, encoding);
+            indicatorStrings.get(id)[index] = value;
+        }
+        // Remove dead bodies
+        if (delta.diedIDsLength() > 0) {
+            delta.diedIDsArray().forEach(function (diedID) {
+                indicatorStrings.delete(diedID);
+            });
+        }
+    };
+    GameWorld.prototype.insertIndicatorDots = function (delta) {
+        // Delete the dots from the previous round
+        this.indicatorDots = new soa_1.default({
+            id: new Int32Array(0),
+            x: new Float32Array(0),
+            y: new Float32Array(0),
+            red: new Int32Array(0),
+            green: new Int32Array(0),
+            blue: new Int32Array(0)
+        }, 'id');
+        // Insert the dots from the current round
+        if (delta.indicatorDotIDsLength() > 0) {
+            var locs = delta.indicatorDotLocs(this._vecTableSlot1);
+            var rgbs = delta.indicatorDotRGBs(this._rgbTableSlot);
+            this.indicatorDots.insertBulk({
+                id: delta.indicatorDotIDsArray(),
+                x: locs.xsArray(),
+                y: locs.ysArray(),
+                red: rgbs.redArray(),
+                green: rgbs.greenArray(),
+                blue: rgbs.blueArray()
+            });
+        }
+    };
+    GameWorld.prototype.insertIndicatorLines = function (delta) {
+        // Delete the lines from the previous round
+        this.indicatorLines = new soa_1.default({
+            id: new Int32Array(0),
+            startX: new Float32Array(0),
+            startY: new Float32Array(0),
+            endX: new Float32Array(0),
+            endY: new Float32Array(0),
+            red: new Int32Array(0),
+            green: new Int32Array(0),
+            blue: new Int32Array(0)
+        }, 'id');
+        // Insert the lines from the current round
+        if (delta.indicatorLineIDsLength() > 0) {
+            var startLocs = delta.indicatorLineStartLocs(this._vecTableSlot1);
+            var endLocs = delta.indicatorLineEndLocs(this._vecTableSlot2);
+            var rgbs = delta.indicatorLineRGBs(this._rgbTableSlot);
+            this.indicatorLines.insertBulk({
+                id: delta.indicatorLineIDsArray(),
+                startX: startLocs.xsArray(),
+                startY: startLocs.ysArray(),
+                endX: endLocs.xsArray(),
+                endY: endLocs.ysArray(),
+                red: rgbs.redArray(),
+                green: rgbs.greenArray(),
+                blue: rgbs.blueArray()
+            });
         }
     };
     GameWorld.prototype.insertBodies = function (bodies) {
@@ -201,6 +333,13 @@ var GameWorld = (function () {
         });
         soa_1.default.fill(this.bodies.arrays['team'], NEUTRAL_TEAM, startI, this.bodies.length);
         soa_1.default.fill(this.bodies.arrays['type'], battlecode_schema_1.schema.BodyType.TREE_NEUTRAL, startI, this.bodies.length);
+    };
+    /*
+     * Given a stats table, calculate the number of victory
+     * points from robot, tree, and bullet counts. Then insert
+     * this value into the victory points section of stats
+     */
+    GameWorld.prototype.calculateVictoryPoints = function () {
     };
     return GameWorld;
 }());

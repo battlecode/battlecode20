@@ -4,6 +4,7 @@ import {schema, flatbuffers} from 'battlecode-schema';
 
 // necessary because victor doesn't use exports.default
 import Victor = require('victor');
+import deepcopy = require('deepcopy');
 
 export type BodiesSchema = {
   id: Int32Array,
@@ -40,10 +41,27 @@ export type TeamStats = [
     number
 ];
 
-export type StatsTable = {
-    [teamID: number]: TeamStats
-};
+export type IndicatorDotsSchema = {
+  id: Int32Array,
+  x: Float32Array,
+  y: Float32Array,
+  red: Int32Array,
+  green: Int32Array,
+  blue: Int32Array
+}
 
+export type IndicatorLinesSchema = {
+  id: Int32Array,
+  startX: Float32Array,
+  startY: Float32Array,
+  endX: Float32Array,
+  endY: Float32Array,
+  red: Int32Array,
+  green: Int32Array,
+  blue: Int32Array
+}
+
+const NUMBER_OF_INDICATOR_STRINGS = 3;
 
 /**
  * A frozen image of the game world.
@@ -52,7 +70,7 @@ export type StatsTable = {
  */
 export default class GameWorld {
   /**
-   * Everything that isn't a bullet.
+   * Everything that isn't a bullet or indicator string.
    * {
    *   id: Int32Array,
    *   team: Int8Array,
@@ -82,7 +100,45 @@ export default class GameWorld {
   /*
    * Stats for each team
    */
-  stats: StatsTable;
+  stats: Map<number, TeamStats>; // Team ID to their stats
+
+  /**
+   * Indicator strings.
+   * {
+   *   id: Int32Array,
+   *   index: Int32Array,
+   *   value: Int32Array
+   * }
+   */
+  indicatorStrings: Map<number, string[]>;
+
+  /**
+   * Indicator dots.
+   * {
+   *   id: Int32Array,
+   *   x: Float32Array,
+   *   y: Float32Array,
+   *   red: Int32Array,
+   *   green: Int32Array,
+   *   blue: Int32Array
+   * }
+   */
+  indicatorDots: StructOfArrays<IndicatorDotsSchema>;
+
+  /**
+   * Indicator lines.
+   * {
+   *   id: Int32Array,
+   *   startX: Float32Array,
+   *   startY: Float32Array,
+   *   endX: Float32Array,
+   *   endY: Float32Array,
+   *   red: Int32Array,
+   *   green: Int32Array,
+   *   blue: Int32Array
+   * }
+   */
+  indicatorLines: StructOfArrays<IndicatorLinesSchema>;
 
   /**
    * The current turn.
@@ -116,6 +172,7 @@ export default class GameWorld {
   private _bulletsSlot: schema.SpawnedBulletTable;
   private _vecTableSlot1: schema.VecTable;
   private _vecTableSlot2: schema.VecTable;
+  private _rgbTableSlot: schema.RGBTable;
 
   constructor(meta: Metadata) {
     this.meta = meta;
@@ -141,9 +198,10 @@ export default class GameWorld {
     }, 'id');
     
     // Instantiate stats
-    this.stats = {};
-    for (let i = 0; i < this.meta.teams.length; i++) {
-        this.stats[this.meta.teams[i].teamID] = [
+    console.log(this.meta.teams);
+    this.stats = new Map<number, TeamStats>();
+    for (var team in Object.keys(this.meta.teams)) {
+        this.stats.set(this.meta.teams[team].teamID, [
             0, // ARCHONS
             0, // GARDENERS
             0, // LUMBERJACKS
@@ -154,8 +212,30 @@ export default class GameWorld {
             0, // BULLETS
             0, // TREES
             0  // VICTORY POINTS (DONT USE TREES NEUTRAL BY ACCIDENT)
-        ];
+        ]);
     }
+
+    this.indicatorStrings = new Map<number, string[]>();
+
+    this.indicatorDots = new StructOfArrays({
+      id: new Int32Array(0),
+      x: new Float32Array(0),
+      y: new Float32Array(0),
+      red: new Int32Array(0),
+      green: new Int32Array(0),
+      blue: new Int32Array(0)
+    }, 'id');
+
+    this.indicatorLines = new StructOfArrays({
+      id: new Int32Array(0),
+      startX: new Float32Array(0),
+      startY: new Float32Array(0),
+      endX: new Float32Array(0),
+      endY: new Float32Array(0),
+      red: new Int32Array(0),
+      green: new Int32Array(0),
+      blue: new Int32Array(0)
+    }, 'id');
 
     this.turn = 0;
     this.minCorner = new Victor(0, 0);
@@ -166,6 +246,7 @@ export default class GameWorld {
     this._bulletsSlot = new schema.SpawnedBulletTable()
     this._vecTableSlot1 = new schema.VecTable();
     this._vecTableSlot2 = new schema.VecTable();
+    this._rgbTableSlot = new schema.RGBTable();
   }
 
   loadFromMatchHeader(header: schema.MatchHeader) {
@@ -173,6 +254,7 @@ export default class GameWorld {
     const bodies = map.bodies(this._bodiesSlot);
     if (bodies) {
       this.insertBodies(bodies);
+      this.addIDsToIndicatorStrings(bodies.robotIDsArray());
     }
     const trees = map.trees();
     if (trees) {
@@ -204,9 +286,18 @@ export default class GameWorld {
     this.minCorner = source.minCorner;
     this.maxCorner = source.maxCorner;
     this.mapName = source.mapName;
-    this.stats = source.stats;
     this.bodies.copyFrom(source.bodies);
     this.bullets.copyFrom(source.bullets);
+    this.indicatorDots.copyFrom(source.indicatorDots);
+    this.indicatorLines.copyFrom(source.indicatorLines);
+    this.indicatorStrings = new Map<number, string[]>();
+    source.indicatorStrings.forEach((value: string[], key: number) => {
+      this.indicatorStrings.set(key, deepcopy(value));
+    });
+    this.stats = new Map<number, TeamStats>();
+    source.stats.forEach((value: TeamStats, key: number) => {
+      this.stats.set(key, deepcopy(value));
+    });
   }
 
   /**
@@ -216,6 +307,12 @@ export default class GameWorld {
     if (delta.roundID() != this.turn + 1) {
       throw new Error(`Bad Round: this.turn = ${this.turn}, round.roundID() = ${delta.roundID()}`);
     }
+    
+    // Count bullets for stats
+    for (var team in Object.keys(this.meta.teams)) {
+        var teamID = this.meta.teams[team].teamID;
+        this.stats.get(teamID)[7] = delta.teamBullets(teamID);
+    }
 
     // Increase the turn count
     this.turn += 1;
@@ -224,13 +321,13 @@ export default class GameWorld {
     if (delta.diedIDsLength() > 0) {
       
       // Update died stats
-      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+      /*var indices = this.bodies.lookupIndices(delta.diedIDsArray());
       for(let i = 0; i < indices.length; i++) {
           let index = indices[i];
           let team = this.bodies.arrays.team[index];
           let type = this.bodies.arrays.type[index];
           this.stats[team][type] = this.stats[team][type] - 1;
-      }
+      }*/
       
       this.bodies.deleteBulk(delta.diedIDsArray());
     }
@@ -261,11 +358,12 @@ export default class GameWorld {
     if (bodies) {
       
       // Update spawn stats
+      /*
       var teams = bodies.teamIDsArray();
       var types = bodies.typesArray();
       for(let i = 0; i < bodies.robotIDsArray().length; i++) {
           this.stats[teams[i]][types[i]] = this.stats[teams[i]][types[i]] + 1;
-      }
+      }*/
       
       this.insertBodies(bodies);
       
@@ -276,7 +374,107 @@ export default class GameWorld {
     if (bullets) {
       this.insertBullets(bullets);
     }
-      
+
+    // Insert indicator strings, dots, and lines
+    this.insertIndicatorStrings(delta);
+    this.insertIndicatorDots(delta);
+    this.insertIndicatorLines(delta);
+  }
+
+  private addIDsToIndicatorStrings(ids: Int32Array) {
+    const indicatorStrings: Map<number, string[]> = this.indicatorStrings;
+    ids.forEach(function(robotID) {
+      let defaultStrings: string[] = [];
+        for (let i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
+          defaultStrings[i] = "";
+        }
+        indicatorStrings.set(robotID, defaultStrings);
+    });
+  }
+
+  private insertIndicatorStrings(delta: schema.Round) {
+    // Add spawned bodies
+    const indicatorStrings: Map<number, string[]> = this.indicatorStrings;
+    const spawnedBodies = delta.spawnedBodies(this._bodiesSlot);
+    if (spawnedBodies) {
+      this.addIDsToIndicatorStrings(spawnedBodies.robotIDsArray());
+    }
+
+    // Update current bodies
+    const length: number = delta.indicatorStringIDsLength();
+    const ids: Int32Array = delta.indicatorStringIDsArray();
+    const indices: Int32Array = delta.indicatorStringIndicesArray();
+    const encoding: flatbuffers.Encoding = flatbuffers.Encoding.UTF16_STRING;
+    for (let i = 0; i < length; i++) {
+      let id = ids[i];
+      let index = indices[i];
+      let value: string = <string>delta.indicatorStringValues(i, encoding);
+      indicatorStrings.get(id)[index] = value;
+    }
+
+    // Remove dead bodies
+    if (delta.diedIDsLength() > 0) {
+      delta.diedIDsArray().forEach(function(diedID) {
+        indicatorStrings.delete(diedID);
+      });
+    }
+  }
+
+  private insertIndicatorDots(delta: schema.Round) {
+    // Delete the dots from the previous round
+    this.indicatorDots = new StructOfArrays({
+      id: new Int32Array(0),
+      x: new Float32Array(0),
+      y: new Float32Array(0),
+      red: new Int32Array(0),
+      green: new Int32Array(0),
+      blue: new Int32Array(0)
+    }, 'id');
+
+    // Insert the dots from the current round
+    if (delta.indicatorDotIDsLength() > 0) {
+      const locs = delta.indicatorDotLocs(this._vecTableSlot1);
+      const rgbs = delta.indicatorDotRGBs(this._rgbTableSlot);
+      this.indicatorDots.insertBulk({
+        id: delta.indicatorDotIDsArray(),
+        x: locs.xsArray(),
+        y: locs.ysArray(),
+        red: rgbs.redArray(),
+        green: rgbs.greenArray(),
+        blue: rgbs.blueArray()
+      })
+    }
+  }
+
+  private insertIndicatorLines(delta: schema.Round) {
+    // Delete the lines from the previous round
+    this.indicatorLines = new StructOfArrays({
+      id: new Int32Array(0),
+      startX: new Float32Array(0),
+      startY: new Float32Array(0),
+      endX: new Float32Array(0),
+      endY: new Float32Array(0),
+      red: new Int32Array(0),
+      green: new Int32Array(0),
+      blue: new Int32Array(0)
+    }, 'id');
+
+    // Insert the lines from the current round
+    if (delta.indicatorLineIDsLength() > 0) {
+      const startLocs = delta.indicatorLineStartLocs(this._vecTableSlot1);
+      const endLocs = delta.indicatorLineEndLocs(this._vecTableSlot2);
+      const rgbs = delta.indicatorLineRGBs(this._rgbTableSlot);
+      this.indicatorLines.insertBulk({
+        id: delta.indicatorLineIDsArray(),
+        startX: startLocs.xsArray(),
+        startY: startLocs.ysArray(),
+        endX: endLocs.xsArray(),
+        endY: endLocs.ysArray(),
+        red: rgbs.redArray(),
+        green: rgbs.greenArray(),
+        blue: rgbs.blueArray()
+      })
+    }
   }
 
   private insertBodies(bodies: schema.SpawnedBodyTable) {
@@ -356,7 +554,7 @@ export default class GameWorld {
    * points from robot, tree, and bullet counts. Then insert
    * this value into the victory points section of stats
    */
-  private calculateVictoryPoints(stats: StatsTable) {
+  private calculateVictoryPoints() {
     
   }
   
