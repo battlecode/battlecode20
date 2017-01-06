@@ -363,7 +363,6 @@ export default class GameWorld {
       
       this.bodies.deleteBulk(delta.diedIDsArray());
       
-      this.bodies.deleteBulk(delta.diedIDsArray());
     }
     if (delta.diedBulletIDsLength() > 0) {
       this.bullets.deleteBulk(delta.diedBulletIDsArray());
