@@ -223,7 +223,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
   lookup(primary: number, result: Partial<Row<Schema>>=Object.create(null)):
       Row<Schema> {
     if (!this._primLookup.has(primary)) {
-      throw new Error('Record with primary key does not exist: ${primary}');
+      throw new Error(`Record with primary key does not exist: ${primary}`);
     }
     const i = this._primLookup.get(primary);
     for (const field of this._fieldNames) {

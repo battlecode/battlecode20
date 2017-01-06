@@ -22,7 +22,11 @@ export declare type BulletsSchema = {
     damage: Float32Array;
     spawnedTime: Uint16Array;
 };
-export declare type TeamStats = [number];
+export declare type TeamStats = {
+    bullets: number;
+    vps: number;
+    robots: [number];
+};
 export declare type IndicatorDotsSchema = {
     id: Int32Array;
     x: Float32Array;
@@ -140,5 +144,4 @@ export default class GameWorld {
     private insertBodies(bodies);
     private insertBullets(bullets);
     private insertTrees(trees);
-    private calculateVictoryPoints();
 }

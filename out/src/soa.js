@@ -167,7 +167,7 @@ var StructOfArrays = (function () {
     StructOfArrays.prototype.lookup = function (primary, result) {
         if (result === void 0) { result = Object.create(null); }
         if (!this._primLookup.has(primary)) {
-            throw new Error('Record with primary key does not exist: ${primary}');
+            throw new Error("Record with primary key does not exist: " + primary);
         }
         var i = this._primLookup.get(primary);
         for (var _i = 0, _a = this._fieldNames; _i < _a.length; _i++) {

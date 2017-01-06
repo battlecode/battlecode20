@@ -27,19 +27,12 @@ export type BulletsSchema = {
 };
 
 // An array of numbers corresponding to team stats, which map to RobotTypes
-export type TeamStats = [
-    //0: number, // ARCHONS
-    //1: number, // GARDENERS
-    //2: number, // LUMBERJACKS
-    //3: number, // RECRUITS
-    //4: number, // SOLDIERS
-    //5: number, // TANKS
-    //6: number, // SCOUTS
-    //7: number, // BULLETS
-    //8: number, // TREES
-    //9: number  // VICTORY POINTS
-    number
-];
+
+export type TeamStats = {
+  bullets: number,
+  vps: number,
+  robots: [number] // Corresponds to robot type (therefore of length 9, where index 7 is skipped because for some reason trees come after bullets in our schema types. TODO: Change this?)
+};
 
 export type IndicatorDotsSchema = {
   id: Int32Array,
@@ -201,7 +194,10 @@ export default class GameWorld {
     this.stats = new Map<number, TeamStats>();
     for (let team in this.meta.teams) {
         var teamID = this.meta.teams[team].teamID;
-        this.stats.set(teamID, [
+        this.stats.set(teamID, {
+          bullets: 0,
+          vps: 0,
+          robots: [
             0, // ARCHONS
             0, // GARDENERS
             0, // LUMBERJACKS
@@ -209,10 +205,9 @@ export default class GameWorld {
             0, // SOLDIERS
             0, // TANKS
             0, // SCOUTS
-            0, // BULLETS
+            0, // IGNORED (type reserved for bullets)
             0, // TREES
-            0  // VICTORY POINTS (DONT USE TREES NEUTRAL BY ACCIDENT)
-        ]);
+        ]});
     }
 
     this.indicatorStrings = new Map<number, string[]>();
@@ -308,15 +303,15 @@ export default class GameWorld {
       throw new Error(`Bad Round: this.turn = ${this.turn}, round.roundID() = ${delta.roundID()}`);
     }
     
-    // Update all stats
+    // Update bullet and vp stats
     for (var i = 0; i < delta.teamIDsArray().length; i++) {
         var teamID = delta.teamIDsArray()[i];
-        var statArr = this.stats.get(teamID);
+        var statObj = this.stats.get(teamID);
 
-        statArr[7] = delta.teamBullets(i);
-        statArr[9] = delta.teamVictoryPoints(i);
+        statObj.bullets = delta.teamBullets(i);
+        statObj.vps = delta.teamVictoryPoints(i);
 
-        this.stats.set(teamID, statArr);
+        this.stats.set(teamID, statObj);
     }
 
     // Increase the turn count
@@ -331,9 +326,9 @@ export default class GameWorld {
           let index = indices[i];
           let team = this.bodies.arrays.team[index];
           let type = this.bodies.arrays.type[index];
-          var statArr = this.stats.get(team);
-          statArr[type] -= 1;
-          this.stats.set(team, statArr);
+          var statObj = this.stats.get(team);
+          statObj.robots[type] -= 1;
+          this.stats.set(team, statObj);
       }
       
       this.bodies.deleteBulk(delta.diedIDsArray());
@@ -480,9 +475,9 @@ export default class GameWorld {
     var teams = bodies.teamIDsArray();
     var types = bodies.typesArray();
     for(let i = 0; i < bodies.robotIDsArray().length; i++) {
-        var stats = this.stats.get(teams[i]);
-        stats[types[i]] += 1;
-        this.stats.set(teams[i], stats);
+        var statObj = this.stats.get(teams[i]);
+        statObj.robots[types[i]] += 1;
+        this.stats.set(teams[i], statObj);
     }
     
     const locs = bodies.locs(this._vecTableSlot1);
@@ -554,15 +549,6 @@ export default class GameWorld {
       startI,
       this.bodies.length
     );
-  }
-  
-  /*
-   * Given a stats table, calculate the number of victory
-   * points from robot, tree, and bullet counts. Then insert
-   * this value into the victory points section of stats
-   */
-  private calculateVictoryPoints() {
-    
   }
   
 }

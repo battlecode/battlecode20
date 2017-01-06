@@ -35,18 +35,21 @@ var GameWorld = (function () {
         this.stats = new Map();
         for (var team in this.meta.teams) {
             var teamID = this.meta.teams[team].teamID;
-            this.stats.set(teamID, [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0 // VICTORY POINTS (DONT USE TREES NEUTRAL BY ACCIDENT)
-            ]);
+            this.stats.set(teamID, {
+                bullets: 0,
+                vps: 0,
+                robots: [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ]
+            });
         }
         this.indicatorStrings = new Map();
         this.indicatorDots = new soa_1.default({
@@ -133,13 +136,13 @@ var GameWorld = (function () {
         if (delta.roundID() != this.turn + 1) {
             throw new Error("Bad Round: this.turn = " + this.turn + ", round.roundID() = " + delta.roundID());
         }
-        // Update all stats
+        // Update bullet and vp stats
         for (var i = 0; i < delta.teamIDsArray().length; i++) {
             var teamID = delta.teamIDsArray()[i];
-            var statArr = this.stats.get(teamID);
-            statArr[7] = delta.teamBullets(i);
-            statArr[9] = delta.teamVictoryPoints(i);
-            this.stats.set(teamID, statArr);
+            var statObj = this.stats.get(teamID);
+            statObj.bullets = delta.teamBullets(i);
+            statObj.vps = delta.teamVictoryPoints(i);
+            this.stats.set(teamID, statObj);
         }
         // Increase the turn count
         this.turn += 1;
@@ -151,9 +154,9 @@ var GameWorld = (function () {
                 var index = indices[i_1];
                 var team = this.bodies.arrays.team[index];
                 var type = this.bodies.arrays.type[index];
-                var statArr = this.stats.get(team);
-                statArr[type] -= 1;
-                this.stats.set(team, statArr);
+                var statObj = this.stats.get(team);
+                statObj.robots[type] -= 1;
+                this.stats.set(team, statObj);
             }
             this.bodies.deleteBulk(delta.diedIDsArray());
         }
@@ -284,9 +287,9 @@ var GameWorld = (function () {
         var teams = bodies.teamIDsArray();
         var types = bodies.typesArray();
         for (var i = 0; i < bodies.robotIDsArray().length; i++) {
-            var stats = this.stats.get(teams[i]);
-            stats[types[i]] += 1;
-            this.stats.set(teams[i], stats);
+            var statObj = this.stats.get(teams[i]);
+            statObj.robots[types[i]] += 1;
+            this.stats.set(teams[i], statObj);
         }
         var locs = bodies.locs(this._vecTableSlot1);
         // Note: this allocates 6 objects with each call.
@@ -339,13 +342,6 @@ var GameWorld = (function () {
         });
         soa_1.default.fill(this.bodies.arrays['team'], NEUTRAL_TEAM, startI, this.bodies.length);
         soa_1.default.fill(this.bodies.arrays['type'], battlecode_schema_1.schema.BodyType.TREE_NEUTRAL, startI, this.bodies.length);
-    };
-    /*
-     * Given a stats table, calculate the number of victory
-     * points from robot, tree, and bullet counts. Then insert
-     * this value into the victory points section of stats
-     */
-    GameWorld.prototype.calculateVictoryPoints = function () {
     };
     return GameWorld;
 }());
