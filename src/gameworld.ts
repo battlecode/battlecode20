@@ -316,25 +316,17 @@ export default class GameWorld {
 
     // Increase the turn count
     this.turn += 1;
-
-    // Simulate deaths
-    if (delta.diedIDsLength() > 0) {
       
-      // Update died stats
-      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-      for(let i = 0; i < delta.diedIDsLength(); i++) {
-          let index = indices[i];
-          let team = this.bodies.arrays.team[index];
-          let type = this.bodies.arrays.type[index];
-          var statObj = this.stats.get(team);
-          statObj.robots[type] -= 1;
-          this.stats.set(team, statObj);
-      }
-      
-      this.bodies.deleteBulk(delta.diedIDsArray());
+    // Simulate spawning
+    const bodies = delta.spawnedBodies(this._bodiesSlot);
+    if (bodies) {
+      this.insertBodies(bodies);
     }
-    if (delta.diedBulletIDsLength() > 0) {
-      this.bullets.deleteBulk(delta.diedBulletIDsArray());
+
+    // Simulate spawning
+    const bullets = delta.spawnedBullets(this._bulletsSlot);
+    if (bullets) {
+      this.insertBullets(bullets);
     }
 
     // Simulate changed health levels
@@ -355,16 +347,26 @@ export default class GameWorld {
       });
     }
 
-    // Simulate spawning
-    const bodies = delta.spawnedBodies(this._bodiesSlot);
-    if (bodies) {
-      this.insertBodies(bodies);
+    // Simulate deaths
+    if (delta.diedIDsLength() > 0) {
+      
+      // Update died stats
+      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+      for(let i = 0; i < delta.diedIDsLength(); i++) {
+          let index = indices[i];
+          let team = this.bodies.arrays.team[index];
+          let type = this.bodies.arrays.type[index];
+          var statObj = this.stats.get(team);
+          statObj.robots[type] -= 1;
+          this.stats.set(team, statObj);
+      }
+      
+      this.bodies.deleteBulk(delta.diedIDsArray());
+      
+      this.bodies.deleteBulk(delta.diedIDsArray());
     }
-
-    // Simulate spawning
-    const bullets = delta.spawnedBullets(this._bulletsSlot);
-    if (bullets) {
-      this.insertBullets(bullets);
+    if (delta.diedBulletIDsLength() > 0) {
+      this.bullets.deleteBulk(delta.diedBulletIDsArray());
     }
 
     // Insert indicator strings, dots, and lines
