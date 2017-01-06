@@ -114,12 +114,15 @@ var GameWorld = (function () {
         }
         // Increase the turn count
         this.turn += 1;
-        // Simulate deaths
-        if (delta.diedIDsLength() > 0) {
-            this.bodies.deleteBulk(delta.diedIDsArray());
+        // Simulate spawning
+        var bodies = delta.spawnedBodies(this._bodiesSlot);
+        if (bodies) {
+            this.insertBodies(bodies);
         }
-        if (delta.diedBulletIDsLength() > 0) {
-            this.bullets.deleteBulk(delta.diedBulletIDsArray());
+        // Simulate spawning
+        var bullets = delta.spawnedBullets(this._bulletsSlot);
+        if (bullets) {
+            this.insertBullets(bullets);
         }
         // Simulate changed health levels
         if (delta.healthChangedIDsLength() > 0) {
@@ -137,15 +140,12 @@ var GameWorld = (function () {
                 y: movedLocs.ysArray(),
             });
         }
-        // Simulate spawning
-        var bodies = delta.spawnedBodies(this._bodiesSlot);
-        if (bodies) {
-            this.insertBodies(bodies);
+        // Simulate deaths
+        if (delta.diedIDsLength() > 0) {
+            this.bodies.deleteBulk(delta.diedIDsArray());
         }
-        // Simulate spawning
-        var bullets = delta.spawnedBullets(this._bulletsSlot);
-        if (bullets) {
-            this.insertBullets(bullets);
+        if (delta.diedBulletIDsLength() > 0) {
+            this.bullets.deleteBulk(delta.diedBulletIDsArray());
         }
         // Insert indicator strings, dots, and lines
         this.insertIndicatorStrings(delta);
