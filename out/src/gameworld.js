@@ -185,7 +185,6 @@ var GameWorld = (function () {
                 this.stats.set(team, statObj);
             }
             this.bodies.deleteBulk(delta.diedIDsArray());
-            this.bodies.deleteBulk(delta.diedIDsArray());
         }
         if (delta.diedBulletIDsLength() > 0) {
             this.bullets.deleteBulk(delta.diedBulletIDsArray());
