@@ -304,7 +304,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
     if (!hasOwnProperty(values, this._primary)) {
       throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
-    const indices = this._lookupIndices(<any> values[this._primary]);
+    const indices = this.lookupIndices(<any> values[this._primary]);
     for (const field in values) {
       if (hasOwnProperty(values, field) && (field in this.arrays)
           && field != this._primary && values[field] != null) {
@@ -317,7 +317,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
    * Lookup the indices of a set of primary keys.
    * Returned array may not be the length of primaries; ignore extra entries.
    */
-  private _lookupIndices(primaries: TypedArray): Uint32Array {
+  lookupIndices(primaries: TypedArray): Uint32Array {
     if (this._indexBuffer == null || this._indexBuffer.length < primaries.length) {
       this._indexBuffer = new Uint32Array(StructOfArrays._capacityForLength(primaries.length));
     }

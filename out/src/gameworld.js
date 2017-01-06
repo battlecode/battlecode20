@@ -31,6 +31,26 @@ var GameWorld = (function () {
             spawnedTime: new Uint16Array(0),
             damage: new Float32Array(0)
         }, 'id');
+        // Instantiate stats
+        this.stats = new Map();
+        for (var team in this.meta.teams) {
+            var teamID = this.meta.teams[team].teamID;
+            this.stats.set(teamID, {
+                bullets: 0,
+                vps: 0,
+                robots: [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ]
+            });
+        }
         this.indicatorStrings = new Map();
         this.indicatorDots = new soa_1.default({
             id: new Int32Array(0),
@@ -104,6 +124,10 @@ var GameWorld = (function () {
         source.indicatorStrings.forEach(function (value, key) {
             _this.indicatorStrings.set(key, deepcopy(value));
         });
+        this.stats = new Map();
+        source.stats.forEach(function (value, key) {
+            _this.stats.set(key, deepcopy(value));
+        });
     };
     /**
      * Process a set of changes.
@@ -111,6 +135,14 @@ var GameWorld = (function () {
     GameWorld.prototype.processDelta = function (delta) {
         if (delta.roundID() != this.turn + 1) {
             throw new Error("Bad Round: this.turn = " + this.turn + ", round.roundID() = " + delta.roundID());
+        }
+        // Update bullet and vp stats
+        for (var i = 0; i < delta.teamIDsArray().length; i++) {
+            var teamID = delta.teamIDsArray()[i];
+            var statObj = this.stats.get(teamID);
+            statObj.bullets = delta.teamBullets(i);
+            statObj.vps = delta.teamVictoryPoints(i);
+            this.stats.set(teamID, statObj);
         }
         // Increase the turn count
         this.turn += 1;
@@ -142,6 +174,17 @@ var GameWorld = (function () {
         }
         // Simulate deaths
         if (delta.diedIDsLength() > 0) {
+            // Update died stats
+            var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+            for (var i_1 = 0; i_1 < delta.diedIDsLength(); i_1++) {
+                var index = indices[i_1];
+                var team = this.bodies.arrays.team[index];
+                var type = this.bodies.arrays.type[index];
+                var statObj = this.stats.get(team);
+                statObj.robots[type] -= 1;
+                this.stats.set(team, statObj);
+            }
+            this.bodies.deleteBulk(delta.diedIDsArray());
             this.bodies.deleteBulk(delta.diedIDsArray());
         }
         if (delta.diedBulletIDsLength() > 0) {
@@ -241,6 +284,14 @@ var GameWorld = (function () {
         }
     };
     GameWorld.prototype.insertBodies = function (bodies) {
+        // Update spawn stats
+        var teams = bodies.teamIDsArray();
+        var types = bodies.typesArray();
+        for (var i = 0; i < bodies.robotIDsArray().length; i++) {
+            var statObj = this.stats.get(teams[i]);
+            statObj.robots[types[i]] += 1;
+            this.stats.set(teams[i], statObj);
+        }
         var locs = bodies.locs(this._vecTableSlot1);
         // Note: this allocates 6 objects with each call.
         // (One for the container, one for each TypedArray.)

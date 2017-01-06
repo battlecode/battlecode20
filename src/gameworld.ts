@@ -26,6 +26,14 @@ export type BulletsSchema = {
   spawnedTime: Uint16Array
 };
 
+// An array of numbers corresponding to team stats, which map to RobotTypes
+
+export type TeamStats = {
+  bullets: number,
+  vps: number,
+  robots: [number] // Corresponds to robot type (therefore of length 9, where index 7 is skipped because for some reason trees come after bullets in our schema types. TODO: Change this?)
+};
+
 export type IndicatorDotsSchema = {
   id: Int32Array,
   x: Float32Array,
@@ -81,6 +89,11 @@ export default class GameWorld {
    * }, 'id', capacity)
    */
   bullets: StructOfArrays<BulletsSchema>;
+  
+  /*
+   * Stats for each team
+   */
+  stats: Map<number, TeamStats>; // Team ID to their stats
 
   /**
    * Indicator strings.
@@ -176,6 +189,26 @@ export default class GameWorld {
       spawnedTime: new Uint16Array(0),
       damage: new Float32Array(0)
     }, 'id');
+    
+    // Instantiate stats
+    this.stats = new Map<number, TeamStats>();
+    for (let team in this.meta.teams) {
+        var teamID = this.meta.teams[team].teamID;
+        this.stats.set(teamID, {
+          bullets: 0,
+          vps: 0,
+          robots: [
+            0, // ARCHONS
+            0, // GARDENERS
+            0, // LUMBERJACKS
+            0, // RECRUITS
+            0, // SOLDIERS
+            0, // TANKS
+            0, // SCOUTS
+            0, // IGNORED (type reserved for bullets)
+            0, // TREES
+        ]});
+    }
 
     this.indicatorStrings = new Map<number, string[]>();
 
@@ -256,6 +289,10 @@ export default class GameWorld {
     source.indicatorStrings.forEach((value: string[], key: number) => {
       this.indicatorStrings.set(key, deepcopy(value));
     });
+    this.stats = new Map<number, TeamStats>();
+    source.stats.forEach((value: TeamStats, key: number) => {
+      this.stats.set(key, deepcopy(value));
+    });
   }
 
   /**
@@ -265,10 +302,21 @@ export default class GameWorld {
     if (delta.roundID() != this.turn + 1) {
       throw new Error(`Bad Round: this.turn = ${this.turn}, round.roundID() = ${delta.roundID()}`);
     }
+    
+    // Update bullet and vp stats
+    for (var i = 0; i < delta.teamIDsArray().length; i++) {
+        var teamID = delta.teamIDsArray()[i];
+        var statObj = this.stats.get(teamID);
+
+        statObj.bullets = delta.teamBullets(i);
+        statObj.vps = delta.teamVictoryPoints(i);
+
+        this.stats.set(teamID, statObj);
+    }
 
     // Increase the turn count
     this.turn += 1;
-
+      
     // Simulate spawning
     const bodies = delta.spawnedBodies(this._bodiesSlot);
     if (bodies) {
@@ -301,7 +349,20 @@ export default class GameWorld {
 
     // Simulate deaths
     if (delta.diedIDsLength() > 0) {
+      
+      // Update died stats
+      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+      for(let i = 0; i < delta.diedIDsLength(); i++) {
+          let index = indices[i];
+          let team = this.bodies.arrays.team[index];
+          let type = this.bodies.arrays.type[index];
+          var statObj = this.stats.get(team);
+          statObj.robots[type] -= 1;
+          this.stats.set(team, statObj);
+      }
+      
       this.bodies.deleteBulk(delta.diedIDsArray());
+      
     }
     if (delta.diedBulletIDsLength() > 0) {
       this.bullets.deleteBulk(delta.diedBulletIDsArray());
@@ -410,6 +471,16 @@ export default class GameWorld {
   }
 
   private insertBodies(bodies: schema.SpawnedBodyTable) {
+    
+    // Update spawn stats
+    var teams = bodies.teamIDsArray();
+    var types = bodies.typesArray();
+    for(let i = 0; i < bodies.robotIDsArray().length; i++) {
+        var statObj = this.stats.get(teams[i]);
+        statObj.robots[types[i]] += 1;
+        this.stats.set(teams[i], statObj);
+    }
+    
     const locs = bodies.locs(this._vecTableSlot1);
     // Note: this allocates 6 objects with each call.
     // (One for the container, one for each TypedArray.)
@@ -480,6 +551,7 @@ export default class GameWorld {
       this.bodies.length
     );
   }
+  
 }
 
 // TODO(jhgilles): encode in flatbuffers
