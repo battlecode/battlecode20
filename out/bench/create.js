@@ -5,7 +5,7 @@ var SIZE = 50;
 var SIZE2 = SIZE / 2;
 function createHeader(builder) {
     var bodies = [];
-    for (var _i = 0, _a = [battlecode_schema_1.schema.BodyType.ARCHON, battlecode_schema_1.schema.BodyType.GARDENER, battlecode_schema_1.schema.BodyType.LUMBERJACK, battlecode_schema_1.schema.BodyType.RECRUIT, battlecode_schema_1.schema.BodyType.SOLDIER, battlecode_schema_1.schema.BodyType.TANK, battlecode_schema_1.schema.BodyType.SCOUT, battlecode_schema_1.schema.BodyType.BULLET, battlecode_schema_1.schema.BodyType.TREE_BULLET, battlecode_schema_1.schema.BodyType.TREE_NEUTRAL]; _i < _a.length; _i++) {
+    for (var _i = 0, _a = [battlecode_schema_1.schema.BodyType.ARCHON, battlecode_schema_1.schema.BodyType.GARDENER, battlecode_schema_1.schema.BodyType.LUMBERJACK, battlecode_schema_1.schema.BodyType.SOLDIER, battlecode_schema_1.schema.BodyType.TANK, battlecode_schema_1.schema.BodyType.SCOUT, battlecode_schema_1.schema.BodyType.BULLET, battlecode_schema_1.schema.BodyType.TREE_BULLET, battlecode_schema_1.schema.BodyType.TREE_NEUTRAL]; _i < _a.length; _i++) {
         var body = _a[_i];
         battlecode_schema_1.schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
         battlecode_schema_1.schema.BodyTypeMetadata.addBulletAttack(builder, 1);
