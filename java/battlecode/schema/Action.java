@@ -67,8 +67,13 @@ public final class Action {
    * Target: killer (bullet or lumberjack or tank)
    */
   public static final byte DIE_KILLED = 10;
+  /**
+   * Perform a lumberjack strike.
+   * Target: none
+   */
+  public static final byte LUMBERJACK_STRIKE = 11;
 
-  public static final String[] names = { "FIRE", "FIRE_TRIAD", "FIRE_PENTAD", "CHOP", "SHAKE_TREE", "PLANT_TREE", "WATER_TREE", "SPAWN_UNIT", "DIE_EXCEPTION", "DIE_SUICIDE", "DIE_KILLED", };
+  public static final String[] names = { "FIRE", "FIRE_TRIAD", "FIRE_PENTAD", "CHOP", "SHAKE_TREE", "PLANT_TREE", "WATER_TREE", "SPAWN_UNIT", "DIE_EXCEPTION", "DIE_SUICIDE", "DIE_KILLED", "LUMBERJACK_STRIKE", };
 
   public static String name(int e) { return names[e]; }
 }

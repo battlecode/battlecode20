@@ -860,7 +860,12 @@ declare module index {
              * Die due to being killed.
              * Target: killer (bullet or lumberjack or tank)
              */
-            DIE_KILLED
+            DIE_KILLED,
+            /**
+             * Perform a lumberjack strike.
+             * Target: none
+             */
+            LUMBERJACK_STRIKE
         }
 
         /**

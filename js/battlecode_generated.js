@@ -157,7 +157,13 @@ battlecode.schema.Action = {
    * Die due to being killed.
    * Target: killer (bullet or lumberjack or tank)
    */
-  DIE_KILLED: 10
+  DIE_KILLED: 10,
+
+  /**
+   * Perform a lumberjack strike.
+   * Target: none
+   */
+  LUMBERJACK_STRIKE: 11
 };
 
 /**
