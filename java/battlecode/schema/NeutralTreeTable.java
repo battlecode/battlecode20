@@ -13,9 +13,8 @@ import com.google.flatbuffers.*;
  */
 public final class NeutralTreeTable extends Table {
   public static NeutralTreeTable getRootAsNeutralTreeTable(ByteBuffer _bb) { return getRootAsNeutralTreeTable(_bb, new NeutralTreeTable()); }
-  public static NeutralTreeTable getRootAsNeutralTreeTable(ByteBuffer _bb, NeutralTreeTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
-  public NeutralTreeTable __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public static NeutralTreeTable getRootAsNeutralTreeTable(ByteBuffer _bb, NeutralTreeTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public NeutralTreeTable __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
 
   /**
    * The IDs of the trees.
@@ -27,7 +26,7 @@ public final class NeutralTreeTable extends Table {
    * The locations of the trees.
    */
   public VecTable locs() { return locs(new VecTable()); }
-  public VecTable locs(VecTable obj) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public VecTable locs(VecTable obj) { int o = __offset(6); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The radii of the trees.
    */

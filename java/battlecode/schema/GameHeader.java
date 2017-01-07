@@ -13,9 +13,8 @@ import com.google.flatbuffers.*;
  */
 public final class GameHeader extends Table {
   public static GameHeader getRootAsGameHeader(ByteBuffer _bb) { return getRootAsGameHeader(_bb, new GameHeader()); }
-  public static GameHeader getRootAsGameHeader(ByteBuffer _bb, GameHeader obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
-  public GameHeader __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public static GameHeader getRootAsGameHeader(ByteBuffer _bb, GameHeader obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public GameHeader __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
 
   /**
    * The version of the spec this game complies with.
@@ -26,13 +25,13 @@ public final class GameHeader extends Table {
    * The teams participating in the game.
    */
   public TeamData teams(int j) { return teams(new TeamData(), j); }
-  public TeamData teams(TeamData obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public TeamData teams(TeamData obj, int j) { int o = __offset(6); return o != 0 ? obj.__init(__indirect(__vector(o) + j * 4), bb) : null; }
   public int teamsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
   /**
    * Information about all body types in the game.
    */
   public BodyTypeMetadata bodyTypeMetadata(int j) { return bodyTypeMetadata(new BodyTypeMetadata(), j); }
-  public BodyTypeMetadata bodyTypeMetadata(BodyTypeMetadata obj, int j) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public BodyTypeMetadata bodyTypeMetadata(BodyTypeMetadata obj, int j) { int o = __offset(8); return o != 0 ? obj.__init(__indirect(__vector(o) + j * 4), bb) : null; }
   public int bodyTypeMetadataLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
 
   public static int createGameHeader(FlatBufferBuilder builder,

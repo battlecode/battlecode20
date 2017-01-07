@@ -16,9 +16,8 @@ import com.google.flatbuffers.*;
  */
 public final class Round extends Table {
   public static Round getRootAsRound(ByteBuffer _bb) { return getRootAsRound(_bb, new Round()); }
-  public static Round getRootAsRound(ByteBuffer _bb, Round obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
-  public Round __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public static Round getRootAsRound(ByteBuffer _bb, Round obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public Round __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
 
   /**
    * The IDs of teams in the Game.
@@ -49,17 +48,17 @@ public final class Round extends Table {
    * their new locations at exactly the time round.number*dt.
    */
   public VecTable movedLocs() { return movedLocs(new VecTable()); }
-  public VecTable movedLocs(VecTable obj) { int o = __offset(12); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public VecTable movedLocs(VecTable obj) { int o = __offset(12); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * New bodies.
    */
   public SpawnedBodyTable spawnedBodies() { return spawnedBodies(new SpawnedBodyTable()); }
-  public SpawnedBodyTable spawnedBodies(SpawnedBodyTable obj) { int o = __offset(14); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public SpawnedBodyTable spawnedBodies(SpawnedBodyTable obj) { int o = __offset(14); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * New bullets.
    */
   public SpawnedBulletTable spawnedBullets() { return spawnedBullets(new SpawnedBulletTable()); }
-  public SpawnedBulletTable spawnedBullets(SpawnedBulletTable obj) { int o = __offset(16); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public SpawnedBulletTable spawnedBullets(SpawnedBulletTable obj) { int o = __offset(16); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The IDs of bodies with changed health.
    */
@@ -114,12 +113,12 @@ public final class Round extends Table {
    * The location of the indicator dots
    */
   public VecTable indicatorDotLocs() { return indicatorDotLocs(new VecTable()); }
-  public VecTable indicatorDotLocs(VecTable obj) { int o = __offset(34); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public VecTable indicatorDotLocs(VecTable obj) { int o = __offset(34); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The RGB values of the indicator dots
    */
   public RGBTable indicatorDotRGBs() { return indicatorDotRGBs(new RGBTable()); }
-  public RGBTable indicatorDotRGBs(RGBTable obj) { int o = __offset(36); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public RGBTable indicatorDotRGBs(RGBTable obj) { int o = __offset(36); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The IDs of bodies that set indicator lines
    */
@@ -130,17 +129,17 @@ public final class Round extends Table {
    * The start location of the indicator lines
    */
   public VecTable indicatorLineStartLocs() { return indicatorLineStartLocs(new VecTable()); }
-  public VecTable indicatorLineStartLocs(VecTable obj) { int o = __offset(40); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public VecTable indicatorLineStartLocs(VecTable obj) { int o = __offset(40); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The end location of the indicator lines
    */
   public VecTable indicatorLineEndLocs() { return indicatorLineEndLocs(new VecTable()); }
-  public VecTable indicatorLineEndLocs(VecTable obj) { int o = __offset(42); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public VecTable indicatorLineEndLocs(VecTable obj) { int o = __offset(42); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The RGB values of the indicator lines
    */
   public RGBTable indicatorLineRGBs() { return indicatorLineRGBs(new RGBTable()); }
-  public RGBTable indicatorLineRGBs(RGBTable obj) { int o = __offset(44); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public RGBTable indicatorLineRGBs(RGBTable obj) { int o = __offset(44); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * All logs sent this round.
    * Messages from a particular robot in this round start on a new line, and

@@ -322,7 +322,7 @@ battlecode.schema.VecTable.prototype.xsLength = function() {
  */
 battlecode.schema.VecTable.prototype.xsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -347,7 +347,7 @@ battlecode.schema.VecTable.prototype.ysLength = function() {
  */
 battlecode.schema.VecTable.prototype.ysArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -483,7 +483,7 @@ battlecode.schema.RGBTable.prototype.redLength = function() {
  */
 battlecode.schema.RGBTable.prototype.redArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -508,7 +508,7 @@ battlecode.schema.RGBTable.prototype.greenLength = function() {
  */
 battlecode.schema.RGBTable.prototype.greenArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -533,7 +533,7 @@ battlecode.schema.RGBTable.prototype.blueLength = function() {
  */
 battlecode.schema.RGBTable.prototype.blueArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -704,7 +704,7 @@ battlecode.schema.SpawnedBodyTable.prototype.robotIDsLength = function() {
  */
 battlecode.schema.SpawnedBodyTable.prototype.robotIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -731,7 +731,7 @@ battlecode.schema.SpawnedBodyTable.prototype.teamIDsLength = function() {
  */
 battlecode.schema.SpawnedBodyTable.prototype.teamIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -758,7 +758,7 @@ battlecode.schema.SpawnedBodyTable.prototype.typesLength = function() {
  */
 battlecode.schema.SpawnedBodyTable.prototype.typesArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -944,7 +944,7 @@ battlecode.schema.NeutralTreeTable.prototype.robotIDsLength = function() {
  */
 battlecode.schema.NeutralTreeTable.prototype.robotIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -982,7 +982,7 @@ battlecode.schema.NeutralTreeTable.prototype.radiiLength = function() {
  */
 battlecode.schema.NeutralTreeTable.prototype.radiiArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -1009,7 +1009,7 @@ battlecode.schema.NeutralTreeTable.prototype.healthsLength = function() {
  */
 battlecode.schema.NeutralTreeTable.prototype.healthsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -1036,7 +1036,7 @@ battlecode.schema.NeutralTreeTable.prototype.maxHealthsLength = function() {
  */
 battlecode.schema.NeutralTreeTable.prototype.maxHealthsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -1063,7 +1063,7 @@ battlecode.schema.NeutralTreeTable.prototype.containedBulletsLength = function()
  */
 battlecode.schema.NeutralTreeTable.prototype.containedBulletsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -1090,7 +1090,7 @@ battlecode.schema.NeutralTreeTable.prototype.containedBodiesLength = function() 
  */
 battlecode.schema.NeutralTreeTable.prototype.containedBodiesArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -1356,7 +1356,7 @@ battlecode.schema.SpawnedBulletTable.prototype.robotIDsLength = function() {
  */
 battlecode.schema.SpawnedBulletTable.prototype.robotIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -1405,7 +1405,7 @@ battlecode.schema.SpawnedBulletTable.prototype.damagesLength = function() {
  */
 battlecode.schema.SpawnedBulletTable.prototype.damagesArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2457,7 +2457,7 @@ battlecode.schema.Round.prototype.teamIDsLength = function() {
  */
 battlecode.schema.Round.prototype.teamIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2484,7 +2484,7 @@ battlecode.schema.Round.prototype.teamBulletsLength = function() {
  */
 battlecode.schema.Round.prototype.teamBulletsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2511,7 +2511,7 @@ battlecode.schema.Round.prototype.teamVictoryPointsLength = function() {
  */
 battlecode.schema.Round.prototype.teamVictoryPointsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2538,7 +2538,7 @@ battlecode.schema.Round.prototype.movedIDsLength = function() {
  */
 battlecode.schema.Round.prototype.movedIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2599,7 +2599,7 @@ battlecode.schema.Round.prototype.healthChangedIDsLength = function() {
  */
 battlecode.schema.Round.prototype.healthChangedIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 18);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2626,7 +2626,7 @@ battlecode.schema.Round.prototype.healthChangeLevelsLength = function() {
  */
 battlecode.schema.Round.prototype.healthChangeLevelsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 20);
-  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2653,7 +2653,7 @@ battlecode.schema.Round.prototype.diedIDsLength = function() {
  */
 battlecode.schema.Round.prototype.diedIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 22);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2680,7 +2680,7 @@ battlecode.schema.Round.prototype.diedBulletIDsLength = function() {
  */
 battlecode.schema.Round.prototype.diedBulletIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 24);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2708,7 +2708,7 @@ battlecode.schema.Round.prototype.actionIDsLength = function() {
  */
 battlecode.schema.Round.prototype.actionIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2735,7 +2735,7 @@ battlecode.schema.Round.prototype.actionsLength = function() {
  */
 battlecode.schema.Round.prototype.actionsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 28);
-  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2763,7 +2763,7 @@ battlecode.schema.Round.prototype.actionTargetsLength = function() {
  */
 battlecode.schema.Round.prototype.actionTargetsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 30);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2790,7 +2790,7 @@ battlecode.schema.Round.prototype.indicatorDotIDsLength = function() {
  */
 battlecode.schema.Round.prototype.indicatorDotIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 32);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -2839,7 +2839,7 @@ battlecode.schema.Round.prototype.indicatorLineIDsLength = function() {
  */
 battlecode.schema.Round.prototype.indicatorLineIDsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 38);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -3561,7 +3561,7 @@ battlecode.schema.GameWrapper.prototype.matchHeadersLength = function() {
  */
 battlecode.schema.GameWrapper.prototype.matchHeadersArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -3588,7 +3588,7 @@ battlecode.schema.GameWrapper.prototype.matchFootersLength = function() {
  */
 battlecode.schema.GameWrapper.prototype.matchFootersArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
