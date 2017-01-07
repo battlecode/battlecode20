@@ -21,7 +21,7 @@ table RGBTable {
 }
 
 /// The possible types of things that can exist.
-/// Note that neutral trees are not treated as bodies.
+/// Note that neutral trees and bullets are not treated as bodies.
 enum BodyType : byte {
     /// Archons are the mobile equivalent of a HQ whose sole purpose is to hire
     /// gardeners to maintain the land.
@@ -49,7 +49,12 @@ enum BodyType : byte {
     /// This allows us some significant space savings, since there are lots
     /// of bullets, and we don't need to send position updates.
     /// The event stream will say if a bullet has been destroyed.
-    BULLET
+    /// This is included for convenience; note this value SHALL NOT appear in
+    /// a SpawnedBodyTable.
+    BULLET,
+    /// Indicates that there is no body.
+    /// May only appear in the containedBodies field of NeutralTreeTable.
+    NONE
 }
 
 /// A list of new bodies to be placed on the map.
@@ -78,6 +83,8 @@ table NeutralTreeTable {
     radii: [float];
     /// The healths of the trees.
     healths: [float];
+    /// The max healths of the trees.
+    maxHealths: [float];
     /// The bullets contained within the trees.
     containedBullets: [int];
     /// The bodies contained within the trees.
@@ -152,7 +159,10 @@ enum Action : byte {
     DIE_EXCEPTION,
     /// Die due to suicide.
     /// Target: none
-    DIE_SUICIDE
+    DIE_SUICIDE,
+    /// Die due to being killed.
+    /// Target: killer (bullet or lumberjack or tank)
+    DIE_KILLED
 }
 
 // Metadata
@@ -287,13 +297,6 @@ table Round {
     /// any target (typically 0).
     actionTargets: [int];
 
-    /// The IDs of bodies that set indicator strings.
-    indicatorStringIDs: [int];
-    /// The indices of the indicator strings that were set.
-    indicatorStringIndices: [int];
-    /// The values of the indicator strings that were set.
-    indicatorStringValues: [string];
-
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
     /// The location of the indicator dots
@@ -309,6 +312,27 @@ table Round {
     indicatorLineEndLocs: VecTable;
     /// The RGB values of the indicator lines
     indicatorLineRGBs: RGBTable;
+
+    /// All logs sent this round.
+    /// Messages from a particular robot in this round start on a new line, and
+    /// have a header:
+    /// '[' $TEAM ':' $ROBOTTYPE '#' $ID '@' $ROUND '] '
+    /// $TEAM = 'A' | 'B'
+    /// $ROBOTTYPE = 'ARCHON' | 'GARDENER' | 'LUMBERJACK' 
+    ///            | 'SOLDIER' | 'TANK' | 'SCOUT' | other names...
+    /// $ID = a number
+    /// $ROUND = a number
+    /// The header is not necessarily followed by a newline.
+    /// This header should only be sent once per robot per round (although
+    /// players may forge it, so don't crash if you get strange input.)
+    ///
+    /// You should try to only read this value once, and cache it. Reading
+    /// strings from a flatbuffer is much less efficient than reading other
+    /// buffers, because they need to be copied into an environment-provided
+    /// buffer and validated.
+    ///
+    /// (haha i guess you can never really escape string parsing can you)
+    logs: string;
 
     /// The first sent Round in a match should have index 1. (The starting state,
     /// created by the MatchHeader, can be thought to have index 0.)

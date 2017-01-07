@@ -13,8 +13,9 @@ import com.google.flatbuffers.*;
  */
 public final class SpawnedBodyTable extends Table {
   public static SpawnedBodyTable getRootAsSpawnedBodyTable(ByteBuffer _bb) { return getRootAsSpawnedBodyTable(_bb, new SpawnedBodyTable()); }
-  public static SpawnedBodyTable getRootAsSpawnedBodyTable(ByteBuffer _bb, SpawnedBodyTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public SpawnedBodyTable __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public static SpawnedBodyTable getRootAsSpawnedBodyTable(ByteBuffer _bb, SpawnedBodyTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public SpawnedBodyTable __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
    * The numeric ID of the new bodies.
@@ -42,7 +43,7 @@ public final class SpawnedBodyTable extends Table {
    * The locations of the bodies.
    */
   public VecTable locs() { return locs(new VecTable()); }
-  public VecTable locs(VecTable obj) { int o = __offset(10); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
+  public VecTable locs(VecTable obj) { int o = __offset(10); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
 
   public static int createSpawnedBodyTable(FlatBufferBuilder builder,
       int robotIDsOffset,
@@ -72,5 +73,5 @@ public final class SpawnedBodyTable extends Table {
     int o = builder.endObject();
     return o;
   }
-};
+}
 

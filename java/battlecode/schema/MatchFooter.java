@@ -13,8 +13,9 @@ import com.google.flatbuffers.*;
  */
 public final class MatchFooter extends Table {
   public static MatchFooter getRootAsMatchFooter(ByteBuffer _bb) { return getRootAsMatchFooter(_bb, new MatchFooter()); }
-  public static MatchFooter getRootAsMatchFooter(ByteBuffer _bb, MatchFooter obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public MatchFooter __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public static MatchFooter getRootAsMatchFooter(ByteBuffer _bb, MatchFooter obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public MatchFooter __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
    * The ID of the winning team.
@@ -41,5 +42,5 @@ public final class MatchFooter extends Table {
     int o = builder.endObject();
     return o;
   }
-};
+}
 

@@ -13,8 +13,9 @@ import com.google.flatbuffers.*;
  */
 public final class TeamData extends Table {
   public static TeamData getRootAsTeamData(ByteBuffer _bb) { return getRootAsTeamData(_bb, new TeamData()); }
-  public static TeamData getRootAsTeamData(ByteBuffer _bb, TeamData obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public TeamData __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public static TeamData getRootAsTeamData(ByteBuffer _bb, TeamData obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public TeamData __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
    * The name of the team.
@@ -50,5 +51,5 @@ public final class TeamData extends Table {
     int o = builder.endObject();
     return o;
   }
-};
+}
 

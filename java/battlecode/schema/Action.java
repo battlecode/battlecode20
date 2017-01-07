@@ -62,9 +62,14 @@ public final class Action {
    * Target: none
    */
   public static final byte DIE_SUICIDE = 9;
+  /**
+   * Die due to being killed.
+   * Target: killer (bullet or lumberjack or tank)
+   */
+  public static final byte DIE_KILLED = 10;
 
-  private static final String[] names = { "FIRE", "FIRE_TRIAD", "FIRE_PENTAD", "CHOP", "SHAKE_TREE", "PLANT_TREE", "WATER_TREE", "SPAWN_UNIT", "DIE_EXCEPTION", "DIE_SUICIDE", };
+  public static final String[] names = { "FIRE", "FIRE_TRIAD", "FIRE_PENTAD", "CHOP", "SHAKE_TREE", "PLANT_TREE", "WATER_TREE", "SPAWN_UNIT", "DIE_EXCEPTION", "DIE_SUICIDE", "DIE_KILLED", };
 
   public static String name(int e) { return names[e]; }
-};
+}
 

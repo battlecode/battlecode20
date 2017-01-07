@@ -13,8 +13,9 @@ import com.google.flatbuffers.*;
  */
 public final class VecTable extends Table {
   public static VecTable getRootAsVecTable(ByteBuffer _bb) { return getRootAsVecTable(_bb, new VecTable()); }
-  public static VecTable getRootAsVecTable(ByteBuffer _bb, VecTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public VecTable __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public static VecTable getRootAsVecTable(ByteBuffer _bb, VecTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public VecTable __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float xs(int j) { int o = __offset(4); return o != 0 ? bb.getFloat(__vector(o) + j * 4) : 0; }
   public int xsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
@@ -43,5 +44,5 @@ public final class VecTable extends Table {
     int o = builder.endObject();
     return o;
   }
-};
+}
 

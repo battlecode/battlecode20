@@ -6,7 +6,8 @@
   "main": "js/index.js",
   "typings": "js/index.d.ts",
   "scripts": {
-    "test": "true"
+    "test": "true",
+    "build": "flatc --js -o js battlecode.fbs && flatc --java -o java battlecode.fbs"
   },
   "repository": {
     "type": "git",
