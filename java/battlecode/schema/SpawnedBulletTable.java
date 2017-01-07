@@ -13,8 +13,9 @@ import com.google.flatbuffers.*;
  */
 public final class SpawnedBulletTable extends Table {
   public static SpawnedBulletTable getRootAsSpawnedBulletTable(ByteBuffer _bb) { return getRootAsSpawnedBulletTable(_bb, new SpawnedBulletTable()); }
-  public static SpawnedBulletTable getRootAsSpawnedBulletTable(ByteBuffer _bb, SpawnedBulletTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public SpawnedBulletTable __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public static SpawnedBulletTable getRootAsSpawnedBulletTable(ByteBuffer _bb, SpawnedBulletTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public SpawnedBulletTable __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
    * The numeric ID of the new bullets.
@@ -30,12 +31,12 @@ public final class SpawnedBulletTable extends Table {
    * The locations of the bodies.
    */
   public VecTable locs() { return locs(new VecTable()); }
-  public VecTable locs(VecTable obj) { int o = __offset(6); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
+  public VecTable locs(VecTable obj) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   /**
    * The velocities of the bodies.
    */
   public VecTable vels() { return vels(new VecTable()); }
-  public VecTable vels(VecTable obj) { int o = __offset(8); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
+  public VecTable vels(VecTable obj) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   /**
    * The damage levels of the bodies.
    */
@@ -69,5 +70,5 @@ public final class SpawnedBulletTable extends Table {
     int o = builder.endObject();
     return o;
   }
-};
+}
 

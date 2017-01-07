@@ -13,7 +13,8 @@ import com.google.flatbuffers.*;
  * Defaults to the 0 vector.
  */
 public final class Vec extends Struct {
-  public Vec __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public Vec __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float x() { return bb.getFloat(bb_pos + 0); }
   public float y() { return bb.getFloat(bb_pos + 4); }
@@ -24,5 +25,5 @@ public final class Vec extends Struct {
     builder.putFloat(x);
     return builder.offset();
   }
-};
+}
 

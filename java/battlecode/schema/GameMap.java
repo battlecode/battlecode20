@@ -13,8 +13,9 @@ import com.google.flatbuffers.*;
  */
 public final class GameMap extends Table {
   public static GameMap getRootAsGameMap(ByteBuffer _bb) { return getRootAsGameMap(_bb, new GameMap()); }
-  public static GameMap getRootAsGameMap(ByteBuffer _bb, GameMap obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public GameMap __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public static GameMap getRootAsGameMap(ByteBuffer _bb, GameMap obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public GameMap __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
    * The name of a map.
@@ -25,22 +26,22 @@ public final class GameMap extends Table {
    * The bottom corner of the map.
    */
   public Vec minCorner() { return minCorner(new Vec()); }
-  public Vec minCorner(Vec obj) { int o = __offset(6); return o != 0 ? obj.__init(o + bb_pos, bb) : null; }
+  public Vec minCorner(Vec obj) { int o = __offset(6); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
   /**
    * The top corner of the map.
    */
   public Vec maxCorner() { return maxCorner(new Vec()); }
-  public Vec maxCorner(Vec obj) { int o = __offset(8); return o != 0 ? obj.__init(o + bb_pos, bb) : null; }
+  public Vec maxCorner(Vec obj) { int o = __offset(8); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
   /**
    * The bodies on the map.
    */
   public SpawnedBodyTable bodies() { return bodies(new SpawnedBodyTable()); }
-  public SpawnedBodyTable bodies(SpawnedBodyTable obj) { int o = __offset(10); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
+  public SpawnedBodyTable bodies(SpawnedBodyTable obj) { int o = __offset(10); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   /**
    * The neutral trees on the map.
    */
   public NeutralTreeTable trees() { return trees(new NeutralTreeTable()); }
-  public NeutralTreeTable trees(NeutralTreeTable obj) { int o = __offset(12); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
+  public NeutralTreeTable trees(NeutralTreeTable obj) { int o = __offset(12); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   /**
    * The random seed of the map.
    */
@@ -57,5 +58,5 @@ public final class GameMap extends Table {
     int o = builder.endObject();
     return o;
   }
-};
+}
 

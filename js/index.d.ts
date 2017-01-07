@@ -736,7 +736,7 @@ declare module index {
     export namespace schema {
         /**
          * The possible types of things that can exist.
-         * Note that neutral trees are not treated as bodies.
+         * Note that neutral trees and bullets are not treated as bodies.
          *
          * @enum
          */
@@ -784,8 +784,15 @@ declare module index {
              * This allows us some significant space savings, since there are lots
              * of bullets, and we don't need to send position updates.
              * The event stream will say if a bullet has been destroyed.
+             * This is included for convenience; note this value SHALL NOT appear in
+             * a SpawnedBodyTable.
              */
-            BULLET
+            BULLET,
+            /**
+             * Indicates that there is no body.
+             * May only appear in the containedBodies field of NeutralTreeTable.
+             */
+            NONE
         }
 
         /**
@@ -848,7 +855,17 @@ declare module index {
              * Die due to suicide.
              * Target: none
              */
-            DIE_SUICIDE
+            DIE_SUICIDE,
+            /**
+             * Die due to being killed.
+             * Target: killer (bullet or lumberjack or tank)
+             */
+            DIE_KILLED,
+            /**
+             * Perform a lumberjack strike.
+             * Target: none
+             */
+            LUMBERJACK_STRIKE
         }
 
         /**
@@ -1485,13 +1502,31 @@ declare module index {
             /**
              * @returns {number}
              */
-            health(): number;
+            healthsLength(): number;
 
             /**
              * @returns {Float32Array}
              */
             healthsArray(): Float32Array;
 
+            /**
+             * The max healths of the trees.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            maxHealths(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            maxHealthsLength(): number;
+
+            /**
+             * @returns {Float32Array}
+             */
+            maxHealthsArray(): Float32Array;
+            
             /**
              * The bullets contained within the trees.
              *
@@ -1581,6 +1616,44 @@ declare module index {
 
             /**
              * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} healthsOffset
+             */
+            static addHealths(builder: flatbuffers.Builder, healthsOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createHealthsVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startHealthsVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {flatbuffers.Offset} maxHealthsOffset
+             */
+            static addMaxHealths(builder: flatbuffers.Builder, maxHealthsOffset: flatbuffers.Offset): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {Array.<number>} data
+             * @returns {flatbuffers.Offset}
+             */
+            static createMaxHealthsVector(builder: flatbuffers.Builder, data: number[]): flatbuffers.Offset;
+
+            /**
+             * @param {flatbuffers.Builder} builder
+             * @param {number} numElems
+             */
+            static startMaxHealthsVector(builder: flatbuffers.Builder, numElems: number): void;
+
+            /**
+             * @param {flatbuffers.Builder} builder
              * @param {flatbuffers.Offset} containedBulletsOffset
              */
             static addContainedBullets(builder: flatbuffers.Builder, containedBulletsOffset: flatbuffers.Offset): void;
@@ -1616,25 +1689,6 @@ declare module index {
              * @param {number} numElems
              */
             static startContainedBodiesVector(builder: flatbuffers.Builder, numElems: number): void;
-
-            /**
-             * @param {flatbuffers.Builder} builder
-             * @param {flatbuffers.Offset} containedTreesOffset
-             */
-            static addContainedTrees(builder: flatbuffers.Builder, containedTreesOffset: flatbuffers.Offset): void;
-
-            /**
-             * @param {flatbuffers.Builder} builder
-             * @param {Array.<flatbuffers.Offset>} data
-             * @returns {flatbuffers.Offset}
-             */
-            static createContainedTreesVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset;
-
-            /**
-             * @param {flatbuffers.Builder} builder
-             * @param {number} numElems
-             */
-            static startContainedTreesVector(builder: flatbuffers.Builder, numElems: number): void;
 
             /**
              * @param {flatbuffers.Builder} builder

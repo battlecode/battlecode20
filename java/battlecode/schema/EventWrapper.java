@@ -13,8 +13,9 @@ import com.google.flatbuffers.*;
  */
 public final class EventWrapper extends Table {
   public static EventWrapper getRootAsEventWrapper(ByteBuffer _bb) { return getRootAsEventWrapper(_bb, new EventWrapper()); }
-  public static EventWrapper getRootAsEventWrapper(ByteBuffer _bb, EventWrapper obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public EventWrapper __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public static EventWrapper getRootAsEventWrapper(ByteBuffer _bb, EventWrapper obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public EventWrapper __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public byte eType() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
   public Table e(Table obj) { int o = __offset(6); return o != 0 ? __union(obj, o) : null; }
@@ -35,5 +36,5 @@ public final class EventWrapper extends Table {
     int o = builder.endObject();
     return o;
   }
-};
+}
 

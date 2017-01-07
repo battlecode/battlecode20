@@ -13,8 +13,9 @@ import com.google.flatbuffers.*;
  */
 public final class RGBTable extends Table {
   public static RGBTable getRootAsRGBTable(ByteBuffer _bb) { return getRootAsRGBTable(_bb, new RGBTable()); }
-  public static RGBTable getRootAsRGBTable(ByteBuffer _bb, RGBTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public RGBTable __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public static RGBTable getRootAsRGBTable(ByteBuffer _bb, RGBTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public RGBTable __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int red(int j) { int o = __offset(4); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
   public int redLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
@@ -51,5 +52,5 @@ public final class RGBTable extends Table {
     int o = builder.endObject();
     return o;
   }
-};
+}
 
