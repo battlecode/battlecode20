@@ -756,11 +756,7 @@ declare module index {
              */
             LUMBERJACK,
             /**
-             * Recruits are all-around units with a tricky shot.
-             */
-            RECRUIT,
-            /**
-             * Soldiers are all-around units with a tricky shot. But different.
+             * Soldiers are all-around units with a tricky shot.
              */
             SOLDIER,
             /**
@@ -772,15 +768,6 @@ declare module index {
              */
             SCOUT,
             /**
-             * A bullet that moves in a perfectly straight line.
-             * Note: bullet location updates are not sent; a bullet is defined to be
-             * in position loc + dt * vel after dt seconds.
-             * This allows us some significant space savings, since there are lots
-             * of bullets, and we don't need to send position updates.
-             * The event stream will say if a bullet has been destroyed.
-             */
-            BULLET,
-            /**
              * A tree that belongs to a team and produces bullets.
              */
             TREE_BULLET,
@@ -789,7 +776,16 @@ declare module index {
              * This is included for convenience; note this value SHALL NOT appear in
              * a SpawnedBodyTable.
              */
-            TREE_NEUTRAL
+            TREE_NEUTRAL,
+            /**
+             * A bullet that moves in a perfectly straight line.
+             * Note: bullet location updates are not sent; a bullet is defined to be
+             * in position loc + dt * vel after dt seconds.
+             * This allows us some significant space savings, since there are lots
+             * of bullets, and we don't need to send position updates.
+             * The event stream will say if a bullet has been destroyed.
+             */
+            BULLET
         }
 
         /**
