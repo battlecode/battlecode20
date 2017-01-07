@@ -90,5 +90,5 @@ public final class NeutralTreeTable extends Table {
     int o = builder.endObject();
     return o;
   }
-}
+};
 

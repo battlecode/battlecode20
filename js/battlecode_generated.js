@@ -2,14 +2,12 @@
 
 /**
  * @const
- * @namespace
- */
+*/
 var battlecode = battlecode || {};
 
 /**
  * @const
- * @namespace
- */
+*/
 battlecode.schema = battlecode.schema || {};
 
 /**
@@ -37,24 +35,19 @@ battlecode.schema.BodyType = {
   LUMBERJACK: 2,
 
   /**
-   * Recruits are all-around units with a tricky shot.
+   * Soldiers are all-around units with a tricky shot.
    */
-  RECRUIT: 3,
-
-  /**
-   * Soldiers are all-around units with a tricky shot. But different.
-   */
-  SOLDIER: 4,
+  SOLDIER: 3,
 
   /**
    * Tanks are large, slow units with powerful bullets.
    */
-  TANK: 5,
+  TANK: 4,
 
   /**
    * Scouts are fast units that move around without obstruction.
    */
-  SCOUT: 6,
+  SCOUT: 5,
 
   /**
    * A bullet that moves in a perfectly straight line.
@@ -64,19 +57,19 @@ battlecode.schema.BodyType = {
    * of bullets, and we don't need to send position updates.
    * The event stream will say if a bullet has been destroyed.
    */
-  BULLET: 7,
+  BULLET: 6,
 
   /**
    * A tree that belongs to a team and produces bullets.
    */
-  TREE_BULLET: 8,
+  TREE_BULLET: 7,
 
   /**
    * A neutral tree.
    * This is included for convenience; note this value SHALL NOT appear in
    * a SpawnedBodyTable.
    */
-  TREE_NEUTRAL: 9
+  TREE_NEUTRAL: 8
 };
 
 /**

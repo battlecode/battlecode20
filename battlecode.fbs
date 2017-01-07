@@ -31,9 +31,7 @@ enum BodyType : byte {
     GARDENER,
     /// Lumberjacks are melee units equipped for felling trees.
     LUMBERJACK,
-    /// Recruits are all-around units with a tricky shot.
-    RECRUIT,
-    /// Soldiers are all-around units with a tricky shot. But different.
+    /// Soldiers are all-around units with a tricky shot.
     SOLDIER,
     /// Tanks are large, slow units with powerful bullets.
     TANK,
