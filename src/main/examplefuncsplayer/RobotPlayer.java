@@ -46,8 +46,8 @@ public class RobotPlayer {
                 Direction dir = randomDirection();
 
                 // Randomly attempt to build a gardener in this direction
-                if (rc.canBuildRobot(RobotType.GARDENER, dir) && Math.random() < .01 && rc.isBuildReady()) {
-                    rc.buildRobot(RobotType.GARDENER, dir);
+                if (rc.canHireGardener(dir) && Math.random() < .01) {
+                    rc.hireGardener(dir);
                 }
 
                 // Move randomly
@@ -86,7 +86,7 @@ public class RobotPlayer {
                 Direction dir = randomDirection();
 
                 // Randomly attempt to build a soldier or lumberjack in this direction
-                if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01 && rc.isBuildReady()) {
+                if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01) {
                     rc.buildRobot(RobotType.SOLDIER, dir);
                 } else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady()) {
                     rc.buildRobot(RobotType.LUMBERJACK, dir);
@@ -116,7 +116,7 @@ public class RobotPlayer {
             try {
 
                 // See if there are any nearby enemy robots
-                RobotInfo[] robots = rc.senseNearbyRobots(100, enemy);
+                RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 
                 // If there are some...
                 if (robots.length > 1) {
@@ -151,7 +151,7 @@ public class RobotPlayer {
             try {
 
                 // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
-                RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+1, enemy);
+                RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS, enemy);
 
                 if(robots.length > 0 && !rc.hasAttacked()) {
                     // Use strike() to hit all nearby robots!
