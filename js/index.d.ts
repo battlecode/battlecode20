@@ -2852,56 +2852,6 @@ declare module index {
             actionTargetsArray(): Int32Array;
 
             /**
-             * The IDs of bodies that set indicator strings.
-             *
-             * @param {number} index
-             * @returns {number}
-             */
-            indicatorStringIDs(index: number): number;
-
-            /**
-             * @returns {number}
-             */
-            indicatorStringIDsLength(): number;
-
-            /**
-             * @returns {Int32Array}
-             */
-            indicatorStringIDsArray(): Int32Array;
-
-            /**
-             * The indices of the indicator strings that were set.
-             *
-             * @param {number} index
-             * @returns {number}
-             */
-            indicatorStringIndices(index: number): number;
-
-            /**
-             * @returns {number}
-             */
-            indicatorStringIndicesLength(): number;
-
-            /**
-             * @returns {Int32Array}
-             */
-            indicatorStringIndicesArray(): Int32Array;
-
-            /**
-             * The values of the indicator strings that were set.
-             *
-             * @param {number} index
-             * @param {flatbuffers.Encoding=} optionalEncoding
-             * @returns {string|Uint8Array}
-             */
-            indicatorStringValues(index: number, optionalEncoding: flatbuffers.Encoding): string | Uint8Array;
-
-            /**
-             * @returns {number}
-             */
-            indicatorStringValuesLength(): number;
-
-            /**
              * The IDs of bodies that set indicator dots.
              *
              * @param {number} index
