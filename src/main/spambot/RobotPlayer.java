@@ -71,8 +71,8 @@ public class RobotPlayer {
             if (nearbyTreeCount < 2 && rc.hasTreeBuildRequirements() && rc.isBuildReady())
                 for (int i = 0; i < 5; i++) {
                     Direction dir = randDir();
-                    if (rc.canPlantBulletTree(dir)) {
-                        rc.plantBulletTree(dir);
+                    if (rc.canPlantTree(dir)) {
+                        rc.plantTree(dir);
                         break;
                     }
                 }

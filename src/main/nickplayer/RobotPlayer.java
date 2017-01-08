@@ -84,10 +84,10 @@ public class RobotPlayer {
                 tryMove(myLocation.directionTo(homeLocation));
             } else {
                 // Plant trees at home
-                if (rc.canPlantBulletTree(Direction.getWest())) {
-                    rc.plantBulletTree(Direction.getWest());
-                } else if (rc.canPlantBulletTree(Direction.getEast())) {
-                    rc.plantBulletTree(Direction.getEast());
+                if (rc.canPlantTree(Direction.getWest())) {
+                    rc.plantTree(Direction.getWest());
+                } else if (rc.canPlantTree(Direction.getEast())) {
+                    rc.plantTree(Direction.getEast());
                 }
 
             }
