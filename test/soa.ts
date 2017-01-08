@@ -136,4 +136,5 @@ test('clear', (t: test.Test) => {
 
   db.clear();
   t.equal(db.length, 0);
+  t.end();
 });

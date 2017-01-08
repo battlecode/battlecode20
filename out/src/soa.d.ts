@@ -110,6 +110,10 @@ export default class StructOfArrays<Schema extends ValidSchema> {
      */
     readonly length: number;
     /**
+     * Delete everything.
+     */
+    clear(): void;
+    /**
      * Insert a struct into the array.
      * Note: numbers with no corresponding entry will set their
      * corresponding fields to 0.
