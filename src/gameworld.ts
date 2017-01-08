@@ -433,7 +433,7 @@ export default class GameWorld {
     const typeArray = this.bodies.arrays['type'];
     const radiusArray = this.bodies.arrays['radius'];
     const healthArray = this.bodies.arrays['health'];
-    const maxHealthArray = this.bodies.arrays['health'];
+    const maxHealthArray = this.bodies.arrays['maxHealth'];
     for (let i = startIndex; i < endIndex; i++) {
       const type = typeArray[i];
       const typeInfo = this.meta.types[type];
