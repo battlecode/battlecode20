@@ -4,7 +4,6 @@ var battlecode_schema_1 = require("battlecode-schema");
 // necessary because victor doesn't use exports.default
 var Victor = require("victor");
 var deepcopy = require("deepcopy");
-var NUMBER_OF_INDICATOR_STRINGS = 3;
 /**
  * A frozen image of the game world.
  *
@@ -39,8 +38,6 @@ var GameWorld = (function () {
                 bullets: 0,
                 vps: 0,
                 robots: [
-                    0,
-                    0,
                     0,
                     0,
                     0,
@@ -183,7 +180,7 @@ var GameWorld = (function () {
         if (delta.diedBulletIDsLength() > 0) {
             this.bullets.deleteBulk(delta.diedBulletIDsArray());
         }
-        // Insert indicator strings, dots, and lines
+        // Insert indicator dots and lines
         this.insertIndicatorDots(delta);
         this.insertIndicatorLines(delta);
     };
