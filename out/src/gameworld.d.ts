@@ -67,15 +67,6 @@ export default class GameWorld {
     bullets: StructOfArrays<BulletsSchema>;
     stats: Map<number, TeamStats>;
     /**
-     * Indicator strings.
-     * {
-     *   id: Int32Array,
-     *   index: Int32Array,
-     *   value: Int32Array
-     * }
-     */
-    indicatorStrings: Map<number, string[]>;
-    /**
      * Indicator dots.
      * {
      *   id: Int32Array,
@@ -137,8 +128,6 @@ export default class GameWorld {
      * Process a set of changes.
      */
     processDelta(delta: schema.Round): void;
-    private addIDsToIndicatorStrings(ids);
-    private insertIndicatorStrings(delta);
     private insertIndicatorDots(delta);
     private insertIndicatorLines(delta);
     private insertBodies(bodies);
