@@ -4,6 +4,12 @@ import StructOfArrays from './soa';
 import Metadata from './metadata';
 import { schema } from 'battlecode-schema';
 import Victor = require('victor');
+export declare type DiedBodiesSchema = {
+    id: Int32Array;
+    x: Float32Array;
+    y: Float32Array;
+    radius: Float32Array;
+};
 export declare type BodiesSchema = {
     id: Int32Array;
     team: Int8Array;
@@ -51,6 +57,16 @@ export declare type IndicatorLinesSchema = {
  * TODO(jhgilles): better access control on contents.
  */
 export default class GameWorld {
+    /**
+     * Bodies that died this round.
+     * {
+     *   id: Int32Array,
+     *   x: Float32Array,
+     *   y: Float32Array,
+     *   radius: Float32Array
+     * }
+     */
+    diedBodies: StructOfArrays<DiedBodiesSchema>;
     /**
      * Everything that isn't a bullet or indicator string.
      * {
@@ -128,6 +144,7 @@ export default class GameWorld {
      * Process a set of changes.
      */
     processDelta(delta: schema.Round): void;
+    private insertDiedBodies(delta);
     private insertIndicatorDots(delta);
     private insertIndicatorLines(delta);
     private insertBodies(bodies);

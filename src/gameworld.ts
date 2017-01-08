@@ -6,6 +6,13 @@ import {schema, flatbuffers} from 'battlecode-schema';
 import Victor = require('victor');
 import deepcopy = require('deepcopy');
 
+export type DiedBodiesSchema = {
+  id: Int32Array,
+  x: Float32Array,
+  y: Float32Array,
+  radius: Float32Array
+}
+
 export type BodiesSchema = {
   id: Int32Array,
   team: Int8Array,
@@ -60,6 +67,17 @@ export type IndicatorLinesSchema = {
  * TODO(jhgilles): better access control on contents.
  */
 export default class GameWorld {
+  /**
+   * Bodies that died this round.
+   * {
+   *   id: Int32Array,
+   *   x: Float32Array,
+   *   y: Float32Array,
+   *   radius: Float32Array
+   * }
+   */
+  diedBodies: StructOfArrays<DiedBodiesSchema>;
+
   /**
    * Everything that isn't a bullet or indicator string.
    * {
@@ -157,6 +175,13 @@ export default class GameWorld {
 
   constructor(meta: Metadata) {
     this.meta = meta;
+
+    this.diedBodies = new StructOfArrays({
+      id: new Int32Array(0),
+      x: new Float32Array(0),
+      y: new Float32Array(0),
+      radius: new Float32Array(0)
+    }, 'id');
 
     this.bodies = new StructOfArrays({
       id: new Int32Array(0),
@@ -264,6 +289,7 @@ export default class GameWorld {
     this.minCorner = source.minCorner;
     this.maxCorner = source.maxCorner;
     this.mapName = source.mapName;
+    this.diedBodies.copyFrom(source.diedBodies);
     this.bodies.copyFrom(source.bodies);
     this.bullets.copyFrom(source.bullets);
     this.indicatorDots.copyFrom(source.indicatorDots);
@@ -340,6 +366,9 @@ export default class GameWorld {
           this.stats.set(team, statObj);
       }
 
+      // Update died bodies
+      this.insertDiedBodies(delta);
+
       this.bodies.deleteBulk(delta.diedIDsArray());
 
     }
@@ -350,6 +379,29 @@ export default class GameWorld {
     // Insert indicator dots and lines
     this.insertIndicatorDots(delta);
     this.insertIndicatorLines(delta);
+  }
+
+  private insertDiedBodies(delta: schema.Round) {
+    // Delete the died bodies from the previous round
+    this.diedBodies.clear();
+
+    // Insert the died bodies from the current round
+    const startIndex = this.diedBodies.insertBulk({
+      id: delta.diedIDsArray()
+    });
+
+    // Extra initialization
+    const endIndex = startIndex + delta.diedIDsLength();
+    const idArray = this.diedBodies.arrays['id'];
+    const xArray = this.diedBodies.arrays['x'];
+    const yArray = this.diedBodies.arrays['y'];
+    const radiusArray = this.diedBodies.arrays['radius'];
+    for (let i = startIndex; i < endIndex; i++) {
+      const body = this.bodies.lookup(idArray[i]);
+      xArray[i] = body.x;
+      yArray[i] = body.y;
+      radiusArray[i] = body.radius;
+    }
   }
 
   private insertIndicatorDots(delta: schema.Round) {
