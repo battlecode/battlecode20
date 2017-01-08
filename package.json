@@ -22,14 +22,16 @@
     "@types/core-js": "^0.9.34",
     "@types/node": "^6.0.43",
     "@types/victor": "^0.2.28",
-    "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#18be428def6b86a30704d27cb574e31ab51fd4e9",
+    "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#2a8c6bbeeb0f549a424c13373582a030d2ce85e3",
     "core-js": "^2.4.0",
     "deepcopy": "^0.6.3",
+    "pako": "^1.0.4",
     "typescript": "^2.1.4",
     "victor": "^1.1.0"
   },
   "devDependencies": {
     "@types/blue-tape": "^0.1.30",
+    "@types/pako": "^0.2.31",
     "blue-tape": "^0.2.0",
     "onchange": "^2.5.0",
     "stream": "0.0.2",

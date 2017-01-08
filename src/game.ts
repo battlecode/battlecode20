@@ -2,6 +2,7 @@ import Metadata from './metadata';
 import GameWorld from './gameworld';
 import {schema, flatbuffers} from 'battlecode-schema';
 import Match from './match';
+import {ungzip} from 'pako';
 
 /**
  * Represents an entire game.
@@ -112,6 +113,20 @@ export default class Game {
   }
 
   /**
+   * Apply an event from a NON-GZIPPED ArrayBuffer containing an EventWrapper.
+   *
+   * It is expected to be non-gzipped because it was sent over a websocket; if
+   * you're reading from a file, use loadFullGameRaw.
+   *
+   * Do not mutate `data` after calling this function!
+   */
+  applyEventRaw(data: ArrayBuffer) {
+    const event = schema.EventWrapper.getRootAsEventWrapper(
+      new flatbuffers.ByteBuffer(new Uint8Array(data))
+    );
+  }
+
+  /**
    * Load a game all at once.
    */
   loadFullGame(wrapper: schema.GameWrapper) {
@@ -126,5 +141,18 @@ export default class Game {
     if (!this.finished) {
       throw new Error("Gamewrapper did not finish game!");
     }
+  }
+
+  /**
+   * Load a full game from a gzipped ArrayBuffer containing a GameWrapper.
+   *
+   * Do not mutate `data` after calling this function!
+   */
+  loadFullGameRaw(data: ArrayBuffer) {
+    const ungzipped = ungzip(new Uint8Array(data));
+    const wrapper = schema.GameWrapper.getRootAsGameWrapper(
+      new flatbuffers.ByteBuffer(ungzipped)
+    );
+    this.loadFullGame(wrapper);
   }
 }

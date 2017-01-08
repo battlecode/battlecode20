@@ -31,7 +31,7 @@ export type BulletsSchema = {
 export type TeamStats = {
   bullets: number,
   vps: number,
-  robots: [number] // Corresponds to robot type (therefore of length 9, where index 7 is skipped because for some reason trees come after bullets in our schema types. TODO: Change this?)
+  robots: [number] // Corresponds to robot type and bullet tree (length 7)
 };
 
 export type IndicatorDotsSchema = {
@@ -53,8 +53,6 @@ export type IndicatorLinesSchema = {
   green: Int32Array,
   blue: Int32Array
 }
-
-const NUMBER_OF_INDICATOR_STRINGS = 3;
 
 /**
  * A frozen image of the game world.
@@ -89,21 +87,11 @@ export default class GameWorld {
    * }, 'id', capacity)
    */
   bullets: StructOfArrays<BulletsSchema>;
-  
+
   /*
    * Stats for each team
    */
   stats: Map<number, TeamStats>; // Team ID to their stats
-
-  /**
-   * Indicator strings.
-   * {
-   *   id: Int32Array,
-   *   index: Int32Array,
-   *   value: Int32Array
-   * }
-   */
-  indicatorStrings: Map<number, string[]>;
 
   /**
    * Indicator dots.
@@ -189,7 +177,7 @@ export default class GameWorld {
       spawnedTime: new Uint16Array(0),
       damage: new Float32Array(0)
     }, 'id');
-    
+
     // Instantiate stats
     this.stats = new Map<number, TeamStats>();
     for (let team in this.meta.teams) {
@@ -201,16 +189,12 @@ export default class GameWorld {
             0, // ARCHONS
             0, // GARDENERS
             0, // LUMBERJACKS
-            0, // RECRUITS
             0, // SOLDIERS
             0, // TANKS
             0, // SCOUTS
-            0, // IGNORED (type reserved for bullets)
-            0, // TREES
+            0, // TREE_BULLETS
         ]});
     }
-
-    this.indicatorStrings = new Map<number, string[]>();
 
     this.indicatorDots = new StructOfArrays({
       id: new Int32Array(0),
@@ -249,7 +233,6 @@ export default class GameWorld {
     const bodies = map.bodies(this._bodiesSlot);
     if (bodies) {
       this.insertBodies(bodies);
-      this.addIDsToIndicatorStrings(bodies.robotIDsArray());
     }
     const trees = map.trees();
     if (trees) {
@@ -285,10 +268,6 @@ export default class GameWorld {
     this.bullets.copyFrom(source.bullets);
     this.indicatorDots.copyFrom(source.indicatorDots);
     this.indicatorLines.copyFrom(source.indicatorLines);
-    this.indicatorStrings = new Map<number, string[]>();
-    source.indicatorStrings.forEach((value: string[], key: number) => {
-      this.indicatorStrings.set(key, deepcopy(value));
-    });
     this.stats = new Map<number, TeamStats>();
     source.stats.forEach((value: TeamStats, key: number) => {
       this.stats.set(key, deepcopy(value));
@@ -302,7 +281,7 @@ export default class GameWorld {
     if (delta.roundID() != this.turn + 1) {
       throw new Error(`Bad Round: this.turn = ${this.turn}, round.roundID() = ${delta.roundID()}`);
     }
-    
+
     // Update bullet and vp stats
     for (var i = 0; i < delta.teamIDsArray().length; i++) {
         var teamID = delta.teamIDsArray()[i];
@@ -316,7 +295,7 @@ export default class GameWorld {
 
     // Increase the turn count
     this.turn += 1;
-      
+
     // Simulate spawning
     const bodies = delta.spawnedBodies(this._bodiesSlot);
     if (bodies) {
@@ -349,7 +328,7 @@ export default class GameWorld {
 
     // Simulate deaths
     if (delta.diedIDsLength() > 0) {
-      
+
       // Update died stats
       var indices = this.bodies.lookupIndices(delta.diedIDsArray());
       for(let i = 0; i < delta.diedIDsLength(); i++) {
@@ -360,57 +339,17 @@ export default class GameWorld {
           statObj.robots[type] -= 1;
           this.stats.set(team, statObj);
       }
-      
+
       this.bodies.deleteBulk(delta.diedIDsArray());
-      
+
     }
     if (delta.diedBulletIDsLength() > 0) {
       this.bullets.deleteBulk(delta.diedBulletIDsArray());
     }
 
-    // Insert indicator strings, dots, and lines
-    this.insertIndicatorStrings(delta);
+    // Insert indicator dots and lines
     this.insertIndicatorDots(delta);
     this.insertIndicatorLines(delta);
-  }
-
-  private addIDsToIndicatorStrings(ids: Int32Array) {
-    const indicatorStrings: Map<number, string[]> = this.indicatorStrings;
-    ids.forEach(function(robotID) {
-      let defaultStrings: string[] = [];
-        for (let i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
-          defaultStrings[i] = "";
-        }
-        indicatorStrings.set(robotID, defaultStrings);
-    });
-  }
-
-  private insertIndicatorStrings(delta: schema.Round) {
-    // Add spawned bodies
-    const indicatorStrings: Map<number, string[]> = this.indicatorStrings;
-    const spawnedBodies = delta.spawnedBodies(this._bodiesSlot);
-    if (spawnedBodies) {
-      this.addIDsToIndicatorStrings(spawnedBodies.robotIDsArray());
-    }
-
-    // Update current bodies
-    const length: number = delta.indicatorStringIDsLength();
-    const ids: Int32Array = delta.indicatorStringIDsArray();
-    const indices: Int32Array = delta.indicatorStringIndicesArray();
-    const encoding: flatbuffers.Encoding = flatbuffers.Encoding.UTF16_STRING;
-    for (let i = 0; i < length; i++) {
-      let id = ids[i];
-      let index = indices[i];
-      let value: string = <string>delta.indicatorStringValues(i, encoding);
-      indicatorStrings.get(id)[index] = value;
-    }
-
-    // Remove dead bodies
-    if (delta.diedIDsLength() > 0) {
-      delta.diedIDsArray().forEach(function(diedID) {
-        indicatorStrings.delete(diedID);
-      });
-    }
   }
 
   private insertIndicatorDots(delta: schema.Round) {
@@ -471,7 +410,7 @@ export default class GameWorld {
   }
 
   private insertBodies(bodies: schema.SpawnedBodyTable) {
-    
+
     // Update spawn stats
     var teams = bodies.teamIDsArray();
     var types = bodies.typesArray();
@@ -480,7 +419,7 @@ export default class GameWorld {
         statObj.robots[types[i]] += 1;
         this.stats.set(teams[i], statObj);
     }
-    
+
     const locs = bodies.locs(this._vecTableSlot1);
     // Note: this allocates 6 objects with each call.
     // (One for the container, one for each TypedArray.)
@@ -551,7 +490,7 @@ export default class GameWorld {
       this.bodies.length
     );
   }
-  
+
 }
 
 // TODO(jhgilles): encode in flatbuffers

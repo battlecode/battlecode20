@@ -4,7 +4,6 @@ var battlecode_schema_1 = require("battlecode-schema");
 // necessary because victor doesn't use exports.default
 var Victor = require("victor");
 var deepcopy = require("deepcopy");
-var NUMBER_OF_INDICATOR_STRINGS = 3;
 /**
  * A frozen image of the game world.
  *
@@ -46,12 +45,9 @@ var GameWorld = (function () {
                     0,
                     0,
                     0,
-                    0,
-                    0,
                 ]
             });
         }
-        this.indicatorStrings = new Map();
         this.indicatorDots = new soa_1.default({
             id: new Int32Array(0),
             x: new Float32Array(0),
@@ -85,7 +81,6 @@ var GameWorld = (function () {
         var bodies = map.bodies(this._bodiesSlot);
         if (bodies) {
             this.insertBodies(bodies);
-            this.addIDsToIndicatorStrings(bodies.robotIDsArray());
         }
         var trees = map.trees();
         if (trees) {
@@ -120,10 +115,6 @@ var GameWorld = (function () {
         this.bullets.copyFrom(source.bullets);
         this.indicatorDots.copyFrom(source.indicatorDots);
         this.indicatorLines.copyFrom(source.indicatorLines);
-        this.indicatorStrings = new Map();
-        source.indicatorStrings.forEach(function (value, key) {
-            _this.indicatorStrings.set(key, deepcopy(value));
-        });
         this.stats = new Map();
         source.stats.forEach(function (value, key) {
             _this.stats.set(key, deepcopy(value));
@@ -189,45 +180,9 @@ var GameWorld = (function () {
         if (delta.diedBulletIDsLength() > 0) {
             this.bullets.deleteBulk(delta.diedBulletIDsArray());
         }
-        // Insert indicator strings, dots, and lines
-        this.insertIndicatorStrings(delta);
+        // Insert indicator dots and lines
         this.insertIndicatorDots(delta);
         this.insertIndicatorLines(delta);
-    };
-    GameWorld.prototype.addIDsToIndicatorStrings = function (ids) {
-        var indicatorStrings = this.indicatorStrings;
-        ids.forEach(function (robotID) {
-            var defaultStrings = [];
-            for (var i = 0; i < NUMBER_OF_INDICATOR_STRINGS; i++) {
-                defaultStrings[i] = "";
-            }
-            indicatorStrings.set(robotID, defaultStrings);
-        });
-    };
-    GameWorld.prototype.insertIndicatorStrings = function (delta) {
-        // Add spawned bodies
-        var indicatorStrings = this.indicatorStrings;
-        var spawnedBodies = delta.spawnedBodies(this._bodiesSlot);
-        if (spawnedBodies) {
-            this.addIDsToIndicatorStrings(spawnedBodies.robotIDsArray());
-        }
-        // Update current bodies
-        var length = delta.indicatorStringIDsLength();
-        var ids = delta.indicatorStringIDsArray();
-        var indices = delta.indicatorStringIndicesArray();
-        var encoding = battlecode_schema_1.flatbuffers.Encoding.UTF16_STRING;
-        for (var i = 0; i < length; i++) {
-            var id = ids[i];
-            var index = indices[i];
-            var value = delta.indicatorStringValues(i, encoding);
-            indicatorStrings.get(id)[index] = value;
-        }
-        // Remove dead bodies
-        if (delta.diedIDsLength() > 0) {
-            delta.diedIDsArray().forEach(function (diedID) {
-                indicatorStrings.delete(diedID);
-            });
-        }
     };
     GameWorld.prototype.insertIndicatorDots = function (delta) {
         // Delete the dots from the previous round
