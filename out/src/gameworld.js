@@ -19,7 +19,10 @@ var GameWorld = (function () {
             x: new Float32Array(0),
             y: new Float32Array(0),
             health: new Float32Array(0),
-            radius: new Float32Array(0)
+            radius: new Float32Array(0),
+            maxHealth: new Float32Array(0),
+            containedBullets: new Float32Array(0),
+            containedBody: new Int8Array(0)
         }, 'id');
         this.bullets = new soa_1.default({
             id: new Int32Array(0),
@@ -249,12 +252,16 @@ var GameWorld = (function () {
         var typeArray = this.bodies.arrays['type'];
         var radiusArray = this.bodies.arrays['radius'];
         var healthArray = this.bodies.arrays['health'];
+        var maxHealthArray = this.bodies.arrays['health'];
         for (var i = startIndex; i < endIndex; i++) {
             var type = typeArray[i];
             var typeInfo = this.meta.types[type];
             radiusArray[i] = typeInfo.radius;
             healthArray[i] = typeInfo.startHealth;
+            maxHealthArray[i] = typeInfo.maxHealth;
         }
+        soa_1.default.fill(this.bodies.arrays['containedBullets'], 0, startIndex, this.bodies.length);
+        soa_1.default.fill(this.bodies.arrays['containedBody'], battlecode_schema_1.schema.BodyType.NONE, startIndex, this.bodies.length);
     };
     GameWorld.prototype.insertBullets = function (bullets) {
         var locs = bullets.locs(this._vecTableSlot1);
@@ -278,6 +285,9 @@ var GameWorld = (function () {
             health: trees.healthsArray(),
             x: locs.xsArray(),
             y: locs.ysArray(),
+            maxHealth: trees.maxHealthsArray(),
+            containedBullets: trees.containedBulletsArray(),
+            containedBodies: trees.containedBodiesArray()
         });
         soa_1.default.fill(this.bodies.arrays['team'], NEUTRAL_TEAM, startI, this.bodies.length);
         soa_1.default.fill(this.bodies.arrays['type'], battlecode_schema_1.schema.BodyType.TREE_NEUTRAL, startI, this.bodies.length);
@@ -287,4 +297,4 @@ var GameWorld = (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = GameWorld;
 // TODO(jhgilles): encode in flatbuffers
-var NEUTRAL_TEAM = 2;
+var NEUTRAL_TEAM = 0;

@@ -12,6 +12,9 @@ export declare type BodiesSchema = {
     y: Float32Array;
     health: Float32Array;
     radius: Float32Array;
+    maxHealth: Float32Array;
+    containedBullets: Float32Array;
+    containedBody: Int8Array;
 };
 export declare type BulletsSchema = {
     id: Int32Array;
@@ -60,7 +63,10 @@ export default class GameWorld {
      *   x: Float32Array,
      *   y: Float32Array,
      *   health: Float32Array,
-     *   radius: Float32Array
+     *   radius: Float32Array,
+     *   maxHealth: Float32Array,
+     *   containedBullets: Float32Array,
+     *   containedBody: Int8Array
      * }
      */
     bodies: StructOfArrays<BodiesSchema>;

@@ -13,7 +13,10 @@ export type BodiesSchema = {
   x: Float32Array,
   y: Float32Array,
   health: Float32Array,
-  radius: Float32Array
+  radius: Float32Array,
+  maxHealth: Float32Array,
+  containedBullets: Float32Array, // Only relevant for neutral trees
+  containedBody: Int8Array // Only relevant for neutral trees
 };
 
 export type BulletsSchema = {
@@ -69,7 +72,10 @@ export default class GameWorld {
    *   x: Float32Array,
    *   y: Float32Array,
    *   health: Float32Array,
-   *   radius: Float32Array
+   *   radius: Float32Array,
+   *   maxHealth: Float32Array,
+   *   containedBullets: Float32Array,
+   *   containedBody: Int8Array
    * }
    */
   bodies: StructOfArrays<BodiesSchema>;
@@ -165,7 +171,10 @@ export default class GameWorld {
       x: new Float32Array(0),
       y: new Float32Array(0),
       health: new Float32Array(0),
-      radius: new Float32Array(0)
+      radius: new Float32Array(0),
+      maxHealth: new Float32Array(0),
+      containedBullets: new Float32Array(0),
+      containedBody: new Int8Array(0)
     }, 'id');
 
     this.bullets = new StructOfArrays({
@@ -424,12 +433,26 @@ export default class GameWorld {
     const typeArray = this.bodies.arrays['type'];
     const radiusArray = this.bodies.arrays['radius'];
     const healthArray = this.bodies.arrays['health'];
+    const maxHealthArray = this.bodies.arrays['health'];
     for (let i = startIndex; i < endIndex; i++) {
       const type = typeArray[i];
       const typeInfo = this.meta.types[type];
       radiusArray[i] = typeInfo.radius;
       healthArray[i] = typeInfo.startHealth;
+      maxHealthArray[i] = typeInfo.maxHealth;
     }
+    StructOfArrays.fill(
+      this.bodies.arrays['containedBullets'],
+      0,
+      startIndex,
+      this.bodies.length
+    );
+    StructOfArrays.fill(
+      this.bodies.arrays['containedBody'],
+      schema.BodyType.NONE,
+      startIndex,
+      this.bodies.length
+    );
   }
 
   private insertBullets(bullets: schema.SpawnedBulletTable) {
@@ -458,6 +481,9 @@ export default class GameWorld {
       health: trees.healthsArray(),
       x: locs.xsArray(),
       y: locs.ysArray(),
+      maxHealth: trees.maxHealthsArray(),
+      containedBullets: trees.containedBulletsArray(),
+      containedBodies: trees.containedBodiesArray()
     });
 
     StructOfArrays.fill(
@@ -478,4 +504,4 @@ export default class GameWorld {
 }
 
 // TODO(jhgilles): encode in flatbuffers
-const NEUTRAL_TEAM = 2;
+const NEUTRAL_TEAM = 0;
