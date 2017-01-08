@@ -2,6 +2,7 @@
 var metadata_1 = require("./metadata");
 var battlecode_schema_1 = require("battlecode-schema");
 var match_1 = require("./match");
+var pako_1 = require("pako");
 /**
  * Represents an entire game.
  * Contains a Match for every match in a game.
@@ -112,6 +113,17 @@ var Game = (function () {
         }
     };
     /**
+     * Apply an event from a NON-GZIPPED ArrayBuffer containing an EventWrapper.
+     *
+     * It is expected to be non-gzipped because it was sent over a websocket; if
+     * you're reading from a file, use loadFullGameRaw.
+     *
+     * Do not mutate `data` after calling this function!
+     */
+    Game.prototype.applyEventRaw = function (data) {
+        var event = battlecode_schema_1.schema.EventWrapper.getRootAsEventWrapper(new battlecode_schema_1.flatbuffers.ByteBuffer(new Uint8Array(data)));
+    };
+    /**
      * Load a game all at once.
      */
     Game.prototype.loadFullGame = function (wrapper) {
@@ -126,6 +138,16 @@ var Game = (function () {
         if (!this.finished) {
             throw new Error("Gamewrapper did not finish game!");
         }
+    };
+    /**
+     * Load a full game from a gzipped ArrayBuffer containing a GameWrapper.
+     *
+     * Do not mutate `data` after calling this function!
+     */
+    Game.prototype.loadFullGameRaw = function (data) {
+        var ungzipped = pako_1.ungzip(new Uint8Array(data));
+        var wrapper = battlecode_schema_1.schema.GameWrapper.getRootAsGameWrapper(new battlecode_schema_1.flatbuffers.ByteBuffer(ungzipped));
+        this.loadFullGame(wrapper);
     };
     return Game;
 }());

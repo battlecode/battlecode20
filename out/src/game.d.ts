@@ -41,7 +41,22 @@ export default class Game {
      */
     applyEvent(event: schema.EventWrapper): void;
     /**
+     * Apply an event from a NON-GZIPPED ArrayBuffer containing an EventWrapper.
+     *
+     * It is expected to be non-gzipped because it was sent over a websocket; if
+     * you're reading from a file, use loadFullGameRaw.
+     *
+     * Do not mutate `data` after calling this function!
+     */
+    applyEventRaw(data: ArrayBuffer): void;
+    /**
      * Load a game all at once.
      */
     loadFullGame(wrapper: schema.GameWrapper): void;
+    /**
+     * Load a full game from a gzipped ArrayBuffer containing a GameWrapper.
+     *
+     * Do not mutate `data` after calling this function!
+     */
+    loadFullGameRaw(data: ArrayBuffer): void;
 }
