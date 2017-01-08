@@ -122,7 +122,7 @@ public class RobotPlayer {
                 // If there are some...
                 if (robots.length > 0) {
                     // And we have enough bullets, and haven't attacked yet this turn...
-                    if (rc.getTeamBullets() > 1 && !rc.hasAttacked()) {
+                    if (rc.canFireSingleShot()) {
                         // ...Then fire a bullet in the direction of the enemy.
                         rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
                     }
@@ -268,10 +268,11 @@ public class RobotPlayer {
         }
 
         // distToRobot is our hypotenuse, theta is our angle, and we want to know this length of the opposite leg.
+        // This is the distance of a line that goes from myLocation and intersects perpendicularly with propagationDirection.
         // This corresponds to the smallest radius circle centered at our location that would intersect with the
         // line that is the path of the bullet.
-        float perpDist = (float)Math.abs(distToRobot * Math.sin(theta)); // soh cah toa :)
+        float perpendicularDist = (float)Math.abs(distToRobot * Math.sin(theta)); // soh cah toa :)
 
-        return (perpDist <= rc.getType().bodyRadius);
+        return (perpendicularDist <= rc.getType().bodyRadius);
     }
 }
