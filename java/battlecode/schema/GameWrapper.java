@@ -18,15 +18,14 @@ import com.google.flatbuffers.*;
  */
 public final class GameWrapper extends Table {
   public static GameWrapper getRootAsGameWrapper(ByteBuffer _bb) { return getRootAsGameWrapper(_bb, new GameWrapper()); }
-  public static GameWrapper getRootAsGameWrapper(ByteBuffer _bb, GameWrapper obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
-  public GameWrapper __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public static GameWrapper getRootAsGameWrapper(ByteBuffer _bb, GameWrapper obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public GameWrapper __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
 
   /**
    * The series of events comprising the game.
    */
   public EventWrapper events(int j) { return events(new EventWrapper(), j); }
-  public EventWrapper events(EventWrapper obj, int j) { int o = __offset(4); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public EventWrapper events(EventWrapper obj, int j) { int o = __offset(4); return o != 0 ? obj.__init(__indirect(__vector(o) + j * 4), bb) : null; }
   public int eventsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
   /**
    * The indices of the headers of the matches, in order.
