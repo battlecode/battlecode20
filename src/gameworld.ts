@@ -31,7 +31,7 @@ export type BulletsSchema = {
 export type TeamStats = {
   bullets: number,
   vps: number,
-  robots: [number] // Corresponds to robot type (therefore of length 9, where index 7 is skipped because for some reason trees come after bullets in our schema types. TODO: Change this?)
+  robots: [number] // Corresponds to robot type and bullet tree (length 7)
 };
 
 export type IndicatorDotsSchema = {
@@ -53,8 +53,6 @@ export type IndicatorLinesSchema = {
   green: Int32Array,
   blue: Int32Array
 }
-
-const NUMBER_OF_INDICATOR_STRINGS = 3;
 
 /**
  * A frozen image of the game world.
@@ -191,12 +189,10 @@ export default class GameWorld {
             0, // ARCHONS
             0, // GARDENERS
             0, // LUMBERJACKS
-            0, // RECRUITS
             0, // SOLDIERS
             0, // TANKS
             0, // SCOUTS
-            0, // IGNORED (type reserved for bullets)
-            0, // TREES
+            0, // TREE_BULLETS
         ]});
     }
 
@@ -351,7 +347,7 @@ export default class GameWorld {
       this.bullets.deleteBulk(delta.diedBulletIDsArray());
     }
 
-    // Insert indicator strings, dots, and lines
+    // Insert indicator dots and lines
     this.insertIndicatorDots(delta);
     this.insertIndicatorLines(delta);
   }

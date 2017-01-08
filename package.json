@@ -22,7 +22,7 @@
     "@types/core-js": "^0.9.34",
     "@types/node": "^6.0.43",
     "@types/victor": "^0.2.28",
-    "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#c8678e041bcc0162d3a36a591325138e3d9b4922",
+    "battlecode-schema": "git+ssh://git@github.com/battlecode/battlecode-schema.git#2a8c6bbeeb0f549a424c13373582a030d2ce85e3",
     "core-js": "^2.4.0",
     "deepcopy": "^0.6.3",
     "pako": "^1.0.4",
