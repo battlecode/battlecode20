@@ -126,3 +126,15 @@ test('double insert', (t: test.Test) => {
   });
   t.end();
 });
+
+test('clear', (t: test.Test) => {
+  const db = new StructOfArrays({
+    id: new Uint8Array([0, 4, 2, 5, 7, 8, 11, 255]),
+    radius: new Float64Array([7, .6, .5, .5, 1, 2, 1, 8]),
+    color: new Uint8Array([3, 0, 0, 1, 0, 0x18, 0x36, 34])
+  }, 'id');
+
+  db.clear();
+  t.equal(db.length, 0);
+  t.end();
+});

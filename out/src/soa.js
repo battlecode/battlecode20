@@ -124,6 +124,21 @@ var StructOfArrays = (function () {
         configurable: true
     });
     /**
+     * Delete everything.
+     */
+    StructOfArrays.prototype.clear = function () {
+        // zero all arrays
+        for (var _i = 0, _a = this._fieldNames; _i < _a.length; _i++) {
+            var name_1 = _a[_i];
+            var array = this.arrays[name_1];
+            StructOfArrays.fill(array, 0, 0, this._capacity);
+        }
+        // clear key lookup
+        this._primLookup.clear();
+        // no elements
+        this._length = 0;
+    };
+    /**
      * Insert a struct into the array.
      * Note: numbers with no corresponding entry will set their
      * corresponding fields to 0.
@@ -330,8 +345,8 @@ var StructOfArrays = (function () {
         // map the keys to indices and sort them
         var toDelete = this._makeToDelete(keys);
         for (var _i = 0, _a = this._fieldNames; _i < _a.length; _i++) {
-            var name_1 = _a[_i];
-            var array = this.arrays[name_1];
+            var name_2 = _a[_i];
+            var array = this.arrays[name_2];
             // copy the fields down in the array
             this._deleteBulkFieldImpl(toDelete, array);
             // zero the new space in the array
