@@ -176,6 +176,21 @@ export default class StructOfArrays<Schema extends ValidSchema> {
   }
 
   /**
+   * Delete everything.
+   */
+  clear() {
+    // zero all arrays
+    for (const name of this._fieldNames) {
+      const array = this.arrays[name];
+      StructOfArrays.fill(<any> array, 0, 0, this._capacity);
+    }
+    // clear key lookup
+    this._primLookup.clear();
+    // no elements
+    this._length = 0;
+  }
+
+  /**
    * Insert a struct into the array.
    * Note: numbers with no corresponding entry will set their
    * corresponding fields to 0.

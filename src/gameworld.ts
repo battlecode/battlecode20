@@ -415,14 +415,7 @@ export default class GameWorld {
 
   private insertIndicatorDots(delta: schema.Round) {
     // Delete the dots from the previous round
-    this.indicatorDots = new StructOfArrays({
-      id: new Int32Array(0),
-      x: new Float32Array(0),
-      y: new Float32Array(0),
-      red: new Int32Array(0),
-      green: new Int32Array(0),
-      blue: new Int32Array(0)
-    }, 'id');
+    this.indicatorDots.clear();
 
     // Insert the dots from the current round
     if (delta.indicatorDotIDsLength() > 0) {
@@ -441,16 +434,7 @@ export default class GameWorld {
 
   private insertIndicatorLines(delta: schema.Round) {
     // Delete the lines from the previous round
-    this.indicatorLines = new StructOfArrays({
-      id: new Int32Array(0),
-      startX: new Float32Array(0),
-      startY: new Float32Array(0),
-      endX: new Float32Array(0),
-      endY: new Float32Array(0),
-      red: new Int32Array(0),
-      green: new Int32Array(0),
-      blue: new Int32Array(0)
-    }, 'id');
+    this.indicatorLines.clear();
 
     // Insert the lines from the current round
     if (delta.indicatorLineIDsLength() > 0) {
