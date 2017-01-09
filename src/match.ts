@@ -143,8 +143,14 @@ export default class Match {
       let line = lines[index];
       let matches = line.match(header);
 
-      // All 5 parenthesized substrings of the header must be matched!
-      if (!matches || (matches && matches.length != 5)) {
+      // Ignore empty string
+      if (line === "") {
+        index += 1;
+        continue;
+      }
+
+      // The entire string and its 5 parenthesized substrings must be matched!
+      if (matches === null || (matches && matches.length != 6)) {
         throw new Error(`Wrong log format: ${line}`);
       }
 
