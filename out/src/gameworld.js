@@ -249,10 +249,10 @@ var GameWorld = (function () {
         });
         // Extra initialization
         var endIndex = startIndex + bodies.robotIDsLength();
-        var typeArray = this.bodies.arrays['type'];
-        var radiusArray = this.bodies.arrays['radius'];
-        var healthArray = this.bodies.arrays['health'];
-        var maxHealthArray = this.bodies.arrays['maxHealth'];
+        var typeArray = this.bodies.arrays.type;
+        var radiusArray = this.bodies.arrays.radius;
+        var healthArray = this.bodies.arrays.health;
+        var maxHealthArray = this.bodies.arrays.maxHealth;
         for (var i = startIndex; i < endIndex; i++) {
             var type = typeArray[i];
             var typeInfo = this.meta.types[type];
@@ -260,8 +260,8 @@ var GameWorld = (function () {
             healthArray[i] = typeInfo.startHealth;
             maxHealthArray[i] = typeInfo.maxHealth;
         }
-        soa_1.default.fill(this.bodies.arrays['containedBullets'], 0, startIndex, this.bodies.length);
-        soa_1.default.fill(this.bodies.arrays['containedBody'], battlecode_schema_1.schema.BodyType.NONE, startIndex, this.bodies.length);
+        soa_1.default.fill(this.bodies.arrays.containedBullets, 0, startIndex, this.bodies.length);
+        soa_1.default.fill(this.bodies.arrays.containedBody, battlecode_schema_1.schema.BodyType.NONE, startIndex, this.bodies.length);
     };
     GameWorld.prototype.insertBullets = function (bullets) {
         var locs = bullets.locs(this._vecTableSlot1);
@@ -275,7 +275,7 @@ var GameWorld = (function () {
             damage: bullets.damagesArray(),
         });
         // There may be an off-by-one error here but I think this is right
-        soa_1.default.fill(this.bullets.arrays['spawnedTime'], this.turn, startI, this.bullets.length);
+        soa_1.default.fill(this.bullets.arrays.spawnedTime, this.turn, startI, this.bullets.length);
     };
     GameWorld.prototype.insertTrees = function (trees) {
         var locs = trees.locs(this._vecTableSlot1);
@@ -289,8 +289,8 @@ var GameWorld = (function () {
             containedBullets: trees.containedBulletsArray(),
             containedBodies: trees.containedBodiesArray()
         });
-        soa_1.default.fill(this.bodies.arrays['team'], NEUTRAL_TEAM, startI, this.bodies.length);
-        soa_1.default.fill(this.bodies.arrays['type'], battlecode_schema_1.schema.BodyType.TREE_NEUTRAL, startI, this.bodies.length);
+        soa_1.default.fill(this.bodies.arrays.team, NEUTRAL_TEAM, startI, this.bodies.length);
+        soa_1.default.fill(this.bodies.arrays.type, battlecode_schema_1.schema.BodyType.TREE_NEUTRAL, startI, this.bodies.length);
     };
     return GameWorld;
 }());
