@@ -1526,7 +1526,7 @@ declare module index {
              * @returns {Float32Array}
              */
             maxHealthsArray(): Float32Array;
-            
+
             /**
              * The bullets contained within the trees.
              *
@@ -2926,6 +2926,32 @@ declare module index {
              * @returns {battlecode.schema.RGBTable}
              */
             indicatorLineRGBs(obj?: schema.RGBTable): schema.RGBTable;
+
+            /**
+             * All logs sent this round.
+             * Messages from a particular robot in this round start on a new line, and
+             * have a header:
+             * '[' $TEAM ':' $ROBOTTYPE '#' $ID '@' $ROUND '] '
+             * $TEAM = 'A' | 'B'
+             * $ROBOTTYPE = 'ARCHON' | 'GARDENER' | 'LUMBERJACK'
+             *            | 'SOLDIER' | 'TANK' | 'SCOUT' | other names...
+             * $ID = a number
+             * $ROUND = a number
+             * The header is not necessarily followed by a newline.
+             * This header should only be sent once per robot per round (although
+             * players may forge it, so don't crash if you get strange input.)
+             *
+             * You should try to only read this value once, and cache it. Reading
+             * strings from a flatbuffer is much less efficient than reading other
+             * buffers, because they need to be copied into an environment-provided
+             * buffer and validated.
+             *
+             * (haha i guess you can never really escape string parsing can you)
+             *
+             * @param {flatbuffers.Encoding=} optionalEncoding
+             * @returns {string|Uint8Array}
+             */
+            logs(): string | Uint8Array;
 
             /**
              * The first sent Round in a match should have index 1. (The starting state,
