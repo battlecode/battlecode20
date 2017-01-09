@@ -12,6 +12,12 @@ var deepcopy = require("deepcopy");
 var GameWorld = (function () {
     function GameWorld(meta) {
         this.meta = meta;
+        this.diedBodies = new soa_1.default({
+            id: new Int32Array(0),
+            x: new Float32Array(0),
+            y: new Float32Array(0),
+            radius: new Float32Array(0)
+        }, 'id');
         this.bodies = new soa_1.default({
             id: new Int32Array(0),
             team: new Int8Array(0),
@@ -114,6 +120,7 @@ var GameWorld = (function () {
         this.minCorner = source.minCorner;
         this.maxCorner = source.maxCorner;
         this.mapName = source.mapName;
+        this.diedBodies.copyFrom(source.diedBodies);
         this.bodies.copyFrom(source.bodies);
         this.bullets.copyFrom(source.bullets);
         this.indicatorDots.copyFrom(source.indicatorDots);
@@ -178,6 +185,8 @@ var GameWorld = (function () {
                 statObj.robots[type] -= 1;
                 this.stats.set(team, statObj);
             }
+            // Update died bodies
+            this.insertDiedBodies(delta);
             this.bodies.deleteBulk(delta.diedIDsArray());
         }
         if (delta.diedBulletIDsLength() > 0) {
@@ -186,6 +195,26 @@ var GameWorld = (function () {
         // Insert indicator dots and lines
         this.insertIndicatorDots(delta);
         this.insertIndicatorLines(delta);
+    };
+    GameWorld.prototype.insertDiedBodies = function (delta) {
+        // Delete the died bodies from the previous round
+        this.diedBodies.clear();
+        // Insert the died bodies from the current round
+        var startIndex = this.diedBodies.insertBulk({
+            id: delta.diedIDsArray()
+        });
+        // Extra initialization
+        var endIndex = startIndex + delta.diedIDsLength();
+        var idArray = this.diedBodies.arrays.id;
+        var xArray = this.diedBodies.arrays.x;
+        var yArray = this.diedBodies.arrays.y;
+        var radiusArray = this.diedBodies.arrays.radius;
+        for (var i = startIndex; i < endIndex; i++) {
+            var body = this.bodies.lookup(idArray[i]);
+            xArray[i] = body.x;
+            yArray[i] = body.y;
+            radiusArray[i] = body.radius;
+        }
     };
     GameWorld.prototype.insertIndicatorDots = function (delta) {
         // Delete the dots from the previous round
