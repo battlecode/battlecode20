@@ -40,4 +40,16 @@ public class Bot {
     public void round() throws GameActionException {
         broadcastExistence();
     }
+
+    public void moveTowardsClosest(BodyInfo[] bodies) throws GameActionException {
+        int closest = 0;
+        for (int i = 1; i < bodies.length; ++i) {
+            if (location.distanceTo(bodies[i].getLocation()) < location.distanceTo(bodies[closest].getLocation())) {
+                closest = i;
+            }
+        }
+        if (rc.canMove(location.directionTo(bodies[closest].getLocation()))) {
+            rc.move(location.directionTo(bodies[closest].getLocation()));
+        }
+    }
 }
