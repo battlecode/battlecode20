@@ -371,6 +371,7 @@ export default class GameWorld {
           let team = this.bodies.arrays.team[index];
           let type = this.bodies.arrays.type[index];
           var statObj = this.stats.get(team);
+          if(!statObj) {continue;} // In case this is a neutral bot
           statObj.robots[type] -= 1;
           this.stats.set(team, statObj);
       }
