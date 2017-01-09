@@ -182,6 +182,9 @@ var GameWorld = (function () {
                 var team = this.bodies.arrays.team[index];
                 var type = this.bodies.arrays.type[index];
                 var statObj = this.stats.get(team);
+                if (statObj == undefined || statObj == null) {
+                    continue;
+                } // In case this is a neutral bot
                 statObj.robots[type] -= 1;
                 this.stats.set(team, statObj);
             }
