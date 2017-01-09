@@ -2,6 +2,15 @@ import Metadata from './metadata';
 import GameWorld from './gameworld';
 import {schema, flatbuffers} from 'battlecode-schema';
 
+export type Log = {
+  team: string, // 'A' | 'B'
+  robotType: string, // 'ARCHON' | 'GARDENER' | 'LUMBERJACK'
+                     // | 'SOLDIER' | 'TANK' | 'SCOUT'
+  id: number,
+  round: number,
+  text: string
+};
+
 // Return a timestamp representing the _current time in ms, not necessarily from
 // any particular epoch.
 const timeMS: () => number = typeof window !== 'undefined' && window.performance && window.performance.now?
@@ -40,6 +49,11 @@ export default class Match {
    * [0] is not stored.
    */
   readonly deltas: Array<schema.Round>;
+
+  /**
+   * The logs of this match.
+   */
+  readonly logs: Array<Log>;
 
   /**
    * The current game world.
@@ -102,6 +116,8 @@ export default class Match {
     this.snapshots.push(this._current.copy());
     // leave [0] undefined
     this.deltas = new Array(1);
+    // leave [0] undefined
+    this.logs = new Array(1);
     this.maxTurn = header.maxRounds();
     this._lastTurn = null;
     this._seekTo = 0;
@@ -109,13 +125,53 @@ export default class Match {
   }
 
   /**
-   * Store a schema.Round.
+   * Store a schema.Round and the logs contained in it.
    */
   applyDelta(delta: schema.Round) {
     if (delta.roundID() !== this.deltas.length) {
       throw new Error(`Can't store delta ${delta.roundID()}, only have rounds up to ${this.deltas.length-1}`);
     }
     this.deltas.push(delta);
+
+    // Regex
+    let lines: Array<string> = (<string>delta.logs(flatbuffers.Encoding.UTF16_STRING)).split(/\r?\n/);
+    let header = /^\[(A|B):(ARCHON|GARDENER|LUMBERJACK|SOLDIER|TANK|SCOUT)#(\d+)@(\d+)\] (.*)/;
+
+    // Parse each line
+    let index: number = 0;
+    while (index < lines.length) {
+      let line = lines[index];
+      let matches = line.match(header);
+
+      // All 5 parenthesized substrings of the header must be matched!
+      if (!matches || (matches && matches.length != 5)) {
+        throw new Error(`Wrong log format: ${line}`);
+      }
+
+      // Get the matches
+      let team = matches[1];
+      let robotType = matches[2];
+      let id = parseInt(matches[3]);
+      let round = parseInt(matches[4]);
+      let text = new Array<string>();
+      text.push(matches[5]);
+      index += 1;
+
+      // If there is additional non-header text in the following lines, add it
+      while (index < lines.length && !lines[index].match(header)) {
+        text.push(lines[index]);
+        index +=1;
+      }
+
+      // Push the parsed log
+      this.logs.push({
+        team: team,
+        robotType: robotType,
+        id: id,
+        round: round,
+        text: text.join('\n')
+      });
+    }
   }
 
   /**

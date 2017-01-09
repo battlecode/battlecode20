@@ -1,5 +1,6 @@
 "use strict";
 var gameworld_1 = require("./gameworld");
+var battlecode_schema_1 = require("battlecode-schema");
 // Return a timestamp representing the _current time in ms, not necessarily from
 // any particular epoch.
 var timeMS = typeof window !== 'undefined' && window.performance && window.performance.now ?
@@ -30,6 +31,8 @@ var Match = (function () {
         this.snapshots.push(this._current.copy());
         // leave [0] undefined
         this.deltas = new Array(1);
+        // leave [0] undefined
+        this.logs = new Array(1);
         this.maxTurn = header.maxRounds();
         this._lastTurn = null;
         this._seekTo = 0;
@@ -88,13 +91,47 @@ var Match = (function () {
         configurable: true
     });
     /**
-     * Store a schema.Round.
+     * Store a schema.Round and the logs contained in it.
      */
     Match.prototype.applyDelta = function (delta) {
         if (delta.roundID() !== this.deltas.length) {
             throw new Error("Can't store delta " + delta.roundID() + ", only have rounds up to " + (this.deltas.length - 1));
         }
         this.deltas.push(delta);
+        // Regex
+        var lines = delta.logs(battlecode_schema_1.flatbuffers.Encoding.UTF16_STRING).split(/\r?\n/);
+        var header = /^\[(A|B):(ARCHON|GARDENER|LUMBERJACK|SOLDIER|TANK|SCOUT)#(\d+)@(\d+)\] (.*)/;
+        // Parse each line
+        var index = 0;
+        while (index < lines.length) {
+            var line = lines[index];
+            var matches = line.match(header);
+            // All 5 parenthesized substrings of the header must be matched!
+            if (!matches || (matches && matches.length != 5)) {
+                throw new Error("Wrong log format: " + line);
+            }
+            // Get the matches
+            var team = matches[1];
+            var robotType = matches[2];
+            var id = parseInt(matches[3]);
+            var round = parseInt(matches[4]);
+            var text = new Array();
+            text.push(matches[5]);
+            index += 1;
+            // If there is additional non-header text in the following lines, add it
+            while (index < lines.length && !lines[index].match(header)) {
+                text.push(lines[index]);
+                index += 1;
+            }
+            // Push the parsed log
+            this.logs.push({
+                team: team,
+                robotType: robotType,
+                id: id,
+                round: round,
+                text: text.join('\n')
+            });
+        }
     };
     /**
      * Finish the timeline.
