@@ -34,6 +34,7 @@ public class Gardener extends Bot {
             }
         }
 
+        /*
         // Plant a tree if you can.
         // Left and right directions only.
         for (float rad = 0; rad <= Math.PI * 2; rad += Math.PI) {
@@ -42,11 +43,12 @@ public class Gardener extends Bot {
                 break;
             }
         }
+        */
 
-        // Then, make tanks.
+        // Then, make lumberjacks.
         for (float rad = (float) Math.PI / 2; rad <= Math.PI * 2; rad += Math.PI) {
-            if (rc.canBuildRobot(RobotType.TANK, new Direction(rad))) {
-                rc.buildRobot(RobotType.TANK, new Direction(rad));
+            if (rc.canBuildRobot(RobotType.LUMBERJACK, new Direction(rad))) {
+                rc.buildRobot(RobotType.LUMBERJACK, new Direction(rad));
                 break;
             }
         }

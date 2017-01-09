@@ -33,6 +33,7 @@ public class Archon extends Bot {
         }
 
         if (counts[RobotType.GARDENER.ordinal()] < rc.getRoundNum() / 400 + 1) {
+            System.out.println("Found " + counts[RobotType.GARDENER.ordinal()] + " gardeners, need more");
             for (float rad = 0; rad <= Math.PI * 2; rad += Math.PI / 8) {
                 if (rc.canHireGardener(new Direction(rad))) {
                     rc.hireGardener(new Direction(rad));
