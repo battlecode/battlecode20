@@ -430,10 +430,10 @@ export default class GameWorld {
 
     // Extra initialization
     const endIndex = startIndex + bodies.robotIDsLength();
-    const typeArray = this.bodies.arrays['type'];
-    const radiusArray = this.bodies.arrays['radius'];
-    const healthArray = this.bodies.arrays['health'];
-    const maxHealthArray = this.bodies.arrays['maxHealth'];
+    const typeArray = this.bodies.arrays.type;
+    const radiusArray = this.bodies.arrays.radius;
+    const healthArray = this.bodies.arrays.health;
+    const maxHealthArray = this.bodies.arrays.maxHealth;
     for (let i = startIndex; i < endIndex; i++) {
       const type = typeArray[i];
       const typeInfo = this.meta.types[type];
@@ -442,13 +442,13 @@ export default class GameWorld {
       maxHealthArray[i] = typeInfo.maxHealth;
     }
     StructOfArrays.fill(
-      this.bodies.arrays['containedBullets'],
+      this.bodies.arrays.containedBullets,
       0,
       startIndex,
       this.bodies.length
     );
     StructOfArrays.fill(
-      this.bodies.arrays['containedBody'],
+      this.bodies.arrays.containedBody,
       schema.BodyType.NONE,
       startIndex,
       this.bodies.length
@@ -469,7 +469,7 @@ export default class GameWorld {
     });
 
     // There may be an off-by-one error here but I think this is right
-    StructOfArrays.fill(this.bullets.arrays['spawnedTime'], this.turn, startI, this.bullets.length);
+    StructOfArrays.fill(this.bullets.arrays.spawnedTime, this.turn, startI, this.bullets.length);
   }
 
   private insertTrees(trees: schema.NeutralTreeTable) {
@@ -487,14 +487,14 @@ export default class GameWorld {
     });
 
     StructOfArrays.fill(
-      this.bodies.arrays['team'],
+      this.bodies.arrays.team,
       NEUTRAL_TEAM,
       startI,
       this.bodies.length
     );
 
     StructOfArrays.fill(
-      this.bodies.arrays['type'],
+      this.bodies.arrays.type,
       schema.BodyType.TREE_NEUTRAL,
       startI,
       this.bodies.length
