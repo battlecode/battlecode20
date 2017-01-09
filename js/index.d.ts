@@ -2951,7 +2951,7 @@ declare module index {
              * @param {flatbuffers.Encoding=} optionalEncoding
              * @returns {string|Uint8Array}
              */
-            logs(): string | Uint8Array;
+            logs(optionalEncoding?: flatbuffers.Encoding): string | Uint8Array;
 
             /**
              * The first sent Round in a match should have index 1. (The starting state,
