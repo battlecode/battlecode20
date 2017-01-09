@@ -202,10 +202,10 @@ var GameWorld = (function () {
         });
         // Extra initialization
         var endIndex = startIndex + delta.diedIDsLength();
-        var idArray = this.diedBodies.arrays['id'];
-        var xArray = this.diedBodies.arrays['x'];
-        var yArray = this.diedBodies.arrays['y'];
-        var radiusArray = this.diedBodies.arrays['radius'];
+        var idArray = this.diedBodies.arrays.id;
+        var xArray = this.diedBodies.arrays.x;
+        var yArray = this.diedBodies.arrays.y;
+        var radiusArray = this.diedBodies.arrays.radius;
         for (var i = startIndex; i < endIndex; i++) {
             var body = this.bodies.lookup(idArray[i]);
             xArray[i] = body.x;

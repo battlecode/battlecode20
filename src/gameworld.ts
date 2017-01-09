@@ -392,10 +392,10 @@ export default class GameWorld {
 
     // Extra initialization
     const endIndex = startIndex + delta.diedIDsLength();
-    const idArray = this.diedBodies.arrays['id'];
-    const xArray = this.diedBodies.arrays['x'];
-    const yArray = this.diedBodies.arrays['y'];
-    const radiusArray = this.diedBodies.arrays['radius'];
+    const idArray = this.diedBodies.arrays.id;
+    const xArray = this.diedBodies.arrays.x;
+    const yArray = this.diedBodies.arrays.y;
+    const radiusArray = this.diedBodies.arrays.radius;
     for (let i = startIndex; i < endIndex; i++) {
       const body = this.bodies.lookup(idArray[i]);
       xArray[i] = body.x;
