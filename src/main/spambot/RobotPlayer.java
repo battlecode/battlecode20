@@ -102,7 +102,7 @@ public class RobotPlayer {
                 dir = rc.getLocation().directionTo(enemies[0].getLocation());
                 cooldown = 5;
 
-                if (rc.canPentadShot()) {
+                if (rc.canFirePentadShot()) {
                     rc.firePentadShot(dir);
                     moveCooldown = 2;
                 }
