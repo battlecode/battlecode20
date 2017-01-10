@@ -1,6 +1,13 @@
 import Metadata from './metadata';
 import GameWorld from './gameworld';
 import { schema } from 'battlecode-schema';
+export declare type Log = {
+    team: string;
+    robotType: string;
+    id: number;
+    round: number;
+    text: string;
+};
 /**
  * A timeline of a match. Allows you to see what the state of the match was,
  * at any particular time.
@@ -32,6 +39,10 @@ export default class Match {
      * [0] is not stored.
      */
     readonly deltas: Array<schema.Round>;
+    /**
+     * The logs of this match.
+     */
+    readonly logs: Array<Log>;
     /**
      * The current game world.
      * DO NOT CACHE this reference between calls to seek() and compute(), it may
@@ -76,7 +87,7 @@ export default class Match {
      */
     constructor(header: schema.MatchHeader, meta: Metadata);
     /**
-     * Store a schema.Round.
+     * Store a schema.Round and the logs contained in it.
      */
     applyDelta(delta: schema.Round): void;
     /**
