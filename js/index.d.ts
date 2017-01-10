@@ -2963,7 +2963,7 @@ declare module index {
             roundID(): number;
 
             /**
-             * The IDs of non-neutral bodies.
+             * The IDs of player bodies.
              *
              * @param {number} index
              * @returns {number}
@@ -2981,22 +2981,22 @@ declare module index {
             bytecodeIDsArray(): Int32Array;
 
             /**
-             * The bytecodes left of the non-neutral bodies.
+             * The bytecodes used by the player bodies.
              *
              * @param {number} index
              * @returns {number}
              */
-            bytecodesLeft(index: number): number;
+            bytecodesUsed(index: number): number;
 
             /**
              * @returns {number}
              */
-            bytecodesLeftLength(): number;
+            bytecodesUsedLength(): number;
 
             /**
              * @returns {Int32Array}
              */
-            bytecodesLeftArray(): Int32Array;
+            bytecodesUsedArray(): Int32Array;
 
             /**
              * @param {flatbuffers.Builder} builder

@@ -342,10 +342,10 @@ table Round {
     /// It should increase by one for each following round.
     roundID: int;
 
-    /// The IDs of non-neutral bodies.
+    /// The IDs of player bodies.
     bytecodeIDs: [int];
-    /// The bytecodes left of the non-neutral bodies.
-    bytecodesLeft: [int];
+    /// The bytecodes used by the player bodies.
+    bytecodesUsed: [int];
 }
 
 /// Necessary due to flatbuffers requiring unions to be wrapped in tables.
