@@ -19,7 +19,7 @@ export declare type BodiesSchema = {
     health: Float32Array;
     radius: Float32Array;
     maxHealth: Float32Array;
-    bytecodesLeft: Int32Array;
+    bytecodesUsed: Int32Array;
     containedBullets: Float32Array;
     containedBody: Int8Array;
 };
@@ -82,7 +82,7 @@ export default class GameWorld {
      *   health: Float32Array,
      *   radius: Float32Array,
      *   maxHealth: Float32Array,
-     *   bytecodesLeft: Int32Array,
+     *   bytecodesUsed: Int32Array,
      *   containedBullets: Float32Array,
      *   containedBody: Int8Array
      * }

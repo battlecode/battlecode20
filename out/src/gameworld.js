@@ -27,7 +27,7 @@ var GameWorld = (function () {
             health: new Float32Array(0),
             radius: new Float32Array(0),
             maxHealth: new Float32Array(0),
-            bytecodesLeft: new Int32Array(0),
+            bytecodesUsed: new Int32Array(0),
             containedBullets: new Float32Array(0),
             containedBody: new Int8Array(0)
         }, 'id');
@@ -178,7 +178,7 @@ var GameWorld = (function () {
         if (delta.bytecodeIDsLength() > 0) {
             this.bodies.alterBulk({
                 id: delta.bytecodeIDsArray(),
-                bytecodesLeft: delta.bytecodesLeftArray()
+                bytecodesUsed: delta.bytecodesUsedArray()
             });
         }
         // Simulate deaths
@@ -300,7 +300,7 @@ var GameWorld = (function () {
             healthArray[i] = typeInfo.startHealth;
             maxHealthArray[i] = typeInfo.maxHealth;
         }
-        soa_1.default.fill(this.bodies.arrays.bytecodesLeft, 0, startIndex, this.bodies.length);
+        soa_1.default.fill(this.bodies.arrays.bytecodesUsed, 0, startIndex, this.bodies.length);
         soa_1.default.fill(this.bodies.arrays.containedBullets, 0, startIndex, this.bodies.length);
         soa_1.default.fill(this.bodies.arrays.containedBody, battlecode_schema_1.schema.BodyType.NONE, startIndex, this.bodies.length);
     };
@@ -330,7 +330,7 @@ var GameWorld = (function () {
             containedBullets: trees.containedBulletsArray(),
             containedBodies: trees.containedBodiesArray()
         });
-        soa_1.default.fill(this.bodies.arrays.bytecodesLeft, 0, startI, this.bodies.length);
+        soa_1.default.fill(this.bodies.arrays.bytecodesUsed, 0, startI, this.bodies.length);
         soa_1.default.fill(this.bodies.arrays.team, NEUTRAL_TEAM, startI, this.bodies.length);
         soa_1.default.fill(this.bodies.arrays.type, battlecode_schema_1.schema.BodyType.TREE_NEUTRAL, startI, this.bodies.length);
     };

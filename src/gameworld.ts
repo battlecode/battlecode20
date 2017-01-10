@@ -22,7 +22,7 @@ export type BodiesSchema = {
   health: Float32Array,
   radius: Float32Array,
   maxHealth: Float32Array,
-  bytecodesLeft: Int32Array, // Only relevant for non-neutral bodies
+  bytecodesUsed: Int32Array, // Only relevant for non-neutral bodies
   containedBullets: Float32Array, // Only relevant for neutral trees
   containedBody: Int8Array // Only relevant for neutral trees
 };
@@ -93,7 +93,7 @@ export default class GameWorld {
    *   health: Float32Array,
    *   radius: Float32Array,
    *   maxHealth: Float32Array,
-   *   bytecodesLeft: Int32Array,
+   *   bytecodesUsed: Int32Array,
    *   containedBullets: Float32Array,
    *   containedBody: Int8Array
    * }
@@ -200,7 +200,7 @@ export default class GameWorld {
       health: new Float32Array(0),
       radius: new Float32Array(0),
       maxHealth: new Float32Array(0),
-      bytecodesLeft: new Int32Array(0),
+      bytecodesUsed: new Int32Array(0),
       containedBullets: new Float32Array(0),
       containedBody: new Int8Array(0)
     }, 'id');
@@ -368,7 +368,7 @@ export default class GameWorld {
     if (delta.bytecodeIDsLength() > 0) {
       this.bodies.alterBulk({
         id: delta.bytecodeIDsArray(),
-        bytecodesLeft: delta.bytecodesLeftArray()
+        bytecodesUsed: delta.bytecodesUsedArray()
       });
     }
 
@@ -506,7 +506,7 @@ export default class GameWorld {
       maxHealthArray[i] = typeInfo.maxHealth;
     }
     StructOfArrays.fill(
-      this.bodies.arrays.bytecodesLeft,
+      this.bodies.arrays.bytecodesUsed,
       0,
       startIndex,
       this.bodies.length
@@ -557,7 +557,7 @@ export default class GameWorld {
     });
 
     StructOfArrays.fill(
-      this.bodies.arrays.bytecodesLeft,
+      this.bodies.arrays.bytecodesUsed,
       0,
       startI,
       this.bodies.length
