@@ -169,6 +169,18 @@ public final class Round extends Table {
    * It should increase by one for each following round.
    */
   public int roundID() { int o = __offset(48); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  /**
+   * The IDs of non-neutral bodies.
+   */
+  public int bytecodeIDs(int j) { int o = __offset(50); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int bytecodeIDsLength() { int o = __offset(50); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer bytecodeIDsAsByteBuffer() { return __vector_as_bytebuffer(50, 4); }
+  /**
+   * The bytecodes left of the non-neutral bodies.
+   */
+  public int bytecodesLeft(int j) { int o = __offset(52); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int bytecodesLeftLength() { int o = __offset(52); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer bytecodesLeftAsByteBuffer() { return __vector_as_bytebuffer(52, 4); }
 
   public static int createRound(FlatBufferBuilder builder,
       int teamIDsOffset,
@@ -193,8 +205,12 @@ public final class Round extends Table {
       int indicatorLineEndLocsOffset,
       int indicatorLineRGBsOffset,
       int logsOffset,
-      int roundID) {
-    builder.startObject(23);
+      int roundID,
+      int bytecodeIDsOffset,
+      int bytecodesLeftOffset) {
+    builder.startObject(25);
+    Round.addBytecodesLeft(builder, bytecodesLeftOffset);
+    Round.addBytecodeIDs(builder, bytecodeIDsOffset);
     Round.addRoundID(builder, roundID);
     Round.addLogs(builder, logsOffset);
     Round.addIndicatorLineRGBs(builder, indicatorLineRGBsOffset);
@@ -221,7 +237,7 @@ public final class Round extends Table {
     return Round.endRound(builder);
   }
 
-  public static void startRound(FlatBufferBuilder builder) { builder.startObject(23); }
+  public static void startRound(FlatBufferBuilder builder) { builder.startObject(25); }
   public static void addTeamIDs(FlatBufferBuilder builder, int teamIDsOffset) { builder.addOffset(0, teamIDsOffset, 0); }
   public static int createTeamIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startTeamIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
@@ -271,6 +287,12 @@ public final class Round extends Table {
   public static void addIndicatorLineRGBs(FlatBufferBuilder builder, int indicatorLineRGBsOffset) { builder.addOffset(20, indicatorLineRGBsOffset, 0); }
   public static void addLogs(FlatBufferBuilder builder, int logsOffset) { builder.addOffset(21, logsOffset, 0); }
   public static void addRoundID(FlatBufferBuilder builder, int roundID) { builder.addInt(22, roundID, 0); }
+  public static void addBytecodeIDs(FlatBufferBuilder builder, int bytecodeIDsOffset) { builder.addOffset(23, bytecodeIDsOffset, 0); }
+  public static int createBytecodeIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startBytecodeIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addBytecodesLeft(FlatBufferBuilder builder, int bytecodesLeftOffset) { builder.addOffset(24, bytecodesLeftOffset, 0); }
+  public static int createBytecodesLeftVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startBytecodesLeftVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endRound(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

@@ -2963,6 +2963,42 @@ declare module index {
             roundID(): number;
 
             /**
+             * The IDs of non-neutral bodies.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            bytecodeIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            bytecodeIDsLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            bytecodeIDsArray(): Int32Array;
+
+            /**
+             * The bytecodes left of the non-neutral bodies.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            bytecodesLeft(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            bytecodesLeftLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            bytecodesLeftArray(): Int32Array;
+
+            /**
              * @param {flatbuffers.Builder} builder
              */
             static startRound(builder: flatbuffers.Builder): void;

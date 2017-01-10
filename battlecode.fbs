@@ -341,6 +341,11 @@ table Round {
     /// created by the MatchHeader, can be thought to have index 0.)
     /// It should increase by one for each following round.
     roundID: int;
+
+    /// The IDs of non-neutral bodies.
+    bytecodeIDs: [int];
+    /// The bytecodes left of the non-neutral bodies.
+    bytecodesLeft: [int];
 }
 
 /// Necessary due to flatbuffers requiring unions to be wrapped in tables.
