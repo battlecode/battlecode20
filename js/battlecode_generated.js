@@ -2917,10 +2917,64 @@ battlecode.schema.Round.prototype.roundID = function() {
 };
 
 /**
+ * The IDs of player bodies.
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.bytecodeIDs = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 50);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.bytecodeIDsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 50);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.Round.prototype.bytecodeIDsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 50);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * The bytecodes used by the player bodies.
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.bytecodesUsed = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 52);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.bytecodesUsedLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 52);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.Round.prototype.bytecodesUsedArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 52);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.Round.startRound = function(builder) {
-  builder.startObject(23);
+  builder.startObject(25);
 };
 
 /**
@@ -3378,6 +3432,64 @@ battlecode.schema.Round.addLogs = function(builder, logsOffset) {
  */
 battlecode.schema.Round.addRoundID = function(builder, roundID) {
   builder.addFieldInt32(22, roundID, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} bytecodeIDsOffset
+ */
+battlecode.schema.Round.addBytecodeIDs = function(builder, bytecodeIDsOffset) {
+  builder.addFieldOffset(23, bytecodeIDsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createBytecodeIDsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startBytecodeIDsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} bytecodesUsedOffset
+ */
+battlecode.schema.Round.addBytecodesUsed = function(builder, bytecodesUsedOffset) {
+  builder.addFieldOffset(24, bytecodesUsedOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createBytecodesUsedVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startBytecodesUsedVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
 };
 
 /**

@@ -2963,6 +2963,42 @@ declare module index {
             roundID(): number;
 
             /**
+             * The IDs of player bodies.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            bytecodeIDs(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            bytecodeIDsLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            bytecodeIDsArray(): Int32Array;
+
+            /**
+             * The bytecodes used by the player bodies.
+             *
+             * @param {number} index
+             * @returns {number}
+             */
+            bytecodesUsed(index: number): number;
+
+            /**
+             * @returns {number}
+             */
+            bytecodesUsedLength(): number;
+
+            /**
+             * @returns {Int32Array}
+             */
+            bytecodesUsedArray(): Int32Array;
+
+            /**
              * @param {flatbuffers.Builder} builder
              */
             static startRound(builder: flatbuffers.Builder): void;
