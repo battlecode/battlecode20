@@ -121,7 +121,7 @@ var Match = (function () {
             var id = parseInt(matches[3]);
             var round = parseInt(matches[4]);
             var text = new Array();
-            text.push(matches[5]);
+            text.push(line);
             index += 1;
             // If there is additional non-header text in the following lines, add it
             while (index < lines.length && !lines[index].match(header)) {
