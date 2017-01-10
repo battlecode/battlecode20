@@ -160,7 +160,7 @@ export default class Match {
       let id = parseInt(matches[3]);
       let round = parseInt(matches[4]);
       let text = new Array<string>();
-      text.push(matches[5]);
+      text.push(line);
       index += 1;
 
       // If there is additional non-header text in the following lines, add it
