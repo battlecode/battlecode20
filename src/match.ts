@@ -51,9 +51,9 @@ export default class Match {
   readonly deltas: Array<schema.Round>;
 
   /**
-   * The logs of this match.
+   * The logs of this match, bucketed by round.
    */
-  readonly logs: Array<Log>;
+  readonly logs: Array<Array<Log>>;
 
   /**
    * The current game world.
@@ -133,9 +133,19 @@ export default class Match {
     }
     this.deltas.push(delta);
 
+    this.parseLogs(delta.roundID(), <string> delta.logs(flatbuffers.Encoding.UTF16_STRING));
+  }
+
+  /**
+   * Parse logs for a round.
+   */
+  parseLogs(round: number, logs: string) {
+
     // Regex
-    let lines: Array<string> = (<string>delta.logs(flatbuffers.Encoding.UTF16_STRING)).split(/\r?\n/);
+    let lines = logs.split(/\r?\n/);
     let header = /^\[(A|B):(ARCHON|GARDENER|LUMBERJACK|SOLDIER|TANK|SCOUT)#(\d+)@(\d+)\] (.*)/;
+
+    let roundLogs = new Array<Log>();
 
     // Parse each line
     let index: number = 0;
@@ -158,7 +168,7 @@ export default class Match {
       let team = matches[1];
       let robotType = matches[2];
       let id = parseInt(matches[3]);
-      let round = parseInt(matches[4]);
+      let logRound = parseInt(matches[4]);
       let text = new Array<string>();
       text.push(line);
       index += 1;
@@ -169,15 +179,20 @@ export default class Match {
         index +=1;
       }
 
+      if (logRound != round) {
+        console.warn(`Log round mismatch: should be ${round}, is ${logRound}`);
+      }
+
       // Push the parsed log
-      this.logs.push({
+      roundLogs.push({
         team: team,
         robotType: robotType,
         id: id,
-        round: round,
+        round: logRound,
         text: text.join('\n')
       });
     }
+    this.logs.push(roundLogs);
   }
 
   /**

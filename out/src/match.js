@@ -98,9 +98,16 @@ var Match = (function () {
             throw new Error("Can't store delta " + delta.roundID() + ", only have rounds up to " + (this.deltas.length - 1));
         }
         this.deltas.push(delta);
+        this.parseLogs(delta.roundID(), delta.logs(battlecode_schema_1.flatbuffers.Encoding.UTF16_STRING));
+    };
+    /**
+     * Parse logs for a round.
+     */
+    Match.prototype.parseLogs = function (round, logs) {
         // Regex
-        var lines = delta.logs(battlecode_schema_1.flatbuffers.Encoding.UTF16_STRING).split(/\r?\n/);
+        var lines = logs.split(/\r?\n/);
         var header = /^\[(A|B):(ARCHON|GARDENER|LUMBERJACK|SOLDIER|TANK|SCOUT)#(\d+)@(\d+)\] (.*)/;
+        var roundLogs = new Array();
         // Parse each line
         var index = 0;
         while (index < lines.length) {
@@ -119,7 +126,7 @@ var Match = (function () {
             var team = matches[1];
             var robotType = matches[2];
             var id = parseInt(matches[3]);
-            var round = parseInt(matches[4]);
+            var logRound = parseInt(matches[4]);
             var text = new Array();
             text.push(line);
             index += 1;
@@ -128,15 +135,19 @@ var Match = (function () {
                 text.push(lines[index]);
                 index += 1;
             }
+            if (logRound != round) {
+                console.warn("Log round mismatch: should be " + round + ", is " + logRound);
+            }
             // Push the parsed log
-            this.logs.push({
+            roundLogs.push({
                 team: team,
                 robotType: robotType,
                 id: id,
-                round: round,
+                round: logRound,
                 text: text.join('\n')
             });
         }
+        this.logs.push(roundLogs);
     };
     /**
      * Finish the timeline.
