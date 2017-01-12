@@ -40,9 +40,9 @@ export default class Match {
      */
     readonly deltas: Array<schema.Round>;
     /**
-     * The logs of this match.
+     * The logs of this match, bucketed by round.
      */
-    readonly logs: Array<Log>;
+    readonly logs: Array<Array<Log>>;
     /**
      * The current game world.
      * DO NOT CACHE this reference between calls to seek() and compute(), it may
@@ -90,6 +90,10 @@ export default class Match {
      * Store a schema.Round and the logs contained in it.
      */
     applyDelta(delta: schema.Round): void;
+    /**
+     * Parse logs for a round.
+     */
+    parseLogs(round: number, logs: string): void;
     /**
      * Finish the timeline.
      */
