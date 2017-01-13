@@ -364,6 +364,14 @@ export default class GameWorld {
       });
     }
 
+    // Simulate actions
+    const containedBullets = this.bodies.arrays.containedBullets;
+    delta.actionsArray().forEach((action: schema.Action, index: number) => {
+      if (action === schema.Action.SHAKE_TREE) {
+        containedBullets[index] = 0;
+      }
+    });
+
     // Update bytecode costs
     if (delta.bytecodeIDsLength() > 0) {
       this.bodies.alterBulk({

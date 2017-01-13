@@ -174,6 +174,13 @@ var GameWorld = (function () {
                 y: movedLocs.ysArray(),
             });
         }
+        // Simulate actions
+        var containedBullets = this.bodies.arrays.containedBullets;
+        delta.actionsArray().forEach(function (action, index) {
+            if (action === battlecode_schema_1.schema.Action.SHAKE_TREE) {
+                containedBullets[index] = 0;
+            }
+        });
         // Update bytecode costs
         if (delta.bytecodeIDsLength() > 0) {
             this.bodies.alterBulk({
