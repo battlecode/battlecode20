@@ -2081,7 +2081,21 @@ declare module index {
              *
              * @returns {number}
              */
-            bulletAttack(): number;
+            bulletAttack(): number;            
+
+            /**
+             * The maximum distance this type can sense other trees and robots
+             *
+             * @returns {number}
+             */
+            sightRadius(): number;
+
+            /**
+             * The maximum distance this type can sense bullets
+             *
+             * @returns {number}
+             */
+            bulletSightRadius(): number;
 
             /**
              * @param {flatbuffers.Builder} builder
