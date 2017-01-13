@@ -80,5 +80,13 @@ export declare class BodyType {
      * Note: you don't need to keep track of this.
      */
     bulletAttack: number;
-    constructor(type: schema.BodyType, radius: number, cost: number, maxHealth: number, startHealth: number, strideRadius: number, bulletSpeed: number, bulletAttack: number);
+    /**
+     * The maximum distance this type can sense other trees and robots
+     */
+    sightRadius: number;
+    /**
+     * The maximum distance this type can sense bullets
+     */
+    bulletSightRadius: number;
+    constructor(type: schema.BodyType, radius: number, cost: number, maxHealth: number, startHealth: number, strideRadius: number, bulletSpeed: number, bulletAttack: number, sightRadius: number, bulletSightRadius: number);
 }
