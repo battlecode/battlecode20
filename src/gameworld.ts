@@ -368,7 +368,10 @@ export default class GameWorld {
     const containedBullets = this.bodies.arrays.containedBullets;
     delta.actionsArray().forEach((action: schema.Action, index: number) => {
       if (action === schema.Action.SHAKE_TREE) {
-        containedBullets[index] = 0;
+        this.bodies.alter({
+          id: delta.actionTargetsArray()[index],
+          containedBullets: 0
+        })
       }
     });
 
