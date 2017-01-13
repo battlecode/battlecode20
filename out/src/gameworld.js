@@ -135,6 +135,7 @@ var GameWorld = (function () {
      * Process a set of changes.
      */
     GameWorld.prototype.processDelta = function (delta) {
+        var _this = this;
         if (delta.roundID() != this.turn + 1) {
             throw new Error("Bad Round: this.turn = " + this.turn + ", round.roundID() = " + delta.roundID());
         }
@@ -178,7 +179,10 @@ var GameWorld = (function () {
         var containedBullets = this.bodies.arrays.containedBullets;
         delta.actionsArray().forEach(function (action, index) {
             if (action === battlecode_schema_1.schema.Action.SHAKE_TREE) {
-                containedBullets[index] = 0;
+                _this.bodies.alter({
+                    id: delta.actionTargetsArray()[index],
+                    containedBullets: 0
+                });
             }
         });
         // Update bytecode costs
