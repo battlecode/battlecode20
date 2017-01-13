@@ -53,7 +53,9 @@ export default class Metadata {
         body.startHealth(),
         body.strideRadius(),
         body.bulletSpeed(),
-        body.bulletAttack()
+        body.bulletAttack(),
+        body.sightRadius(),
+        body.bulletSightRadius()
       );
     }
     // SAFE
@@ -135,7 +137,17 @@ export class BodyType {
    */
   bulletAttack: number;
 
-  constructor(type: schema.BodyType, radius: number, cost: number, maxHealth: number, startHealth: number, strideRadius: number, bulletSpeed: number, bulletAttack: number) {
+  /**
+   * The maximum distance this type can sense other trees and robots
+   */
+  sightRadius: number;
+
+  /**
+   * The maximum distance this type can sense bullets
+   */
+  bulletSightRadius: number;
+
+  constructor(type: schema.BodyType, radius: number, cost: number, maxHealth: number, startHealth: number, strideRadius: number, bulletSpeed: number, bulletAttack: number, sightRadius: number, bulletSightRadius: number) {
     this.type = type;
     this.radius = radius;
     this.cost = cost;
@@ -144,6 +156,8 @@ export class BodyType {
     this.strideRadius = strideRadius;
     this.bulletSpeed = bulletSpeed;
     this.bulletAttack = bulletAttack;
+    this.sightRadius = sightRadius;
+    this.bulletSightRadius = bulletSightRadius;
     Object.freeze(this);
   }
 }

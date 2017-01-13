@@ -21,7 +21,7 @@ var Metadata = (function () {
         var bodyCount = header.bodyTypeMetadataLength();
         for (var i = 0; i < bodyCount; i++) {
             var body = header.bodyTypeMetadata(i);
-            this.types[body.type()] = new BodyType(body.type(), body.radius(), body.cost(), body.maxHealth(), body.startHealth(), body.strideRadius(), body.bulletSpeed(), body.bulletAttack());
+            this.types[body.type()] = new BodyType(body.type(), body.radius(), body.cost(), body.maxHealth(), body.startHealth(), body.strideRadius(), body.bulletSpeed(), body.bulletAttack(), body.sightRadius(), body.bulletSightRadius());
         }
         // SAFE
         Object.freeze(this.types);
@@ -47,7 +47,7 @@ exports.Team = Team;
  * Information about a specific body type.
  */
 var BodyType = (function () {
-    function BodyType(type, radius, cost, maxHealth, startHealth, strideRadius, bulletSpeed, bulletAttack) {
+    function BodyType(type, radius, cost, maxHealth, startHealth, strideRadius, bulletSpeed, bulletAttack, sightRadius, bulletSightRadius) {
         this.type = type;
         this.radius = radius;
         this.cost = cost;
@@ -56,6 +56,8 @@ var BodyType = (function () {
         this.strideRadius = strideRadius;
         this.bulletSpeed = bulletSpeed;
         this.bulletAttack = bulletAttack;
+        this.sightRadius = sightRadius;
+        this.bulletSightRadius = bulletSightRadius;
         Object.freeze(this);
     }
     return BodyType;
