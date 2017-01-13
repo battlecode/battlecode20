@@ -553,7 +553,7 @@ export default class GameWorld {
       y: locs.ysArray(),
       maxHealth: trees.maxHealthsArray(),
       containedBullets: trees.containedBulletsArray(),
-      containedBodies: trees.containedBodiesArray()
+      containedBody: trees.containedBodiesArray()
     });
 
     StructOfArrays.fill(

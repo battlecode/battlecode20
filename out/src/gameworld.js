@@ -328,7 +328,7 @@ var GameWorld = (function () {
             y: locs.ysArray(),
             maxHealth: trees.maxHealthsArray(),
             containedBullets: trees.containedBulletsArray(),
-            containedBodies: trees.containedBodiesArray()
+            containedBody: trees.containedBodiesArray()
         });
         soa_1.default.fill(this.bodies.arrays.bytecodesUsed, 0, startI, this.bodies.length);
         soa_1.default.fill(this.bodies.arrays.team, NEUTRAL_TEAM, startI, this.bodies.length);
