@@ -191,6 +191,10 @@ table BodyTypeMetadata {
     /// The damage that bullets from this unit inflict.
     /// Note: you don't need to keep track of this.
     bulletAttack: float;
+    /// The maximum distance this type can sense other trees and robots
+    sightRadius: float;
+    /// The maximum distance this type can sense bullets
+    bulletSightRadius: float;
 }
 
 /// Data relevant to a particular team.

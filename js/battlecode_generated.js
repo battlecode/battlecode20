@@ -1785,10 +1785,30 @@ battlecode.schema.BodyTypeMetadata.prototype.bulletAttack = function() {
 };
 
 /**
+ * The maximum distance this type can sense other trees and robots
+ *
+ * @returns {number}
+ */
+battlecode.schema.BodyTypeMetadata.prototype.sightRadius = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * The maximum distance this type can sense bullets
+ *
+ * @returns {number}
+ */
+battlecode.schema.BodyTypeMetadata.prototype.bulletSightRadius = function() {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.BodyTypeMetadata.startBodyTypeMetadata = function(builder) {
-  builder.startObject(8);
+  builder.startObject(10);
 };
 
 /**
@@ -1853,6 +1873,22 @@ battlecode.schema.BodyTypeMetadata.addBulletSpeed = function(builder, bulletSpee
  */
 battlecode.schema.BodyTypeMetadata.addBulletAttack = function(builder, bulletAttack) {
   builder.addFieldFloat32(7, bulletAttack, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} sightRadius
+ */
+battlecode.schema.BodyTypeMetadata.addSightRadius = function(builder, sightRadius) {
+  builder.addFieldFloat32(8, sightRadius, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} bulletSightRadius
+ */
+battlecode.schema.BodyTypeMetadata.addBulletSightRadius = function(builder, bulletSightRadius) {
+  builder.addFieldFloat32(9, bulletSightRadius, 0.0);
 };
 
 /**
