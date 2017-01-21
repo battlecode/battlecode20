@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'scala'
+apply plugin: 'kotlin'
 
 // You can specify players to release here, or on the command line,
 // with the setting here taking priority. Note that leaving this
@@ -16,36 +17,32 @@ repositories {
 sourceSets {
   main {
     scala.srcDirs = ["src/main"]
+    kotlin.srcDirs = ["src/main"]
 
     output.classesDir = "$buildDir/classes"
   }
   test {
     scala.srcDirs = ["src/test"]
+    kotlin.srcDirs = ["src/test"]
 
     output.classesDir = "$buildDir/tests"
   }
+    main.java.srcDirs += 'src/main/kotlin'
 }
 
 dependencies {
   compile project(':battlecode-server')
 
-  // The production code uses the SLF4J logging API at compile time
-  compile 'org.slf4j:slf4j-api:1.7.21'
-
-  // SCALA
+  // scala
   compile group: 'org.scala-lang', name: 'scala-library', version: '2.12.1'
+
+  // kotlin
+  compile group: 'org.jetbrains.kotlin', 'name': 'kotlin-stdlib', version: kotlin_version
+
 
   // Testing dependencies
   testCompile 'junit:junit:4.12'
-}
-
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'net.sf.proguard:proguard-gradle:5.1'
-  }
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 jar {
@@ -92,3 +89,17 @@ boolean proguard_check() {
 
   return project.property('release_players') != 'NONE'
 }
+
+buildscript {
+  ext.kotlin_version = '1.0.6'
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'net.sf.proguard:proguard-gradle:5.1'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
