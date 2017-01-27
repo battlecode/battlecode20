@@ -72,4 +72,42 @@ public class Util {
         return nearestPartner;
     }
 
+    public static boolean willCollideWithMe(RobotController rc, BulletInfo bullet) {
+        float distance = bullet.location.distanceTo(rc.getLocation());
+        float bodyRadius = rc.getType().bodyRadius;
+        if (bullet.speed < distance - bodyRadius)
+            return false;
+
+        Direction bulletDirection = bullet.direction;
+        Direction directionToMe = bullet.location.directionTo(rc.getLocation());
+
+        float theta = Math.abs(bulletDirection.radiansBetween(directionToMe));
+
+        float nearestPass = Math.sin(theta) * distance;
+
+        return nearestPass < bodyRadius;
+    }
+
+    public static boolean dodge(RobotController rc) {
+        BulletInfo[] bullets = rc.senseNearbyBullets();
+        for (BulletInfo bullet : bullets) {
+            if (willCollideWithMe(rc, bullet)) {
+                Direction bulletDirection = bullet.direction;
+                Direction directionToMe = bullet.location.directionTo(rc.getLocation());
+
+                Direction dodgeDirection;
+                if (bulletDirection.radians < directionToMe.radians) {
+                    dodgeDirection = bulletDirection.rotateLeftDegrees(90);
+                } else {
+                    dodgeDirection = bulletDirection.rotateRightDegrees(90);
+                }
+
+                if (rc.canMove(dodgeDirection)) {
+                    rc.move(dodgeDirection);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
