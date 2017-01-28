@@ -12,6 +12,9 @@ public class Util {
         int VPsToVictory = 1000 - currentVP;
         float canBuyVPs = currentBullets / costVP;
 
+        if(rc.getRoundNum() == rc.getRoundLimit()-1){
+            rc.donate(currentBullets);
+        }
         if(canBuyVPs >= VPsToVictory){
             rc.donate(currentBullets);
         }
@@ -21,9 +24,17 @@ public class Util {
         float costVP = rc.getVictoryPointCost();
         float currentBullets = rc.getTeamBullets();
         float bulletsToSpend = (currentBullets - 1000);
-        float toBuy = (float) Math.floor(bulletsToSpend / costVP);
+        int toBuy = (int) Math.floor(bulletsToSpend / costVP);
         if (toBuy > 0) {
-            rc.donate(toBuy);
+            rc.donate(toBuy*costVP);
+        }
+        if (rc.getRoundNum() >= 1000){
+            currentBullets = rc.getTeamBullets();
+            bulletsToSpend = (currentBullets);
+            toBuy = (int) Math.floor(bulletsToSpend / costVP);
+            if (toBuy > 0) {
+                rc.donate(toBuy*costVP);
+            }
         }
     }
 
@@ -58,6 +69,64 @@ public class Util {
         return dirsAway;
     }
 
+    public static void moveAwayFrom(RobotController rc, MapLocation toMoveAwayFrom) throws GameActionException {
+        if (!rc.hasMoved()){
+            Direction[] dirs = getMoveAwayFromDirections(rc, toMoveAwayFrom);
+            for (Direction dir: dirs){
+                if (rc.canMove(dir)){
+                    rc.move(dir);
+                    break;
+                }
+            }
+        }
+    }
+
+    public static Direction[] getMoveTowardsDirections(RobotController rc, MapLocation toMoveTowards) {
+        Direction dirAway = rc.getLocation().directionTo(toMoveTowards);
+        Direction[] dirsAway = new Direction[19];
+        dirsAway[0] = dirAway;
+        for (int i = 0; i < 9; i++) {
+            int indexRight = 2*i + 1;
+            int indexLeft = 2*i + 2;
+            dirsAway[indexRight] = dirAway.rotateRightDegrees((i+1)*10f);
+            dirsAway[indexLeft] = dirAway.rotateLeftDegrees((i+1)*10f);
+        }
+        return dirsAway;
+    }
+
+    public static void moveTowards(RobotController rc, MapLocation toMoveTowards) throws GameActionException {
+        if (!rc.hasMoved()){
+            Direction[] dirs = getMoveTowardsDirections(rc, toMoveTowards);
+            for (Direction dir: dirs){
+                if (rc.canMove(dir)){
+                    rc.move(dir);
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void runFromClosestEnemy(RobotController rc) throws GameActionException {
+        if(!rc.hasMoved()){
+            RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(rc.getType().sensorRadius, rc.getTeam().opponent());
+            float closestDist = 1000000;
+            RobotInfo nearestEnemy = null;
+            for (RobotInfo enemy : nearbyEnemies) {
+                if(enemy.getType() == RobotType.ARCHON || enemy.getType() == RobotType.GARDENER){
+                    continue;
+                }
+                float distAway = rc.getLocation().distanceTo(enemy.getLocation());
+                if (distAway < closestDist){
+                    closestDist = distAway;
+                    nearestEnemy = enemy;
+                }
+            }
+            if (nearestEnemy != null){
+                moveAwayFrom(rc, nearestEnemy.getLocation());
+            }
+        }
+    }
+
     public static RobotInfo getClosestPartner(RobotController rc) {
         RobotInfo[] nearbyPartners = rc.senseNearbyRobots(rc.getType().sensorRadius, rc.getTeam());
         float closestDist = 1000000;
@@ -72,27 +141,17 @@ public class Util {
         return nearestPartner;
     }
 
+
     public static boolean willCollideWithMe(RobotController rc, BulletInfo bullet) {
-        float distance = bullet.location.distanceTo(rc.getLocation());
-        float bodyRadius = rc.getType().bodyRadius;
-        if (bullet.speed < distance - bodyRadius)
-            return false;
-
-        Direction bulletDirection = bullet.direction;
-        Direction directionToMe = bullet.location.directionTo(rc.getLocation());
-
-        float theta = Math.abs(bulletDirection.radiansBetween(directionToMe));
-
-        float nearestPass = Math.sin(theta) * distance;
-
-        return nearestPass < bodyRadius;
+        MapLocation nextBulletPosition = bullet.getLocation().add(bullet.getDir(), bullet.getSpeed());
+        return rc.getLocation().distanceTo(nextBulletPosition) <= rc.getType().bodyRadius;
     }
 
-    public static boolean dodge(RobotController rc) {
+    public static boolean dodge(RobotController rc) throws GameActionException {
         BulletInfo[] bullets = rc.senseNearbyBullets();
         for (BulletInfo bullet : bullets) {
             if (willCollideWithMe(rc, bullet)) {
-                Direction bulletDirection = bullet.direction;
+                Direction bulletDirection = bullet.dir;
                 Direction directionToMe = bullet.location.directionTo(rc.getLocation());
 
                 Direction dodgeDirection;
@@ -110,4 +169,5 @@ public class Util {
         }
         return false;
     }
+
 }
