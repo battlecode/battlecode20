@@ -4,3 +4,4 @@ node_modules
 *.pyc
 venv/
 docker-compose.prod.yml
+frontend/build
