@@ -105,7 +105,11 @@ export default class MatchQueue {
 
             const mapName = match.current.mapName;
             const matchWinner = this.winnerTeam(meta.teams, match.winner);
-            const rounds = match.lastTurn + 1;
+            // TODO: figure out if match.lastTurn can be null???
+            if (match.lastTurn == null) {
+              throw new Error('match.lastTurn is null. what is going on here???')
+            }
+            const rounds = match.lastTurn! + 1;
             const active = gameIndex === activeGame && matchIndex === activeMatch;
             const cb = () => { this.gotoMatch(gameIndex, matchIndex) };
 

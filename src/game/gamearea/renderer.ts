@@ -49,7 +49,8 @@ export default class Renderer {
 
     this.ctx['imageSmoothingEnabled'] = false;
 
-    this.bgPattern = this.ctx.createPattern(imgs.background, 'repeat');
+    // TODO: can this be null???
+    this.bgPattern = this.ctx.createPattern(imgs.background, 'repeat')!;
     //this.treeMedHealth = metadata.types[schema.BodyType.TREE_NEUTRAL].maxHealth / 2;
   }
 
@@ -292,7 +293,8 @@ export default class Renderer {
     const width = world.maxCorner.x - world.minCorner.x;
     const height = world.maxCorner.y - world.minCorner.y;
     const ids: Int32Array = world.bodies.arrays.id;
-    const types: Int32Array = world.bodies.arrays.type;
+    // TODO: why is this Int8Array and not Int32Array?
+    const types: Int8Array = world.bodies.arrays.type;
     const radii: Float32Array = world.bodies.arrays.radius;
     const onRobotSelected = this.onRobotSelected;
 

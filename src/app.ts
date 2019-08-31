@@ -13,6 +13,7 @@ import WebSocketListener from './websocket';
 import ScaffoldCommunicator from './scaffold';
 
 import {electron} from './electron-modules';
+import { TeamStats } from 'battlecode-playback/out/src/gameworld';
 
 // webpack magic
 // this loads the stylesheet and injects it into the dom
@@ -277,20 +278,35 @@ export default class Client {
       let teamID = meta.teams[team].teamID;
       let teamStats = world.stats.get(teamID);
 
+      // TODO: maybe this check isn't needed???
+      if (teamStats == undefined) {
+        throw new Error("teamStats is undefined??? figure this out NOW")
+      }
+
       // Update the bullets and victory points
-      this.stats.setBullets(teamID, teamStats.bullets);
-      this.stats.setVPs(teamID, teamStats.vps);
+      this.stats.setBullets(teamID, (teamStats as TeamStats).bullets);
+      this.stats.setVPs(teamID, (teamStats as TeamStats).vps);
 
       // Update each robot count
       this.stats.robots.forEach((type: schema.BodyType) => {
-        this.stats.setRobotCount(teamID, type, teamStats.robots[type]);
+        this.stats.setRobotCount(teamID, type, (teamStats as TeamStats).robots[type]);
       });
     }
   }
 
   private runMatch() {
     console.log('Running match.');
-    
+
+    // THIS IS A QUICKFIX FOR CHECKING THAT CURRENTGAME IS NOT NULL
+    // TODO: IDEALLY, WE NEED TO FIGURE THIS OUT: CAN CURRENTGAME EVER BE NULL???
+    // maybe this is not necessary
+    if (this.currentGame === null) {
+      throw new Error('this.currentGame is null; something really bad happened!!! figure this out NOW')
+    }
+    if (this.currentMatch === null) {
+      throw new Error('this.currentMatch is null; something really bad happened!!! figure this out NOW')
+    }
+  
     this.conf.mode = config.Mode.GAME;
     this.conf.splash = false;
     this.gamearea.setCanvas();
@@ -380,16 +396,16 @@ export default class Client {
     this.matchqueue.onNextMatch = () => {
       console.log("NEXT MATCH");
 
-      if(this.currentGame < 0) {
+      if(this.currentGame as number < 0) {
         return; // Special case when deleting games
       }
 
       const matchCount = this.games[this.currentGame as number].matchCount;
-      if(this.currentMatch < matchCount - 1) {
-        this.setMatch(this.currentMatch + 1);
+      if(this.currentMatch as number < matchCount - 1) {
+        this.setMatch(this.currentMatch as number + 1);
       } else {
-        if(this.currentGame < this.games.length - 1) {
-          this.setGame(this.currentGame + 1);
+        if(this.currentGame as number < this.games.length - 1) {
+          this.setGame(this.currentGame as number + 1);
           this.setMatch(0);
         } else {
           // Do nothing, at the end
@@ -399,11 +415,11 @@ export default class Client {
     this.matchqueue.onPreviousMatch = () => {
       console.log("PREV MATCH");
 
-      if(this.currentMatch > 0) {
-        this.setMatch(this.currentMatch - 1);
+      if(this.currentMatch as number > 0) {
+        this.setMatch(this.currentMatch as number - 1);
       } else {
-        if(this.currentGame > 0) {
-          this.setGame(this.currentGame - 1);
+        if(this.currentGame as number > 0) {
+          this.setGame(this.currentGame as number - 1);
           this.setMatch(this.games[this.currentGame as number].matchCount - 1);
         } else {
           // Do nothing, at the beginning
@@ -413,7 +429,7 @@ export default class Client {
     };
     this.matchqueue.removeGame = (game: number) => {
 
-      if (game > this.currentGame) {
+      if (game > (this.currentGame as number)) {
         this.games.splice(game, 1);
       } else if (this.currentGame == game) {
         if (game == 0) {
@@ -463,6 +479,11 @@ export default class Client {
     // set key options
     const conf = this.conf;
     document.onkeydown = function(event) {
+
+      // TODO: figure out what this is???
+      if (document.activeElement == null) {
+        throw new Error('idk?????? i dont know what im doing document.actievElement is null??');
+      }
       
       var input = document.activeElement.nodeName == "INPUT";
       if(!input) {

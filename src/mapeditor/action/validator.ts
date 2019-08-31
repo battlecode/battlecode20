@@ -115,7 +115,11 @@ export default class MapValidator {
         const treeRadius = unit.radius;
         const bodyRadius = cst.radiusFromBodyType(unit.containedBody);
         if (treeRadius < bodyRadius) {
-          map.originalBodies.get(id).containedBody = cst.NONE;
+          // TODO: figure out if this can be null???
+          if (map.originalBodies.get(id) == null) {
+            throw new Error('map.originalBodies is null????');
+          }
+          map.originalBodies.get(id)!.containedBody = cst.NONE;
           actions.push(`Removed a body from tree ID ${id}`);
         }
       }
