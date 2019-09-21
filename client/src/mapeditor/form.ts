@@ -85,7 +85,7 @@ export default class MapEditorForm {
     const onclickUnit = (id: number) => {
       if (this.originalBodies.has(id)) {
         // Set the corresponding form appropriately
-        let body: MapUnit = this.originalBodies.get(id);
+        let body: MapUnit = this.originalBodies.get(id)!;
         if (body.type === cst.ARCHON) {
           this.inputArchon.click();
         } else if (body.type === cst.TREE_NEUTRAL) {

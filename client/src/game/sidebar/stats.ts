@@ -105,26 +105,30 @@ export default class Stats {
     // Add the bullet bars and labels
     teamIDs.forEach((id: number) => {
       const bar = document.createElement("td");
-      bar.height = 150;
+      bar.height = "150";
       bar.vAlign = "bottom";
-      bar.appendChild(this.statBars.get(id).bullets.bar);
+      // TODO: figure out if statbars.get(id) can actually be null??
+      bar.appendChild(this.statBars.get(id)!.bullets.bar);
       bars.appendChild(bar);
 
       const count = document.createElement("td");
-      count.appendChild(this.statBars.get(id).bullets.label);
+      // TODO: figure out if statbars.get(id) can actually be null??
+      count.appendChild(this.statBars.get(id)!.bullets.label);
       counts.appendChild(count);
     });
 
     // Add the VP bars and labels
     teamIDs.forEach((id: number) => {
       const bar = document.createElement("td");
-      bar.height = 150;
+      bar.height = "150";
       bar.vAlign = "bottom";
-      bar.appendChild(this.statBars.get(id).vps.bar);
+      // TODO: figure out if statbars.get(id) can actually be null??
+      bar.appendChild(this.statBars.get(id)!.vps.bar);
       bars.appendChild(bar);
 
       const count = document.createElement("td");
-      count.appendChild(this.statBars.get(id).vps.label);
+      // TODO: figure out if statbars.get(id) can actually be null??
+      count.appendChild(this.statBars.get(id)!.vps.label);
       counts.appendChild(count);
     });
 
@@ -227,7 +231,8 @@ export default class Stats {
    * Change the victory points of the given team
    */
   setVPs(teamID: number, count: number) {
-    const statBar: StatBar = this.statBars.get(teamID).vps
+    // TODO: figure out if statbars.get(id) can actually be null??
+    const statBar: StatBar = this.statBars.get(teamID)!.vps
     statBar.label.innerText = String(count);
     statBar.bar.style.height = `${100 * count / cst.VICTORY_POINT_THRESH}%`;
 
@@ -245,7 +250,8 @@ export default class Stats {
    * Change the bullets of the given team
    */
   setBullets(teamID: number, count: number) {
-    const statBar: StatBar = this.statBars.get(teamID).bullets;
+    // TODO: figure out if statbars.get(id) can actually be null??
+    const statBar: StatBar = this.statBars.get(teamID)!.bullets;
     statBar.label.innerText = String(count.toPrecision(5));
     statBar.bar.style.height = `${100 * count / cst.BULLET_THRESH}%`;
   }
