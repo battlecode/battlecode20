@@ -108,11 +108,11 @@ publishing {
   }
 }
 
-def serverJar = new File(project(":battlecode-server").libsDir, "battlecode-server.jar")
+def serverJar = new File(project(":engine").libsDir, "engine.jar")
 
-task headless(type: JavaExec, dependsOn: [':battlecode-server:build', ':battlecode-player:build']) {
+task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
   main = 'battlecode.server.Main'
-  classpath = files(serverJar) + project(':battlecode-player').sourceSets.main.output + configurations.scala
+  classpath = files(serverJar) + project(':example-bots').sourceSets.main.output + configurations.scala
   args = ['-c=-']
   jvmArgs = [
     '-Dbc.server.mode=headless',
@@ -121,16 +121,16 @@ task headless(type: JavaExec, dependsOn: [':battlecode-server:build', ':battleco
     '-Dbc.engine.debug-methods=true',
     '-Dbc.game.team-a='+project.property('teamA'),
     '-Dbc.game.team-b='+project.property('teamB'),
-    '-Dbc.game.team-a.url='+project(':battlecode-player').sourceSets.main.output.classesDir,
-    '-Dbc.game.team-b.url='+project(':battlecode-player').sourceSets.main.output.classesDir,
+    '-Dbc.game.team-a.url='+project(':example-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.team-b.url='+project(':example-bots').sourceSets.main.output.classesDir,
     '-Dbc.game.maps='+project.property('maps'),
     '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc17'
   ]
 }
 
-task debug(type: JavaExec, dependsOn: [':battlecode-server:build', ':battlecode-player:build']) {
+task debug(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
   main = 'battlecode.server.Main'
-  classpath = files(serverJar) + project(':battlecode-player').sourceSets.main.output + configurations.scala
+  classpath = files(serverJar) + project(':example-bots').sourceSets.main.output + configurations.scala
   args = ['-c=-']
   jvmArgs = [
     '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
@@ -140,8 +140,8 @@ task debug(type: JavaExec, dependsOn: [':battlecode-server:build', ':battlecode-
     '-Dbc.engine.debug-methods=true',
     '-Dbc.game.team-a='+project.property('teamA'),
     '-Dbc.game.team-b='+project.property('teamB'),
-    '-Dbc.game.team-a.url='+project(':battlecode-player').sourceSets.main.output.classesDir,
-    '-Dbc.game.team-b.url='+project(':battlecode-player').sourceSets.main.output.classesDir,
+    '-Dbc.game.team-a.url='+project(':example-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.team-b.url='+project(':example-bots').sourceSets.main.output.classesDir,
     '-Dbc.game.maps='+project.property('maps'),
     '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc17'
   ]
@@ -153,19 +153,19 @@ task runClient {
   doLast {
     exec {
       commandLine 'npm', 'install'
-      workingDir 'battlecode-client-17'
+      workingDir 'client'
     }
 
     exec {
       commandLine 'npm', 'run', 'watch'
-      workingDir 'battlecode-client-17'
+      workingDir 'client'
     }
   }
 }
 
 task release(dependsOn: ['release_main', 'release_docs'])
 
-task release_main(type: Jar, dependsOn: [':battlecode-server:build', ':battlecode-player:proguard']) {
+task release_main(type: Jar, dependsOn: [':engine:build', ':example-bots:proguard']) {
   File f_version = new File(project.projectDir, "battlecode_version");
 
   doFirst {
@@ -190,7 +190,7 @@ task release_main(type: Jar, dependsOn: [':battlecode-server:build', ':battlecod
   }
 }
 
-task release_docs(type: Jar, dependsOn: [':battlecode-server:javadoc']) {
+task release_docs(type: Jar, dependsOn: [':engine:javadoc']) {
   doFirst {
     if (!project.hasProperty("release_version") || project.property("release_version") == "unspecified")
       throw new InvalidUserDataException("Must provide property \"release_version\"")
@@ -201,7 +201,7 @@ task release_docs(type: Jar, dependsOn: [':battlecode-server:javadoc']) {
     version = project.property("release_version");
   destinationDir = project.projectDir;
 
-  from new File(project(":battlecode-server").docsDir, "javadoc")
+  from new File(project(":engine").docsDir, "javadoc")
 }
 
 task release_sources(type: Jar, dependsOn: classes) {
@@ -212,33 +212,33 @@ task prodClient {
     doLast {
         exec {
           commandLine 'npm', 'install'
-          workingDir 'battlecode-client-17'
+          workingDir 'client'
         }
         exec {
           commandLine 'npm', 'run', 'prod-electron'
-          workingDir 'battlecode-client-17'
+          workingDir 'client'
         }
     }
 }
 
 task releaseClientWin(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('battlecode-client-17/dist/win-unpacked')
+    from fileTree('client/dist/win-unpacked')
 }
 
 task releaseClientMac(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('battlecode-client-17/dist/mac')
+    from fileTree('client/dist/mac')
 }
 
 task releaseClientLinux(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('battlecode-client-17/dist/linux-unpacked')
+    from fileTree('client/dist/linux-unpacked')
 }
 
 task releaseClientWin32(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('battlecode-client-17/dist/win-ia32-unpacked')
+    from fileTree('client/dist/win-ia32-unpacked')
 }
 
 task releaseClientLinux32(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('battlecode-client-17/dist/linux-ia32-unpacked')
+    from fileTree('client/dist/linux-ia32-unpacked')
 }
 buildscript {
     ext.kotlin_version = '1.0.6'
