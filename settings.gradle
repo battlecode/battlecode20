@@ -1,0 +1,3 @@
+rootProject.name = 'battlecode-release'
+
+include 'battlecode-server', 'battlecode-player'
