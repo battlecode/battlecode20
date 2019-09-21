@@ -1,0 +1,105 @@
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'kotlin'
+
+// You can specify players to release here, or on the command line,
+// with the setting here taking priority. Note that leaving this
+// blank (i.e., an empty string) results in the release of all players.
+// To release no players, set this to 'NONE'.
+project.ext.release_players='NONE'
+
+repositories {
+  mavenCentral()
+  maven {url "https://oss.sonatype.org/content/repositories/snapshots/"}
+  jcenter()
+}
+
+sourceSets {
+  main {
+    scala.srcDirs = ["src/main"]
+    kotlin.srcDirs = ["src/main"]
+
+    output.classesDir = "$buildDir/classes"
+  }
+  test {
+    scala.srcDirs = ["src/test"]
+    kotlin.srcDirs = ["src/test"]
+
+    output.classesDir = "$buildDir/tests"
+  }
+    main.java.srcDirs += 'src/main/kotlin'
+}
+
+dependencies {
+  compile project(':battlecode-server')
+
+  // scala
+  compile group: 'org.scala-lang', name: 'scala-library', version: '2.12.1'
+
+  // kotlin
+  compile group: 'org.jetbrains.kotlin', 'name': 'kotlin-stdlib', version: kotlin_version
+
+
+  // Testing dependencies
+  testCompile 'junit:junit:4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+}
+
+jar {
+  if (project.hasProperty('release_players'))
+    for (String player : project.property('release_players').split(','))
+      include "**/" + player + "/*.class"
+
+  includeEmptyDirs = false
+}
+
+task proguard(dependsOn: ['proguard_run', 'proguard_copy'])
+
+task proguard_run(type: proguard.gradle.ProGuardTask, dependsOn: 'jar') {
+  injars new File(project.libsDir, 'battlecode-player.jar')
+  outjars new File(project.libsDir, 'battlecode-player-proguard.jar')
+
+  libraryjars project.sourceSets.main.compileClasspath
+  libraryjars new File(System.getenv('JAVA_HOME'), 'jre/lib/rt.jar')
+
+  dontoptimize
+  overloadaggressively
+  dontusemixedcaseclassnames
+
+  keepclasseswithmembers 'public class *.RobotPlayer { \
+    public static void run(battlecode.common.RobotController); \
+  }'
+}
+
+task proguard_copy(type: Copy, dependsOn: 'jar') {
+  from new File(project.libsDir, 'battlecode-player.jar')
+  into project.libsDir
+
+  rename { 'battlecode-player-proguard.jar' }
+}
+
+// Proguard crashes when ran with an empty input jar. To get around this,
+// we just copy the jar when no players are released.
+proguard_run.onlyIf { proguard_check() }
+proguard_copy.onlyIf { !proguard_check() }
+
+boolean proguard_check() {
+  if (!project.hasProperty('release_players'))
+    throw new InvalidUserDataException("Must provide property \"release_players\"")
+
+  return project.property('release_players') != 'NONE'
+}
+
+buildscript {
+  ext.kotlin_version = '1.0.6'
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'net.sf.proguard:proguard-gradle:5.1'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
