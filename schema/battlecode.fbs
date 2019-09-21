@@ -1,0 +1,374 @@
+namespace battlecode.schema;
+
+/// A vector in two-dimensional space. Continuous space, of course.
+/// Defaults to the 0 vector.
+struct Vec {
+    x: float = 0;
+    y: float = 0;
+}
+
+/// A table of vectors.
+table VecTable {
+    xs: [float];
+    ys: [float];
+}
+
+/// A table of RGB values.
+table RGBTable {
+    red: [int];
+    green: [int];
+    blue: [int];
+}
+
+/// The possible types of things that can exist.
+/// Note that neutral trees and bullets are not treated as bodies.
+enum BodyType : byte {
+    /// Archons are the mobile equivalent of a HQ whose sole purpose is to hire
+    /// gardeners to maintain the land.
+    ARCHON,
+    /// Gardeners are caretakers of the land, planting and watering Bullet Trees
+    /// while also cultivating all other player robots.
+    GARDENER,
+    /// Lumberjacks are melee units equipped for felling trees.
+    LUMBERJACK,
+    /// Soldiers are all-around units with a tricky shot.
+    SOLDIER,
+    /// Tanks are large, slow units with powerful bullets.
+    TANK,
+    /// Scouts are fast units that move around without obstruction.
+    SCOUT,
+    /// A tree that belongs to a team and produces bullets.
+    TREE_BULLET,
+    /// A neutral tree.
+    /// This is included for convenience; note this value SHALL NOT appear in
+    /// a SpawnedBodyTable.
+    TREE_NEUTRAL,
+    /// A bullet that moves in a perfectly straight line.
+    /// Note: bullet location updates are not sent; a bullet is defined to be
+    /// in position loc + dt * vel after dt seconds.
+    /// This allows us some significant space savings, since there are lots
+    /// of bullets, and we don't need to send position updates.
+    /// The event stream will say if a bullet has been destroyed.
+    /// This is included for convenience; note this value SHALL NOT appear in
+    /// a SpawnedBodyTable.
+    BULLET,
+    /// Indicates that there is no body.
+    /// May only appear in the containedBodies field of NeutralTreeTable.
+    NONE
+}
+
+/// A list of new bodies to be placed on the map.
+table SpawnedBodyTable {
+    /// The numeric ID of the new bodies.
+    /// Will never be negative.
+    /// There will only be one body/bullet with a particular ID at a time.
+    /// So, there will never be two robots with the same ID, or a robot and
+    /// a bullet with the same ID.
+    robotIDs: [int];
+    /// The teams of the new bodies.
+    teamIDs: [byte];
+    /// The types of the new bodies.
+    types: [BodyType];
+    /// The locations of the bodies.
+    locs: VecTable;
+}
+
+/// A list of neutral trees to be placed on the map.
+table NeutralTreeTable {
+    /// The IDs of the trees.
+    robotIDs: [int];
+    /// The locations of the trees.
+    locs: VecTable;
+    /// The radii of the trees.
+    radii: [float];
+    /// The healths of the trees.
+    healths: [float];
+    /// The max healths of the trees.
+    maxHealths: [float];
+    /// The bullets contained within the trees.
+    containedBullets: [int];
+    /// The bodies contained within the trees.
+    containedBodies: [BodyType];
+}
+
+/// A list of new bullets to be placed on the map.
+table SpawnedBulletTable {
+    /// The numeric ID of the new bullets.
+    /// Will never be negative.
+    /// There will only be one body/bullet with a particular ID at a time.
+    /// So, there will never be two robots with the same ID, or a robot and
+    /// a bullet with the same ID.
+    robotIDs: [int];
+    /// The locations of the bodies.
+    locs: VecTable;
+    /// The velocities of the bodies.
+    vels: VecTable;
+    /// The damage levels of the bodies.
+    damages: [float];
+}
+
+/// The map a round is played on.
+table GameMap {
+    /// The name of a map.
+    name: string;
+    /// The bottom corner of the map.
+    minCorner: Vec;
+    /// The top corner of the map.
+    maxCorner: Vec;
+    /// The bodies on the map.
+    bodies: SpawnedBodyTable;
+    /// The neutral trees on the map.
+    trees: NeutralTreeTable;
+    /// The random seed of the map.
+    randomSeed: int;
+}
+
+/// Actions that can be performed.
+/// Purely aesthetic; have no actual effect on simulation.
+/// (Although the simulation may want to track the 'parents' of
+/// particular robots.)
+/// Actions may have 'targets', which are the units on which
+/// the actions were performed.
+enum Action : byte {
+    /// Fire a bullet.
+    /// Target: spawned bullet.
+    FIRE,
+    /// Fire three bullets.
+    /// Target: spawned bullets.
+    FIRE_TRIAD,
+    /// Fire five bullets.
+    /// Target: spawned bullets.
+    FIRE_PENTAD,
+    /// Perform a lumberjack-chop.
+    /// Target: none
+    CHOP,
+    /// Shake a tree.
+    /// Target: tree
+    SHAKE_TREE,
+    /// Plant a tree.
+    /// Target: tree
+    PLANT_TREE,
+    /// Water a tree.
+    /// Target: tree
+    WATER_TREE,
+    /// Build a unit.
+    /// Target: spawned unit
+    SPAWN_UNIT,
+    /// Die due to an uncaught exception
+    /// Target: none
+    DIE_EXCEPTION,
+    /// Die due to suicide.
+    /// Target: none
+    DIE_SUICIDE,
+    /// Die due to being killed.
+    /// Target: killer (bullet or lumberjack or tank)
+    DIE_KILLED,
+    /// Perform a lumberjack strike.
+    /// Target: none
+    LUMBERJACK_STRIKE
+}
+
+// Metadata
+
+/// Metadata about all bodies of a particular type.
+table BodyTypeMetadata {
+    /// The relevant type.
+    type: BodyType;
+    /// The radius of the type, in distance units.
+    radius: float;
+    /// The cost of the type, in bullets.
+    cost: float;
+    /// The maxiumum health of the type, in health units.
+    maxHealth: float;
+    /// If unset, the same as maxHealth.
+    /// Otherwise, the health a body of this type starts with.
+    startHealth: float;
+    /// The maximum distance this type can move each turn
+    strideRadius: float;
+    /// The speed that bullets from this unit move.
+    /// Note: you don't need to keep track of this, SpawnedBody.vel will always be set.
+    bulletSpeed: float;
+    /// The damage that bullets from this unit inflict.
+    /// Note: you don't need to keep track of this.
+    bulletAttack: float;
+    /// The maximum distance this type can sense other trees and robots
+    sightRadius: float;
+    /// The maximum distance this type can sense bullets
+    bulletSightRadius: float;
+}
+
+/// Data relevant to a particular team.
+table TeamData {
+    /// The name of the team.
+    name: string;
+    /// The java package the team uses.
+    packageName: string;
+    /// The ID of the team this data pertains to.
+    teamID: byte;
+}
+
+// Events
+
+/// An Event is a single step that needs to be processed.
+/// A saved game simply consists of a long list of Events.
+/// Events can be divided by either being sent separately (e.g. as separate
+/// websocket messages), or by being wrapped with a GameWrapper.
+/// A game consists of a series of matches; a match consists of a series of
+/// rounds, and is played on a single map. Each round is a single simulation
+/// step.
+union Event {
+    /// There should only be one GameHeader, at the start of the stream.
+    GameHeader,
+    /// There should be one MatchHeader at the start of each match.
+    MatchHeader,
+    /// A single simulation step. A round may be skipped if
+    /// nothing happens during its time.
+    Round,
+    /// There should be one MatchFooter at the end of each simulation step.
+    MatchFooter,
+    /// There should only be one GameFooter, at the end of the stream.
+    GameFooter
+}
+
+/// The first event sent in the game. Contains all metadata about the game.
+table GameHeader {
+    /// The version of the spec this game complies with.
+    specVersion: string;
+    /// The teams participating in the game.
+    teams: [TeamData];
+    /// Information about all body types in the game.
+    bodyTypeMetadata: [BodyTypeMetadata];
+}
+
+/// The final event sent in the game.
+table GameFooter {
+    /// The ID of the winning team of the game.
+    winner: byte;
+}
+
+/// Sent to start a match.
+table MatchHeader {
+    /// The map the match was played on.
+    map: GameMap;
+    /// The maximum number of rounds in this match.
+    maxRounds: int;
+}
+
+/// Sent to end a match.
+table MatchFooter {
+    /// The ID of the winning team.
+    winner: byte;
+    /// The number of rounds played.
+    totalRounds: int;
+}
+
+/// A single time-step in a Game.
+/// The bulk of the data in the file is stored in tables like this.
+/// Note that a struct-of-arrays format is more space efficient than an array-
+/// of-structs.
+table Round {
+    /// The IDs of teams in the Game.
+    teamIDs: [int];
+    /// The bullet counts of the teams.
+    teamBullets: [float];
+    /// The victory points of the teams.
+    teamVictoryPoints: [int];
+
+    /// The IDs of bodies that moved.
+    movedIDs: [int];
+    /// The new locations of bodies that have moved. They are defined to be in
+    /// their new locations at exactly the time round.number*dt.
+    movedLocs: VecTable;
+
+    /// New bodies.
+    spawnedBodies: SpawnedBodyTable;
+    /// New bullets.
+    spawnedBullets: SpawnedBulletTable;
+
+    /// The IDs of bodies with changed health.
+    healthChangedIDs: [int];
+    /// The new health levels of bodies with changed health.
+    healthChangeLevels: [float];
+
+    /// The IDs of bodies that died.
+    diedIDs: [int];
+    /// The IDs of bullets that died.
+    diedBulletIDs: [int];
+
+    /// The IDs of robots that performed actions.
+    /// IDs may repeat.
+    actionIDs: [int];
+    /// The actions performed.
+    actions: [Action];
+    /// The 'targets' of the performed actions. Actions without targets may have
+    /// any target (typically 0).
+    actionTargets: [int];
+
+    /// The IDs of bodies that set indicator dots
+    indicatorDotIDs: [int];
+    /// The location of the indicator dots
+    indicatorDotLocs: VecTable;
+    /// The RGB values of the indicator dots
+    indicatorDotRGBs: RGBTable;
+
+    /// The IDs of bodies that set indicator lines
+    indicatorLineIDs: [int];
+    /// The start location of the indicator lines
+    indicatorLineStartLocs: VecTable;
+    /// The end location of the indicator lines
+    indicatorLineEndLocs: VecTable;
+    /// The RGB values of the indicator lines
+    indicatorLineRGBs: RGBTable;
+
+    /// All logs sent this round.
+    /// Messages from a particular robot in this round start on a new line, and
+    /// have a header:
+    /// '[' $TEAM ':' $ROBOTTYPE '#' $ID '@' $ROUND '] '
+    /// $TEAM = 'A' | 'B'
+    /// $ROBOTTYPE = 'ARCHON' | 'GARDENER' | 'LUMBERJACK' 
+    ///            | 'SOLDIER' | 'TANK' | 'SCOUT' | other names...
+    /// $ID = a number
+    /// $ROUND = a number
+    /// The header is not necessarily followed by a newline.
+    /// This header should only be sent once per robot per round (although
+    /// players may forge it, so don't crash if you get strange input.)
+    ///
+    /// You should try to only read this value once, and cache it. Reading
+    /// strings from a flatbuffer is much less efficient than reading other
+    /// buffers, because they need to be copied into an environment-provided
+    /// buffer and validated.
+    ///
+    /// (haha i guess you can never really escape string parsing can you)
+    logs: string;
+
+    /// The first sent Round in a match should have index 1. (The starting state,
+    /// created by the MatchHeader, can be thought to have index 0.)
+    /// It should increase by one for each following round.
+    roundID: int;
+
+    /// The IDs of player bodies.
+    bytecodeIDs: [int];
+    /// The bytecodes used by the player bodies.
+    bytecodesUsed: [int];
+}
+
+/// Necessary due to flatbuffers requiring unions to be wrapped in tables.
+table EventWrapper {
+    e: Event;
+}
+
+/// If events are not otherwise delimited, this wrapper structure
+/// allows a game to be stored in a single buffer.
+/// The first event will be a GameHeader; the last event will be a GameFooter.
+/// matchHeaders[0] is the index of the 0th match header in the event stream,
+/// corresponding to matchFooters[0]. These indices allow quick traversal of
+/// the file.
+table GameWrapper {
+    /// The series of events comprising the game.
+    events: [EventWrapper];
+    /// The indices of the headers of the matches, in order.
+    matchHeaders: [int];
+    /// The indices of the footers of the matches, in order.
+    matchFooters: [int];
+}
+

@@ -12,3 +12,9 @@ frontend/build
 
 ### Matches should be ignore
 /matches/
+
+### Java
+*.classpath
+*.project
+*.settings
+bin/
