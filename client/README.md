@@ -32,8 +32,9 @@ All code and assets go in `src`, which is written in Typescript. Note that we're
 
 If you want to add a dependency, run `npm install --save package-name` and then `npm install --save @types/package-name` (for the typescript declarations). If `@types/package-name` doesn't exist, sacrifice a goat, or possibly a grad student.
 
-Also note that this repo doesn't contain all of the client code. See [battlecode-playback](https://github.com/battlecode/battlecode-playback); that's the library that actually reads and replays the `.bc17` match files. This repo has everything else; video, sound, controls, etc.
-If you've made a change in -playback and want to integrate it here, you'll need to commit it, get the commit hash, and then put the commit hash in `package.json`, replacing the current one, and then do `npm install`. It's a bit of a pain; the cost of cutting things out into libraries, sadly.
+Also note that this repo doesn't contain all of the client code. See `../playback`; that's the library that actually reads and replays the `.bc17` match files. This repo has everything else; video, sound, controls, etc.
+
+If you've made a change in `../playback` and want to integrate it here, you need to do `npm install` again. It's a bit of a pain; and should probably be integrated in this folder at some point.
 
 ### Deploying
 
