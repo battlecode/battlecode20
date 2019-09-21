@@ -44,6 +44,6 @@ typings
 src/**/*.js
 
 # any battlecode files
-*.bc17
+*.bc20
 
 .DS_Store

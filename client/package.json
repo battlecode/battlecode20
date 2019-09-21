@@ -1,11 +1,11 @@
 {
-  "name": "battlecode-client-17",
+  "name": "bc20-client",
   "version": "1.1.7",
-  "description": "Battlecode 2017 Client",
+  "description": "Battlecode 2020 Client",
   "private": "true",
   "scripts": {
     "test": "true",
-    "clean": "rm -rf out outtest bc17",
+    "clean": "rm -rf out outtest bc20",
     "lint": "tslint \"**/*.ts\" -e \"out/**\"",
     "build": "webpack",
     "prod": "webpack",
@@ -56,16 +56,16 @@
     "license": "GPL-3.0",
     "compression": "maximum",
     "files": [
-      "bc17/*",
+      "bc20/*",
       "index.html",
       "electron-main.js",
       "node_modules/electron"
     ],
     "fileAssociations": [
       {
-        "ext": "bc17",
-        "name": "BC17",
-        "description": "Battlecode Match 2017",
+        "ext": "bc20",
+        "name": "BC20",
+        "description": "Battlecode Match 2020",
         "role": "Viewer"
       }
     ],

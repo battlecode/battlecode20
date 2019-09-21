@@ -141,7 +141,7 @@ export default class Controls {
     let upload = document.createElement('input');
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
-    upload.accept = '.bc17';
+    upload.accept = '.bc20';
     upload.onchange = () => this.loadMatch(upload.files as FileList);
     uploadLabel.appendChild(upload);
 

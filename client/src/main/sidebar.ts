@@ -119,7 +119,7 @@ export default class Sidebar {
     instructions in the sidebar. Note that it may take a few seconds for
     matches to be displayed.<br>
     <i>From the web client:</i> If you are not running the client as a
-    stand-alone application, you can always upload a <b>.bc17</b> file by
+    stand-alone application, you can always upload a <b>.bc20</b> file by
     clicking the + button in the top-right corner.<br>
     <br>
     Use the control buttons in <b>'Queue'</b> and the top of the screen to

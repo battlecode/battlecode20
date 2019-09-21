@@ -272,9 +272,9 @@ export function createWanderGame(unitCount: number, turns: number) {
   builder.finish(wrapper);
   return builder.asUint8Array();
 }
-let stream = createWriteStream('test.bc17');
+let stream = createWriteStream('test.bc20');
 stream.write(new Buffer(createBenchGame(128, 64, 128, 4096)));
 stream.end();
-let stream2 = createWriteStream('wander.bc17');
+let stream2 = createWriteStream('wander.bc20');
 stream2.write(new Buffer(createWanderGame(128, 4096)));
 stream2.end();

@@ -233,9 +233,9 @@ function createWanderGame(unitCount, turns) {
     return builder.asUint8Array();
 }
 exports.createWanderGame = createWanderGame;
-var stream = fs_1.createWriteStream('test.bc17');
+var stream = fs_1.createWriteStream('test.bc20');
 stream.write(new Buffer(createBenchGame(128, 64, 128, 4096)));
 stream.end();
-var stream2 = fs_1.createWriteStream('wander.bc17');
+var stream2 = fs_1.createWriteStream('wander.bc20');
 stream2.write(new Buffer(createWanderGame(128, 4096)));
 stream2.end();

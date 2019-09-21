@@ -22,7 +22,7 @@ const bc = require('battlecode-playback');
 let aliveRobots = {};
 let lifetimes = [];
 
-bc.stream('match.bc17').on('spawn', spawnEvent => {
+bc.stream('match.bc20').on('spawn', spawnEvent => {
   aliveRobots[spawnEvent.bodyId] = {
     born: spawnEvent.round
   };

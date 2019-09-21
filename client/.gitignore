@@ -45,12 +45,12 @@ src/**/*.js
 test/**/*.js
 
 # any battlecode files
-*.bc17
+*.bc20
 
 # tests folder
 outtest/
 # webpack bundle folder
-bc17/
+bc20/
 
 # generated apps
 dist/

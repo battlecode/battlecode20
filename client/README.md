@@ -32,7 +32,7 @@ All code and assets go in `src`, which is written in Typescript. Note that we're
 
 If you want to add a dependency, run `npm install --save package-name` and then `npm install --save @types/package-name` (for the typescript declarations). If `@types/package-name` doesn't exist, sacrifice a goat, or possibly a grad student.
 
-Also note that this repo doesn't contain all of the client code. See `../playback`; that's the library that actually reads and replays the `.bc17` match files. This repo has everything else; video, sound, controls, etc.
+Also note that this repo doesn't contain all of the client code. See `../playback`; that's the library that actually reads and replays the `.bc20` match files. This repo has everything else; video, sound, controls, etc.
 
 If you've made a change in `../playback` and want to integrate it here, you need to do `npm install` again. It's a bit of a pain; and should probably be integrated in this folder at some point.
 
@@ -42,10 +42,10 @@ To build a release bundle:
 ```sh
 $ npm run prod
 ```
-This will bundle up all of the assets you want in the `bc17` folder. You can then embed the client in any web page you want:
+This will bundle up all of the assets you want in the `bc20` folder. You can then embed the client in any web page you want:
 
-- Mount the assets in `bc17` at `/bc17/` on your webserver.
-- `<script src="/bc17/bundle.js"></script>`
+- Mount the assets in `bc20` at `/bc20/` on your webserver.
+- `<script src="/bc20/bundle.js"></script>`
 - `<script>window.battlecode.mount(document.getElementById('battlecode-div'))</script>`
 
 You now have a copy of the battlecode client running on your web page. See `src/app.ts` and `src/config.ts` to learn about the client's API.

@@ -12,8 +12,8 @@ var conf = {
     app: './app.ts',
   },
   output: {
-    path: path.resolve(__dirname, 'bc17'),
-    publicPath: '/bc17/',
+    path: path.resolve(__dirname, 'bc20'),
+    publicPath: '/bc20/',
     filename: 'bundle.js'
   },
   resolve: {
@@ -66,8 +66,8 @@ module.exports = function(env) {
           'process.env.ELECTRON': true
         })
       ],
-      // electron will find './bc17/thing.ext' but won't find '/bc17/thing.ext'
-      output: { publicPath: './bc17/' }
+      // electron will find './bc20/thing.ext' but won't find '/bc20/thing.ext'
+      output: { publicPath: './bc20/' }
     });
   } else {
     // we're compiling for the browser
