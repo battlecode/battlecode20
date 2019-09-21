@@ -5,3 +5,10 @@ node_modules
 venv/
 docker-compose.prod.yml
 frontend/build
+
+### Gradle ###
+.gradle
+/build/
+
+### Matches should be ignore
+/matches/
