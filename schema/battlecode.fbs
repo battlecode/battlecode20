@@ -37,8 +37,6 @@ enum BodyType : byte {
     CANNON,
     /// Cows produce polution.
     COW,
-    /// Crude soup is distributed around the map; can be mined and refined.
-    SOUP,
     /// Refineries turn crude soup into refined soup, and produce pollution.
     REFINERY,
     /// Vaporators reduce pollution.
@@ -55,9 +53,9 @@ enum BodyType : byte {
 table SpawnedBodyTable {
     /// The numeric ID of the new bodies.
     /// Will never be negative.
-    /// There will only be one body/bullet with a particular ID at a time.
+    /// There will only be one body with a particular ID at a time.
     /// So, there will never be two robots with the same ID, or a robot and
-    /// a bullet with the same ID.
+    /// a building with the same ID.
     robotIDs: [int];
     /// The teams of the new bodies.
     teamIDs: [byte];
@@ -65,24 +63,6 @@ table SpawnedBodyTable {
     types: [BodyType];
     /// The locations of the bodies.
     locs: VecTable;
-}
-
-/// A list of neutral trees to be placed on the map.
-table NeutralTreeTable {
-    /// The IDs of the trees.
-    robotIDs: [int];
-    /// The locations of the trees.
-    locs: VecTable;
-    /// The radii of the trees.
-    radii: [float];
-    /// The healths of the trees.
-    healths: [float];
-    /// The max healths of the trees.
-    maxHealths: [float];
-    /// The bullets contained within the trees.
-    containedBullets: [int];
-    /// The bodies contained within the trees.
-    containedBodies: [BodyType];
 }
 
 /// A list of new bullets to be placed on the map.
@@ -111,10 +91,20 @@ table GameMap {
     maxCorner: Vec;
     /// The bodies on the map.
     bodies: SpawnedBodyTable;
-    /// The neutral trees on the map.
-    trees: NeutralTreeTable;
     /// The random seed of the map.
     randomSeed: int;
+    /// The tiles
+    tiles: [TileRow];
+}
+
+/// A row of tiles.
+table TileRow {
+    /// The elevation of the tiles, i.e. dirt level.
+    elevation: [int];
+    /// The polluion level of the tiles.
+    pollution: [int];
+    /// The amount of crude soup to be mined on the tiles.
+    soup: [int];
 }
 
 /// Actions that can be performed.
