@@ -269,10 +269,8 @@ table MatchFooter {
 table Round {
     /// The IDs of teams in the Game.
     teamIDs: [int];
-    /// The bullet counts of the teams.
-    teamBullets: [float];
-    /// The victory points of the teams.
-    teamVictoryPoints: [int];
+    /// The refined soup counts of the teams.
+    teamSoup: [int];
 
     /// The IDs of bodies that moved.
     movedIDs: [int];
@@ -282,18 +280,14 @@ table Round {
 
     /// New bodies.
     spawnedBodies: SpawnedBodyTable;
-    /// New bullets.
-    spawnedBullets: SpawnedBulletTable;
 
-    /// The IDs of bodies with changed health.
-    healthChangedIDs: [int];
-    /// The new health levels of bodies with changed health.
-    healthChangeLevels: [float];
+    /// The IDs of locations with changed pollution.
+    pollutionChangedLocs: [int];
+    /// The new pollution levels of bodies with changed pollution.
+    pollutionChangeLevels: [int];
 
-    /// The IDs of bodies that died.
+    /// The IDs of bodies that died. (Drowned units and shot drones)
     diedIDs: [int];
-    /// The IDs of bullets that died.
-    diedBulletIDs: [int];
 
     /// The IDs of robots that performed actions.
     /// IDs may repeat.
