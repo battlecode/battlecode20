@@ -197,44 +197,65 @@ export default class Client {
   ready() {
     this.gamearea.setCanvas();
 
-    if (this.conf.matchFileURL) {
-      // Load a match file
-      console.log(`Loading provided match file: ${this.conf.matchFileURL}`);
-      const req = new XMLHttpRequest();
-      req.open('GET', this.conf.matchFileURL, true);
-      req.responseType = 'arraybuffer';
-      req.onerror = (event) => {
-        console.log(`Can't load provided match file: ${event.error}`);
-      };
-      req.onload = (event) => {
-        const resp = req.response;
-        if (resp) {
-          console.log('Loaded provided match file');
-          var lastGame = this.games.length
-          this.games[lastGame] = new Game();
-          this.games[lastGame].loadFullGameRaw(resp);
-
-          if (this.games.length === 1) {
-            // this will run the first match from the game
-            this.setGame(0);
-            this.setMatch(0);
-          }
-          this.matchqueue.refreshGameList(this.games, this.currentGame ? this.currentGame: 0, this.currentMatch ? this.currentMatch: 0);
-        }
-      };
-      req.send();
-    }
-    this.controls.onGameLoaded = (data: ArrayBuffer) => {
-      var lastGame = this.games.length
-      this.games[lastGame] = new Game();
-      this.games[lastGame].loadFullGameRaw(data);
-
+    let startGame = () => {
       if (this.games.length === 1) {
         // this will run the first match from the game
         this.setGame(0);
         this.setMatch(0);
       }
       this.matchqueue.refreshGameList(this.games, this.currentGame ? this.currentGame: 0, this.currentMatch ? this.currentMatch: 0);
+    }
+    
+    let toMain = (msg) => {
+      console.log(msg);
+      alert('Error occurred. Check console on your browser');
+      // window.location.assign('/visualizer.html');
+    }
+
+    if (this.conf.matchFileURL) {
+      // Load a match file
+      console.log(`Loading provided match file: ${this.conf.matchFileURL}`);
+
+      const req = new XMLHttpRequest();
+      req.open('GET', this.conf.matchFileURL, true);
+      req.responseType = 'arraybuffer';
+      req.onerror = (error) => {
+        toMain(`Can't load provided match file: ${error}`);
+      };
+
+      req.onload = (event) => {
+        const resp = req.response;
+        if(!resp || req.status !== 200){
+          toMain(`Can't load file from URL: invalid URL(${req.status})`);
+        }
+        else {
+          var lastGame = this.games.length
+          this.games[lastGame] = new Game();
+
+          try {
+            this.games[lastGame].loadFullGameRaw(resp);
+          } catch (error) {
+            toMain(`Can't get file from URL: ${error}`);
+            return;
+          }
+
+          console.log('Successfully loaded provided match file');
+          startGame();
+        }
+      };
+
+      req.send();
+    }
+    else {
+      console.log('Starting without match file');
+    }
+    
+    this.controls.onGameLoaded = (data: ArrayBuffer) => {
+      var lastGame = this.games.length
+      this.games[lastGame] = new Game();
+      this.games[lastGame].loadFullGameRaw(data);
+
+      startGame();
     };
 
     if (this.listener != null) {
