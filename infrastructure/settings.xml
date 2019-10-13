@@ -1,4 +1,5 @@
-<!-- SAVE THIS IN THE MAVEN HOME, FOR EXAMPLE ~/.m2/settings.xml -->
+<!-- SAVE THIS IN THE SAME DIRECTORY AS POM.XML -->
+<!-- Usage: mvn deploy --settings settings.xml -->
 
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
