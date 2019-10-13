@@ -1,0 +1,40 @@
+<!-- SAVE THIS IN THE MAVEN HOME, FOR EXAMPLE ~/.m2/settings.xml -->
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <localRepository/>
+  <interactiveMode/>
+  <offline/>
+  <pluginGroups/>
+  <servers>
+    <server>
+      <id>the_local_lmao</id>
+      <username>admin</username>
+      <password>password</password>
+      <!--<privateKey>${user.home}/.ssh/id_dsa</privateKey>-->
+      <!--<passphrase>some_passphrase</passphrase>-->
+      <filePermissions>664</filePermissions>
+      <directoryPermissions>775</directoryPermissions>
+      <configuration></configuration>
+    </server>
+  </servers>
+  <mirrors>
+    <mirror>
+      <id>maven_central_lmao</id>
+      <name>Maven Central Lmao</name>
+      <url>http://repo1.maven.org/maven2/</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+    <mirror>
+      <id>the_local_lmao</id>
+      <name>The Local Lmao</name>
+      <url>http://localhost:8081/artifactory</url>
+      <mirrorOf>*</mirrorOf>
+    </mirror>
+  </mirrors>
+  <proxies/>
+  <profiles/>
+  <activeProfiles/>
+</settings>
