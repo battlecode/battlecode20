@@ -5,7 +5,7 @@ package battlecode.common;
  * info is ephemeral and there is no guarantee any of it will remain the same
  * between rounds.
  */
-public class RobotInfo implements  BodyInfo{
+public class RobotInfo implements BodyInfo{
 
     /**
      * The unique ID of the robot.
