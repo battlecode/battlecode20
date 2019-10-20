@@ -142,7 +142,7 @@ table BodyTypeMetadata {
     /// The maximum distance this type can sense other trees and robots
     sightRadius: int;
     /// need to encode the formula
-    /// TODOb
+    /// TODO
 
     /// Amount of soup this body type can carry; only positive for miners.
     soupLimit: int;
