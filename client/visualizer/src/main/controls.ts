@@ -81,13 +81,26 @@ export default class Controls {
     // create the button controls
     let buttons = document.createElement("td");
     buttons.vAlign = "top";
-    buttons.appendChild(this.createButton("playbackPause", () => this.pause(), "playbackStart"));
-    buttons.appendChild(this.createButton("playbackStop", () => this.restart()));
-    buttons.appendChild(this.createButton("goPrevious", () => this.stepBackward()));
-    buttons.appendChild(this.createButton("goNext", () => this.stepForward()));
-    buttons.appendChild(this.uploadFileButton());
+
+    let pauseStartButton = this.createButton("playbackPause", () => this.pause(), "playbackStart");
+    let stopButton = this.createButton("playbackStop", () => this.restart());
+    let goPreviousButton = this.createButton("goPrevious", () => this.stepBackward());
+    let goNextButton = this.createButton("goNext", () => this.stepForward());
+    let uploadFileButton = this.uploadFileButton();
+
+    buttons.appendChild(pauseStartButton);
+    buttons.appendChild(stopButton);
+    buttons.appendChild(goPreviousButton);
+    buttons.appendChild(goNextButton);
+    buttons.appendChild(uploadFileButton);
     buttons.appendChild(document.createElement("br"));
     buttons.appendChild(this.locationReadout);
+
+    pauseStartButton.title =  "Pause/resume";
+    stopButton.title = "Stop";
+    goPreviousButton.title = "Step back";
+    goNextButton.title = "Step forward";
+    uploadFileButton.title = "Upload a .bc20 replay file";
 
     // create the info string display
     let infoString = document.createElement("td");

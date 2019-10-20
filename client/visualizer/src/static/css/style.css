@@ -300,7 +300,7 @@ input[type='file'] {
 }
 
 .slide-control {
-    width: 110px;
+    width: 300px;
     height: 8px;
     background-color: #222;
     overflow: visible;
