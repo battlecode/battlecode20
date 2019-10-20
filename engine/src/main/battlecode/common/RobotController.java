@@ -467,11 +467,91 @@ public strictfp interface RobotController {
      */
     void shoot(int id) throws GameActionException;
 
-    
+    // ***********************************
+    // ****** SOUPER METHODS **********
+    // ***********************************
+
+    /**
+     * Tests whether a robot is able to shoot at a drone
+     *
+     * @return true if can create landscaper
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canCreateLandscaper();
+
+    /**
+     * Creates a landscaper
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void createLandscaper() throws GameActionException;
+
+
+    // *****************************************
+    // ****** FULFILLMENT CENTER METHODS *******
+    // *****************************************
+
+    /**
+     * Tests whether a robot is able to shoot at a drone
+     *
+     * @return true if can create landscaper
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canCreateDrone();
+
+    /**
+     * Creates a landscaper
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void createDrone() throws GameActionException;
+
+
+     // *****************************************
+    // ****** HQ METHODS *******
+    // *****************************************
+
+    /**
+     * Tests whether a robot is able to refine soup
+     *
+     * @return true if can create refine soup
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canRefine(int soup);
+
+    /**
+     * Creates a landscaper
+     *
+     * @param soup amount of soup to be refined
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void refine(int soup) throws GameActionException;
+
+    /**
+     * Tests whether a robot is able to shoot at a drone
+     *
+     * @return true if can create miner
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canCreateMiner();
+
+    /**
+     * Creates a miner
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void createMiner() throws GameActionException;
 
     // ***********************************
     // ****** SIGNALING METHODS **********
     // ***********************************
+
+    //TODO: BLOCKCHAIN
 
     /**
      * Broadcasts an integer to the team-shared array at index channel.
