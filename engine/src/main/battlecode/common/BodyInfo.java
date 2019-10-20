@@ -32,19 +32,4 @@ public interface BodyInfo {
      * @return true if this body is a robot; false otherwise.
      */
     boolean isRobot();
-
-    /**
-     * Returns whether this body is a tree.
-     *
-     * @return true if this body is a tree; false otherwise.
-     */
-    boolean isTree();
-
-    /**
-     * Returns whether this body is a bullet.
-     *
-     * @return true if this body is a bullet; false otherwise.
-     */
-    boolean isBullet();
-
 }
