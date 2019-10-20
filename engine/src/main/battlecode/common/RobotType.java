@@ -48,12 +48,22 @@ public enum RobotType {
      */
     SCOUT           (GARDENER,  10, 10,   80,   1, 1.5f,   0.5f,   14,  20,  1.25f, 15000),
     //                              HP    BC   BR    BS   AP   SR  BSR         STR   BCL
+    /// Miners extract crude soup and bring it to the refineries.
+    MINER           (BASE,  ), // chef?
+    /// Landscapers take dirt from adjacent (decreasing the elevation)
+    /// squares or deposit dirt onto adjacent squares, including
+    /// into water (increasing the elevation).
+    LANDSCAPER      (DESIGN_SCHOOL,  ),
+    /// Drones pick up any unit and drop them somewhere else.
+    DRONE           (FULFILLMENT_CENTER,  ),
+    /// Cows produce polution.
+    COW             (null, ),
     ;
     
     /**
      * For units, this is the structure that spawns it. For non-spawnable robots, this is null.
      */
-    public final RobotType spawnSource;
+    public final BuildingType spawnSource;
 
     /**
      * Cooldown turns for structure that spawns it.
@@ -115,21 +125,21 @@ public enum RobotType {
     }
 
     /**
-     * Returns whether the robot can hire Gardeners.
-     *
-     * @return whether the robot can hire Gardeners.
-     */
-    public boolean canHire() {
-        return this == ARCHON;
-    }
-
-    /**
-     * Returns whether the robot can build trees and all units except Gardeners and Archons.
+     * Returns whether the robot can build buildings.
      *
      * @return whether the robot can build.
      */
     public boolean canBuild() {
-        return this == GARDENER;
+        return this == MINER;
+    }
+
+    /**
+     * Returns whether the robot can pick up units.
+     *
+     * @return whether the robot can pick up units.
+     */
+    public boolean canPickUpUnits() {
+        return this == DRONE;
     }
 
     /**

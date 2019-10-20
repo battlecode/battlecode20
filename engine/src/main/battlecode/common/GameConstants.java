@@ -31,6 +31,14 @@ public interface GameConstants {
     // ****** GAME PARAMETERS **********
     // *********************************
 
+    int MAX_TILE_ELEVATION = Integer.MAX_VALUE;
+
+    int MIN_TILE_ELEVATION = Integer.MIN_VALUE;
+
+    int BASE_INCOME = 1;
+
+    
+
     /** The number of victory points required to win the game. */
     int VICTORY_POINTS_TO_WIN = 1000;
 
@@ -51,7 +59,7 @@ public interface GameConstants {
     // *********************************
 
 
-    
+
 
     // *********************************
     // ****** MESSAGING ****************
