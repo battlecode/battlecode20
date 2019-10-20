@@ -5,13 +5,13 @@ package battlecode.common;
  */
 public enum RobotType {
 
-    // spawnSource, deliveryLimit, dirtLimit, soupLimit, movementCooldown, digCooldown, dropCooldown, mineCooldown, sensorRadius, pollutionRadius, bytecodeLimit                       
+    // spawnSource, buildCooldown, dirtLimit, soupLimit, movementCooldown, digCooldown, dropCooldown, mineCooldown, sensorRadius, pollutionRadius, bytecodeLimit                       
     /**
      * Miners extract crude soup and bring it to the refineries.
      *
      * @battlecode.doc.robottype
      */
-    MINER           (BASE,  0,  0,  40,  2,  0,  0,  5,  8,  0,  0,  15000), // chef?
+    MINER           (BASE,  20,  0,  40,  2,  0,  0,  5,  8,  0,  0,  15000), // chef?
     //               
     /**
      * Landscapers take dirt from adjacent (decreasing the elevation)
@@ -19,12 +19,12 @@ public enum RobotType {
      * into water (increasing the elevation).
      * @battlecode.doc.robottype
      */
-    LANDSCAPER      (DESIGN_SCHOOL,  0,  40,  0,  4,  4,  8,  0,  4,  0,  15000),    
+    LANDSCAPER      (DESIGN_SCHOOL,  20,  40,  0,  4,  4,  8,  0,  4,  0,  15000),    
     /**
      * Drones pick up any unit and drop them somewhere else.
      * @battlecode.doc.robottype
      */
-    DRONE           (FULFILLMENT_CENTER,  1,  0,  0,  8,  0,  0,  0,  4,  0,  15000),
+    DRONE           (FULFILLMENT_CENTER,  20,  0,  0,  8,  0,  0,  0,  4,  0,  15000),
     /**
      * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
@@ -38,63 +38,55 @@ public enum RobotType {
     public final BuildingType spawnSource;
 
     /**
-     * Cooldown turns for structure that spawns it.
+     * Cooldown turns for structure that spawns robot.
      */
-    public final int buildCooldownTurns;
-    
-    /**
-     * Maximum health for the robot.
+    public final int buildCooldown;
+
+     /**
+     * Limit for amount of dirt robot can hold.
      */
-    public final int maxHealth;
+    public final int dirtLimit;
+
+     /**
+     * Limit for amount of crude soup robot can hold.
+     */
+    public final int soupLimit;
+
+     /**
+     * Cooldown turns for how long before a robot can move again.
+     */
+    public final int movementCooldown;
+
+     /**
+     * Cooldown turns for how long before a robot can dig again.
+     */
+    public final int digCooldown;
+
+     /**
+     * Cooldown turns for how long before a robot can drop dirt again.
+     */
+    public final int dropCooldown;
 
     /**
-     * Cost for creating the robot.
+     * Cooldown turns for how long before a robot can mine again.
      */
-    public final int bulletCost;
-
-    /**
-     * Radius for the robot.
-     */
-    public final float bodyRadius;
-
-    /**
-     * Speed of bullets produced from the robot.
-     */
-    public final float bulletSpeed;
-
-    /**
-     * Base damage per attack.
-     */
-    public final float attackPower;
+    public final int mineCooldown;
 
     /**
      * Range for sensing robots and trees.
      */
-    public final float sensorRadius;
+    public final int sensorRadius;
 
     /**
-     * Range for sensing bullets.
+     * How many units a cow pollutes.
      */
-    public final float bulletSightRadius;
-
-    /**
-     * Maximum distance the robot can move per turn.
-     */
-    public final float strideRadius;
+    public final int pollutionRadius;
 
     /**
      * Base bytecode limit of this robot.
      */
     public final int bytecodeLimit;
 
-    /**
-     * Returns whether the robot can attack.
-     *
-     * @return whether the robot can attack.
-     */
-    public boolean canAttack() {
-        return attackPower > 0;
-    }
 
     /**
      * Returns whether the robot can build buildings.
@@ -114,43 +106,17 @@ public enum RobotType {
         return this == DRONE;
     }
 
-    /**
-     * Returns whether the robot is hireable.
-     *
-     * @return whether the robot is hireable.
-     */
-    public boolean isHireable() {
-        return spawnSource == ARCHON;
-    }
-
-    /**
-     * Returns whether the robot is buildable.
-     *
-     * @return whether the robot is buildable.
-     */
-    public boolean isBuildable() { return spawnSource == GARDENER; }
-
-    /**
-     * Returns the starting health of this type of robot.
-     *
-     * @return the starting health of this type of robot.
-     */
-    public float getStartingHealth() {
-        return this == RobotType.ARCHON || this == RobotType.GARDENER ? this.maxHealth : GameConstants.PLANTED_UNIT_STARTING_HEALTH_FRACTION * this.maxHealth;
-    }
-    
-    RobotType(RobotType spawnSource, int buildCooldownTurns, int maxHealth, int bulletCost, float bodyRadius, float bulletSpeed, float attackPower,
-              float sensorRadius, float bulletSightRadius, float strideRadius, int bytecodeLimit) {
+    RobotType(BuildingType spawnSource, int buildCooldown, int dirtLimit, int soupLimit, int movementCooldown, int digCooldown, int dropCooldown, int mineCooldown, int sensorRadius, int pollutionRadius, int bytecodeLimit) {
         this.spawnSource        = spawnSource;
-        this.buildCooldownTurns = buildCooldownTurns;
-        this.maxHealth          = maxHealth;
-        this.bulletCost         = bulletCost;
-        this.bodyRadius         = bodyRadius;
-        this.bulletSpeed        = bulletSpeed;
-        this.attackPower        = attackPower;
+        this.buildCooldown      = buildCooldown;
+        this.dirtLimit          = dirtLimit;
+        this.soupLimit          = soupLimit;
+        this.movementCooldown   = movementCooldown;
+        this.digCooldown        = digCooldown;
+        this.dropCooldown       = dropCooldown;
+        this.mineCooldown       = mineCooldown
         this.sensorRadius       = sensorRadius;
-        this.bulletSightRadius  = bulletSightRadius;
-        this.strideRadius       = strideRadius;
+        this.pollutionRadius    = pollutionRadius;
         this.bytecodeLimit      = bytecodeLimit;
     }
 }
