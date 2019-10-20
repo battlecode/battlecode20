@@ -5,59 +5,31 @@ package battlecode.common;
  */
 public enum RobotType {
 
-    // spawnSource, buildCooldownTurns, maxHealth, bulletCost, bodyRadius, bulletSpeed, attackPower, sensorRadius, bulletSightRadius, strideRadius, bytecodeLimit
+    // spawnSource, deliveryLimit, dirtLimit, soupLimit, movementCooldown, digCooldown, dropCooldown, mineCooldown, sensorRadius, pollutionRadius, bytecodeLimit                       
     /**
-     * An important unit that cannot be constructed; builds other robots.
+     * Miners extract crude soup and bring it to the refineries.
      *
      * @battlecode.doc.robottype
      */
-    ARCHON          (null,    0,    400,   -1,   2,  -1,  -1,   10,  15, 0.5f,  30000),
-    //                              HP      BC   BR   BS   AP   SR  BSR  STR   BCL
+    MINER           (BASE,  0,  0,  40,  2,  0,  0,  5,  8,  0,  0,  15000), // chef?
+    //               
     /**
-     * The main producer unit to make other units and trees; can't build Archons or other Gardeners.
-     *
+     * Landscapers take dirt from adjacent (decreasing the elevation)
+     * squares or deposit dirt onto adjacent squares, including
+     * into water (increasing the elevation).
      * @battlecode.doc.robottype
      */
-    GARDENER        (ARCHON,  10,   40,  100,   1,  -1,  -1,   7,  10,   0.5f, 15000),
-    //                              HP    BC   BR   BS   AP   SR  BSR  STR   BCL
+    LANDSCAPER      (DESIGN_SCHOOL,  0,  40,  0,  4,  4,  8,  0,  4,  0,  15000),    
     /**
-     * A melee based unit that specializes at cutting down trees.
-     *
+     * Drones pick up any unit and drop them somewhere else.
      * @battlecode.doc.robottype
      */
-    LUMBERJACK      (GARDENER,  10, 50,  100,   1,  -1,   2,   7,  10,  0.75f, 15000),
-    //                              HP    BC   BR   BS   AP    SR  BSR  STR   BCL
+    DRONE           (FULFILLMENT_CENTER,  1,  0,  0,  8,  0,  0,  0,  4,  0,  15000),
     /**
-     * The basic fighting unit.
-     *
+     * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    SOLDIER         (GARDENER,  10, 50,  100,   1,   2f,   2,   7,  10,   0.8f, 15000),
-    //                              HP    BC   BR     BS    AP   SR   BSR  STR   BCL
-    /**
-     * A strong fighting unit.
-     *
-     * @battlecode.doc.robottype
-     */
-    TANK            (GARDENER, 10,  200,  300,   2,   4,   5,   7,  10,  0.5f, 15000),
-    //                              HP    BC     BR   BS    AP   SR  BSR    STR   BCL
-    /**
-     * A unit that specializes in movement and reconnaissance.
-     *
-     * @battlecode.doc.robottype
-     */
-    SCOUT           (GARDENER,  10, 10,   80,   1, 1.5f,   0.5f,   14,  20,  1.25f, 15000),
-    //                              HP    BC   BR    BS   AP   SR  BSR         STR   BCL
-    /// Miners extract crude soup and bring it to the refineries.
-    MINER           (BASE,  ), // chef?
-    /// Landscapers take dirt from adjacent (decreasing the elevation)
-    /// squares or deposit dirt onto adjacent squares, including
-    /// into water (increasing the elevation).
-    LANDSCAPER      (DESIGN_SCHOOL,  ),
-    /// Drones pick up any unit and drop them somewhere else.
-    DRONE           (FULFILLMENT_CENTER,  ),
-    /// Cows produce polution.
-    COW             (null, ),
+    COW             (null,  0,  0,  0,  6,  0,  0,  0,  0, 0,  0),
     ;
     
     /**

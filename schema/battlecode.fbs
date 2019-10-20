@@ -33,7 +33,7 @@ enum BodyType : byte {
     LANDSCAPER,
     /// Drones pick up any unit and drop them somewhere else.
     DRONE,
-    /// Cannons shoot down drones.
+    /// Net guns shoot down drones.
     NET_GUN,
     /// Cows produce polution.
     COW,
