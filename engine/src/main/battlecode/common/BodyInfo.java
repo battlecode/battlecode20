@@ -13,18 +13,11 @@ public interface BodyInfo {
     int getID();
 
     /**
-     * Returns the center location of this body.
+     * Returns the location of this body.
      *
-     * @return the center location of this body.
+     * @return the location of this body.
      */
     MapLocation getLocation();
-
-    /**
-     * Returns the radius of this body.
-     *
-     * @return the radius of this body.
-     */
-    float getRadius();
 
     /**
      * Returns whether this body is a robot.

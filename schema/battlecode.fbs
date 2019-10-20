@@ -41,8 +41,8 @@ enum BodyType : byte {
     REFINERY,
     /// Vaporators reduce pollution.
     VAPORATOR,
-    // The base produces miners, is also a cannon and a vaporator.
-    BASE,
+    // The hq produces miners, is also a net gun and a refinery.
+    HQ,
     /// Design schools create landscapers.
     DESIGN_SCHOOL,
     /// Fulfillment centers create drones.
