@@ -34,7 +34,7 @@ enum BodyType : byte {
     /// Drones pick up any unit and drop them somewhere else.
     DRONE,
     /// Cannons shoot down drones.
-    CANNON,
+    NET_GUN,
     /// Cows produce polution.
     COW,
     /// Refineries turn crude soup into refined soup, and produce pollution.
