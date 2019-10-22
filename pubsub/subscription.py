@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from config import *
+
 import logging
 import multiprocessing
 import time
@@ -8,26 +10,13 @@ import signal
 from google.cloud import pubsub_v1
 
 
-multiprocessing.log_to_stderr()
-multiprocessing.get_logger().handlers[0].setFormatter(logging.Formatter(
-    '%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s'))
-logging.getLogger().addHandler(multiprocessing.get_logger().handlers[0])
-logging.getLogger().setLevel(logging.INFO)
-
-GCLOUD_PROJECT_ID        = 'battlecode18'
-GCLOUD_SUBSCRIPTION_NAME = 'bc20-compile-sub'
-
-ACK_DEADLINE = 30 # Value to which ack deadline is reset
-SLEEP_TIME   = 10 # Interval between checks for new jobs and ack deadline
-
 shutdown_requested = False # Whether the process should shut down due to SIGINT
 
-
-def subscribe(worker):
+def subscribe(subscription_name, worker):
     """Receives and spawns threads to handle jobs received in Pub/Sub"""
 
     client = pubsub_v1.SubscriberClient()
-    subscription_path = client.subscription_path(GCLOUD_PROJECT_ID, GCLOUD_SUBSCRIPTION_NAME)
+    subscription_path = client.subscription_path(GCLOUD_PROJECT_ID, subscription_name)
     logging.info('Listening for jobs')
 
     # Repeatedly check for new jobs until SIGINT received
@@ -36,7 +25,7 @@ def subscribe(worker):
 
         if not response.received_messages:
             logging.info('Job queue is empty')
-            time.sleep(SLEEP_TIME)
+            time.sleep(PUBSUB_SLEEP_TIME)
             continue
 
         if len(response.received_messages) > 1:
@@ -55,9 +44,9 @@ def subscribe(worker):
                 client.modify_ack_deadline(
                     subscription_path,
                     [message.ack_id],
-                    ack_deadline_seconds=ACK_DEADLINE)
+                    ack_deadline_seconds=PUBSUB_ACK_DEADLINE)
                 logging.debug('Reset ack deadline for {} for {}s'.format(
-                    message.message.data, ACK_DEADLINE))
+                    message.message.data, PUBSUB_ACK_DEADLINE))
 
             # If the process is finished, acknowledge it
             else:
@@ -66,7 +55,7 @@ def subscribe(worker):
                 break
 
             # Sleep the thread before checking again
-            time.sleep(SLEEP_TIME)
+            time.sleep(PUBSUB_SLEEP_TIME)
 
 
 def sigint_handler(signal, frame):
