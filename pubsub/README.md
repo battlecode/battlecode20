@@ -12,7 +12,7 @@ In GCloud > IAM > Service accounts:
 
 In GCloud > Storage:
 - Create new bucket. Call it bc20-submissions
-- Grant permissions to the service account: Storage Legacy Bucket Reader/Writer
+- Grant permissions to the service account: Storage Legacy Bucket Writer, Storage Object Viewer
 
 # Local configurations
 

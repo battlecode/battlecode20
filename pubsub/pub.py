@@ -44,7 +44,7 @@ def pub(project_id, topic_name):
     topic_path = client.topic_path(project_id, topic_name)
 
     # Data sent to Cloud Pub/Sub must be a bytestring.
-    data = b"Hello, World!"
+    data = b"helloworld"
 
     # Keep track of the number of published messages.
     ref = dict({"num_messages": 0})

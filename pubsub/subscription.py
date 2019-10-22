@@ -35,6 +35,7 @@ def subscribe(worker):
         response = client.pull(subscription_path, max_messages=1)
 
         if not response.received_messages:
+            logging.info('Job queue is empty')
             time.sleep(SLEEP_TIME)
             continue
 
@@ -45,7 +46,7 @@ def subscribe(worker):
 
         process = multiprocessing.Process(target=worker, args=(message.message.data.decode(),))
         process.start()
-        logging.info('Beginning job {}'.format(message.message.data))
+        logging.info('Job {}: beginning'.format(message.message.data))
 
         while True:
             # If the process is still running, give it more time to finish
@@ -61,7 +62,7 @@ def subscribe(worker):
             # If the process is finished, acknowledge it
             else:
                 client.acknowledge(subscription_path, [message.ack_id])
-                logging.info('Completed and acknowledged {}'.format(message.message.data))
+                logging.info('Job {}: ending and acknowledged'.format(message.message.data))
                 break
 
             # Sleep the thread before checking again
