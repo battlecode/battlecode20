@@ -19,11 +19,12 @@ def compile_db_report(submissionid, result):
         pass
     except:
         logging.critical('Could not report to database')
+        sys.exit(1)
 
 def compile_log_error(submissionid, reason):
     """Reports a server-side error to the database and terminates with failure"""
-    compile_db_report(submissionid, 'error')
     logging.error(reason)
+    compile_db_report(submissionid, 'error')
     sys.exit(1)
 
 def compile_worker(submissionid):

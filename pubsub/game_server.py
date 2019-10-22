@@ -19,11 +19,12 @@ def game_db_report(gameid, result):
         pass
     except:
         logging.critical('Could not report to database')
+        sys.exit(1)
 
 def game_log_error(gameid, reason):
     """Reports a server-side error to the database and terminates with failure"""
-    game_db_report(gameid, 'error')
     logging.error(reason)
+    game_db_report(gameid, 'error')
     sys.exit(1)
 
 def game_worker(gameinfo):
