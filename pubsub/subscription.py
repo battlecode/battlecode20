@@ -21,7 +21,7 @@ def subscribe(subscription_name, worker):
 
     # Repeatedly check for new jobs until SIGINT received
     while not shutdown_requested:
-        response = client.pull(subscription_path, max_messages=1)
+        response = client.pull(subscription_path, max_messages=1, return_immediately=True)
 
         if not response.received_messages:
             logging.info('Job queue is empty')
