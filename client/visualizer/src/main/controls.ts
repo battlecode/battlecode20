@@ -204,7 +204,7 @@ export default class Controls {
     };
 
     const moveHandler = (e: MouseEvent) => {
-      const zeroOffset = 30;
+      const zeroOffset = this.sliderBar.offsetWidth / 2;
       const zeroBuffer = 4;
       var posX = e.pageX - startOffset;
       posX = Math.min(Math.max(0, posX), sliderWidth);
@@ -231,10 +231,10 @@ export default class Controls {
    * Returns the UPS determined by the slider
    */
   getUPS(): number {
-    const zeroOffset = 30;
-    const handleWidth = this.sliderBtn.clientWidth / 2
-    const buttonOffset = this.sliderBtn.offsetLeft + handleWidth
-    const upsMagnitude = 0.01 * Math.pow(buttonOffset - 30, 2);
+    const zeroOffset = this.sliderBar.offsetWidth / 2;
+    const handleWidth = this.sliderBtn.clientWidth / 2;
+    const buttonOffset = this.sliderBtn.offsetLeft + handleWidth;
+    const upsMagnitude = 0.01 * Math.pow(buttonOffset - zeroOffset, 2);
     const ups = buttonOffset < zeroOffset ? -upsMagnitude : upsMagnitude;
     return Math.round(ups);
   }
