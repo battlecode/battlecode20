@@ -15,8 +15,9 @@ from google.cloud import storage
 def game_db_report(gameid, result):
     """Sends the result of the run to the database"""
     try:
-        # TODO report to database
-        pass
+        with util.psql_connect() as conn:
+            # TODO report to database
+            pass
     except:
         logging.critical('Could not report to database')
         sys.exit(1)

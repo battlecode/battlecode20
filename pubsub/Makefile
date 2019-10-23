@@ -4,8 +4,8 @@ basic:
 	echo "COPY . /app" >> Dockerfile
 	echo "ENV GOOGLE_APPLICATION_CREDENTIALS /app/gcloud-key.json" >> Dockerfile
 	echo "RUN apt-get update" >> Dockerfile
-	echo "RUN apt-get -y install python3 python3-pip" >> Dockerfile
-	echo "RUN pip3 install --upgrade google-cloud-pubsub google-cloud-storage" >> Dockerfile
+	echo "RUN apt-get -y install python3 python3-pip libpq-dev" >> Dockerfile
+	echo "RUN pip3 install --upgrade google-cloud-pubsub google-cloud-storage psycopg2" >> Dockerfile
 
 # For debugging; can manually spawn a shell
 shell: basic

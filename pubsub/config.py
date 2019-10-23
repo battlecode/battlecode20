@@ -23,7 +23,7 @@ TIMEOUT_UNZIP   = 10   # Maximum execution time for unzipping submission archive
 TIMEOUT_COMPILE = 90   # Maximum execution time for submission compilation
 TIMEOUT_GAME    = 3600 # Maximum execution time for game running
 
-PSQL_SERVER   = '35.227.72.43'
+PSQL_HOST     = '35.227.72.43'
 PSQL_USERNAME = 'battlecode'
 PSQL_PASSWORD = '[redacted]'
 PSQL_DATABASE = 'battlecode'
