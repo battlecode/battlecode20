@@ -68,6 +68,9 @@ public interface GameConstants {
     /** The size of the team-shared array for signaling. */
     int BROADCAST_MAX_CHANNELS = 10000;
 
+    /** The maximum message length for signaling. */
+    int BROADCAST_MAX_LENGTH = 20;
+
     // *********************************
     // ****** MISCELLANEOUS ************
     // *********************************
