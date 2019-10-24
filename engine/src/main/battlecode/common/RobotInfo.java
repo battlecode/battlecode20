@@ -32,15 +32,6 @@ public class RobotInfo {
      */
     public final int moveCount;
 
-    /**
-     * The amount of soup a robot has.
-     */
-    public final int soupCount;
-
-    /**
-     * The amount of dirt a robot has.
-     */
-    public final int dirtCount;
 
     @Override
     public int getID() {
@@ -52,15 +43,13 @@ public class RobotInfo {
         return this.location;
     }
 
-    public RobotInfo(int ID, Team team, RobotType type, MapLocation location, int soupCount, int dirtCount) {
+    public RobotInfo(int ID, Team team, RobotType type, MapLocation location, int moveCount) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
         this.location = location;
-        this.dirtCount = dirtCount;
-        this.soupCount = soupCount;
-        // missing things
+        this.moveCount = moveCount;
     }
 
     /**
@@ -99,8 +88,7 @@ public class RobotInfo {
         if (ID != robotInfo.ID) return false;
         if (team != robotInfo.team) return false;
         if (type != robotInfo.type) return false;
-        if (soupCount != robotInfo.soupCount) return false;
-        if (dirtCount != robotInfo.dirtCount) return false;
+        if (moveCount != robotInfo.moveCount) return false;
         return location.equals(robotInfo.location);
     }
     /*
@@ -122,8 +110,7 @@ public class RobotInfo {
                 ", team=" + team +
                 ", type=" + type +
                 ", location=" + location +
-                 ", soupCount=" + soupCount +
-                ", dirtCount=" + dirtCount +
+                 ", moveCount=" + moveCount +
                 '}';
     }
 }
