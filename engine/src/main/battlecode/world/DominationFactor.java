@@ -13,9 +13,9 @@ public enum DominationFactor {
      */
     WON_BY_NET_WORTH,  
     /**
-     * Win by unit count.
+     * Win by robot count.
      */
-    WON_BY_UNIT_COUNT,
+    WON_BY_ROBOT_COUNT,
     /**
      * Win by more transactions in the blockchain.
      */
