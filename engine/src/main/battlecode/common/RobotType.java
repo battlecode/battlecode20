@@ -5,49 +5,70 @@ package battlecode.common;
  */
 public enum RobotType {
 
-    // spawnSource, buildCooldownTurns, maxHealth, bulletCost, bodyRadius, bulletSpeed, attackPower, sensorRadius, bulletSightRadius, strideRadius, bytecodeLimit
+    // spawnSource, soupCost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, maxSoupProduced, bytecodeLimit
     /**
-     * An important unit that cannot be constructed; builds other robots.
+     * Miners extract crude soup and bring it to the refineries.
      *
      * @battlecode.doc.robottype
      */
-    ARCHON          (null,    0,    400,   -1,   2,  -1,  -1,   10,  15, 0.5f,  30000),
-    //                              HP      BC   BR   BS   AP   SR  BSR  STR   BCL
+    MINER                   (BASE,  10,  0,  40,  2,  8,  0,  0,  0,  15000), // chef?
+    //                       SS     SC   DL  SL   AC  SR  PR  PA  MS  BL
     /**
-     * The main producer unit to make other units and trees; can't build Archons or other Gardeners.
-     *
+     * Landscapers take dirt from adjacent (decreasing the elevation)
+     * squares or deposit dirt onto adjacent squares, including
+     * into water (increasing the elevation).
      * @battlecode.doc.robottype
      */
-    GARDENER        (ARCHON,  10,   40,  100,   1,  -1,  -1,   7,  10,   0.5f, 15000),
-    //                              HP    BC   BR   BS   AP   SR  BSR  STR   BCL
+    LANDSCAPER              (DESIGN_SCHOOL,  10,  40,  0,  4,  4,  0,  0,  0,  15000),
+    //                       SS              SC   DL   SL  AC  SR  PR  PA  MS  BL
     /**
-     * A melee based unit that specializes at cutting down trees.
-     *
+     * Drones pick up any unit and drop them somewhere else.
      * @battlecode.doc.robottype
      */
-    LUMBERJACK      (GARDENER,  10, 50,  100,   1,  -1,   2,   7,  10,  0.75f, 15000),
-    //                              HP    BC   BR   BS   AP    SR  BSR  STR   BCL
+    DRONE                   (FULFILLMENT_CENTER,  10,  0,  0,  8,  4,  0,  0,  0,  15000),
+    //                       SS                   SC   DL  SL  AC  SR  PR  PA  MS  BL
     /**
-     * The basic fighting unit.
-     *
+     * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    SOLDIER         (GARDENER,  10, 50,  100,   1,   2f,   2,   7,  10,   0.8f, 15000),
-    //                              HP    BC   BR     BS    AP   SR   BSR  STR   BCL
+    COW                     (null,  0,  0,  0,  6,  0,  0,  0,  0,  0),
+    //                       SS     SC  DL  SL  AC  SR  PR  PA  MS  BL
     /**
-     * A strong fighting unit.
-     *
+     * Net guns shoot down drones.
      * @battlecode.doc.robottype
      */
-    TANK            (GARDENER, 10,  200,  300,   2,   4,   5,   7,  10,  0.5f, 15000),
-    //                              HP    BC     BR   BS    AP   SR  BSR    STR   BCL
+    NET_GUN                 (MINER,  7,  0,  0,  5,  6,  0,  0,  0,  15000),
+    //                       SS      SC  DL  SL  AC  SR  PR  PA  MS  BL
     /**
-     * A unit that specializes in movement and reconnaissance.
-     *
+     * Refineries turn crude soup into refined soup, and produce pollution.
      * @battlecode.doc.robottype
      */
-    SCOUT           (GARDENER,  10, 10,   80,   1, 1.5f,   0.5f,   14,  20,  1.25f, 15000),
-    //                              HP    BC   BR    BS   AP   SR  BSR         STR   BCL
+    REFINERY                (MINER,  20,  0,  0,  0,  0,  4,  1,  10,  15000),
+    //                       SS      SC   DL  SL  AC  SR  PR  PA  MS   BL
+    /**
+     * Vaporators reduce pollution.
+     * @battlecode.doc.robottype
+     */
+    VAPORATOR               (MINER,  20,  0,  0,  0,  0,  4,  -1,  5,  15000),
+    //                       SS      SC   DL  SL  AC  SR  PR  PA   MS  BL
+    /**
+     * The base produces miners, is also a net gun and a refinery.
+     * @battlecode.doc.robottype
+     */
+    HQ                      (null,  0,  0,  0,  0,  7,  4,  1,  10,  15000),
+    //                       SS     SC  DL  SL  AC  SR  PR  PA  MS   BL
+    /**
+     * Design schools create landscapers.
+     * @battlecode.doc.robottype
+     */
+    DESIGN_SCHOOL           (MINER,  20,  0,  0,  0,  0,  0,  0,  0,  15000),
+    //                       SS      SC   DL  SL  AC  SR  PR  PA  MS  BL
+    /**
+     * Fulfillment centers create drones.
+     * @battlecode.doc.robottype
+     */
+    FULFILLMENT_CENTER      (MINER,  20,  0,  0,  0,  0,  0,  0,  0,  15000),
+    //                       SS      SC   DL  SL  AC  SR  PR  PA  MS  BL
     ;
     
     /**
@@ -56,119 +77,123 @@ public enum RobotType {
     public final RobotType spawnSource;
 
     /**
-     * Cooldown turns for structure that spawns it.
-     */
-    public final int buildCooldownTurns;
-    
-    /**
-     * Maximum health for the robot.
-     */
-    public final int maxHealth;
-
-    /**
      * Cost for creating the robot.
      */
-    public final int bulletCost;
+    public final int soupCost;
 
     /**
-     * Radius for the robot.
+     * Limit for amount of dirt robot can hold.
      */
-    public final float bodyRadius;
+    public final int dirtLimit;
 
     /**
-     * Speed of bullets produced from the robot.
+     * Limit for amount of crude soup robot can hold.
      */
-    public final float bulletSpeed;
+    public final int soupLimit;
 
     /**
-     * Base damage per attack.
+     * Cooldown turns for how long before a robot can take 
+     * action (build, move, dig, drop, mine, shoot) again.
      */
-    public final float attackPower;
+    public final int actionCooldown;
 
     /**
      * Range for sensing robots and trees.
      */
-    public final float sensorRadius;
+    public final int sensorRadius;
 
     /**
-     * Range for sensing bullets.
+     * How many units a cow pollutes.
      */
-    public final float bulletSightRadius;
+    public final int pollutionRadius;
 
     /**
-     * Maximum distance the robot can move per turn.
+     * Amount of pollution created when refining soup.
      */
-    public final float strideRadius;
+    public final int pollutionAmount;
+
+    /**
+     * Maximum amount of soup to be refined per turn.
+     */
+    public final int maxSoupProduced;
 
     /**
      * Base bytecode limit of this robot.
      */
     public final int bytecodeLimit;
 
-    /**
-     * Returns whether the robot can attack.
-     *
-     * @return whether the robot can attack.
-     */
-    public boolean canAttack() {
-        return attackPower > 0;
-    }
 
     /**
-     * Returns whether the robot can hire Gardeners.
-     *
-     * @return whether the robot can hire Gardeners.
-     */
-    public boolean canHire() {
-        return this == ARCHON;
-    }
-
-    /**
-     * Returns whether the robot can build trees and all units except Gardeners and Archons.
+     * Returns whether the robot can build buildings.
      *
      * @return whether the robot can build.
      */
-    public boolean canBuild() {
-        return this == GARDENER;
+    public boolean canBuild(RobotType type) {
+        return this == type.spawnSource;
     }
 
     /**
-     * Returns whether the robot is hireable.
+     * Returns whether the robot can move.
      *
-     * @return whether the robot is hireable.
+     * @return whether the robot can move.
      */
-    public boolean isHireable() {
-        return spawnSource == ARCHON;
+    public boolean canMove() {
+        return this == MINER || this == LANDSCAPER || this == DRONE || this == COW;
     }
 
     /**
-     * Returns whether the robot is buildable.
+     * Returns whether the robot can dig.
      *
-     * @return whether the robot is buildable.
+     * @return whether the robot can dig.
      */
-    public boolean isBuildable() { return spawnSource == GARDENER; }
+    public boolean canDig() {
+        return this == LANDSCAPER;
+    }
 
     /**
-     * Returns the starting health of this type of robot.
+     * Returns whether the robot can mine.
      *
-     * @return the starting health of this type of robot.
+     * @return whether the robot can mine.
      */
-    public float getStartingHealth() {
-        return this == RobotType.ARCHON || this == RobotType.GARDENER ? this.maxHealth : GameConstants.PLANTED_UNIT_STARTING_HEALTH_FRACTION * this.maxHealth;
+    public boolean canMine() {
+        return this == MINER;
     }
-    
-    RobotType(RobotType spawnSource, int buildCooldownTurns, int maxHealth, int bulletCost, float bodyRadius, float bulletSpeed, float attackPower,
-              float sensorRadius, float bulletSightRadius, float strideRadius, int bytecodeLimit) {
+
+    /**
+     * Returns whether the robot can shoot drones.
+     *
+     * @return whether the robot can shoot.
+     */
+    public boolean canShoot() {
+        return this == NET_GUN;
+    }
+
+    /**
+     * Returns whether the robot can pick up units.
+     *
+     * @return whether the robot can pick up units.
+     */
+    public boolean canPickUpUnits() {
+        return this == DRONE;
+    }
+
+    RobotType(RobotType spawnSource, int buildCooldown, int soupCost, int dirtLimit, int soupLimit, 
+              int movementCooldown, int digCooldown, int dropCooldown, int mineCooldown, int shootCooldown, 
+              int sensorRadius, int pollutionRadius, int pollutionAmount, int maxSoupProduced, int bytecodeLimit) {
         this.spawnSource        = spawnSource;
-        this.buildCooldownTurns = buildCooldownTurns;
-        this.maxHealth          = maxHealth;
-        this.bulletCost         = bulletCost;
-        this.bodyRadius         = bodyRadius;
-        this.bulletSpeed        = bulletSpeed;
-        this.attackPower        = attackPower;
+        this.buildCooldown      = buildCooldown;
+        this.soupCost           = soupCost;
+        this.dirtLimit          = dirtLimit;
+        this.soupLimit          = soupLimit;
+        this.movementCooldown   = movementCooldown;
+        this.digCooldown        = digCooldown;
+        this.dropCooldown       = dropCooldown;
+        this.mineCooldown       = mineCooldown;
+        this.shootCooldown      = shootCooldown;
         this.sensorRadius       = sensorRadius;
-        this.bulletSightRadius  = bulletSightRadius;
-        this.strideRadius       = strideRadius;
+        this.pollutionRadius    = pollutionRadius;
+        this.pollutionAmount    = pollutionAmount;
+        this.maxSoupProduced    = maxSoupProduced;
         this.bytecodeLimit      = bytecodeLimit;
     }
 }

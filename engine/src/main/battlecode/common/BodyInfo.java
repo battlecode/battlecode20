@@ -13,18 +13,11 @@ public interface BodyInfo {
     int getID();
 
     /**
-     * Returns the center location of this body.
+     * Returns the location of this body.
      *
-     * @return the center location of this body.
+     * @return the location of this body.
      */
     MapLocation getLocation();
-
-    /**
-     * Returns the radius of this body.
-     *
-     * @return the radius of this body.
-     */
-    float getRadius();
 
     /**
      * Returns whether this body is a robot.
@@ -32,19 +25,4 @@ public interface BodyInfo {
      * @return true if this body is a robot; false otherwise.
      */
     boolean isRobot();
-
-    /**
-     * Returns whether this body is a tree.
-     *
-     * @return true if this body is a tree; false otherwise.
-     */
-    boolean isTree();
-
-    /**
-     * Returns whether this body is a bullet.
-     *
-     * @return true if this body is a bullet; false otherwise.
-     */
-    boolean isBullet();
-
 }

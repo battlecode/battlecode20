@@ -3,8 +3,7 @@
   "version": "2017.0.0",
   "private": "true",
   "description": "flatbuffers parser for battlecode match files",
-  "main": "js/index.js",
-  "typings": "js/index.d.ts",
+  "main": "ts/index.ts",
   "scripts": {
     "test": "true",
     "build": "flatc --js -o js battlecode.fbs && flatc --java -o java battlecode.fbs"
@@ -21,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/battlecode/battlecode-schema/issues"
   },
-  "homepage": "https://github.com/battlecode/battlecode-schema#readme"
+  "homepage": "https://github.com/battlecode/battlecode-schema#readme",
+  "dependencies": {
+    "@types/flatbuffers": "^1.9.1",
+    "flatbuffers": "^1.11.0"
+  }
 }

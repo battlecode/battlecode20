@@ -21,7 +21,7 @@ class Metadata {
         const bodyCount = header.bodyTypeMetadataLength();
         for (let i = 0; i < bodyCount; i++) {
             const body = header.bodyTypeMetadata(i);
-            this.types[body.type()] = new BodyType(body.type(), body.radius(), body.cost(), body.maxHealth(), body.startHealth(), body.strideRadius(), body.bulletSpeed(), body.bulletAttack(), body.sightRadius(), body.bulletSightRadius());
+            this.types[body.type()] = new BodyType(body.type(), body.cost(), body.strideRadius(), body.sightRadius(), body.soupLimit(), body.dirtLimit());
         }
         // SAFE
         Object.freeze(this.types);
@@ -44,17 +44,13 @@ exports.Team = Team;
  * Information about a specific body type.
  */
 class BodyType {
-    constructor(type, radius, cost, maxHealth, startHealth, strideRadius, bulletSpeed, bulletAttack, sightRadius, bulletSightRadius) {
+    constructor(type, cost, strideRadius, sightRadius, soupLimit, dirtLimit) {
         this.type = type;
-        this.radius = radius;
         this.cost = cost;
-        this.maxHealth = maxHealth;
-        this.startHealth = startHealth;
         this.strideRadius = strideRadius;
-        this.bulletSpeed = bulletSpeed;
-        this.bulletAttack = bulletAttack;
         this.sightRadius = sightRadius;
-        this.bulletSightRadius = bulletSightRadius;
+        this.soupLimit = soupLimit;
+        this.dirtLimit = dirtLimit;
         Object.freeze(this);
     }
 }

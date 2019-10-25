@@ -1,6 +1,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const metadata_1 = require("./metadata");
 const battlecode_schema_1 = require("battlecode-schema");
+const flatbuffers_1 = require("flatbuffers");
 const match_1 = require("./match");
 const pako_1 = require("pako");
 /**
@@ -105,7 +106,7 @@ class Game {
      * Do not mutate `data` after calling this function!
      */
     applyEventRaw(data) {
-        const event = battlecode_schema_1.schema.EventWrapper.getRootAsEventWrapper(new battlecode_schema_1.flatbuffers.ByteBuffer(new Uint8Array(data)));
+        const event = battlecode_schema_1.schema.EventWrapper.getRootAsEventWrapper(new flatbuffers_1.flatbuffers.ByteBuffer(new Uint8Array(data)));
     }
     /**
      * Load a game all at once.
@@ -130,7 +131,7 @@ class Game {
      */
     loadFullGameRaw(data) {
         const ungzipped = pako_1.ungzip(new Uint8Array(data));
-        const wrapper = battlecode_schema_1.schema.GameWrapper.getRootAsGameWrapper(new battlecode_schema_1.flatbuffers.ByteBuffer(ungzipped));
+        const wrapper = battlecode_schema_1.schema.GameWrapper.getRootAsGameWrapper(new flatbuffers_1.flatbuffers.ByteBuffer(ungzipped));
         this.loadFullGame(wrapper);
     }
 }

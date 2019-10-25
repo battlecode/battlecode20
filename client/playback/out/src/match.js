@@ -1,6 +1,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const gameworld_1 = require("./gameworld");
-const battlecode_schema_1 = require("battlecode-schema");
+const flatbuffers_1 = require("flatbuffers");
 // Return a timestamp representing the _current time in ms, not necessarily from
 // any particular epoch.
 const timeMS = typeof window !== 'undefined' && window.performance && window.performance.now ?
@@ -74,7 +74,7 @@ class Match {
             throw new Error(`Can't store delta ${delta.roundID()}, only have rounds up to ${this.deltas.length - 1}`);
         }
         this.deltas.push(delta);
-        this.parseLogs(delta.roundID(), delta.logs(battlecode_schema_1.flatbuffers.Encoding.UTF16_STRING));
+        this.parseLogs(delta.roundID(), delta.logs(flatbuffers_1.flatbuffers.Encoding.UTF16_STRING));
     }
     /**
      * Parse logs for a round.
