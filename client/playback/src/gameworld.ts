@@ -1,6 +1,7 @@
 import StructOfArrays from './soa';
 import Metadata from './metadata';
-import {schema, flatbuffers} from 'battlecode-schema';
+import { schema } from 'battlecode-schema';
+import { flatbuffers } from 'flatbuffers';
 
 // necessary because victor doesn't use exports.default
 import Victor = require('victor');

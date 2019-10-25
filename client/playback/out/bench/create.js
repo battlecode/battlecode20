@@ -1,5 +1,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const battlecode_schema_1 = require("battlecode-schema");
+const flatbuffers_1 = require("flatbuffers");
 const fs_1 = require("fs");
 const SIZE = 50;
 const SIZE2 = SIZE / 2;
@@ -54,7 +55,7 @@ function createEventWrapper(builder, event, type) {
 }
 exports.createEventWrapper = createEventWrapper;
 function createBenchGame(aliveCount, churnCount, moveCount, turns) {
-    let builder = new battlecode_schema_1.flatbuffers.Builder();
+    let builder = new flatbuffers_1.flatbuffers.Builder();
     let events = [];
     events.push(createEventWrapper(builder, createHeader(builder), battlecode_schema_1.schema.Event.GameHeader));
     let alive = new Array(aliveCount);
@@ -144,7 +145,7 @@ function createBenchGame(aliveCount, churnCount, moveCount, turns) {
 }
 exports.createBenchGame = createBenchGame;
 function createWanderGame(unitCount, turns) {
-    let builder = new battlecode_schema_1.flatbuffers.Builder();
+    let builder = new flatbuffers_1.flatbuffers.Builder();
     let events = [];
     events.push(createEventWrapper(builder, createHeader(builder), battlecode_schema_1.schema.Event.GameHeader));
     let ids = new Array(unitCount);

@@ -1,4 +1,4 @@
-import {schema, flatbuffers} from 'battlecode-schema';
+import {schema} from 'battlecode-schema';
 
 export const UNKNOWN_SPEC_VERSION = "UNKNOWN SPEC";
 export const UNKNOWN_TEAM = "UNKNOWN TEAM";
@@ -16,7 +16,7 @@ export default class Metadata {
 
   /**
    * All the body types in a game.
-   * Access like: meta.types[schema.BodyType.ARCHON].radius
+   * Access like: meta.types[schema.BodyType.MINOR].strideRadius
    */
   types: {[key: number]: BodyType};
 
@@ -47,15 +47,11 @@ export default class Metadata {
       const body = header.bodyTypeMetadata(i);
       this.types[body.type()] = new BodyType(
         body.type(),
-        body.radius(),
         body.cost(),
-        body.maxHealth(),
-        body.startHealth(),
         body.strideRadius(),
-        body.bulletSpeed(),
-        body.bulletAttack(),
         body.sightRadius(),
-        body.bulletSightRadius()
+        body.soupLimit(),
+        body.dirtLimit()
       );
     }
     // SAFE
@@ -67,20 +63,14 @@ export default class Metadata {
 }
 
 export class Team {
-  /**
-   * The ID of the team.
-   */
-  teamID: number;
+  // schema.TeamData
 
-  /**
-   * The package name of the team.
-   */
-  packageName: string;
-
-  /**
-   * The name of the team.
-   */
+  /// The name of the team.
   name: string;
+  /// The java package the team uses.
+  packageName: string;
+  /// The ID of the team this data pertains to.
+  teamID: number;
 
   constructor(teamID: number, packageName: string, name: string) {
     this.teamID = teamID;
@@ -94,70 +84,37 @@ export class Team {
  * Information about a specific body type.
  */
 export class BodyType {
-  /**
-   * The relevant type.
-   */
+  // schema.BodyTypeMetadata
+
+  /// The relevant type.
   type: schema.BodyType;
 
-  /**
-   * The radius of the type, in distance units.
-   */
-  radius: number;
-
-  /**
-   * The cost of the type, in bullets.
-   */
+  /// The cost of the type, in refined soup.
   cost: number;
-
-  /**
-   * The maxiumum health of the type, in health units.
-   */
-  maxHealth: number;
-
-  /**
-   * If unset, the same as maxHealth.
-   * Otherwise, the health a body of this type starts with.
-   */
-  startHealth: number;
-
-  /**
-   * The distance this robot can move in a turn.
-   */
+  
+  /// The maximum distance this type can move each turn
   strideRadius: number;
 
-  /**
-   * The speed that bullets from this unit move.
-   * Note: you don't need to keep track of this, SpawnedBody.vel will always be set.
-   */
-  bulletSpeed: number;
-
-  /**
-   * The damage that bullets from this unit inflict.
-   * Note: you don't need to keep track of this.
-   */
-  bulletAttack: number;
-
-  /**
-   * The maximum distance this type can sense other trees and robots
-   */
+  /// The maximum distance this type can sense other trees and robots
   sightRadius: number;
 
-  /**
-   * The maximum distance this type can sense bullets
-   */
-  bulletSightRadius: number;
+  /// need to encode the formula
+  // ??
 
-  constructor(type: schema.BodyType, radius: number, cost: number, maxHealth: number, startHealth: number, strideRadius: number, bulletSpeed: number, bulletAttack: number, sightRadius: number, bulletSightRadius: number) {
+  /// Amount of soup this body type can carry; only positive for miners.
+  soupLimit: number;
+
+  /// Amount of dirt this body type can carry; only positive for landscapers.
+  dirtLimit: number;
+  
+
+  constructor(type: schema.BodyType, cost: number, strideRadius: number, sightRadius: number, soupLimit: number, dirtLimit: number) {
     this.type = type;
-    this.radius = radius;
     this.cost = cost;
-    this.maxHealth = maxHealth;
-    this.startHealth = startHealth;
     this.strideRadius = strideRadius;
-    this.bulletSpeed = bulletSpeed;
-    this.bulletAttack = bulletAttack;
     this.sightRadius = sightRadius;
-    this.bulletSightRadius = bulletSightRadius;
+    this.soupLimit = soupLimit;
+    this.dirtLimit = dirtLimit;
     Object.freeze(this);
   }
 }

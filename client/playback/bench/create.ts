@@ -1,4 +1,5 @@
-import {schema, flatbuffers} from 'battlecode-schema';
+import {schema} from 'battlecode-schema';
+import { flatbuffers } from 'flatbuffers';
 import * as Map from 'core-js/library/es6/map';
 import {createWriteStream} from 'fs';
 
