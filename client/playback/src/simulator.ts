@@ -1,7 +1,6 @@
 import Metadata from './metadata';
 import GameWorld from './gameworld';
 import {schema} from 'battlecode-schema';
-import { flatbuffers } from 'flatbuffers';
 
 /**
  * A function that runs through a GameWrapper containing a single match, and
