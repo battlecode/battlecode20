@@ -1,7 +1,8 @@
 import Metadata from './metadata';
 import GameWorld from './gameworld';
-import { schema } from 'battlecode-schema';
-import { flatbuffers } from 'flatbuffers';
+// import { schema } from 'battlecode-schema';
+// import { flatbuffers } from 'flatbuffers';
+import { flatbuffers, schema } from 'battlecode-schema'
 
 export type Log = {
   team: string, // 'A' | 'B'

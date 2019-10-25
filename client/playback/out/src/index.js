@@ -17,8 +17,9 @@ const match_1 = require("./match");
 exports.Match = match_1.default;
 const game_1 = require("./game");
 exports.Game = game_1.default;
+// import { schema } from 'battlecode-schema';
+// import { flatbuffers } from 'flatbuffers';
 const battlecode_schema_1 = require("battlecode-schema");
+exports.flatbuffers = battlecode_schema_1.flatbuffers;
 exports.schema = battlecode_schema_1.schema;
-const flatbuffers_1 = require("flatbuffers");
-exports.flatbuffers = flatbuffers_1.flatbuffers;
 // TODO provide ergonomic main export
