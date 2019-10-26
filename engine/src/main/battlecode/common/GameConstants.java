@@ -60,13 +60,6 @@ public interface GameConstants {
 
     /** The radius around a lumberjack affected by a strike(). */
     float LUMBERJACK_STRIKE_RADIUS = 2;
-    
-    // *********************************
-    // ****** MESSAGING ****************
-    // *********************************
-
-    /** The size of the team-shared array for signaling. */
-    int BROADCAST_MAX_CHANNELS = 10000;
 
     // *********************************
     // ****** MISCELLANEOUS ************

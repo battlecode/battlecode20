@@ -73,7 +73,7 @@ public strictfp class RobotPlayer {
             try {
 
                 // Listen for home archon's location
-                archonLoc = rc.getLocation();
+                // archonLoc = rc.getLocation();
 
                 // Generate a random direction
                 Direction dir = randomDirection();

@@ -13,7 +13,6 @@ public class TeamInfo {
     private final long[][] oldTeamMemory;
 
     private int[] teamVictoryPoints = new int[3];
-    private int[][] teamSharedArrays = new int[3][GameConstants.BROADCAST_MAX_CHANNELS];
 
     public TeamInfo(long[][] oldTeamMemory){
         this.teamMemory = new long[2][oldTeamMemory[0].length];
@@ -54,17 +53,4 @@ public class TeamInfo {
         n |= (state & mask);
         teamMemory[t.ordinal()][index] = n;
     }
-
-    // *********************************
-    // ***** UPDATE METHODS ************
-    // *********************************
-
-    public void broadcast(Team t, int channel, int data){
-        this.teamSharedArrays[t.ordinal()][channel] = data;
-    }
-
-    public int readBroadcast(Team t, int channel){
-        return this.teamSharedArrays[t.ordinal()][channel];
-    }
-
 }
