@@ -104,11 +104,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public int getTreeCount(){
-        return gameWorld.getObjectInfo().getTreeCount(getTeam());
-    }
-
-    @Override
     public MapLocation[] getInitialArchonLocations(Team t){
         assertNotNull(t);
         if (t == Team.NEUTRAL) {
@@ -246,13 +241,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean isLocationOccupiedByTree(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanSenseLocation(loc);
-        return gameWorld.getObjectInfo().getTreeAtLocation(loc) != null;
-    }
-
-    @Override
     public boolean isLocationOccupiedByRobot(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
@@ -274,17 +262,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public TreeInfo senseTreeAtLocation(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanSenseLocation(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        if(tree != null) {
-            return tree.getTreeInfo();
-        }
-        return null;
-    }
-
-    @Override
     public RobotInfo senseRobotAtLocation(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
@@ -293,15 +270,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return bot.getRobotInfo();
         }
         return null;
-    }
-
-    @Override
-    public boolean canSenseTree(int id) {
-        if(!gameWorld.getObjectInfo().existsTree(id)){
-            return false;
-        }
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        return canSensePartOfCircle(tree.getLocation(), tree.getRadius());
     }
 
     @Override
@@ -317,15 +285,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canSenseBullet(int id) {
         return gameWorld.getObjectInfo().existsBullet(id) &&
                 canSenseBulletLocation(gameWorld.getObjectInfo().getBulletByID(id).getLocation());
-    }
-
-    @Override
-    public TreeInfo senseTree(int id) throws GameActionException {
-        if(!canSenseTree(id)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Can't sense given tree; It may not exist anymore");
-        }
-        return gameWorld.getObjectInfo().getTreeByID(id).getTreeInfo();
     }
 
     @Override
@@ -384,42 +343,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             validSensedRobots.add(sensedRobot.getRobotInfo());
         }
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
-    }
-
-    @Override
-    public TreeInfo[] senseNearbyTrees() {
-        return senseNearbyTrees(-1);
-    }
-
-    @Override
-    public TreeInfo[] senseNearbyTrees(float radius) {
-        return senseNearbyTrees(radius, null);
-    }
-
-    @Override
-    public TreeInfo[] senseNearbyTrees(float radius, Team team) {
-        return senseNearbyTrees(getLocation(), radius, team);
-    }
-
-    @Override
-    public TreeInfo[] senseNearbyTrees(MapLocation center, float radius, Team team) {
-        assertNotNull(center);
-        InternalTree[] allSensedTrees = gameWorld.getObjectInfo().getAllTreesWithinRadius(center,
-                radius == -1 ? getType().sensorRadius : radius);
-        List<TreeInfo> validSensedTrees = new ArrayList<>();
-        for(InternalTree sensedTree : allSensedTrees){
-            // check if can sense
-            if(!canSensePartOfCircle(sensedTree.getLocation(), sensedTree.getRadius())){
-                continue;
-            }
-            // check if right team
-            if(team != null && sensedTree.getTeam() != team){
-                continue;
-            }
-
-            validSensedTrees.add(sensedTree.getTreeInfo());
-        }
-        return validSensedTrees.toArray(new TreeInfo[validSensedTrees.size()]);
     }
 
     @Override
@@ -578,25 +501,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         
         this.robot.incrementMoveCount();
         if(getType() == RobotType.TANK) { // If Tank, see if can actually move, as opposed to just body attack
-            InternalTree[] trees = gameWorld.getObjectInfo().getAllTreesWithinRadius(center, RobotType.TANK.bodyRadius);
-            if(trees.length > 0) { // Body attack will happen
-                
-                // Find closest Tree
-                InternalTree closestTree = null;
-                float closestDist = Float.MAX_VALUE;
-                for(InternalTree tree : trees) {
-                    float treeDist = tree.getLocation().distanceTo(robot.getLocation());
-                    if(treeDist < closestDist) {
-                        closestDist = treeDist;
-                        closestTree = tree;
-                    }
-                }
             
-                // Now that damage has been done, refresh list of trees to see if it is still there
-                trees = gameWorld.getObjectInfo().getAllTreesWithinRadius(center, RobotType.TANK.bodyRadius);
-                if(trees.length > 0) // If something still obstructs the movement, don't actually move
-                    return;
-            }
         }
         this.robot.setLocation(center);
 
@@ -781,37 +686,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.canInteractWithCircle(center,radius);
     }
 
-    private void assertCanInteractWithTree(MapLocation treeLoc) throws GameActionException{
-        if(!canInteractWithTree(treeLoc)){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't interact with a tree that doesn't exist or is outside" +
-                            " this robot's stride.");
-        }
-    }
-
-    private void assertCanInteractWithTree(int treeID) throws GameActionException{
-        if(!canInteractWithTree(treeID)){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't interact with a tree that doesn't exist or is outside" +
-                            " this robot's stride.");
-        }
-    }
-
-    @Override
-    public boolean canInteractWithTree(MapLocation loc){
-        assertNotNull(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        return tree != null &&
-                canInteractWithCircle(tree.getLocation(), tree.getRadius());
-    }
-
-    @Override
-    public boolean canInteractWithTree(int id){
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        return tree != null &&
-                canInteractWithCircle(tree.getLocation(), tree.getRadius());
-    }
-
     // ***********************************
     // ****** SIGNALING METHODS **********
     // ***********************************
@@ -884,13 +758,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(type);
         boolean hasBulletCosts = haveBulletCosts(type.bulletCost);
         boolean validBuilder = getType() == type.spawnSource;
-        return hasBulletCosts && validBuilder;
-    }
-
-    @Override
-    public boolean hasTreeBuildRequirements() {
-        boolean hasBulletCosts = haveBulletCosts(GameConstants.BULLET_TREE_COST);
-        boolean validBuilder = getType() == RobotType.GARDENER;
         return hasBulletCosts && validBuilder;
     }
 
