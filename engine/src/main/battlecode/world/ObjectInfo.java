@@ -23,7 +23,7 @@ import java.util.Map;
 
 
 /**
- * This class is used to hold information about the robots and bullets
+ * This class is used to hold information about the robots
  * in the game world.
  */
 public strictfp class ObjectInfo {
@@ -32,10 +32,8 @@ public strictfp class ObjectInfo {
     private final MapLocation mapTopLeft;
 
     private final TIntObjectHashMap<InternalRobot> gameRobotsByID;
-    private final TIntObjectHashMap<InternalBullet> gameBulletsByID;
 
     private final SpatialIndex robotIndex;
-    private final SpatialIndex bulletIndex;
 
     private final TIntArrayList dynamicBodyExecOrder;
 
@@ -49,15 +47,12 @@ public strictfp class ObjectInfo {
         this.mapTopLeft = gm.getOrigin();
 
         this.gameRobotsByID = new TIntObjectHashMap<>();
-        this.gameBulletsByID = new TIntObjectHashMap<>();
 
         robotIndex = new RTree();
-        bulletIndex = new RTree();
 
         dynamicBodyExecOrder = new TIntArrayList();
 
         robotIndex.init(null);
-        bulletIndex.init(null);
 
         robotTypeCount.put(Team.A, new EnumMap<>(
                 RobotType.class));
@@ -74,27 +69,12 @@ public strictfp class ObjectInfo {
     }
 
     /**
-     * Apply an operation for every bullet.
-     * Return false to stop iterating.
-     * If you call destroyBullet() on a bullet that hasn't been seen yet,
-     * that bullet will be silently skipped.
-     *
-     * @param op a lambda (bullet) -> boolean
-     */
-    public void eachBullet(TObjectProcedure<InternalBullet> op) {
-        // Trove doesn't throw errors when we delete a map entry while iterating
-        // it just silently skips the entry later...
-        // which is exactly the behaviour we want.
-        gameBulletsByID.forEachValue(op);
-    }
-
-    /**
      * Apply an operation for every robot, ordered based on robot ID hash (effectively random).
      * Return false to stop iterating.
      * If you call destroyRobot() on a robot that hasn't been seen yet,
      * that robot will be silently skipped.
      *
-     * @param op a lambda (bullet) -> void
+     * @param op a lambda (currency) -> void
      */
     public void eachRobot(TObjectProcedure<InternalRobot> op) {
         gameRobotsByID.forEachValue(op);
@@ -102,9 +82,8 @@ public strictfp class ObjectInfo {
     }
 
     /**
-     * Apply an operation for every Bullet and Robot, in the order the
-     * bodies should be updated. Robots update in spawn order, and
-     * Bullets update immediately before the robot that fired them.
+     * Apply an operation for every Robot, in the order the
+     * bodies should be updated. Robots update in spawn order.
      * Return false to stop iterating.
      *
      * If a body is removed during iteration, the body is cleanly skipped.
@@ -117,14 +96,8 @@ public strictfp class ObjectInfo {
 
         for (int id : spawnOrderArray) {
             // Check if body still exists.
-            // This can produce bugs if a bullet and a robot can have the same ID.
             if (existsRobot(id)) {
                 boolean returnedTrue = op.execute(gameRobotsByID.get(id));
-                if (!returnedTrue) {
-                    break;
-                }
-            } else if (existsBullet(id)) {
-                boolean returnedTrue = op.execute(gameBulletsByID.get(id));
                 if (!returnedTrue) {
                     break;
                 }
@@ -137,24 +110,10 @@ public strictfp class ObjectInfo {
     }
 
     /**
-     * This allocates; prefer eachBullet()
-     */
-    public Collection<InternalBullet> bullets() {
-        return gameBulletsByID.valueCollection();
-    }
-
-    /**
      * This allocates; prefer eachRobot()
      */
     public Collection<InternalRobot> robots() {
         return gameRobotsByID.valueCollection();
-    }
-
-    /**
-     * This allocates; prefer eachBullet()
-     */
-    public InternalBullet[] bulletsArray() {
-        return gameBulletsByID.values(new InternalBullet[gameBulletsByID.size()]);
     }
 
     /**
@@ -170,17 +129,6 @@ public strictfp class ObjectInfo {
 
     public InternalRobot getRobotByID(int id){
         return gameRobotsByID.get(id);
-    }
-
-    public InternalBullet getBulletByID(int id){
-        return gameBulletsByID.get(id);
-    }
-
-    public void moveBullet(InternalBullet bullet, MapLocation newLocation) {
-        MapLocation loc = bullet.getLocation();
-
-        bulletIndex.delete(fromPoint(loc),bullet.getID());
-        bulletIndex.add(fromPoint(newLocation),bullet.getID());
     }
 
     public void moveRobot(InternalRobot robot, MapLocation newLocation) {
@@ -207,31 +155,12 @@ public strictfp class ObjectInfo {
         robotIndex.add(fromPoint(loc),robot.getID());
     }
 
-    public void spawnBullet(InternalBullet bullet, InternalRobot parent){
-        int id = bullet.getID();
-        gameBulletsByID.put(id, bullet);
-
-        // We insert the bullet immediately before its parent (i.e. the robot
-        // which fired it). This means that the bullet will first update immediately
-        // before its parent next updates, and after any bullets previously fired
-        // by this robot have updated again.
-        int parentIndex = dynamicBodyExecOrder.indexOf(parent.getID());
-        dynamicBodyExecOrder.insert(parentIndex, id);
-
-        MapLocation loc = bullet.getLocation();
-        bulletIndex.add(fromPoint(loc),bullet.getID());
-    }
-
     // ****************************
     // *** EXISTS CHECKS **********
     // ****************************
 
     public boolean existsRobot(int id){
         return gameRobotsByID.containsKey(id);
-    }
-
-    public boolean existsBullet(int id){
-        return gameBulletsByID.containsKey(id);
     }
 
     // ****************************
@@ -247,15 +176,6 @@ public strictfp class ObjectInfo {
         gameRobotsByID.remove(id);
         dynamicBodyExecOrder.remove(id);
         robotIndex.delete(fromPoint(loc),id);
-    }
-
-    public void destroyBullet(int id){
-        InternalBullet b = getBulletByID(id);
-
-        MapLocation loc = b.getLocation();
-        gameBulletsByID.remove(id);
-        dynamicBodyExecOrder.remove(id);
-        bulletIndex.delete(fromPoint(loc),id);
     }
     
     // ****************************
@@ -283,24 +203,6 @@ public strictfp class ObjectInfo {
         );
 
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
-    }
-    
-    public InternalBullet[] getAllBulletsWithinRadius(MapLocation center, float radius){
-
-        ArrayList<InternalBullet> returnBullets = new ArrayList<InternalBullet>();
-
-        // Add each to a list
-        bulletIndex.nearestN(
-                new Point(center.x,center.y),   // Search from center
-                i -> {
-                    returnBullets.add(getBulletByID(i));
-                    return true;
-                },
-                Integer.MAX_VALUE,
-                radius
-        );
-
-        return returnBullets.toArray(new InternalBullet[returnBullets.size()]);
     }
 
     public InternalRobot getRobotAtLocation(MapLocation loc){

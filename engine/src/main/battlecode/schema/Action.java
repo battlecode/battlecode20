@@ -13,21 +13,6 @@ package battlecode.schema;
 public final class Action {
   private Action() { }
   /**
-   * Fire a bullet.
-   * Target: spawned bullet.
-   */
-  public static final byte FIRE = 0;
-  /**
-   * Fire three bullets.
-   * Target: spawned bullets.
-   */
-  public static final byte FIRE_TRIAD = 1;
-  /**
-   * Fire five bullets.
-   * Target: spawned bullets.
-   */
-  public static final byte FIRE_PENTAD = 2;
-  /**
    * Build a unit.
    * Target: spawned unit
    */
@@ -44,7 +29,7 @@ public final class Action {
   public static final byte DIE_SUICIDE = 9;
   /**
    * Die due to being killed.
-   * Target: killer (bullet or lumberjack or tank)
+   * Target: killer (lumberjack or tank)
    */
   public static final byte DIE_KILLED = 10;
   /**

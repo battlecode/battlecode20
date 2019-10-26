@@ -190,20 +190,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
-     * Determines whether this location is within the bullet sight radius of the
-     * given robot.
-     *
-     * @param robot the robot to test
-     * @return true if this location is within robot's bullet sight radius,
-     *         false otherwise
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public final boolean isWithinBulletSightRadius(RobotInfo robot){
-        return isWithinDistance(robot.location, robot.type.bulletSightRadius);
-    }
-
-    /**
      * Returns the Direction from this MapLocation to <code>location</code>.
      * If <code>location</code> is null then the return value is null.
      * If <code>location</code> equals this location then the return value is null.

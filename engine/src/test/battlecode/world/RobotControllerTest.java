@@ -221,34 +221,6 @@ public class RobotControllerTest {
     }
 
     @Test
-    public void noHealing() throws GameActionException {
-
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-                .build();
-
-        // This creates the actual game.
-        TestGame game = new TestGame(map);
-
-        final int gardener = game.spawn(5,5,RobotType.GARDENER,Team.A);
-        final int archon = game.spawn(5,2,RobotType.ARCHON,Team.A);
-        final int soldier = game.spawn(5,8,RobotType.SOLDIER,Team.A);
-
-        assertEquals(game.getBot(gardener).getHealth(),RobotType.GARDENER.maxHealth,EPSILON);
-        assertEquals(game.getBot(archon).getHealth(),RobotType.ARCHON.maxHealth,EPSILON);
-        assertEquals(game.getBot(soldier).getHealth(),RobotType.SOLDIER.getStartingHealth(),EPSILON);
-
-        game.getBot(gardener).damageRobot(10);
-        game.getBot(archon).damageRobot(10);
-
-        game.waitRounds(20);
-
-        // Gardener and Archon should not heal in first 20 turns
-        assertEquals(game.getBot(gardener).getHealth(),RobotType.GARDENER.maxHealth-10,EPSILON);
-        assertEquals(game.getBot(archon).getHealth(),RobotType.ARCHON.maxHealth-10,EPSILON);
-        assertEquals(game.getBot(soldier).getHealth(),RobotType.SOLDIER.maxHealth,EPSILON);
-    }
-
-    @Test
     public void sensingEachOtherTest() throws GameActionException {
         LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 50, 50, 1337, 100)
                 .build();
@@ -277,7 +249,7 @@ public class RobotControllerTest {
 
         TestGame game = new TestGame(map);
 
-        // Spawn two tanks close enough such that a bullet fired from one
+        // Spawn two tanks close enough such that a ... fired from one
         // at the other will hit after updating once.
         final int tankA = game.spawn(10, 10, RobotType.TANK, Team.A);
         final int tankB = game.spawn(15, 10, RobotType.TANK, Team.B);

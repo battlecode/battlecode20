@@ -26,12 +26,6 @@ public final class Round extends Table {
   public int teamIDsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer teamIDsAsByteBuffer() { return __vector_as_bytebuffer(4, 4); }
   /**
-   * The bullet counts of the teams.
-   */
-  public float teamBullets(int j) { int o = __offset(6); return o != 0 ? bb.getFloat(__vector(o) + j * 4) : 0; }
-  public int teamBulletsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer teamBulletsAsByteBuffer() { return __vector_as_bytebuffer(6, 4); }
-  /**
    * The victory points of the teams.
    */
   public int teamVictoryPoints(int j) { int o = __offset(8); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
@@ -55,11 +49,6 @@ public final class Round extends Table {
   public SpawnedBodyTable spawnedBodies() { return spawnedBodies(new SpawnedBodyTable()); }
   public SpawnedBodyTable spawnedBodies(SpawnedBodyTable obj) { int o = __offset(14); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
-   * New bullets.
-   */
-  public SpawnedBulletTable spawnedBullets() { return spawnedBullets(new SpawnedBulletTable()); }
-  public SpawnedBulletTable spawnedBullets(SpawnedBulletTable obj) { int o = __offset(16); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
-  /**
    * The IDs of bodies with changed health.
    */
   public int healthChangedIDs(int j) { int o = __offset(18); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
@@ -77,12 +66,6 @@ public final class Round extends Table {
   public int diedIDs(int j) { int o = __offset(22); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
   public int diedIDsLength() { int o = __offset(22); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer diedIDsAsByteBuffer() { return __vector_as_bytebuffer(22, 4); }
-  /**
-   * The IDs of bullets that died.
-   */
-  public int diedBulletIDs(int j) { int o = __offset(24); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int diedBulletIDsLength() { int o = __offset(24); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer diedBulletIDsAsByteBuffer() { return __vector_as_bytebuffer(24, 4); }
   /**
    * The IDs of robots that performed actions.
    * IDs may repeat.
@@ -184,16 +167,13 @@ public final class Round extends Table {
 
   public static int createRound(FlatBufferBuilder builder,
       int teamIDsOffset,
-      int teamBulletsOffset,
       int teamVictoryPointsOffset,
       int movedIDsOffset,
       int movedLocsOffset,
       int spawnedBodiesOffset,
-      int spawnedBulletsOffset,
       int healthChangedIDsOffset,
       int healthChangeLevelsOffset,
       int diedIDsOffset,
-      int diedBulletIDsOffset,
       int actionIDsOffset,
       int actionsOffset,
       int actionTargetsOffset,
@@ -223,16 +203,13 @@ public final class Round extends Table {
     Round.addActionTargets(builder, actionTargetsOffset);
     Round.addActions(builder, actionsOffset);
     Round.addActionIDs(builder, actionIDsOffset);
-    Round.addDiedBulletIDs(builder, diedBulletIDsOffset);
     Round.addDiedIDs(builder, diedIDsOffset);
     Round.addHealthChangeLevels(builder, healthChangeLevelsOffset);
     Round.addHealthChangedIDs(builder, healthChangedIDsOffset);
-    Round.addSpawnedBullets(builder, spawnedBulletsOffset);
     Round.addSpawnedBodies(builder, spawnedBodiesOffset);
     Round.addMovedLocs(builder, movedLocsOffset);
     Round.addMovedIDs(builder, movedIDsOffset);
     Round.addTeamVictoryPoints(builder, teamVictoryPointsOffset);
-    Round.addTeamBullets(builder, teamBulletsOffset);
     Round.addTeamIDs(builder, teamIDsOffset);
     return Round.endRound(builder);
   }
@@ -241,9 +218,6 @@ public final class Round extends Table {
   public static void addTeamIDs(FlatBufferBuilder builder, int teamIDsOffset) { builder.addOffset(0, teamIDsOffset, 0); }
   public static int createTeamIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startTeamIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addTeamBullets(FlatBufferBuilder builder, int teamBulletsOffset) { builder.addOffset(1, teamBulletsOffset, 0); }
-  public static int createTeamBulletsVector(FlatBufferBuilder builder, float[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addFloat(data[i]); return builder.endVector(); }
-  public static void startTeamBulletsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addTeamVictoryPoints(FlatBufferBuilder builder, int teamVictoryPointsOffset) { builder.addOffset(2, teamVictoryPointsOffset, 0); }
   public static int createTeamVictoryPointsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startTeamVictoryPointsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
@@ -252,7 +226,6 @@ public final class Round extends Table {
   public static void startMovedIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addMovedLocs(FlatBufferBuilder builder, int movedLocsOffset) { builder.addOffset(4, movedLocsOffset, 0); }
   public static void addSpawnedBodies(FlatBufferBuilder builder, int spawnedBodiesOffset) { builder.addOffset(5, spawnedBodiesOffset, 0); }
-  public static void addSpawnedBullets(FlatBufferBuilder builder, int spawnedBulletsOffset) { builder.addOffset(6, spawnedBulletsOffset, 0); }
   public static void addHealthChangedIDs(FlatBufferBuilder builder, int healthChangedIDsOffset) { builder.addOffset(7, healthChangedIDsOffset, 0); }
   public static int createHealthChangedIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startHealthChangedIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
@@ -262,9 +235,6 @@ public final class Round extends Table {
   public static void addDiedIDs(FlatBufferBuilder builder, int diedIDsOffset) { builder.addOffset(9, diedIDsOffset, 0); }
   public static int createDiedIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startDiedIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addDiedBulletIDs(FlatBufferBuilder builder, int diedBulletIDsOffset) { builder.addOffset(10, diedBulletIDsOffset, 0); }
-  public static int createDiedBulletIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startDiedBulletIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addActionIDs(FlatBufferBuilder builder, int actionIDsOffset) { builder.addOffset(11, actionIDsOffset, 0); }
   public static int createActionIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startActionIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }

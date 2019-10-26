@@ -4,7 +4,7 @@ package battlecode.schema;
 
 /**
  * The possible types of things that can exist.
- * Note that bullets are not treated as bodies.
+ * Note that ... are not treated as bodies.
  */
 public final class BodyType {
   private BodyType() { }
@@ -27,24 +27,13 @@ public final class BodyType {
    */
   public static final byte SOLDIER = 3;
   /**
-   * Tanks are large, slow units with powerful bullets.
+   * Tanks are large, slow units with powerful ...
    */
   public static final byte TANK = 4;
   /**
    * Scouts are fast units that move around without obstruction.
    */
   public static final byte SCOUT = 5;
-  /**
-   * A bullet that moves in a perfectly straight line.
-   * Note: bullet location updates are not sent; a bullet is defined to be
-   * in position loc + dt * vel after dt seconds.
-   * This allows us some significant space savings, since there are lots
-   * of bullets, and we don't need to send position updates.
-   * The event stream will say if a bullet has been destroyed.
-   * This is included for convenience; note this value SHALL NOT appear in
-   * a SpawnedBodyTable.
-   */
-  public static final byte BULLET = 8;
 
   public static final String[] names = { "ARCHON", "GARDENER", "LUMBERJACK", "SOLDIER", "TANK", "SCOUT", "TREE_BULLET", "TREE_NEUTRAL", "BULLET", "NONE", };
 

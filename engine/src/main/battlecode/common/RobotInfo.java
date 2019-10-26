@@ -62,11 +62,6 @@ public class RobotInfo implements  BodyInfo{
         return true;
     }
 
-    @Override
-    public boolean isBullet() {
-        return false;
-    }
-
     public RobotInfo(int ID, Team team, RobotType type, MapLocation location,
                      float health, int attackCount, int moveCount) {
         super();

@@ -1,9 +1,7 @@
 battlecode/common/Clock/yield                                0      true
 battlecode/common/Clock/getBytecodesLeft                     0      true
 battlecode/common/Clock/getBytecodeNum                       0      true
-battlecode/common/Direction/degreesBetween                   1      false
 battlecode/common/Direction/equals                           1      false
-battlecode/common/Direction/getAngleDegrees                  1      false
 battlecode/common/Direction/getDeltaX                        1      false
 battlecode/common/Direction/getDeltaY                        1      false
 battlecode/common/Direction/getEast                          1      false
@@ -11,11 +9,6 @@ battlecode/common/Direction/getNorth                         1      false
 battlecode/common/Direction/getSouth                         1      false
 battlecode/common/Direction/getWest                          1      false
 battlecode/common/Direction/opposite                         1      false
-battlecode/common/Direction/radiansBetween                   1      false
-battlecode/common/Direction/rotateLeftDegrees                1      false
-battlecode/common/Direction/rotateLeftRads                   1      false
-battlecode/common/Direction/rotateRightDegrees               1      false
-battlecode/common/Direction/rotateRightRads                  1      false
 battlecode/common/MapLocation/add                                  2    false
 battlecode/common/MapLocation/compareTo                            2    false
 battlecode/common/MapLocation/directionTo                          2    false
@@ -124,8 +117,6 @@ java/lang/Math/sinh                     1  false
 java/lang/Math/sqrt                     1  false
 java/lang/Math/tan                      1  false
 java/lang/Math/tanh                     1  false
-java/lang/Math/toDegrees                1  false
-java/lang/Math/toRadians                1  false
 java/lang/Math/ulp                      1  false
 java/lang/StrictMath/IEEEremainder           1  false
 java/lang/StrictMath/abs                     1  false
@@ -160,8 +151,6 @@ java/lang/StrictMath/sinh                    1  false
 java/lang/StrictMath/sqrt                    1  false
 java/lang/StrictMath/tan                     1  false
 java/lang/StrictMath/tanh                    1  false
-java/lang/StrictMath/toDegrees               1  false
-java/lang/StrictMath/toRadians               1  false
 java/lang/StrictMath/ulp                     1  false
 java/lang/String/compareTo                 1  false
 java/lang/String/compareToIgnoreCase       1  false

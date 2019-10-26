@@ -9,10 +9,6 @@ public enum DominationFactor {
      */
     WON_BY_DUBIOUS_REASONS,
     /**
-     * Win by bullet supply plus bullet cost of active robots (tiebreak 3).
-     */
-    BARELY_BEAT,
-    /**
      * Win by more victory points (tiebreak 1).
      */
     PWNED,
@@ -21,7 +17,7 @@ public enum DominationFactor {
      */
     DESTROYED,
     /**
-     * Won by donating enough bullets to reach VICTORY_POINTS_TO_WIN.
+     * Won by donating enough currency to reach VICTORY_POINTS_TO_WIN.
      */
     PHILANTROPIED
 }

@@ -274,7 +274,7 @@ public final strictfp class GameMapIO {
                     bodyLocsXs.add(robot.location.x);
                     bodyLocsYs.add(robot.location.y);
                 } else {
-                    // bullet; ignore?
+                    // ignore?
                 }
             }
 

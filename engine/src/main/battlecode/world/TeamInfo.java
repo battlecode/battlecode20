@@ -5,7 +5,7 @@ import battlecode.common.Team;
 
 /**
  * This class is used to hold information regarding team specific values such as
- * team names, bullet supply, and victory points.
+ * team names, and victory points.
  */
 public class TeamInfo {
 
@@ -13,7 +13,6 @@ public class TeamInfo {
     private final long[][] oldTeamMemory;
 
     private int[] teamVictoryPoints = new int[3];
-    private float[] teamBulletSupplies = new float[3];
     private int[][] teamSharedArrays = new int[3][GameConstants.BROADCAST_MAX_CHANNELS];
 
     public TeamInfo(long[][] oldTeamMemory){
@@ -37,17 +36,9 @@ public class TeamInfo {
         return teamVictoryPoints[t.ordinal()];
     }
 
-    public float getBulletSupply(Team t) {
-        return teamBulletSupplies[t.ordinal()];
-    }
-
     // *********************************
     // ***** UPDATE METHODS ************
     // *********************************
-
-    public void adjustBulletSupply(Team t, float amount) {
-        teamBulletSupplies[t.ordinal()] += amount;
-    }
 
     public void adjustVictoryPoints(Team t, int amount) {
         teamVictoryPoints[t.ordinal()] += amount;

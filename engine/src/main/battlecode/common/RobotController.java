@@ -631,7 +631,7 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Tests whether you have the bullets and dependencies to build the given
+     * Tests whether you have the dependencies to build the given
      * robot, and this robot is a valid builder for the target robot.
      *
      * @param type the type of robot to build
@@ -643,7 +643,7 @@ public strictfp interface RobotController {
 
     /**
      * Tests whether the robot can build a robot of the given type in the
-     * given direction. Checks cooldown turns remaining, bullet costs,
+     * given direction. Checks cooldown turns remaining,
      * whether the robot can build, and that the given direction is
      * not blocked.
      *
@@ -661,7 +661,7 @@ public strictfp interface RobotController {
      *
      * @param dir the direction to spawn the unit
      * @param type the type of robot to build
-     * @throws GameActionException if you don't have enough bullets, if
+     * @throws GameActionException if you don't have enough currency, if
      * the robot is still in build cooldown, if the direction is not a
      * good build direction, or if this robot is not of an appropriate type.
      *
@@ -671,7 +671,7 @@ public strictfp interface RobotController {
 
     /**
      * Tests whether the robot can hire a Gardener in the given direction.
-     * Checks cooldown turns remaining, bullet costs, whether the robot can
+     * Checks cooldown turns remaining, currency, whether the robot can
      * hire, and that the given direction is not blocked.
      * 
      * @param dir the direction to build in
@@ -685,7 +685,7 @@ public strictfp interface RobotController {
      * Hires a Gardener in the given direction.
      *
      * @param dir the direction to spawn the Gardener
-     * @throws GameActionException if you don't have enough bullets, if
+     * @throws GameActionException if you don't have enough currency, if
      * the robot is still in build cooldown, if the direction is not a good build
      * direction, or if this robot is not of an appropriate type.
      *
@@ -698,11 +698,11 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Returns the current cost of a victory point in bullets. This varies based
+     * Returns the current cost of a victory point in currency. This varies based
      * on the round number, and is equal to {@link GameConstants#VP_BASE_COST} +
      * NumRounds * {@link GameConstants#VP_INCREASE_PER_ROUND}.
      *
-     * @return the current cost of a victory point in bullets
+     * @return the current cost of a victory point in currency
      *
      * @battlecode.doc.costlymethod
      */

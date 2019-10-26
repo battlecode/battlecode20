@@ -46,7 +46,7 @@ public interface GameConstants {
     /** Maximum archons that can appear on a map (per team). */
     int NUMBER_OF_ARCHONS_MAX = 3;
 
-    /** Maximum ID a Robot will have; all bullets will have IDs larger than this */
+    /** Maximum ID a Robot will have */
     int MAX_ROBOT_ID = 32000;
     
     /**
@@ -72,10 +72,10 @@ public interface GameConstants {
     // ****** MISCELLANEOUS ************
     // *********************************
 
-    /** The price, in bullets, of 1 victory point at the start of the game */
+    /** The price of 1 victory point at the start of the game */
     float VP_BASE_COST = 7.5f;
 
-    /** The price, in bullets, the victory point cost increases each turn */
+    /** The price the victory point cost increases each turn */
     float VP_INCREASE_PER_ROUND = 12.5f / 3000f;
 
     /**

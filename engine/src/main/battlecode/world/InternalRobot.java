@@ -151,10 +151,6 @@ public strictfp class InternalRobot implements InternalBody {
     // ****** CHECK METHODS *************
     // **********************************
 
-    public boolean canSenseBulletLocation(MapLocation toSense) {
-        return this.location.distanceTo(toSense) <= this.type.bulletSightRadius;
-    }
-
     public boolean canSenseLocation(MapLocation toSense){
         return this.location.distanceTo(toSense) <= this.type.sensorRadius;
     }

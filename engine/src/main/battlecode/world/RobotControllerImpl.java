@@ -562,7 +562,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(!canBuildRobot(type, dir)){
             throw new GameActionException(CANT_DO_THAT,
                     "Can't build desired robot in given direction, possibly due to " +
-                            "insufficient bullet supply, this robot can't build, " +
+                            "insufficient currency, this robot can't build, " +
                             "cooldown not expired, or the spawn location is occupied");
         }
     }

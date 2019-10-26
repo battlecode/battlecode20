@@ -239,7 +239,7 @@ public strictfp class GameWorld {
             }
 
             int bestRobotID = Integer.MIN_VALUE;
-            Team bestRobotTeam = null;
+            Team bestRobotTeam = Team.A; // null; ARBITRARY
 
             // tiebreak by robot id
             if(!victorDetermined){
