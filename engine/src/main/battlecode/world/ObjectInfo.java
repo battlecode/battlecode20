@@ -90,7 +90,7 @@ public strictfp class ObjectInfo {
      *
      * @param op a lambda (body) -> void
      */
-    public void eachDynamicBodyByExecOrder(TObjectProcedure<InternalBody> op) {
+    public void eachDynamicBodyByExecOrder(TObjectProcedure<InternalRobot> op) {
         // We can't modify the ArrayList we are looping over
         int[] spawnOrderArray = dynamicBodyExecOrder.toArray();
 
