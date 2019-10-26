@@ -4,7 +4,7 @@ package battlecode.schema;
 
 /**
  * The possible types of things that can exist.
- * Note that neutral trees and bullets are not treated as bodies.
+ * Note that bullets are not treated as bodies.
  */
 public final class BodyType {
   private BodyType() { }
@@ -14,12 +14,12 @@ public final class BodyType {
    */
   public static final byte ARCHON = 0;
   /**
-   * Gardeners are caretakers of the land, ... Bullet Trees
+   * Gardeners are caretakers of the land
    * while also cultivating all other player robots.
    */
   public static final byte GARDENER = 1;
   /**
-   * Lumberjacks are melee units equipped for felling trees.
+   * Lumberjacks are melee units equipped for felling.
    */
   public static final byte LUMBERJACK = 2;
   /**
@@ -35,16 +35,6 @@ public final class BodyType {
    */
   public static final byte SCOUT = 5;
   /**
-   * A tree that belongs to a team and produces bullets.
-   */
-  public static final byte TREE_BULLET = 6;
-  /**
-   * A neutral tree.
-   * This is included for convenience; note this value SHALL NOT appear in
-   * a SpawnedBodyTable.
-   */
-  public static final byte TREE_NEUTRAL = 7;
-  /**
    * A bullet that moves in a perfectly straight line.
    * Note: bullet location updates are not sent; a bullet is defined to be
    * in position loc + dt * vel after dt seconds.
@@ -55,11 +45,6 @@ public final class BodyType {
    * a SpawnedBodyTable.
    */
   public static final byte BULLET = 8;
-  /**
-   * Indicates that there is no body.
-   * May only appear in the containedBodies field of NeutralTreeTable.
-   */
-  public static final byte NONE = 9;
 
   public static final String[] names = { "ARCHON", "GARDENER", "LUMBERJACK", "SOLDIER", "TANK", "SCOUT", "TREE_BULLET", "TREE_NEUTRAL", "BULLET", "NONE", };
 

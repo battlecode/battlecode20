@@ -467,7 +467,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         boolean newLocationIsEmpty;
         if(getType() != RobotType.TANK && getType() != RobotType.SCOUT) {
             newLocationIsEmpty = gameWorld.getObjectInfo().isEmptyExceptForRobot(center, getType().bodyRadius, robot);
-        } else { // Tanks have special condition due to body attack, Scouts can just go over trees
+        } else { // Tanks have special condition due to body attack, Scouts can just go over ...
             newLocationIsEmpty = gameWorld.getObjectInfo().noRobotsExceptForRobot(center, getType().bodyRadius, robot);
         }
         return gameWorld.getGameMap().onTheMap(center, getType().bodyRadius) &&
@@ -620,18 +620,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         fireBulletSpread(dir, 1, 0);
     }
 
-    // ***********************************
-    // ****** TREE METHODS ***************
-    // ***********************************
-
     private boolean canInteractWithLocation(MapLocation loc){
         assertNotNull(loc);
         return this.robot.canInteractWithLocation(loc);
-    }
-
-    private boolean canInteractWithCircle(MapLocation center, float radius){
-        assertNotNull(center);
-        return this.robot.canInteractWithCircle(center,radius);
     }
 
     // ***********************************

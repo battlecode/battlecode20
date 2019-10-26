@@ -48,45 +48,9 @@ public interface GameConstants {
 
     /** Maximum ID a Robot will have; all bullets will have IDs larger than this */
     int MAX_ROBOT_ID = 32000;
-
-    // *********************************
-    // ****** TREES ********************
-    // *********************************
-
-    /** The max health of bullet trees. */
-    float BULLET_TREE_MAX_HEALTH = 50;
-
-    /** The radius of bullet trees. */
-    float BULLET_TREE_RADIUS = 1F;
-
-    /** The cost in bullets to spawn a bullet tree. */
-    float BULLET_TREE_COST = 50;
-
-    /** The amount of health bullet trees lose per turn from decay. */
-    float BULLET_TREE_DECAY_RATE = BULLET_TREE_MAX_HEALTH / 100f;
-
-    /** The amount of bullets produced from one unit of health per bullet tree. */
-    float BULLET_TREE_BULLET_PRODUCTION_RATE = 1f / BULLET_TREE_MAX_HEALTH;
-
-    /** The min radius a neutral tree can have. */
-    float NEUTRAL_TREE_MIN_RADIUS = .5F;
-
-    /** The max radius a neutral tree can have. */
-    float NEUTRAL_TREE_MAX_RADIUS = 10;
-
-    /**
-     * The rate at which the max health of neutral trees are determined.
-     *      maxHealth = NEUTRAL_TREE_HEALTH_RATE * treeRadius
-     */
-    float NEUTRAL_TREE_HEALTH_RATE = 200;
     
     /**
-     * The damage a tank does to a tree when it attempts to move on top of it.
-     */
-    float TANK_BODY_DAMAGE = 4;
-    
-    /**
-     * The fraction of max health which trees and gardener-produced robots start at.
+     * The fraction of max health which gardener-produced robots start at.
      */
     float PLANTED_UNIT_STARTING_HEALTH_FRACTION = 0.2f;
 
@@ -135,11 +99,11 @@ public interface GameConstants {
 
     /**
      * The distance, as measured at its minimum value, between the bodies
-     * of a creator robot and the robot/tree it spawns.
+     * of a creator robot and the robot it spawns.
      */
     float GENERAL_SPAWN_OFFSET = .01f;
 
-    /** The distance around a robot's edge it can interact with robots/trees */
+    /** The distance around a robot's edge it can interact with robots */
     float INTERACTION_DIST_FROM_EDGE = 1f;
 
     /** The maximum radius a robot can have. */

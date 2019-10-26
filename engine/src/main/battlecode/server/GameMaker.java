@@ -284,15 +284,6 @@ public strictfp class GameMaker {
             bodyTypeMetadataOffsets.add(BodyTypeMetadata.endBodyTypeMetadata(builder));
         }
 
-        // Add bullet tree metadata
-        BodyTypeMetadata.startBodyTypeMetadata(builder);
-        BodyTypeMetadata.addType(builder, BodyType.TREE_BULLET);
-        BodyTypeMetadata.addRadius(builder, GameConstants.BULLET_TREE_RADIUS);
-        BodyTypeMetadata.addCost(builder, GameConstants.BULLET_TREE_COST);
-        BodyTypeMetadata.addMaxHealth(builder, GameConstants.BULLET_TREE_MAX_HEALTH);
-        BodyTypeMetadata.addStartHealth(builder, GameConstants.BULLET_TREE_MAX_HEALTH * .20F);
-        bodyTypeMetadataOffsets.add(BodyTypeMetadata.endBodyTypeMetadata(builder));
-
         // Make and return BodyTypeMetadata Vector offset
         return offsetVector(builder, bodyTypeMetadataOffsets, GameHeader::startBodyTypeMetadataVector);
     }
@@ -635,15 +626,6 @@ public strictfp class GameMaker {
             spawnedBodiesLocsYs.add(robot.getLocation().y);
             spawnedBodiesTeamIDs.add(TeamMapping.id(robot.getTeam()));
             spawnedBodiesTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.getType()));
-        }
-
-        public void addSpawnedTree(InternalTree tree) {
-            spawnedBodiesRobotIDs.add(tree.getID());
-            spawnedBodiesRadii.add(tree.getRadius());
-            spawnedBodiesLocsXs.add(tree.getLocation().x);
-            spawnedBodiesLocsYs.add(tree.getLocation().y);
-            spawnedBodiesTeamIDs.add(TeamMapping.id(tree.getTeam()));
-            spawnedBodiesTypes.add(tree.getTeam() == Team.NEUTRAL ? BodyType.TREE_NEUTRAL : BodyType.TREE_BULLET);
         }
 
         public void addSpawnedBullet(InternalBullet bullet) {

@@ -14,14 +14,14 @@ public enum RobotType {
     ARCHON          (null,    0,    400,   -1,   2,  -1,  -1,   10,  15, 0.5f,  30000),
     //                              HP      BC   BR   BS   AP   SR  BSR  STR   BCL
     /**
-     * The main producer unit to make other units and trees; can't build Archons or other Gardeners.
+     * The main producer unit to make other units; can't build Archons or other Gardeners.
      *
      * @battlecode.doc.robottype
      */
     GARDENER        (ARCHON,  10,   40,  100,   1,  -1,  -1,   7,  10,   0.5f, 15000),
     //                              HP    BC   BR   BS   AP   SR  BSR  STR   BCL
     /**
-     * A melee based unit that specializes at cutting down trees.
+     * A melee based unit that specializes at cutting down ...
      *
      * @battlecode.doc.robottype
      */
@@ -86,7 +86,7 @@ public enum RobotType {
     public final float attackPower;
 
     /**
-     * Range for sensing robots and trees.
+     * Range for sensing robots.
      */
     public final float sensorRadius;
 
@@ -124,7 +124,7 @@ public enum RobotType {
     }
 
     /**
-     * Returns whether the robot can build trees and all units except Gardeners and Archons.
+     * Returns whether the robot can build all units except Gardeners and Archons.
      *
      * @return whether the robot can build.
      */

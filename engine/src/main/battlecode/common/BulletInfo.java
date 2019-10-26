@@ -88,11 +88,6 @@ public class BulletInfo implements BodyInfo{
     }
 
     @Override
-    public boolean isTree() {
-        return false;
-    }
-
-    @Override
     public boolean isBullet() {
         return true;
     }

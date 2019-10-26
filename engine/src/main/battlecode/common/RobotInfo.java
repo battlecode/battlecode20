@@ -63,11 +63,6 @@ public class RobotInfo implements  BodyInfo{
     }
 
     @Override
-    public boolean isTree() {
-        return false;
-    }
-
-    @Override
     public boolean isBullet() {
         return false;
     }

@@ -23,7 +23,7 @@ import java.util.Map;
 
 
 /**
- * This class is used to hold information about the robots, trees, and bullets
+ * This class is used to hold information about the robots and bullets
  * in the game world.
  */
 public strictfp class ObjectInfo {
@@ -32,10 +32,8 @@ public strictfp class ObjectInfo {
     private final MapLocation mapTopLeft;
 
     private final TIntObjectHashMap<InternalRobot> gameRobotsByID;
-    private final TIntObjectHashMap<InternalTree> gameTreesByID;
     private final TIntObjectHashMap<InternalBullet> gameBulletsByID;
 
-    private final SpatialIndex treeIndex;
     private final SpatialIndex robotIndex;
     private final SpatialIndex bulletIndex;
 
@@ -44,24 +42,20 @@ public strictfp class ObjectInfo {
     private Map<Team, Map<RobotType, Integer>> robotTypeCount = new EnumMap<>(
             Team.class);
     private int[] robotCount = new int[3];
-    private int[] treeCount = new int[3];
 
     public ObjectInfo(LiveMap gm){
         this.mapWidth = gm.getWidth();
         this.mapHeight = gm.getHeight();
         this.mapTopLeft = gm.getOrigin();
 
-        this.gameTreesByID = new TIntObjectHashMap<>();
         this.gameRobotsByID = new TIntObjectHashMap<>();
         this.gameBulletsByID = new TIntObjectHashMap<>();
 
-        treeIndex = new RTree();
         robotIndex = new RTree();
         bulletIndex = new RTree();
 
         dynamicBodyExecOrder = new TIntArrayList();
 
-        treeIndex.init(null);
         robotIndex.init(null);
         bulletIndex.init(null);
 
@@ -92,16 +86,6 @@ public strictfp class ObjectInfo {
         // it just silently skips the entry later...
         // which is exactly the behaviour we want.
         gameBulletsByID.forEachValue(op);
-    }
-
-    /**
-     * Apply an operation for every tree.
-     * Return false to stop iterating.
-     *
-     * @param op a lambda (bullet) -> void
-     */
-    public void eachTree(TObjectProcedure<InternalTree> op) {
-        gameTreesByID.forEachValue(op);
     }
 
     /**
@@ -153,13 +137,6 @@ public strictfp class ObjectInfo {
     }
 
     /**
-     * This allocates; prefer eachTree()
-     */
-    public Collection<InternalTree> trees() {
-        return gameTreesByID.valueCollection();
-    }
-
-    /**
      * This allocates; prefer eachBullet()
      */
     public Collection<InternalBullet> bullets() {
@@ -171,13 +148,6 @@ public strictfp class ObjectInfo {
      */
     public Collection<InternalRobot> robots() {
         return gameRobotsByID.valueCollection();
-    }
-
-    /**
-     * This allocates; prefer eachTree()
-     */
-    public InternalTree[] treesArray() {
-        return gameTreesByID.values(new InternalTree[gameTreesByID.size()]);
     }
 
     /**
@@ -255,10 +225,6 @@ public strictfp class ObjectInfo {
     // ****************************
     // *** EXISTS CHECKS **********
     // ****************************
-
-    public boolean existsTree(int id){
-        return gameTreesByID.containsKey(id);
-    }
 
     public boolean existsRobot(int id){
         return gameRobotsByID.containsKey(id);
@@ -412,14 +378,6 @@ public strictfp class ObjectInfo {
 
     private void decrementRobotCount(Team team) {
         robotCount[team.ordinal()]--;
-    }
-
-    private void incrementTreeCount(Team team) {
-        treeCount[team.ordinal()]++;
-    }
-
-    private void decrementTreeCount(Team team) {
-        treeCount[team.ordinal()]--;
     }
 
     private void incrementRobotTypeCount(Team team, RobotType type) {

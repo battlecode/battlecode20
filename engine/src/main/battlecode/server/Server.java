@@ -360,9 +360,6 @@ public strictfp class Server implements Runnable {
             case PWNED:
                 sb.append("The winning team won on tiebreakers (more victory points).");
                 break;
-            case OWNED:
-                sb.append("The winning team won on tiebreakers (more bullet trees).");
-                break;
             case BARELY_BEAT:
                 sb.append("The winning team won on tiebreakers (more bullet supply, includings cost of active robots)");
                 break;

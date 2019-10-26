@@ -65,7 +65,7 @@ public strictfp class GameWorld {
 
         controlProvider.matchStarted(this);
 
-        // Add the robots and trees contained in the LiveMap to this world.
+        // Add the robots contained in the LiveMap to this world.
         for(BodyInfo body : gameMap.getInitialBodies()){
             if(body.isRobot()){
                 RobotInfo robot = (RobotInfo) body;
@@ -95,8 +95,6 @@ public strictfp class GameWorld {
 
             updateDynamicBodies();
 
-            updateTrees();
-
             this.controlProvider.roundEnded();
             this.processEndOfRound();
 
@@ -112,16 +110,6 @@ public strictfp class GameWorld {
         // Write out round data
         matchMaker.makeRound(currentRound);
         return GameState.RUNNING;
-    }
-
-    private void updateTrees(){
-        float[] totalTreeSupply = new float[3];
-        objectInfo.eachTree((tree) -> {
-            totalTreeSupply[tree.getTeam().ordinal()] += tree.updateTree();
-            return true;
-        });
-        teamInfo.adjustBulletSupply(Team.A, totalTreeSupply[Team.A.ordinal()]);
-        teamInfo.adjustBulletSupply(Team.B, totalTreeSupply[Team.B.ordinal()]);
     }
 
     private void updateDynamicBodies(){
@@ -214,10 +202,6 @@ public strictfp class GameWorld {
             robot.processBeginningOfRound();
             return true;
         });
-        objectInfo.eachTree((tree) -> {
-            tree.processBeginningOfRound();
-            return true;
-        });
     }
 
     public void setWinner(Team t, DominationFactor d)  {
@@ -249,11 +233,6 @@ public strictfp class GameWorld {
         // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
             robot.processEndOfRound();
-            return true;
-        });
-        // Process end of each tree's round
-        objectInfo.eachTree((tree) -> {
-            tree.processEndOfRound();
             return true;
         });
 

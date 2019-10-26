@@ -52,7 +52,7 @@ public final class BodyTypeMetadata extends Table {
    */
   public float bulletAttack() { int o = __offset(18); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
   /**
-   * The maximum distance this type can sense other trees and robots
+   * The maximum distance this type can sense other robots
    */
   public float sightRadius() { int o = __offset(20); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
   /**

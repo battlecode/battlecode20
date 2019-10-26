@@ -37,11 +37,6 @@ public final class GameMap extends Table {
   public SpawnedBodyTable bodies() { return bodies(new SpawnedBodyTable()); }
   public SpawnedBodyTable bodies(SpawnedBodyTable obj) { int o = __offset(10); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
-   * The neutral trees on the map.
-   */
-  public NeutralTreeTable trees() { return trees(new NeutralTreeTable()); }
-  public NeutralTreeTable trees(NeutralTreeTable obj) { int o = __offset(12); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
-  /**
    * The random seed of the map.
    */
   public int randomSeed() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
@@ -51,7 +46,6 @@ public final class GameMap extends Table {
   public static void addMinCorner(FlatBufferBuilder builder, int minCornerOffset) { builder.addStruct(1, minCornerOffset, 0); }
   public static void addMaxCorner(FlatBufferBuilder builder, int maxCornerOffset) { builder.addStruct(2, maxCornerOffset, 0); }
   public static void addBodies(FlatBufferBuilder builder, int bodiesOffset) { builder.addOffset(3, bodiesOffset, 0); }
-  public static void addTrees(FlatBufferBuilder builder, int treesOffset) { builder.addOffset(4, treesOffset, 0); }
   public static void addRandomSeed(FlatBufferBuilder builder, int randomSeed) { builder.addInt(5, randomSeed, 0); }
   public static int endGameMap(FlatBufferBuilder builder) {
     int o = builder.endObject();

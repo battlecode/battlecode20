@@ -13,15 +13,11 @@ public enum DominationFactor {
      */
     BARELY_BEAT,
     /**
-     * Win by more bullet trees (tiebreak 2).
-     */
-    OWNED,
-    /**
      * Win by more victory points (tiebreak 1).
      */
     PWNED,
     /**
-     * Win by destroying all enemy robots (trees are not considered robots).
+     * Win by destroying all enemy robots.
      */
     DESTROYED,
     /**
