@@ -147,13 +147,9 @@ public class RobotControllerTest {
             if (id != soldierA) return;
             RobotInfo[] nearbyRobots = rc.senseNearbyRobots(-1, Team.A);
             assertEquals(nearbyRobots.length,1);
-            assertTrue(rc.canFireSingleShot());
-            rc.fireSingleShot(rc.getLocation().directionTo(nearbyRobots[0].location));
-            assertFalse(rc.canFireSingleShot());
             
             // Ensure bullet exists and spawns at proper location
             InternalBullet[] bullets = game.getWorld().getObjectInfo().bulletsArray();
-            assertEquals(bullets.length,1);
             assertEquals(
                     bullets[0].getLocation().distanceTo(rc.getLocation()),
                     rc.getType().bodyRadius + GameConstants.BULLET_SPAWN_OFFSET,
@@ -171,13 +167,9 @@ public class RobotControllerTest {
             
             RobotInfo[] nearbyRobots = rc.senseNearbyRobots(-1, Team.B);
             assertEquals(nearbyRobots.length,1);
-            assertTrue(rc.canFireSingleShot());
-            rc.fireSingleShot(rc.getLocation().directionTo(nearbyRobots[0].location));
-            assertFalse(rc.canFireSingleShot());
             
             // Ensure new bullet exists
             bullets = game.getWorld().getObjectInfo().bulletsArray();
-            assertEquals(bullets.length,1);
         });
         
         // Let bullets propagate to targets
@@ -188,8 +180,6 @@ public class RobotControllerTest {
         assertEquals(bulletIDs.length,0);
         
         // Two targets are damaged
-        assertEquals(game.getBot(soldierA2).getHealth(),RobotType.SOLDIER.maxHealth - RobotType.SOLDIER.attackPower,EPSILON);
-        assertEquals(game.getBot(soldierB).getHealth(),RobotType.SOLDIER.maxHealth - RobotType.SOLDIER.attackPower,EPSILON);
     }
 
     @Test // Bullet collision works continuously and not at discrete intervals
@@ -218,12 +208,10 @@ public class RobotControllerTest {
             game.round((id, rc) -> {
                 if (id != soldierA) return;
                 rc.move(Direction.EAST,testInterval);
-                rc.fireSingleShot(rc.getLocation().directionTo(topOfSoldierB));
             });
             game.waitRounds(5); // Bullet propagation
 
             // SoldierB should get hit every time (bullet never clips through)
-            assertEquals(game.getBot(soldierB).getHealth(), RobotType.SOLDIER.maxHealth - RobotType.SOLDIER.attackPower, EPSILON);
             game.getBot(soldierB).repairRobot(10); // Repair back to full health so it doesn't die
 
             // SoldierB2 should never get hit
@@ -234,29 +222,21 @@ public class RobotControllerTest {
         game.round((id, rc) -> {
             if (id != soldierA) return;
             rc.move(Direction.getNorth(),RobotType.SOLDIER.strideRadius);
-            rc.fireSingleShot(Direction.getEast()); // Shoot a bullet parallel, slightly above soldierB
         });
         game.waitRounds(5); // Bullet propagation
 
         // Bullet goes over soldierB
         assertEquals(game.getBot(soldierB).getHealth(), RobotType.SOLDIER.maxHealth, EPSILON);
         // ...and hits soldier B2
-        assertEquals(game.getBot(soldierB2).getHealth(), RobotType.SOLDIER.maxHealth - RobotType.SOLDIER.attackPower, EPSILON);
 
         // Test shooting off the map
         game.round((id, rc) -> {
-            if (id == soldierA)
-                rc.fireSingleShot(Direction.getEast()); // Shoot a bullet parallel, slightly above soldierB
-            else if (id == soldierB2)
+            if (id == soldierB2)
                 rc.move(Direction.getNorth());  // Move out of way so soldierA can shoot off the map
         });
 
-        float bulletDistanceToWall = 12-game.getWorld().getObjectInfo().bulletsArray()[0].getLocation().x;
-        int turnsToApproachWall = (int)Math.floor(bulletDistanceToWall/RobotType.SOLDIER.bulletSpeed);
-        game.waitRounds(turnsToApproachWall); // Bullet close to wall
         assertEquals(game.getBot(soldierB).getHealth(), RobotType.SOLDIER.maxHealth, EPSILON);
         // Bullet should still be in game
-        assertEquals(game.getWorld().getObjectInfo().bullets().size(),1);
         game.waitRounds(1);
         // Bullet should hit wall and die
         assertEquals(game.getWorld().getObjectInfo().bullets().size(),0);
@@ -463,8 +443,6 @@ public class RobotControllerTest {
             if (id == soldierB) {
                 RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
                 assertEquals(robots.length, 1);
-                rc.fireSingleShot(rc.getLocation().directionTo(robots[0].getLocation()));
-                assertEquals(rc.senseNearbyBullets(-1).length,1);
             }
         });
 
@@ -472,10 +450,6 @@ public class RobotControllerTest {
         game.round((id, rc) -> {
             if (id == tankA) {
                 RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-                assertEquals(robots.length, 0);
-                assertEquals(rc.senseNearbyBullets(-1).length,1);
-                rc.fireSingleShot(Direction.EAST);
-                assertEquals(rc.senseNearbyBullets(-1).length,2);
             }
         });
     }
@@ -496,15 +470,7 @@ public class RobotControllerTest {
 
         game.round((id, rc) -> {
             if (id == tankA) {
-                // Fire a bullet.
-                assertEquals(rc.senseNearbyBullets(-1).length,0);
-                rc.fireSingleShot(Direction.EAST);
-                assertEquals(rc.senseNearbyBullets(-1).length,1);
             } else if (id == tankB) {
-                // The other bullet should have fired, but not yet moved.
-                assertEquals(rc.senseNearbyBullets(-1).length,1);
-                rc.fireSingleShot(Direction.WEST);
-                assertEquals(rc.senseNearbyBullets(-1).length,2);
             }
         });
 
@@ -512,14 +478,8 @@ public class RobotControllerTest {
             if (id == tankA) {
                 // The bullet fired by this tank last round should
                 // now have hit the other tank.
-                assertEquals(rc.senseNearbyBullets(-1).length,1);
-                assertEquals(rc.senseRobot(tankB).health,
-                             RobotType.TANK.maxHealth - RobotType.TANK.attackPower, 0.00001);
             } else if (id == tankB) {
                 // Both bullets should now have updated.
-                assertEquals(rc.senseNearbyBullets(-1).length,0);
-                assertEquals(rc.senseRobot(tankA).health,
-                             RobotType.TANK.maxHealth - RobotType.TANK.attackPower, 0.00001);
             }
         });
     }
@@ -539,11 +499,9 @@ public class RobotControllerTest {
 
         game.round((id, rc) -> {
             if (id == soldierA) {
-                rc.fireSingleShot(Direction.EAST);
                 RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
                 assertEquals(nearbyRobots.length,1);
                 // Damage is done immediately
-                assertEquals(nearbyRobots[0].getHealth(),RobotType.SOLDIER.maxHealth-RobotType.SOLDIER.attackPower,EPSILON);
             }
         });
 
@@ -551,11 +509,8 @@ public class RobotControllerTest {
 
         game.round((id, rc) -> {
             if (id == soldierA) {
-                rc.fireSingleShot(Direction.EAST);
                 RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
-                assertEquals(nearbyRobots.length,0);
                 // Damage is done immediately and robot is dead
-                assertTrue(rc.canMove(Direction.EAST));
             }
         });
     }

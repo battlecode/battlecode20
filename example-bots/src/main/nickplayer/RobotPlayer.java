@@ -82,23 +82,6 @@ public class RobotPlayer {
             float distFromHome = myLocation.distanceTo(homeLocation);
             if (distFromHome > 0.5) {
                 tryMove(myLocation.directionTo(homeLocation));
-            } else {
-                // Plant trees at home
-                if (rc.canPlantTree(Direction.getWest())) {
-                    rc.plantTree(Direction.getWest());
-                } else if (rc.canPlantTree(Direction.getEast())) {
-                    rc.plantTree(Direction.getEast());
-                }
-
-            }
-
-            // Water trees
-            TreeInfo[] trees = rc.senseNearbyTrees(2,rc.getTeam());
-            for(TreeInfo tree:trees) {
-                if(tree.health < 9 && rc.canWater()) {
-                    rc.water(tree.ID);
-                    break;
-                }
             }
 
             Direction dir = Direction.getNorth();//new Direction((float) Math.random() * 2 * (float) Math.PI);
@@ -180,10 +163,6 @@ public class RobotPlayer {
 
             RobotInfo[] robots = rc.senseNearbyRobots(100, enemy);
             if (robots.length > 0) {
-                if (rc.getTeamBullets() >= 4) {
-                    //System.out.println("FIRING");
-                    rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
-                }
                 boolean foundArchon = false;
                 for(RobotInfo robot:robots) {
                     if(robot.type == RobotType.ARCHON) {
@@ -220,14 +199,6 @@ public class RobotPlayer {
 
             RobotInfo[] robots = rc.senseNearbyRobots(100, enemy);
             if (robots.length > 0) {
-                if (rc.getTeamBullets() >= 4) {
-                    //System.out.println("FIRING with "+rc.getTeamBullets()+" bullets left.");
-                   // try {
-                        rc.fireTriadShot(rc.getLocation().directionTo(robots[0].location));
-                   // } catch (GameActionException e) {
-                   //     e.printStackTrace();
-                   // }
-                }
                 boolean foundArchon = false;
                 for(RobotInfo robot:robots) {
                     if(robot.type == RobotType.ARCHON) {
@@ -283,13 +254,6 @@ public class RobotPlayer {
                 rc.broadcast(RadioChannels.ENEMY_ATTACK_VALID,1);
                 turnsAttackValid = 20;
                 currentDirection = currentDirection.opposite();
-            }
-
-            if(turnsAttackValid > 0) {
-                if(rc.getTeamBullets() >= 1) {
-                    rc.fireSingleShot(myLocation.directionTo(enemyAttackLocation));
-                }
-                turnsAttackValid--;
             }
 
             if(!tryMove(currentDirection)) {

@@ -597,29 +597,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getMatchMaker().addAction(getID(), Action.LUMBERJACK_STRIKE, -1);
     }
 
-    @Override
-    public boolean canFireSingleShot() {
-        boolean correctType = getType() != RobotType.ARCHON && getType() != RobotType.GARDENER &&
-                getType() != RobotType.LUMBERJACK;
-        return correctType && haveBulletCosts(GameConstants.SINGLE_SHOT_COST) && !hasAttacked();
-    }
-
-    @Override
-    public void fireSingleShot(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertIsWeaponReady();
-        if(!canFireSingleShot()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "This robot cannot fire a single shot possibly due to wrong type or " +
-                            "insufficient funds");
-        }
-
-        this.robot.incrementAttackCount();
-
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.SINGLE_SHOT_COST);
-        fireBulletSpread(dir, 1, 0);
-    }
-
     private boolean canInteractWithLocation(MapLocation loc){
         assertNotNull(loc);
         return this.robot.canInteractWithLocation(loc);

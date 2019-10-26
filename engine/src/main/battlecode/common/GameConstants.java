@@ -71,9 +71,6 @@ public interface GameConstants {
     // ****** ATTACKING ****************
     // *********************************
 
-    /** The bullet cost to fire a single shot. */
-    float SINGLE_SHOT_COST = 1;
-
     /** The distance from the outer edge of a robot bullets are spawned. */
     float BULLET_SPAWN_OFFSET = .05f;
 

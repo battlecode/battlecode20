@@ -601,33 +601,6 @@ public strictfp interface RobotController {
      */
     void strike() throws GameActionException;
 
-    /**
-     * Tests whether there are enough bullets in your bullet supply to
-     * fire a single shot, the robot is of an appropriate type, and the
-     * robot has not attacked in the current turn.
-     *
-     * @return true if there are enough bullets in the bullet supply,
-     * this robot is of an appropriate type, and the robot hasn't attacked
-     * this turn; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canFireSingleShot();
-
-    /**
-     * Fires a single bullet in the direction dir at the cost of
-     * {@link GameConstants#SINGLE_SHOT_COST} from your team's bullet supply. The speed
-     * and damage of the bullet is determined from the type of this robot.
-     *
-     * @param dir the direction you wish to fire the bullet
-     * @throws GameActionException if this robot is not of a type that can
-     * fire single shots (ARCHON, GARDENER, etc.), cannot attack due to having
-     * already attacked, or for having insufficient bullets in the bullet supply.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void fireSingleShot(Direction dir) throws GameActionException;
-
 
     // ***********************************
     // ****** SIGNALING METHODS **********
