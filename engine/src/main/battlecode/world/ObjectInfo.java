@@ -194,16 +194,8 @@ public strictfp class ObjectInfo {
         return gameRobotsByID.values(new InternalRobot[gameRobotsByID.size()]);
     }
 
-    public int getTreeCount(Team team) {
-        return treeCount[team.ordinal()];
-    }
-
     public int getRobotCount(Team team) {
         return robotCount[team.ordinal()];
-    }
-
-    public InternalTree getTreeByID(int id){
-        return gameTreesByID.get(id);
     }
 
     public InternalRobot getRobotByID(int id){
@@ -303,29 +295,6 @@ public strictfp class ObjectInfo {
     // ****************************
     // *** PLAYER METHODS *********
     // ****************************
-
-    public InternalTree[] getAllTreesWithinRadius(MapLocation center, float radius){
-
-        float searchRadius = radius + GameConstants.NEUTRAL_TREE_MAX_RADIUS;
-
-        ArrayList<InternalTree> returnTrees = new ArrayList<InternalTree>();
-
-        treeIndex.nearestN(
-                new Point(center.x,center.y),   // Search from center
-                new TIntProcedure() {          // Add each to a list
-                    public boolean execute(int i) {
-                        InternalTree potentialTree = getTreeByID(i);
-                        if (potentialTree.getLocation().isWithinDistance(center,potentialTree.getRadius()+radius))
-                            returnTrees.add(potentialTree);
-                        return true;    // Keep searching for results
-                    }
-                },
-                Integer.MAX_VALUE,
-                searchRadius
-        );
-
-        return returnTrees.toArray(new InternalTree[returnTrees.size()]);
-    }
     
     public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, float radius){
 
@@ -367,31 +336,6 @@ public strictfp class ObjectInfo {
 
         return returnBullets.toArray(new InternalBullet[returnBullets.size()]);
     }
-    
-    public InternalTree getTreeAtLocation(MapLocation loc){
-
-        // even though it only contains one element, arraylist is required to be accessed from inside TIntProcedure
-        ArrayList<InternalTree> returnTrees = new ArrayList<InternalTree>();
-
-        treeIndex.nearestN(
-                new Point(loc.x,loc.y),
-                i -> {
-                    InternalTree potentialTree = getTreeByID(i);
-                    if (potentialTree.getLocation().isWithinDistance(loc,potentialTree.getRadius())) {
-                        returnTrees.add(potentialTree);
-                        return false;
-                    }
-                    return true;   // keep looking for results
-                },
-                Integer.MAX_VALUE,
-                GameConstants.NEUTRAL_TREE_MAX_RADIUS  // Furthest distance
-        );
-
-        if(returnTrees.size() > 0)
-            return returnTrees.get(0);
-        else
-            return null;
-    }
 
     public InternalRobot getRobotAtLocation(MapLocation loc){
 
@@ -421,13 +365,10 @@ public strictfp class ObjectInfo {
     }
 
     public boolean isEmpty(MapLocation loc, float radius){
-        return getAllTreesWithinRadius(loc, radius).length == 0 &&
-                getAllRobotsWithinRadius(loc, radius).length == 0;
+        return getAllRobotsWithinRadius(loc, radius).length == 0;
     }
 
     public boolean isEmptyExceptForRobot(MapLocation loc, float radius, InternalRobot robot){
-        if (getAllTreesWithinRadius(loc, radius).length != 0)
-            return false;
         InternalRobot[] robots = getAllRobotsWithinRadius(loc, radius);
         if (robots.length == 0) {
             return true;

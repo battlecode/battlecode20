@@ -103,19 +103,6 @@ public strictfp class InternalBullet implements InternalBody {
 
         MapLocation checkCenter = bulletStart.add(toFinish, distToFinish/2);
 
-        //Find closest hit tree
-        InternalTree hitTree = null;
-        float hitTreeDist = Float.MAX_VALUE;
-        for(InternalTree tree : gameWorld.getObjectInfo().getAllTreesWithinRadius(checkCenter,
-                GameConstants.NEUTRAL_TREE_MAX_RADIUS + distToFinish/2)){
-            float hitDist = calcHitDist(bulletStart, bulletFinish,
-                    tree.getLocation(), tree.getRadius());
-            if(hitDist < hitTreeDist && hitDist >=0){
-                hitTree = tree;
-                hitTreeDist = hitDist;
-            }
-        }
-
         //Find closest hit robot
         InternalRobot hitRobot = null;
         float hitRobotDist = Float.MAX_VALUE;
@@ -129,7 +116,7 @@ public strictfp class InternalBullet implements InternalBody {
             }
         }
 
-        if(hitRobot == null && hitTree == null) {
+        if(hitRobot == null) {
             // If bullet didn't hit anything...
             if (!gameMap.onTheMap(bulletFinish)) {
                 /// ...and went off the map, destroy it.
@@ -140,10 +127,7 @@ public strictfp class InternalBullet implements InternalBody {
             }
         } else {
             // If the bullet hit something...
-            if(hitTreeDist<hitRobotDist && hitTree != null) {
-                // And the closest thing hit was a tree...
-                gameWorld.destroyBullet(this.ID);
-            } else  if (hitRobot != null){
+            if (hitRobot != null){
                 /// And the closest thing hit was a robot...
                 gameWorld.destroyBullet(this.ID);
                 hitRobot.damageRobot(this.damage);

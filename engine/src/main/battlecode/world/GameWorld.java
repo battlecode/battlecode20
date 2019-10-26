@@ -274,15 +274,6 @@ public strictfp class GameWorld {
                 victorDetermined = true;
             }
 
-            // tiebreak by bullet trees
-            if(!victorDetermined){
-                if(objectInfo.getTreeCount(Team.A) != objectInfo.getTreeCount(Team.B)){
-                    setWinner(objectInfo.getTreeCount(Team.A) > objectInfo.getTreeCount(Team.B) ? Team.A : Team.B,
-                            DominationFactor.OWNED);
-                    victorDetermined = true;
-                }
-            }
-
             int bestRobotID = Integer.MIN_VALUE;
             Team bestRobotTeam = null;
 
@@ -349,14 +340,11 @@ public strictfp class GameWorld {
 
         // Check for collisions in the spot the bullet is being spawned
         InternalRobot bot = this.objectInfo.getRobotAtLocation(location);
-        InternalTree tree = this.objectInfo.getTreeAtLocation(location);
 
         if(bot != null) {
             // If a there is a bot at this location, damage it.
             bot.damageRobot(damage);
             matchMaker.addDied(ID,true);
-        } else if (tree != null) {
-            // If a there is a tree at this location, damage it.
         } else {
             // Else, nothing else exists where the bullet was spawned. Go ahead and add it to spatial index.
             objectInfo.spawnBullet(bullet, parent);

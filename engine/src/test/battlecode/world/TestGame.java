@@ -153,16 +153,6 @@ public class TestGame {
     public InternalBullet getBullet(int id) {
         return world.getObjectInfo().getBulletByID(id);
     }
-    
-    /**
-     * Returns the InternalTree associated with a given ID
-     * 
-     * @param id the ID of the tree to query
-     * @return the InteralTree for the given ID
-     */
-    public InternalTree getTree(int id) {
-        return world.getObjectInfo().getTreeByID(id);
-    }
 
     /**
      * Returns the GameWorld.

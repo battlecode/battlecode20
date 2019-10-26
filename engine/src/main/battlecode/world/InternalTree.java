@@ -93,21 +93,6 @@ public strictfp class InternalTree {
         return roundsAlive;
     }
 
-    public TreeInfo getTreeInfo() {
-        if (this.cachedTreeInfo != null
-                && this.cachedTreeInfo.ID == ID
-                && this.cachedTreeInfo.team == team
-                && this.cachedTreeInfo.radius == radius
-                && this.cachedTreeInfo.location.equals(location)
-                && this.cachedTreeInfo.containedBullets == containedBullets
-                && this.cachedTreeInfo.containedRobot == containedRobot
-                && this.cachedTreeInfo.health == health) {
-            return this.cachedTreeInfo;
-        }
-        return this.cachedTreeInfo = new TreeInfo(
-                ID, team, location, radius, health, containedBullets, containedRobot);
-    }
-
     // ******************************************
     // ****** UPDATE METHODS ********************
     // ******************************************
