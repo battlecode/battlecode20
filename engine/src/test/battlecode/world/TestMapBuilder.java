@@ -13,18 +13,18 @@ import java.util.List;
 public class TestMapBuilder {
     private String name;
     private MapLocation origin;
-    private float width;
-    private float height;
+    private int width;
+    private int height;
     private int seed;
     private int rounds;
 
     private List<BodyInfo> bodies;
 
-    public TestMapBuilder(String name, float oX, float oY, float width, float height, int seed, int rounds) {
+    public TestMapBuilder(String name, int oX, int oY, int width, int height, int seed, int rounds) {
         this(name, new MapLocation(oX, oY), width, height, seed, rounds);
     }
 
-    public TestMapBuilder(String name, MapLocation origin, float width, float height, int seed, int rounds) {
+    public TestMapBuilder(String name, MapLocation origin, int width, int height, int seed, int rounds) {
         this.name = name;
         this.origin = origin;
         this.width = width;

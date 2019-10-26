@@ -19,7 +19,7 @@ public strictfp class LiveMap {
     /**
      * The width and height of the map.
      */
-    private final float width, height;
+    private final int width, height;
 
     /**
      * The coordinates of the origin
@@ -48,8 +48,8 @@ public strictfp class LiveMap {
      */
     private final BodyInfo[] initialBodies;
 
-    public LiveMap(float width,
-                   float height,
+    public LiveMap(int width,
+                   int height,
                    MapLocation origin,
                    int seed,
                    int rounds,
@@ -117,7 +117,7 @@ public strictfp class LiveMap {
      *
      * @return the width of this map.
      */
-    public float getWidth() {
+    public int getWidth() {
         return width;
     }
 
@@ -126,7 +126,7 @@ public strictfp class LiveMap {
      *
      * @return the height of this map.
      */
-    public float getHeight() {
+    public int getHeight() {
         return height;
     }
 
