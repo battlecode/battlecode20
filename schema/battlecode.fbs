@@ -21,15 +21,15 @@ table RGBTable {
 }
 
 /// The possible types of things that can exist.
-/// Note that neutral trees and bullets are not treated as bodies.
+/// Note that bullets are not treated as bodies.
 enum BodyType : byte {
     /// Archons are the mobile equivalent of a HQ whose sole purpose is to hire
     /// gardeners to maintain the land.
     ARCHON,
-    /// Gardeners are caretakers of the land, planting and watering Bullet Trees
+    /// Gardeners are caretakers of the land,
     /// while also cultivating all other player robots.
     GARDENER,
-    /// Lumberjacks are melee units equipped for felling trees.
+    /// Lumberjacks are melee units equipped for felling ...
     LUMBERJACK,
     /// Soldiers are all-around units with a tricky shot.
     SOLDIER,
@@ -37,12 +37,6 @@ enum BodyType : byte {
     TANK,
     /// Scouts are fast units that move around without obstruction.
     SCOUT,
-    /// A tree that belongs to a team and produces bullets.
-    TREE_BULLET,
-    /// A neutral tree.
-    /// This is included for convenience; note this value SHALL NOT appear in
-    /// a SpawnedBodyTable.
-    TREE_NEUTRAL,
     /// A bullet that moves in a perfectly straight line.
     /// Note: bullet location updates are not sent; a bullet is defined to be
     /// in position loc + dt * vel after dt seconds.
@@ -51,10 +45,7 @@ enum BodyType : byte {
     /// The event stream will say if a bullet has been destroyed.
     /// This is included for convenience; note this value SHALL NOT appear in
     /// a SpawnedBodyTable.
-    BULLET,
-    /// Indicates that there is no body.
-    /// May only appear in the containedBodies field of NeutralTreeTable.
-    NONE
+    BULLET
 }
 
 /// A list of new bodies to be placed on the map.
@@ -71,24 +62,6 @@ table SpawnedBodyTable {
     types: [BodyType];
     /// The locations of the bodies.
     locs: VecTable;
-}
-
-/// A list of neutral trees to be placed on the map.
-table NeutralTreeTable {
-    /// The IDs of the trees.
-    robotIDs: [int];
-    /// The locations of the trees.
-    locs: VecTable;
-    /// The radii of the trees.
-    radii: [float];
-    /// The healths of the trees.
-    healths: [float];
-    /// The max healths of the trees.
-    maxHealths: [float];
-    /// The bullets contained within the trees.
-    containedBullets: [int];
-    /// The bodies contained within the trees.
-    containedBodies: [BodyType];
 }
 
 /// A list of new bullets to be placed on the map.
@@ -117,8 +90,6 @@ table GameMap {
     maxCorner: Vec;
     /// The bodies on the map.
     bodies: SpawnedBodyTable;
-    /// The neutral trees on the map.
-    trees: NeutralTreeTable;
     /// The random seed of the map.
     randomSeed: int;
 }
@@ -139,18 +110,6 @@ enum Action : byte {
     /// Fire five bullets.
     /// Target: spawned bullets.
     FIRE_PENTAD,
-    /// Perform a lumberjack-chop.
-    /// Target: none
-    CHOP,
-    /// Shake a tree.
-    /// Target: tree
-    SHAKE_TREE,
-    /// Plant a tree.
-    /// Target: tree
-    PLANT_TREE,
-    /// Water a tree.
-    /// Target: tree
-    WATER_TREE,
     /// Build a unit.
     /// Target: spawned unit
     SPAWN_UNIT,
@@ -191,7 +150,7 @@ table BodyTypeMetadata {
     /// The damage that bullets from this unit inflict.
     /// Note: you don't need to keep track of this.
     bulletAttack: float;
-    /// The maximum distance this type can sense other trees and robots
+    /// The maximum distance this type can sense other robots
     sightRadius: float;
     /// The maximum distance this type can sense bullets
     bulletSightRadius: float;
