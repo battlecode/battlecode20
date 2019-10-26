@@ -219,7 +219,7 @@ public class RobotControllerTest {
     //         assertEquals(testIDs[i],executionOrder.get(i));
     //     }
     // }
-
+    /*
     @Test
     public void sensingEachOtherTest() throws GameActionException {
         LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 50, 50, 1337, 100)
@@ -240,7 +240,7 @@ public class RobotControllerTest {
                 assertEquals(robots.length, 1);
             }
         });
-    }
+    }*/
 
     @Test
     public void turnOrderTest() throws GameActionException {

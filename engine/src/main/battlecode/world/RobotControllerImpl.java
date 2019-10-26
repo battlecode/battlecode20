@@ -373,13 +373,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean canMove(Direction dir) {
-        return canMove(dir, getType().strideRadius);
+        return canMove(dir, 1f);
     }
 
     @Override
     public boolean canMove(Direction dir, float dist) {
         assertNotNull(dir);
-        dist = Math.max(0, Math.min(dist, getType().strideRadius));
         MapLocation center = getLocation().add(dir, dist);
         return canMove(center);
     }
@@ -388,9 +387,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canMove(MapLocation center) {
         assertNotNull(center);
         float dist = getLocation().distanceTo(center);
-        if(dist > getType().strideRadius) {
+        if(dist > 1f) {
             Direction dir = getLocation().directionTo(center);
-            center = getLocation().add(dir, getType().strideRadius);
+            center = getLocation().add(dir, 1f);
         }
         boolean newLocationIsEmpty;
         if(getType() != RobotType.TANK && getType() != RobotType.SCOUT) {
