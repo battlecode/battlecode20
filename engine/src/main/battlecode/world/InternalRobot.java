@@ -23,7 +23,6 @@ public strictfp class InternalRobot implements InternalBody {
 
     private int roundsAlive;
     private int repairCount;
-    private int waterCount;
     private int attackCount;
     private int moveCount;
     
@@ -60,7 +59,6 @@ public strictfp class InternalRobot implements InternalBody {
 
         this.roundsAlive = 0;
         this.repairCount = 0;
-        this.waterCount = 0;
         this.attackCount = 0;
         this.moveCount = 0;
         
@@ -120,10 +118,6 @@ public strictfp class InternalRobot implements InternalBody {
 
     public int getRepairCount() {
         return repairCount;
-    }
-
-    public int getWaterCount() {
-        return waterCount;
     }
     
     public int getAttackCount() {
@@ -186,10 +180,6 @@ public strictfp class InternalRobot implements InternalBody {
         this.location = loc;
     }
 
-    public void incrementWaterCount(){
-        this.waterCount++;
-    }
-
     public void incrementRepairCount() {
         this.repairCount++;
     }
@@ -241,7 +231,6 @@ public strictfp class InternalRobot implements InternalBody {
         attackCount = 0;
         moveCount = 0;
         repairCount = 0;
-        waterCount = 0;
         if(buildCooldownTurns > 0) {
             buildCooldownTurns--;
         }

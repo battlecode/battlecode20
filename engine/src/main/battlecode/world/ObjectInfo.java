@@ -232,16 +232,6 @@ public strictfp class ObjectInfo {
     // *** ADDING OBJECTS *********
     // ****************************
 
-    public void spawnTree(InternalTree tree){
-        incrementTreeCount(tree.getTeam());
-
-        int id = tree.getID();
-        gameTreesByID.put(id, tree);
-
-        MapLocation loc = tree.getLocation();
-        treeIndex.add(fromPoint(loc),tree.getID());
-    }
-
     public void spawnRobot(InternalRobot robot){
         incrementRobotCount(robot.getTeam());
         incrementRobotTypeCount(robot.getTeam(), robot.getType());

@@ -70,9 +70,6 @@ public strictfp class GameWorld {
             if(body.isRobot()){
                 RobotInfo robot = (RobotInfo) body;
                 spawnRobot(robot.ID, robot.type, robot.location, robot.team);
-            }else{
-                TreeInfo tree = (TreeInfo) body;
-                spawnTree(tree.ID, tree.team, tree.radius, tree.location, tree.containedBullets, tree.containedRobot);
             }
         }
 
@@ -329,22 +326,6 @@ public strictfp class GameWorld {
     // *********************************
     // ****** SPAWNING *****************
     // *********************************
-
-    public int spawnTree(int ID, Team team, float radius, MapLocation center,
-                         int containedBullets, RobotType containedRobot){
-        InternalTree tree = new InternalTree(
-                this, ID, team, radius, center, containedBullets, containedRobot);
-        objectInfo.spawnTree(tree);
-
-        matchMaker.addSpawnedTree(tree);
-        return ID;
-    }
-
-    public int spawnTree(Team team, float radius, MapLocation center,
-                         int containedBullets, RobotType containedRobot){
-        int ID = idGenerator.nextID();
-        return spawnTree(ID, team, radius, center, containedBullets, containedRobot);
-    }
 
     public int spawnRobot(int ID, RobotType type, MapLocation location, Team team){
         InternalRobot robot = new InternalRobot(this, ID, type, location, team);

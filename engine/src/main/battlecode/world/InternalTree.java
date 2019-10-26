@@ -138,10 +138,6 @@ public strictfp class InternalTree {
         healTree(GameConstants.BULLET_TREE_MAX_HEALTH*0.01f);
     }
 
-    public void waterTree(){
-        healTree(GameConstants.WATER_HEALTH_REGEN_RATE);
-    }
-
     public float updateTree(){
         if(getTeam() == Team.NEUTRAL){
             return 0;

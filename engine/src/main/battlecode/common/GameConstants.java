@@ -67,9 +67,6 @@ public interface GameConstants {
 
     /** The amount of bullets produced from one unit of health per bullet tree. */
     float BULLET_TREE_BULLET_PRODUCTION_RATE = 1f / BULLET_TREE_MAX_HEALTH;
-    
-    /** Number of cooldown turns robot must wait between planting trees. */
-    int BULLET_TREE_CONSTRUCTION_COOLDOWN = 10;
 
     /** The min radius a neutral tree can have. */
     float NEUTRAL_TREE_MIN_RADIUS = .5F;
@@ -154,11 +151,8 @@ public interface GameConstants {
      */
     float GENERAL_SPAWN_OFFSET = .01f;
 
-    /** The distance around a robot's edge it can interact with robots/trees (water, etc) */
+    /** The distance around a robot's edge it can interact with robots/trees */
     float INTERACTION_DIST_FROM_EDGE = 1f;
-
-    /** The amount of health a tree gains when watered. */
-    float WATER_HEALTH_REGEN_RATE = BULLET_TREE_MAX_HEALTH/10f;
 
     /** The maximum radius a robot can have. */
     float MAX_ROBOT_RADIUS = 2;

@@ -801,76 +801,9 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Tests whether this robot can water a tree at the given location. Checks robot
-     * stride radius, the robot's type, if a tree exists, and if the robot hasn't
-     * watered this turn.
-     *
-     * @param loc The location of the tree to water
-     * @return true if this robot can water the tree; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canWater(MapLocation loc);
-
-    /**
-     * Tests whether this robot can water a tree with the given ID. Checks that the tree is within
-     * {@link GameConstants#INTERACTION_DIST_FROM_EDGE}, the robot's type, if a tree exists, and
-     * if the robot hasn't watered this turn.
-     *
-     * @param id The ID of a tree to check.
-     * @return true if this robot can water a tree; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canWater(int id);
-
-    /**
-     * Waters the target tree at the given location, restoring
-     * {@code WATER_HEALTH_REGEN_RATE} health to the tree.
-     * Robots can only water once per turn and only with robots
-     * of type GARDENER.
-     *
-     * @param loc the location of the tree you wish to water
-     * @throws GameActionException if the given location does not contain
-     * a tree, the tree is not within {@link GameConstants#INTERACTION_DIST_FROM_EDGE} of this robot,
-     * this robot is not of type GARDENER, or this robot has already
-     * watered a tree.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void water(MapLocation loc) throws GameActionException;
-
-    /**
-     * Waters the target tree with the given ID, restoring
-     * {@link GameConstants#WATER_HEALTH_REGEN_RATE} health to the tree.
-     * Robots can only water once per turn and only with robots
-     * of type GARDENER.
-     *
-     * @param id the ID of the tree you wish to water.
-     * @throws GameActionException if there isn't a tree with the given id,
-     * the tree is not within {@link GameConstants#INTERACTION_DIST_FROM_EDGE} of this robot,
-     * this robot is not of type GARDENER, or this robot has already
-     * watered a tree.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void water(int id) throws GameActionException;
-
-    /**
-     * Tests whether this robot can water a tree, taking into
-     * account how many times this robot has watered this turn and this
-     * robot's type.
-     *
-     * @return true if this robot can water a tree; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canWater();
-
-    /**
      * Tests whether there is a tree at the given location and, if so,
      * if the tree is within one stride of this robot and can therefore be
-     * interacted with through or water().
+     * interacted with through ...
      *
      * @param loc the location you wish to test
      * @return true if there is a tree located at loc and if said tree is
@@ -883,7 +816,7 @@ public strictfp interface RobotController {
     /**
      * Tests whether there is a tree with the given ID and, if so,
      * if the tree is within one stride of this robot and can therefore be
-     * interacted with through or water().
+     * interacted with through or ...
      *
      * @param id the ID of the tree you wish to test
      * @return true if there is a tree with id and if said tree is
@@ -1049,31 +982,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void buildRobot(RobotType type, Direction dir) throws GameActionException;
-
-    /**
-     * Tests whether the robot can build a bullet tree in the given direction.
-     * Checks cooldown turns remaining, bullet costs, whether the robot can
-     * plant, and that the given direction is not blocked
-     *
-     * @param dir the direction to build in
-     * @return whether it is possible to build a bullet tree in the
-     * given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canPlantTree(Direction dir);
-
-    /**
-     * Plants a bullet tree in the given direction.
-     *
-     * @param dir the direction to plant the bullet tree
-     * @throws GameActionException if you don't have enough bullets, if
-     * the robot is still in build cooldown, if the direction is not a good build
-     * direction, or if this robot is not of an appropriate type.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void plantTree(Direction dir) throws  GameActionException;
 
     /**
      * Tests whether the robot can hire a Gardener in the given direction.

@@ -781,13 +781,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.canInteractWithCircle(center,radius);
     }
 
-    private void assertCanWater() throws GameActionException{
-        if(!canWater()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Gardeners can only water once per turn");
-        }
-    }
-
     private void assertCanInteractWithTree(MapLocation treeLoc) throws GameActionException{
         if(!canInteractWithTree(treeLoc)){
             throw new GameActionException(CANT_DO_THAT,
@@ -802,60 +795,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Can't interact with a tree that doesn't exist or is outside" +
                             " this robot's stride.");
         }
-    }
-    
-    private void assertOwnedTree(InternalTree tree) throws GameActionException {
-        if(tree.getTeam().equals(Team.NEUTRAL)) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't water a neutral tree.");
-        }
-    }
-
-    @Override
-    public boolean canWater(MapLocation loc) {
-        assertNotNull(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        boolean notNeutralTree = (tree != null && tree.getTeam() != Team.NEUTRAL);
-        return canWater() && canInteractWithTree(loc) && notNeutralTree;
-    }
-
-    @Override
-    public boolean canWater(int id) {
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        boolean notNeutralTree = (tree != null && tree.getTeam() != Team.NEUTRAL);
-        return canWater() && canInteractWithTree(id) && notNeutralTree;
-    }
-
-    @Override
-    public void water(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanWater();
-        assertCanInteractWithTree(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        assertOwnedTree(tree);
-        waterTree(tree);
-    }
-
-    @Override
-    public void water(int id) throws GameActionException {
-        assertCanWater();
-        assertCanInteractWithTree(id);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        assertOwnedTree(tree);
-        waterTree(tree);
-    }
-
-    private void waterTree(InternalTree tree){
-        this.robot.incrementWaterCount();
-        tree.waterTree();
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.WATER_TREE, tree.getID());
-    }
-
-    @Override
-    public boolean canWater(){
-        boolean correctType = getType() == RobotType.GARDENER;
-        return correctType && this.robot.getWaterCount() < 1;
     }
 
     @Override
@@ -940,15 +879,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
-    private void assertCanBuildTree(Direction dir) throws GameActionException{
-        if(!canPlantTree(dir)){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't build a bullet tree in given direction, possibly due to " +
-                            "insufficient bullet supply, this robot can't build, " +
-                            "cooldown not expired, or the spawn location is occupied");
-        }
-    }
-
     @Override
     public boolean hasRobotBuildRequirements(RobotType type) {
         assertNotNull(type);
@@ -975,21 +905,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         MapLocation spawnLoc = getLocation().add(dir, spawnDist);
         boolean isClear = gameWorld.getGameMap().onTheMap(spawnLoc, type.bodyRadius) &&
                 gameWorld.getObjectInfo().isEmpty(spawnLoc, type.bodyRadius);
-        boolean cooldownExpired = isBuildReady();
-        return hasBuildRequirements && isClear && cooldownExpired;
-    }
-
-    @Override
-    public boolean canPlantTree(Direction dir) {
-        assertNotNull(dir);
-        boolean hasBuildRequirements = hasTreeBuildRequirements();
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                GameConstants.BULLET_TREE_RADIUS;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-        boolean isClear =
-                gameWorld.getGameMap().onTheMap(spawnLoc, GameConstants.BULLET_TREE_RADIUS) &&
-                gameWorld.getObjectInfo().isEmpty(spawnLoc, GameConstants.BULLET_TREE_RADIUS);
         boolean cooldownExpired = isBuildReady();
         return hasBuildRequirements && isClear && cooldownExpired;
     }
@@ -1035,27 +950,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int robotID = gameWorld.spawnRobot(type, spawnLoc, getTeam());
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
-    }
-
-    @Override
-    public void plantTree(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertIsBuildReady();
-        assertCanBuildTree(dir);
-
-        this.robot.setBuildCooldownTurns(GameConstants.BULLET_TREE_CONSTRUCTION_COOLDOWN);
-        
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.BULLET_TREE_COST);
-
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                GameConstants.BULLET_TREE_RADIUS;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-
-        int treeID = gameWorld.spawnTree(getTeam(), GameConstants.BULLET_TREE_RADIUS, spawnLoc,
-                0, null);
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.PLANT_TREE, treeID);
     }
 
     // ***********************************

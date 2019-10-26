@@ -28,16 +28,6 @@ public final class Action {
    */
   public static final byte FIRE_PENTAD = 2;
   /**
-   * Plant a tree.
-   * Target: tree
-   */
-  public static final byte PLANT_TREE = 5;
-  /**
-   * Water a tree.
-   * Target: tree
-   */
-  public static final byte WATER_TREE = 6;
-  /**
    * Build a unit.
    * Target: spawned unit
    */

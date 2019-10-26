@@ -82,22 +82,6 @@ public class TestGame {
     public int spawn(float x, float y, RobotType type, Team team) {
         return world.spawnRobot(type, new MapLocation(x, y), team);
     }
-    
-    /**
-     * Spawns a tree of the given parameters, and returns its ID.
-     * 
-     * @param x x coordinate for the spawn
-     * @param y y coordinate for the spawn
-     * @param radius radius of the tree
-     * @param team team of the tree for bullet trees, Team.NEUTRAL for neutral trees
-     * @param containedBullets any bullets contained as reward
-     * @param containedRobot any robot contained as reward
-     * @return
-     */
-    public int spawnTree(float x, float y, float radius, Team team, int containedBullets, RobotType containedRobot) {
-        return world.spawnTree(team, radius, new MapLocation(x,y), containedBullets, containedRobot);
-    }
-
 
     /**
      * A helper class to deal with the fact that it's tricky for Java lambdas

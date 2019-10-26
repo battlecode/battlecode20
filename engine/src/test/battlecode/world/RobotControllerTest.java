@@ -192,80 +192,6 @@ public class RobotControllerTest {
         assertEquals(game.getBot(soldierB).getHealth(),RobotType.SOLDIER.maxHealth - RobotType.SOLDIER.attackPower,EPSILON);
     }
 
-    @Test // Normal robots blocked by trees and other robots, drones fly over but blocked by other drones
-    public void obstructionTest() throws GameActionException {
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-                .build();
-
-        // This creates the actual game.
-        TestGame game = new TestGame(map);
-
-        final int archonA = game.spawn(4, 5, RobotType.ARCHON, Team.A);
-        final int scoutA = game.spawn(7.5f, 5, RobotType.SCOUT, Team.A);
-        final int scoutB = game.spawn(7.5f, 2, RobotType.SCOUT, Team.A);
-        final int neutralTree = game.spawnTree(9f,5, 1, Team.NEUTRAL, 0, null);
-        game.waitRounds(20);
-
-        MapLocation originalArchonALoc = game.getWorld().getObjectInfo().getRobotByID(archonA).getLocation();
-        MapLocation scoutBLoc = game.getWorld().getObjectInfo().getRobotByID(scoutB).getLocation();
-        MapLocation neutralTreeLoc = game.getWorld().getObjectInfo().getTreeByID(neutralTree).getLocation();
-
-        // Scout can move over trees, but not other robots
-        game.round((id, rc) -> {
-            if (id != scoutA) return;
-
-            assertFalse(rc.canMove(originalArchonALoc));
-            assertFalse(rc.canMove(scoutBLoc));
-            assertTrue(rc.canMove(neutralTreeLoc)); // Scouts can go over trees
-            rc.move(neutralTreeLoc);
-        });
-
-        game.round((id, rc) -> {
-            if (id != scoutA) return;
-            assertTrue(rc.canMove(neutralTreeLoc)); // Scouts can go over trees
-            rc.move(neutralTreeLoc);
-        });
-
-        // Scout can't go off the map
-        game.round((id, rc) -> {
-            if (id != scoutA) return;
-
-            assertFalse(rc.canMove(Direction.getEast(),0.01f)); // Off the map
-            assertTrue(rc.canMove(Direction.getNorth()));
-            rc.move(Direction.getNorth());  // Move away from tree
-        });
-
-        // Move Archon closer to tree
-        int numMoves = 0;
-        MapLocation currentArchonALoc = null;
-        do {
-            game.round((id, rc) -> {
-                if (id != archonA) return;
-
-                assertTrue(rc.canMove(neutralTreeLoc));
-                rc.move(neutralTreeLoc);    // Move towards the tree
-
-            });
-            numMoves++;
-            currentArchonALoc = game.getWorld().getObjectInfo().getRobotByID(archonA).getLocation();
-            assertEquals(currentArchonALoc.distanceTo(neutralTreeLoc), originalArchonALoc.distanceTo(neutralTreeLoc) - RobotType.ARCHON.strideRadius*numMoves, EPSILON);
-        } while (currentArchonALoc.distanceTo(neutralTreeLoc) > RobotType.ARCHON.bodyRadius+1+RobotType.ARCHON.strideRadius);
-
-        // Move Archon to be just out of tree
-        game.round((id, rc) -> {
-            if (id != archonA) return;
-            assertTrue(rc.canMove(rc.getLocation().directionTo(neutralTreeLoc),rc.getLocation().distanceTo(neutralTreeLoc)-(RobotType.ARCHON.bodyRadius+1+0.0001f)));
-            rc.move(rc.getLocation().directionTo(neutralTreeLoc),rc.getLocation().distanceTo(neutralTreeLoc)-(RobotType.ARCHON.bodyRadius+1+0.0001f));    // Move towards the tree
-            assertEquals(rc.getLocation().distanceTo(neutralTreeLoc),RobotType.ARCHON.bodyRadius+1+0.0001f,EPSILON);
-        });
-
-        // Archon can't go over tree
-        game.round((id, rc) -> {
-            if (id != archonA) return;
-            assertFalse(rc.canMove(rc.getLocation().directionTo(neutralTreeLoc),0.001f));
-        });
-    }
-
     @Test // Bullet collision works continuously and not at discrete intervals
     public void continuousBulletCollisionTest() throws GameActionException {
         LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 12, 10, 1337, 100)
@@ -417,88 +343,6 @@ public class RobotControllerTest {
     }
 
     @Test
-    public void testDirections() throws GameActionException {
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-                .build();
-
-        // This creates the actual game.
-        TestGame game = new TestGame(map);
-
-        final int soldierA = game.spawn(3, 5, RobotType.SCOUT, Team.A);
-        final int neutralTree = game.spawnTree(5,5,1,Team.NEUTRAL,0,null);
-
-        game.round((id, rc) -> {
-            if (id != soldierA) return;
-
-            // Silly Direction sanity checks
-            for (int i = 0; i < 3; i++) {
-                assertEquals(new Direction(0.1f).radians, new Direction(0.1f).rotateLeftRads((float) (2 * Math.PI * i)).radians, EPSILON);
-                assertEquals(new Direction(-0.1f).radians, new Direction(-0.1f).rotateLeftRads((float) (2 * Math.PI * i)).radians, EPSILON);
-                assertEquals(new Direction(0.1f).radians, new Direction(0.1f).rotateRightRads((float) (2 * Math.PI * i)).radians, EPSILON);
-                assertEquals(new Direction(-0.1f).radians, new Direction(-0.1f).rotateRightRads((float) (2 * Math.PI * i)).radians, EPSILON);
-            }
-
-            // Ensure range (-Math.PI,Math.PI]
-            Direction testDir = Direction.getNorth();
-            float testRads = testDir.radians;
-            Direction fromRads = new Direction(testRads);
-            for (int i = 0; i < 200; i++) {
-                testDir = testDir.rotateLeftDegrees(i);
-                // Stays within range
-                assertTrue(Math.abs(testDir.radians) <= Math.PI);
-
-                // Direction.reduce() functionality works
-                testRads += Math.toRadians(i);
-                fromRads = new Direction(testRads);
-                assertTrue(testDir.equals(fromRads,0.0001f)); // silly rounding errors can accumulate, so larger epsilon
-            }
-        });
-
-        // Test from ndefilippis
-        Direction d = new Direction((float) Math.PI);
-        assertEquals(d.radians, Math.PI, 1E-7);
-
-        // Equals override test
-        assertTrue(Direction.getNorth().equals(Direction.getNorth()));
-        assertFalse(Direction.getNorth().equals(Direction.getEast()));
-        assertFalse(Direction.getNorth().equals(Direction.getEast(),0.01f));
-        assertTrue(Direction.getNorth().equals(Direction.getEast(),(float)Math.PI/2+0.01f));
-        assertTrue(Direction.NORTH.equals(Direction.getNorth()));
-    }
-
-    @Test
-    public void overlappingScoutTest() throws GameActionException {
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-                .build();
-
-        // This creates the actual game.
-        TestGame game = new TestGame(map);
-
-        final int scoutA = game.spawn(3, 5, RobotType.SCOUT, Team.A);
-        final int neutralTree = game.spawnTree(5,5,1,Team.NEUTRAL,0,null);
-
-        game.round((id, rc) -> {
-            if (id != scoutA) return;
-
-            TreeInfo[] nearbyTrees = rc.senseNearbyTrees();
-            rc.move(nearbyTrees[0].getLocation());
-
-            boolean exception = false;
-            try {
-                nearbyTrees = rc.senseNearbyTrees();
-            } catch (Exception e) {
-                System.out.println("Scout threw an error when trying to sense tree at its location, this shouldn't happen");
-                exception = true;
-            }
-            assertFalse(exception);
-
-            MapLocation loc1 = new MapLocation(5, 5);
-            MapLocation loc2 = loc1.add(null, 5);
-            assertEquals(loc1, loc2);
-        });
-    }
-
-    @Test
     public void testNullIsCircleOccupied() throws GameActionException {
 
         LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
@@ -521,31 +365,6 @@ public class RobotControllerTest {
             }
             assertFalse(exception);
         });
-    }
-
-    @Test
-    public void hitScoutsBeforeTrees() throws GameActionException {
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-                .build();
-
-        // This creates the actual game.
-        TestGame game = new TestGame(map);
-
-        // In case scouts are on top of trees with radius 1, hit scout first
-        final int soldierA = game.spawn(5,5,RobotType.SOLDIER,Team.A);
-        final int scoutB = game.spawn(8,5,RobotType.SCOUT,Team.B);
-        final int neutralTree1 = game.spawnTree(8,5,1,Team.NEUTRAL,123,null);
-        game.waitRounds(20); // Let them mature
-
-        // Fire shot at tree/soldier combo
-        game.round((id, rc) -> {
-            if (id != soldierA) return;
-            rc.fireSingleShot(rc.getLocation().directionTo(new MapLocation(8,5)));
-        });
-        game.waitRounds(1);
-        // Scout gets hit, tree does not
-        assertEquals(game.getBot(scoutB).getHealth(),RobotType.SCOUT.maxHealth-RobotType.SOLDIER.attackPower, EPSILON);
-        assertEquals(game.getTree(neutralTree1).getHealth(),GameConstants.NEUTRAL_TREE_HEALTH_RATE, EPSILON);
     }
 
     // Check to ensure execution order is equal to spawn order
@@ -737,39 +556,6 @@ public class RobotControllerTest {
                 assertEquals(nearbyRobots.length,0);
                 // Damage is done immediately and robot is dead
                 assertTrue(rc.canMove(Direction.EAST));
-            }
-        });
-    }
-
-    @Test
-    public void testGetXAtLocation() throws GameActionException {
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-                .build();
-
-        // This creates the actual game.
-        TestGame game = new TestGame(map);
-
-        final int soldierA = game.spawn(2.9f,6,RobotType.SOLDIER,Team.A);
-        final int tankB = game.spawn(6,6,RobotType.TANK,Team.B);
-        final int tree1 = game.spawnTree(2.9f,2, 2, Team.NEUTRAL,0,null);
-        final int tree2 = game.spawnTree(6,2, 1, Team.NEUTRAL,0,null);
-
-        game.round((id, rc) -> {
-            if (id == soldierA) {
-                RobotInfo bot = rc.senseRobotAtLocation(new MapLocation(2.9f+0.9f,6));
-                assertNotNull(bot);
-                assertEquals(bot.getType(),RobotType.SOLDIER);
-                bot = rc.senseRobotAtLocation(new MapLocation(6f-1.9f,6));
-                assertNotNull(bot);
-                assertEquals(bot.getType(),RobotType.TANK);
-
-                TreeInfo tree = rc.senseTreeAtLocation(new MapLocation(2.9f+1.9f,2));
-                assertNotNull(tree);
-                assertEquals(tree.getID(),tree1);
-                tree = rc.senseTreeAtLocation(new MapLocation(6f-0.9f,2));
-                assertNotNull(tree);
-                assertEquals(tree.getID(),tree2);
-
             }
         });
     }

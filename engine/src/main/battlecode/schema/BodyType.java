@@ -14,7 +14,7 @@ public final class BodyType {
    */
   public static final byte ARCHON = 0;
   /**
-   * Gardeners are caretakers of the land, planting and watering Bullet Trees
+   * Gardeners are caretakers of the land, ... Bullet Trees
    * while also cultivating all other player robots.
    */
   public static final byte GARDENER = 1;

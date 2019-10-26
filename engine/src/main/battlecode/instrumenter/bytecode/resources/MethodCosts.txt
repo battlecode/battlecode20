@@ -44,7 +44,6 @@ battlecode/common/RobotController/canFireTriadShot                  5     true
 battlecode/common/RobotController/canHireGardener                   10    true
 battlecode/common/RobotController/canInteractWithTree               5     true
 battlecode/common/RobotController/canMove                           10    true
-battlecode/common/RobotController/canPlantTree                      10    true
 battlecode/common/RobotController/canSenseAllOfCircle               5     true
 battlecode/common/RobotController/canSenseBullet                    5     true
 battlecode/common/RobotController/canSenseBulletLocation            5     true
@@ -54,7 +53,6 @@ battlecode/common/RobotController/canSenseRadius                    5     true
 battlecode/common/RobotController/canSenseRobot                     5     true
 battlecode/common/RobotController/canSenseTree                      5     true
 battlecode/common/RobotController/canStrike                         5     true
-battlecode/common/RobotController/canWater                          5     true
 battlecode/common/RobotController/disintegrate                      0     true
 battlecode/common/RobotController/donate                            0     true
 battlecode/common/RobotController/firePentadShot                    0     true
@@ -92,7 +90,6 @@ battlecode/common/RobotController/isLocationOccupiedByRobot         20    true
 battlecode/common/RobotController/isLocationOccupiedByTree          20    true
 battlecode/common/RobotController/move                              0     true
 battlecode/common/RobotController/onTheMap                          5     true
-battlecode/common/RobotController/plantTree                         0     true
 battlecode/common/RobotController/readBroadcast                     5     true
 battlecode/common/RobotController/readBroadcastBoolean              5     true
 battlecode/common/RobotController/readBroadcastFloat                5     true
@@ -112,7 +109,6 @@ battlecode/common/RobotController/setIndicatorDot                   0     true
 battlecode/common/RobotController/setIndicatorLine                  0     true
 battlecode/common/RobotController/setTeamMemory                     0     true
 battlecode/common/RobotController/strike                            0     true
-battlecode/common/RobotController/water                             0     true
 battlecode/common/Team/opponent                                     1     false
 battlecode/common/Team/isPlayer                                     1     false
 java/lang/Math/IEEEremainder            1  false
