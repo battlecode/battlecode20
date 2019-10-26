@@ -53,11 +53,6 @@ public strictfp class RobotPlayer {
                 // Move randomly
                 tryMove(randomDirection());
 
-                // Broadcast archon's location for other robots on the team to know
-                MapLocation myLocation = rc.getLocation();
-                rc.broadcast(0,(int)myLocation.x);
-                rc.broadcast(1,(int)myLocation.y);
-
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
 
@@ -78,9 +73,7 @@ public strictfp class RobotPlayer {
             try {
 
                 // Listen for home archon's location
-                int xPos = rc.readBroadcast(0);
-                int yPos = rc.readBroadcast(1);
-                MapLocation archonLoc = new MapLocation(xPos,yPos);
+                archonLoc = rc.getLocation();
 
                 // Generate a random direction
                 Direction dir = randomDirection();

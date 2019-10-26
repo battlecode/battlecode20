@@ -319,15 +319,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
     }
 
-    @Override
-    public MapLocation[] senseBroadcastingRobotLocations() {
-        List<MapLocation> validLocs = new ArrayList<>();
-        for(RobotInfo robot : gameWorld.getPreviousBroadcasters()){
-            validLocs.add(robot.location);
-        }
-        return validLocs.toArray(new MapLocation[validLocs.size()]);
-    }
-
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
@@ -498,60 +489,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private boolean canInteractWithLocation(MapLocation loc){
         assertNotNull(loc);
         return this.robot.canInteractWithLocation(loc);
-    }
-
-    // ***********************************
-    // ****** SIGNALING METHODS **********
-    // ***********************************
-
-    private void assertValidChannel(int channel) throws GameActionException{
-        if(channel < 0 || channel >= GameConstants.BROADCAST_MAX_CHANNELS){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Broadcasting channel invalid");
-        }
-    }
-
-    @Override
-    public void broadcast(int channel, int data) throws GameActionException {
-        assertValidChannel(channel);
-        gameWorld.addBroadcaster(this.robot.getRobotInfo());
-        gameWorld.getTeamInfo().broadcast(getTeam(), channel, data);
-    }
-
-    @Override
-    public int readBroadcast(int channel) throws GameActionException {
-        assertValidChannel(channel);
-        return gameWorld.getTeamInfo().readBroadcast(getTeam(), channel);
-    }
-
-    @Override
-    public void broadcastBoolean(int channel, boolean data) throws GameActionException {
-        broadcast(channel, data ? 1 : 0);
-    }
-
-    @Override
-    public boolean readBroadcastBoolean(int channel) throws GameActionException {
-        return readBroadcast(channel) != 0;
-    }
-
-    @Override
-    public void broadcastInt(int channel, int data) throws GameActionException {
-        broadcast(channel, data);
-    }
-
-    @Override
-    public int readBroadcastInt(int channel) throws GameActionException {
-        return readBroadcast(channel);
-    }
-
-    @Override
-    public void broadcastFloat(int channel, float data) throws GameActionException {
-        broadcast(channel, Float.floatToRawIntBits(data));
-    }
-
-    @Override
-    public float readBroadcastFloat(int channel) throws GameActionException {
-        return Float.intBitsToFloat(readBroadcast(channel));
     }
 
     // ***********************************

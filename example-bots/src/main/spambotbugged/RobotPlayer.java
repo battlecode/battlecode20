@@ -156,17 +156,6 @@ public class RobotPlayer {
     // Returns the "core", or main focal spot for this team to 
     // gather archons/gardeners and plant trees
     public static MapLocation getCore(RobotController rc) throws GameActionException {
-        int coreY = rc.readBroadcast(0);
-        int coreX = rc.readBroadcast(1);
-
-        if (coreX == 0 && coreY == 0) {
-            MapLocation core = rc.getLocation();
-            rc.broadcast(0, (int) core.x);
-            rc.broadcast(1, (int) core.y);
-
-            return core;
-        }
-
-        return new MapLocation(coreX, coreY);
+        return new MapLocation(rc.getLocation());
     }
 }

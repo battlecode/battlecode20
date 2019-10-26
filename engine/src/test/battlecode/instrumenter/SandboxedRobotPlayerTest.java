@@ -112,17 +112,14 @@ public class SandboxedRobotPlayerTest {
         player.step();
 
         assertFalse(player.getTerminated());
-        verify(rc).broadcast(0, 1);
 
         player.step();
 
         assertFalse(player.getTerminated());
-        verify(rc).broadcast(0, 2);
 
         player.step();
 
         assertTrue(player.getTerminated());
-        verify(rc).broadcast(0, 3);
     }
 
     @Test
@@ -311,7 +308,6 @@ public class SandboxedRobotPlayerTest {
         player.setBytecodeLimit(200);
         player.step();
         assertTrue(player.getTerminated());
-        verify(rc).broadcast(0, 7);
     }
 
     @Test
