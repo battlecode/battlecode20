@@ -145,6 +145,7 @@ export default class Match {
 
     // Regex
     let lines = logs.split(/\r?\n/);
+    // TODO
     let header = /^\[(A|B):(ARCHON|GARDENER|LUMBERJACK|SOLDIER|TANK|SCOUT)#(\d+)@(\d+)\] (.*)/;
 
     let roundLogs = new Array<Log>();

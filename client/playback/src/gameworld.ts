@@ -8,8 +8,8 @@ import deepcopy = require('deepcopy');
 
 export type DiedBodiesSchema = {
   id: Int32Array,
-  x: Float32Array,
-  y: Float32Array,
+  x: Int32Array,
+  y: Int32Array,
   // radius: Float32Array
 }
 
@@ -17,8 +17,8 @@ export type BodiesSchema = {
   id: Int32Array,
   team: Int8Array,
   type: Int8Array,
-  x: Float32Array,
-  y: Float32Array,
+  x: Int32Array,
+  y: Int32Array,
   // health: Float32Array,
   // radius: Float32Array,
   // maxHealth: Float32Array,
@@ -47,8 +47,8 @@ export type TeamStats = {
 
 export type IndicatorDotsSchema = {
   id: Int32Array,
-  x: Float32Array,
-  y: Float32Array,
+  x: Int32Array,
+  y: Int32Array,
   red: Int32Array,
   green: Int32Array,
   blue: Int32Array
@@ -56,10 +56,10 @@ export type IndicatorDotsSchema = {
 
 export type IndicatorLinesSchema = {
   id: Int32Array,
-  startX: Float32Array,
-  startY: Float32Array,
-  endX: Float32Array,
-  endY: Float32Array,
+  startX: Int32Array,
+  startY: Int32Array,
+  endX: Int32Array,
+  endY: Int32Array,
   red: Int32Array,
   green: Int32Array,
   blue: Int32Array
@@ -229,8 +229,8 @@ export default class GameWorld {
 
     this.indicatorDots = new StructOfArrays({
       id: new Int32Array(0),
-      x: new Float32Array(0),
-      y: new Float32Array(0),
+      x: new Int32Array(0),
+      y: new Int32Array(0),
       red: new Int32Array(0),
       green: new Int32Array(0),
       blue: new Int32Array(0)
@@ -238,10 +238,10 @@ export default class GameWorld {
 
     this.indicatorLines = new StructOfArrays({
       id: new Int32Array(0),
-      startX: new Float32Array(0),
-      startY: new Float32Array(0),
-      endX: new Float32Array(0),
-      endY: new Float32Array(0),
+      startX: new Int32Array(0),
+      startY: new Int32Array(0),
+      endX: new Int32Array(0),
+      endY: new Int32Array(0),
       red: new Int32Array(0),
       green: new Int32Array(0),
       blue: new Int32Array(0)

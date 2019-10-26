@@ -4,40 +4,34 @@ import { schema } from 'battlecode-schema';
 import Victor = require('victor');
 export declare type DiedBodiesSchema = {
     id: Int32Array;
-    x: Float32Array;
-    y: Float32Array;
+    x: Int32Array;
+    y: Int32Array;
 };
 export declare type BodiesSchema = {
     id: Int32Array;
     team: Int8Array;
     type: Int8Array;
-    x: Float32Array;
-    y: Float32Array;
-    health: Float32Array;
-    maxHealth: Float32Array;
+    x: Int32Array;
+    y: Int32Array;
     bytecodesUsed: Int32Array;
-    containedBullets: Int32Array;
-    containedBody: Int8Array;
 };
 export declare type TeamStats = {
-    bullets: number;
-    vps: number;
     robots: [number, number, number, number, number, number, number];
 };
 export declare type IndicatorDotsSchema = {
     id: Int32Array;
-    x: Float32Array;
-    y: Float32Array;
+    x: Int32Array;
+    y: Int32Array;
     red: Int32Array;
     green: Int32Array;
     blue: Int32Array;
 };
 export declare type IndicatorLinesSchema = {
     id: Int32Array;
-    startX: Float32Array;
-    startY: Float32Array;
-    endX: Float32Array;
-    endY: Float32Array;
+    startX: Int32Array;
+    startY: Int32Array;
+    endX: Int32Array;
+    endY: Int32Array;
     red: Int32Array;
     green: Int32Array;
     blue: Int32Array;
@@ -52,9 +46,8 @@ export default class GameWorld {
      * Bodies that died this round.
      * {
      *   id: Int32Array,
-     *   x: Float32Array,
-     *   y: Float32Array,
-     *   radius: Float32Array
+     *   x: Int32Array,
+     *   y: Int32Array,
      * }
      */
     diedBodies: StructOfArrays<DiedBodiesSchema>;
@@ -64,14 +57,9 @@ export default class GameWorld {
      *   id: Int32Array,
      *   team: Int8Array,
      *   type: Int8Array,
-     *   x: Float32Array,
-     *   y: Float32Array,
-     *   health: Float32Array,
-     *   radius: Float32Array,
-     *   maxHealth: Float32Array,
+     *   x: Int32Array,
+     *   y: Int32Array,
      *   bytecodesUsed: Int32Array,
-     *   containedBullets: Float32Array,
-     *   containedBody: Int8Array
      * }
      */
     bodies: StructOfArrays<BodiesSchema>;

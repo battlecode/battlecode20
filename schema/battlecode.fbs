@@ -251,6 +251,22 @@ table Round {
     /// any target (typically 0).
     actionTargets: [int];
 
+    /// The IDs of bodies that set indicator dots
+    indicatorDotIDs: [int];
+    /// The location of the indicator dots
+    indicatorDotLocs: VecTable;
+    /// The RGB values of the indicator dots
+    indicatorDotRGBs: RGBTable;
+
+    /// The IDs of bodies that set indicator lines
+    indicatorLineIDs: [int];
+    /// The start location of the indicator lines
+    indicatorLineStartLocs: VecTable;
+    /// The end location of the indicator lines
+    indicatorLineEndLocs: VecTable;
+    /// The RGB values of the indicator lines
+    indicatorLineRGBs: RGBTable;
+    
     /// All logs sent this round.
     /// Messages from a particular robot in this round start on a new line, and
     /// have a header:
