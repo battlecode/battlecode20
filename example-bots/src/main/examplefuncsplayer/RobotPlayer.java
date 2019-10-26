@@ -4,6 +4,8 @@ import battlecode.common.*;
 public strictfp class RobotPlayer {
     static RobotController rc;
 
+    static Direction[] directions = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -173,7 +175,7 @@ public strictfp class RobotPlayer {
      * @return a random Direction
      */
     static Direction randomDirection() {
-        return new Direction((float)Math.random() * 2 * (float)Math.PI);
+        return directions[(int) (Math.random() * 4)];
     }
 
     /**
@@ -210,13 +212,13 @@ public strictfp class RobotPlayer {
 
         while(currentCheck<=checksPerSide) {
             // Try the offset of the left side
-            if(rc.canMove(dir.rotateLeftDegrees(degreeOffset*currentCheck))) {
-                rc.move(dir.rotateLeftDegrees(degreeOffset*currentCheck));
+            if(rc.canMove(dir.rotateLeft())) {
+                rc.move(dir.rotateLeft());
                 return true;
             }
             // Try the offset on the right side
-            if(rc.canMove(dir.rotateRightDegrees(degreeOffset*currentCheck))) {
-                rc.move(dir.rotateRightDegrees(degreeOffset*currentCheck));
+            if(rc.canMove(dir.rotateRight())) {
+                rc.move(dir.rotateRight());
                 return true;
             }
             // No move performed, try slightly further

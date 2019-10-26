@@ -228,9 +228,9 @@ public final strictfp class GameMapIO {
          * @return a new copy of the map as a LiveMap
          */
         public static LiveMap deserialize(battlecode.schema.GameMap raw) {
-            final float width = raw.maxCorner().x() - raw.minCorner().x();
-            final float height = raw.maxCorner().y() - raw.minCorner().y();
-            final MapLocation origin = new MapLocation(raw.minCorner().x(), raw.minCorner().y());
+            final int width = (int) (raw.maxCorner().x() - raw.minCorner().x());
+            final int height = (int) (raw.maxCorner().y() - raw.minCorner().y());
+            final MapLocation origin = new MapLocation((int) raw.minCorner().x(), (int) raw.minCorner().y());
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_DEFAULT_ROUNDS;
             final String mapName = raw.name();
@@ -271,8 +271,8 @@ public final strictfp class GameMapIO {
                     bodyIDs.add(robot.ID);
                     bodyTeamIDs.add(TeamMapping.id(robot.team));
                     bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
-                    bodyLocsXs.add(robot.location.x);
-                    bodyLocsYs.add(robot.location.y);
+                    bodyLocsXs.add((float) robot.location.x);
+                    bodyLocsYs.add((float) robot.location.y);
                 } else {
                     // ignore?
                 }
@@ -317,7 +317,7 @@ public final strictfp class GameMapIO {
                 float bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
                 if (bodyType != null) {
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation(bodyX, bodyY), bodyType.getStartingHealth(), 0, 0));
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation((int) bodyX, (int) bodyY), bodyType.getStartingHealth(), 0, 0));
                 }
             }
         }
