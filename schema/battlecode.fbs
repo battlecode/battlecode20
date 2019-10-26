@@ -1,16 +1,16 @@
 namespace battlecode.schema;
 
-/// A vector in two-dimensional space. Continuous space, of course.
+/// A vector in two-dimensional space. Discrete space, of course.
 /// Defaults to the 0 vector.
 struct Vec {
-    x: float = 0;
-    y: float = 0;
+    x: int = 0;
+    y: int = 0;
 }
 
 /// A table of vectors.
 table VecTable {
-    xs: [float];
-    ys: [float];
+    xs: [int];
+    ys: [int];
 }
 
 /// A table of RGB values.
@@ -23,29 +23,28 @@ table RGBTable {
 /// The possible types of things that can exist.
 /// Note that bullets are not treated as bodies.
 enum BodyType : byte {
-    /// Archons are the mobile equivalent of a HQ whose sole purpose is to hire
-    /// gardeners to maintain the land.
-    ARCHON,
-    /// Gardeners are caretakers of the land,
-    /// while also cultivating all other player robots.
-    GARDENER,
-    /// Lumberjacks are melee units equipped for felling ...
-    LUMBERJACK,
-    /// Soldiers are all-around units with a tricky shot.
-    SOLDIER,
-    /// Tanks are large, slow units with powerful bullets.
-    TANK,
-    /// Scouts are fast units that move around without obstruction.
-    SCOUT,
-    /// A bullet that moves in a perfectly straight line.
-    /// Note: bullet location updates are not sent; a bullet is defined to be
-    /// in position loc + dt * vel after dt seconds.
-    /// This allows us some significant space savings, since there are lots
-    /// of bullets, and we don't need to send position updates.
-    /// The event stream will say if a bullet has been destroyed.
-    /// This is included for convenience; note this value SHALL NOT appear in
-    /// a SpawnedBodyTable.
-    BULLET
+    /// Miners extract crude soup and bring it to the refineries.
+    MINER,
+    /// Landscapers take dirt from adjacent (decreasing the elevation)
+    /// squares or deposit dirt onto adjacent squares, including
+    /// into water (increasing the elevation).
+    LANDSCAPER,
+    /// Drones pick up any unit and drop them somewhere else.
+    DRONE,
+    /// Net guns shoot down drones.
+    NET_GUN,
+    /// Cows produce polution.
+    COW,
+    /// Refineries turn crude soup into refined soup, and produce pollution.
+    REFINERY,
+    /// Vaporators reduce pollution.
+    VAPORATOR,
+    // The hq produces miners, is also a net gun and a refinery.
+    HQ,
+    /// Design schools create landscapers.
+    DESIGN_SCHOOL,
+    /// Fulfillment centers create drones.
+    FULFILLMENT_CENTER
 }
 
 /// A list of new bodies to be placed on the map.
@@ -64,22 +63,6 @@ table SpawnedBodyTable {
     locs: VecTable;
 }
 
-/// A list of new bullets to be placed on the map.
-table SpawnedBulletTable {
-    /// The numeric ID of the new bullets.
-    /// Will never be negative.
-    /// There will only be one body/bullet with a particular ID at a time.
-    /// So, there will never be two robots with the same ID, or a robot and
-    /// a bullet with the same ID.
-    robotIDs: [int];
-    /// The locations of the bodies.
-    locs: VecTable;
-    /// The velocities of the bodies.
-    vels: VecTable;
-    /// The damage levels of the bodies.
-    damages: [float];
-}
-
 /// The map a round is played on.
 table GameMap {
     /// The name of a map.
@@ -92,6 +75,20 @@ table GameMap {
     bodies: SpawnedBodyTable;
     /// The random seed of the map.
     randomSeed: int;
+    /// The tiles
+    tiles: [Tile];
+}
+
+/// A tile.
+table Tile {
+    // The dirt level on the tile.
+    dirt: int;
+    /// The water level on the tile (above the dirt).
+    water: int;
+    /// The polluion level of the tiles.
+    pollution: int;
+    /// The amount of crude soup to be mined on the tiles.
+    soup: int;
 }
 
 /// Actions that can be performed.
@@ -101,15 +98,6 @@ table GameMap {
 /// Actions may have 'targets', which are the units on which
 /// the actions were performed.
 enum Action : byte {
-    /// Fire a bullet.
-    /// Target: spawned bullet.
-    FIRE,
-    /// Fire three bullets.
-    /// Target: spawned bullets.
-    FIRE_TRIAD,
-    /// Fire five bullets.
-    /// Target: spawned bullets.
-    FIRE_PENTAD,
     /// Build a unit.
     /// Target: spawned unit
     SPAWN_UNIT,
@@ -144,16 +132,8 @@ table BodyTypeMetadata {
     startHealth: float;
     /// The maximum distance this type can move each turn
     strideRadius: float;
-    /// The speed that bullets from this unit move.
-    /// Note: you don't need to keep track of this, SpawnedBody.vel will always be set.
-    bulletSpeed: float;
-    /// The damage that bullets from this unit inflict.
-    /// Note: you don't need to keep track of this.
-    bulletAttack: float;
     /// The maximum distance this type can sense other robots
     sightRadius: float;
-    /// The maximum distance this type can sense bullets
-    bulletSightRadius: float;
 }
 
 /// Data relevant to a particular team.
@@ -228,8 +208,8 @@ table MatchFooter {
 table Round {
     /// The IDs of teams in the Game.
     teamIDs: [int];
-    /// The bullet counts of the teams.
-    teamBullets: [float];
+    /// The soup counts of the teams.
+    teamSoups: [int];
     /// The victory points of the teams.
     teamVictoryPoints: [int];
 
@@ -241,8 +221,6 @@ table Round {
 
     /// New bodies.
     spawnedBodies: SpawnedBodyTable;
-    /// New bullets.
-    spawnedBullets: SpawnedBulletTable;
 
     /// The IDs of bodies with changed health.
     healthChangedIDs: [int];
@@ -251,8 +229,6 @@ table Round {
 
     /// The IDs of bodies that died.
     diedIDs: [int];
-    /// The IDs of bullets that died.
-    diedBulletIDs: [int];
 
     /// The IDs of robots that performed actions.
     /// IDs may repeat.
