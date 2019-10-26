@@ -523,12 +523,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
         boolean isClear = gameWorld.getGameMap().onTheMap(spawnLoc, type.bodyRadius) &&
                 gameWorld.getObjectInfo().isEmpty(spawnLoc, type.bodyRadius);
         boolean cooldownExpired = isBuildReady();
+
+        // THIS IS LOOOOL
+        isClear = gameWorld.getGameMap().onTheMap(spawnLoc, 0) &&
+                gameWorld.getObjectInfo().isEmpty(spawnLoc, 0);
         return hasBuildRequirements && isClear && cooldownExpired;
     }
     
     @Override
     public boolean canHireGardener(Direction dir) {
-        return canBuildRobot(RobotType.GARDENER,dir);
+        return canBuildRobot(RobotType.GARDENER, dir);
     }
 
     @Override
