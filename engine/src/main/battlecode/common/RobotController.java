@@ -725,32 +725,6 @@ public strictfp interface RobotController {
     boolean canFireSingleShot();
 
     /**
-     * Tests whether there are enough bullets in your bullet supply to
-     * fire a triad shot, the robot is of an appropriate type, and the
-     * robot has not attacked in the current turn.
-     *
-     * @return true if there are enough bullets in the bullet supply,
-     * this robot is of an appropriate type, and the robot hasn't attacked
-     * this turn; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canFireTriadShot();
-
-    /**
-     * Tests whether there is enough bullets in your bullet supply to
-     * fire a pentad shot, the robot is of an appropriate type, and the
-     * robot has not attacked in the current turn.
-     *
-     * @return true if there are enough bullets in the bullet supply,
-     * this robot is of an appropriate type, and the robot hasn't attacked
-     * this turn; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canFirePentadShot();
-
-    /**
      * Fires a single bullet in the direction dir at the cost of
      * {@link GameConstants#SINGLE_SHOT_COST} from your team's bullet supply. The speed
      * and damage of the bullet is determined from the type of this robot.
@@ -764,37 +738,6 @@ public strictfp interface RobotController {
      */
     void fireSingleShot(Direction dir) throws GameActionException;
 
-    /**
-     * Fires a three bullets with the center bullet in the direction dir and
-     * with a spread of {@link GameConstants#TRIAD_SPREAD_DEGREES} degrees for the other
-     * bullets.  This function costs {@link GameConstants#TRIAD_SHOT_COST} bullets from
-     * your team's supply. The speed and damage of the bullets is determined
-     * from the type of this robot.
-     *
-     * @param dir the direction you wish to fire the center bullet
-     * @throws GameActionException if this robot is not of a type that can
-     * fire triad shots (ARCHON, GARDENER, etc.), cannot attack due to having
-     * already attacked, or for having insufficient bullets in the bullet supply.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void fireTriadShot(Direction dir) throws GameActionException;
-
-    /**
-     * Fires a five bullets with the center bullet in the direction dir and
-     * with a spread of {@link GameConstants#PENTAD_SPREAD_DEGREES} degrees for the other
-     * bullets.  This function costs {@link GameConstants#PENTAD_SHOT_COST} bullets from
-     * your team's supply. The speed and damage of the bullets is determined
-     * from the type of this robot.
-     *
-     * @param dir the direction you wish to fire the center bullet
-     * @throws GameActionException if this robot is not of a type that can
-     * fire pentad shots (ARCHON, GARDENER, etc.), cannot attack due to having
-     * already attacked, or for having insufficient bullets in the bullet supply.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void firePentadShot(Direction dir) throws GameActionException;
 
     // ***********************************
     // ****** TREE METHODS ***************

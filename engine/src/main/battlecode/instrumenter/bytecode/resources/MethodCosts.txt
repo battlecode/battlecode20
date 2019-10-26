@@ -40,7 +40,6 @@ battlecode/common/RobotController/buildRobot                        0     true
 battlecode/common/RobotController/canBuildRobot                     10    true
 battlecode/common/RobotController/canFirePentadShot                 5     true
 battlecode/common/RobotController/canFireSingleShot                 5     true
-battlecode/common/RobotController/canFireTriadShot                  5     true
 battlecode/common/RobotController/canHireGardener                   10    true
 battlecode/common/RobotController/canInteractWithTree               5     true
 battlecode/common/RobotController/canMove                           10    true
@@ -57,7 +56,6 @@ battlecode/common/RobotController/disintegrate                      0     true
 battlecode/common/RobotController/donate                            0     true
 battlecode/common/RobotController/firePentadShot                    0     true
 battlecode/common/RobotController/fireSingleShot                    0     true
-battlecode/common/RobotController/fireTriadShot                     0     true
 battlecode/common/RobotController/getAttackCount                    1     true
 battlecode/common/RobotController/getBuildCooldownTurns             1     true
 battlecode/common/RobotController/getControlBits                    0     true

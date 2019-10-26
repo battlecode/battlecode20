@@ -107,20 +107,8 @@ public interface GameConstants {
     // ****** ATTACKING ****************
     // *********************************
 
-    /** The degrees at which the bullets are spread apart in a triad shot. */
-    float TRIAD_SPREAD_DEGREES = 20;
-
-    /** The degrees at which the bullets are spread apart in a pentad shot. */
-    float PENTAD_SPREAD_DEGREES = 15;
-
     /** The bullet cost to fire a single shot. */
     float SINGLE_SHOT_COST = 1;
-
-    /** The bullet cost to fire a triad shot. */
-    float TRIAD_SHOT_COST = 4;
-
-    /** The bullet cost to fire a pentad shot. */
-    float PENTAD_SHOT_COST = 6;
 
     /** The distance from the outer edge of a robot bullets are spawned. */
     float BULLET_SPAWN_OFFSET = .05f;

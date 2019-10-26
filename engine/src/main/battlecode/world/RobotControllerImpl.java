@@ -636,12 +636,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void fireBulletSpread(Direction centerDir, int toFire, float spreadDegrees){
         byte actionType;
         switch (toFire){
-            case 5:
-                actionType = Action.FIRE_PENTAD;
-                break;
-            case 3:
-                actionType = Action.FIRE_TRIAD;
-                break;
             default:
                 actionType = Action.FIRE;
         }
@@ -706,20 +700,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canFireTriadShot() {
-        boolean correctType = getType() != RobotType.ARCHON && getType() != RobotType.GARDENER &&
-                getType() != RobotType.LUMBERJACK && getType() != RobotType.SCOUT;
-        return correctType && haveBulletCosts(GameConstants.TRIAD_SHOT_COST) && !hasAttacked();
-    }
-
-    @Override
-    public boolean canFirePentadShot() {
-        boolean correctType = getType() != RobotType.ARCHON && getType() != RobotType.GARDENER &&
-                getType() != RobotType.LUMBERJACK && getType() != RobotType.SCOUT;
-        return correctType && haveBulletCosts(GameConstants.PENTAD_SHOT_COST) && !hasAttacked();
-    }
-
-    @Override
     public void fireSingleShot(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertIsWeaponReady();
@@ -733,38 +713,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.SINGLE_SHOT_COST);
         fireBulletSpread(dir, 1, 0);
-    }
-
-    @Override
-    public void fireTriadShot(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertIsWeaponReady();
-        if(!canFireTriadShot()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "This robot cannot fire a triad shot possibly due to wrong type or " +
-                            "insufficient funds");
-        }
-
-        this.robot.incrementAttackCount();
-
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.TRIAD_SHOT_COST);
-        fireBulletSpread(dir, 3, GameConstants.TRIAD_SPREAD_DEGREES);
-    }
-
-    @Override
-    public void firePentadShot(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertIsWeaponReady();
-        if(!canFirePentadShot()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "This robot cannot fire a pentad shot possibly due to wrong type or " +
-                            "insufficient funds");
-        }
-
-        this.robot.incrementAttackCount();
-
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.PENTAD_SHOT_COST);
-        fireBulletSpread(dir, 5, GameConstants.PENTAD_SPREAD_DEGREES);
     }
 
     // ***********************************
