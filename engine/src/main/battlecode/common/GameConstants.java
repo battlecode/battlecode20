@@ -55,27 +55,8 @@ public interface GameConstants {
     float PLANTED_UNIT_STARTING_HEALTH_FRACTION = 0.2f;
 
     // *********************************
-    // ****** BULLETS ******************
-    // *********************************
-
-    /** The amount of bullets that each team starts with. */
-    float BULLETS_INITIAL_AMOUNT = 300;
-    
-    /** The bullet income per turn (independent of number of archons).  */
-    float ARCHON_BULLET_INCOME = 2;
-
-    /** The decrease in bullet income per turn per bullet that you have. */
-    float BULLET_INCOME_UNIT_PENALTY = 0.01F;
-
-    // *********************************
     // ****** ATTACKING ****************
-    // *********************************
-
-    /** The bullet cost to fire a single shot. */
-    float SINGLE_SHOT_COST = 1;
-
-    /** The distance from the outer edge of a robot bullets are spawned. */
-    float BULLET_SPAWN_OFFSET = .05f;
+    // ********************************* 
 
     /** The radius around a lumberjack affected by a strike(). */
     float LUMBERJACK_STRIKE_RADIUS = 2;

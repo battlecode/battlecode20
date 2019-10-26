@@ -84,11 +84,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public float getTeamBullets(){
-        return gameWorld.getTeamInfo().getBulletSupply(getTeam());
-    }
-
-    @Override
     public int getTeamVictoryPoints(){
         return gameWorld.getTeamInfo().getVictoryPoints(getTeam());
     }
@@ -211,12 +206,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseBulletLocation(MapLocation loc) {
-        assertNotNull(loc);
-        return this.robot.canSenseBulletLocation(loc);
-    }
-
-    @Override
     public boolean canSenseRadius(float radius) {
         return this.robot.canSenseRadius(radius);
     }
@@ -282,27 +271,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseBullet(int id) {
-        return gameWorld.getObjectInfo().existsBullet(id) &&
-                canSenseBulletLocation(gameWorld.getObjectInfo().getBulletByID(id).getLocation());
-    }
-
-    @Override
     public RobotInfo senseRobot(int id) throws GameActionException {
         if(!canSenseRobot(id)){
             throw new GameActionException(CANT_SENSE_THAT,
                     "Can't sense given robot; It may not exist anymore");
         }
         return gameWorld.getObjectInfo().getRobotByID(id).getRobotInfo();
-    }
-
-    @Override
-    public BulletInfo senseBullet(int id) throws GameActionException {
-        if(!canSenseBullet(id)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Can't sense given bullet; It may not exist anymore");
-        }
-        return gameWorld.getObjectInfo().getBulletByID(id).getBulletInfo();
     }
 
     @Override
@@ -343,33 +317,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             validSensedRobots.add(sensedRobot.getRobotInfo());
         }
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
-    }
-
-    @Override
-    public BulletInfo[] senseNearbyBullets() {
-        return senseNearbyBullets(-1);
-    }
-
-    @Override
-    public BulletInfo[] senseNearbyBullets(float radius) {
-        return senseNearbyBullets(getLocation(), radius);
-    }
-
-    @Override
-    public BulletInfo[] senseNearbyBullets(MapLocation center, float radius) {
-        assertNotNull(center);
-        InternalBullet[] allSensedBullets = gameWorld.getObjectInfo().getAllBulletsWithinRadius(center,
-                radius == -1 ? getType().bulletSightRadius : radius);
-        List<BulletInfo> validSensedBullets = new ArrayList<>();
-        for(InternalBullet sensedBullet : allSensedBullets){
-            // check if can sense
-            if(!canSenseBulletLocation(sensedBullet.getLocation())){
-                continue;
-            }
-
-            validSensedBullets.add(sensedBullet.getBulletInfo());
-        }
-        return validSensedBullets.toArray(new BulletInfo[validSensedBullets.size()]);
     }
 
     @Override
@@ -512,59 +459,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** ATTACK METHODS *************
     // ***********************************
 
-    // TODO: Make this a player method
-    private boolean haveBulletCosts(float cost){
-        return gameWorld.getTeamInfo().getBulletSupply(getTeam()) >= cost;
-    }
-
-    private void assertHaveBulletCosts(float cost) throws GameActionException{
-        if(!haveBulletCosts(cost)){
-            throw new GameActionException(NOT_ENOUGH_RESOURCE,
-                    "Not sufficient funds in bullet supply");
-        }
-    }
-
     private void assertNonNegative(float cost) throws GameActionException{
         if(cost < 0) {
             throw new GameActionException(CANT_DO_THAT,
                     "Can't purchase negative victory points");
-        }
-    }
-
-    /**
-     * Fires specified bullet spread.  Assumes odd number of bullets to fire.
-     *
-     * @param centerDir direction the center bullet should travel
-     * @param toFire number of bullets to fire.
-     * @param spreadDegrees the spread in degrees at which the bullets should fire.
-     */
-    private void fireBulletSpread(Direction centerDir, int toFire, float spreadDegrees){
-        byte actionType;
-        switch (toFire){
-            default:
-                actionType = Action.FIRE;
-        }
-
-        int bulletsPerSide = (toFire - 1) / 2;
-
-        // Fire center bullet
-        int bulletID = gameWorld.spawnBullet(getTeam(), getType().bulletSpeed, getType().attackPower,
-                getLocation().add(centerDir, getType().bodyRadius + GameConstants.BULLET_SPAWN_OFFSET), centerDir, this.robot);
-        gameWorld.getMatchMaker().addAction(getID(), actionType, bulletID);
-
-        // Fire side bullets
-        for(int i = 1; i <= bulletsPerSide; i++){
-            // Fire left bullet
-            Direction dirLeft = centerDir.rotateLeftDegrees(i * spreadDegrees);
-            bulletID = gameWorld.spawnBullet(getTeam(), getType().bulletSpeed, getType().attackPower,
-                    getLocation().add(dirLeft, getType().bodyRadius + GameConstants.BULLET_SPAWN_OFFSET), dirLeft, this.robot);
-            gameWorld.getMatchMaker().addAction(getID(), actionType, bulletID);
-
-            // Fire right bullet
-            Direction dirRight = centerDir.rotateRightDegrees(i * spreadDegrees);
-            bulletID = gameWorld.spawnBullet(getTeam(), getType().bulletSpeed, getType().attackPower,
-                    getLocation().add(dirRight, getType().bodyRadius + GameConstants.BULLET_SPAWN_OFFSET), dirRight, this.robot);
-            gameWorld.getMatchMaker().addAction(getID(), actionType, bulletID);
         }
     }
 
@@ -595,29 +493,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
 
         gameWorld.getMatchMaker().addAction(getID(), Action.LUMBERJACK_STRIKE, -1);
-    }
-
-    @Override
-    public boolean canFireSingleShot() {
-        boolean correctType = getType() != RobotType.ARCHON && getType() != RobotType.GARDENER &&
-                getType() != RobotType.LUMBERJACK;
-        return correctType && haveBulletCosts(GameConstants.SINGLE_SHOT_COST) && !hasAttacked();
-    }
-
-    @Override
-    public void fireSingleShot(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertIsWeaponReady();
-        if(!canFireSingleShot()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "This robot cannot fire a single shot possibly due to wrong type or " +
-                            "insufficient funds");
-        }
-
-        this.robot.incrementAttackCount();
-
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.SINGLE_SHOT_COST);
-        fireBulletSpread(dir, 1, 0);
     }
 
     private boolean canInteractWithLocation(MapLocation loc){
@@ -695,9 +570,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean hasRobotBuildRequirements(RobotType type) {
         assertNotNull(type);
-        boolean hasBulletCosts = haveBulletCosts(type.bulletCost);
         boolean validBuilder = getType() == type.spawnSource;
-        return hasBulletCosts && validBuilder;
+        return validBuilder;
     }
 
     @Override
@@ -727,8 +601,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         this.robot.setBuildCooldownTurns(RobotType.GARDENER.buildCooldownTurns);
         
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -RobotType.GARDENER.bulletCost);
-
         float spawnDist = getType().bodyRadius +
                 GameConstants.GENERAL_SPAWN_OFFSET +
                 RobotType.GARDENER.bodyRadius;
@@ -746,8 +618,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         this.robot.setBuildCooldownTurns(type.buildCooldownTurns);
         
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -type.bulletCost);
-
         float spawnDist = getType().bodyRadius +
                 GameConstants.GENERAL_SPAWN_OFFSET +
                 type.bodyRadius;
@@ -765,16 +635,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public float getVictoryPointCost() {
         return GameConstants.VP_BASE_COST + GameConstants.VP_INCREASE_PER_ROUND * getRoundNum();
-    }
-
-    @Override
-    public void donate(float bullets) throws GameActionException{
-        assertNonNegative(bullets);
-        assertHaveBulletCosts(bullets);
-        int gainedVictorPoints = (int)Math.floor(bullets / getVictoryPointCost());
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -bullets);
-        gameWorld.getTeamInfo().adjustVictoryPoints(getTeam(), gainedVictorPoints);
-        gameWorld.setWinnerIfVictoryPoints();
     }
 
     @Override

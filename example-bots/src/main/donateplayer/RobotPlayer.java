@@ -79,71 +79,6 @@ public strictfp class RobotPlayer {
 
         Direction homeDir = randomDirection();
         int roundsAlive = 0;
-
-        // The code you want your robot to perform every round should be in this loop
-        while (true) {
-
-
-
-            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
-            try {
-                roundsAlive++;
-                if(roundsAlive < 20) {
-                    if(!tryMove(homeDir)) {
-                        homeDir = randomDirection();
-                    }
-                } else {
-
-
-                    // Plant ring of trees
-                    if(rc.getRoundNum() > 300) {
-                        for (int i = 0; i < 6; i++) {
-                            Direction testDir = Direction.getNorth().rotateLeftDegrees(60 * i);
-                            if (rc.canPlantTree(testDir)) {
-                                rc.plantTree(testDir);
-                                break;
-                            }
-                        }
-                    }
-
-                    // Water ring of trees
-                    TreeInfo[] nearbyTrees = rc.senseNearbyTrees(2);
-                    for (TreeInfo tree : nearbyTrees) {
-                        if (tree.health < 45 && rc.canWater(tree.getID())) {
-                            rc.water(tree.getID());
-                            break;
-                        }
-                    }
-                }
-                /*
-
-                // Listen for home archon's location
-                int xPos = rc.readBroadcast(0);
-                int yPos = rc.readBroadcast(1);
-                MapLocation archonLoc = new MapLocation(xPos,yPos);
-
-                // Generate a random direction
-                Direction dir = randomDirection();
-
-                // Randomly attempt to build a soldier or lumberjack in this direction
-                if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01) {
-                    rc.buildRobot(RobotType.SOLDIER, dir);
-                } else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady()) {
-                    rc.buildRobot(RobotType.LUMBERJACK, dir);
-                }
-
-                // Move randomly
-                tryMove(randomDirection());
-*/
-                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-                Clock.yield();
-
-
-            } catch (Exception e) {
-                System.out.println("Gardener Exception");
-                e.printStackTrace();
-            }
-        }
     }
 
     static void runSoldier() throws GameActionException {
@@ -159,15 +94,6 @@ public strictfp class RobotPlayer {
 
                 // See if there are any nearby enemy robots
                 RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
-
-                // If there are some...
-                if (robots.length > 0) {
-                    // And we have enough bullets, and haven't attacked yet this turn...
-                    if (rc.canFireSingleShot()) {
-                        // ...Then fire a bullet in the direction of the enemy.
-                        rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
-                    }
-                }
 
                 // Move randomly
                 tryMove(randomDirection());

@@ -50,9 +50,6 @@ public class RobotPlayer {
         while (true) {
             MapLocation core = getCore(rc);
 
-            TreeInfo[] nearbyTrees = rc.senseNearbyTrees(rc.getType().sensorRadius, rc.getTeam());
-            int nearbyTreeCount = nearbyTrees.length;
-            
             RobotInfo[] robots = rc.senseNearbyRobots(rc.getType().sensorRadius, rc.getTeam());
             boolean nearbySoldier = false;
 
@@ -68,18 +65,6 @@ public class RobotPlayer {
                         rc.buildRobot(RobotType.SOLDIER, dir);
                     }
                 }
-
-            if (nearbyTreeCount < 2 && rc.hasTreeBuildRequirements() && rc.isBuildReady())
-                for (int i = 0; i < 5; i++) {
-                    Direction dir = randDir();
-                    if (rc.canPlantTree(dir)) {
-                        rc.plantTree(dir);
-                    }
-                }
-
-            for (TreeInfo tree : nearbyTrees) {
-                rc.water(tree.getLocation());
-            }
             
             randMove(rc, core);
 
@@ -102,11 +87,6 @@ public class RobotPlayer {
             if (enemies.length > 0) {
                 dir = rc.getLocation().directionTo(enemies[0].getLocation());
                 cooldown = 5;
-
-                if (rc.canFirePentadShot()) {
-                    rc.firePentadShot(dir);
-                    moveCooldown = 2;
-                }
                 
             } else if (cooldown > 0 && moveCooldown <= 0) {
                 moveTowards(rc, dir);

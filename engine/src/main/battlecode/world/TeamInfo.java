@@ -19,9 +19,6 @@ public class TeamInfo {
     public TeamInfo(long[][] oldTeamMemory){
         this.teamMemory = new long[2][oldTeamMemory[0].length];
         this.oldTeamMemory = oldTeamMemory;
-
-        adjustBulletSupply(Team.A, GameConstants.BULLETS_INITIAL_AMOUNT);
-        adjustBulletSupply(Team.B, GameConstants.BULLETS_INITIAL_AMOUNT);
     }
 
     // *********************************

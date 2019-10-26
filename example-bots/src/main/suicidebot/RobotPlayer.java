@@ -56,11 +56,6 @@ public class RobotPlayer {
         Team enemy = rc.getTeam() == Team.A ? Team.B : Team.A;
         while (true) {
             RobotInfo[] robots = rc.senseNearbyRobots(100, enemy);
-            if (robots.length > 1) {
-                if (rc.getTeamBullets() > 1) {
-                    rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
-                }
-            }
             moveSuicide();
 
             Clock.yield();
