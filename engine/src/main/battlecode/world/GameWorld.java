@@ -376,8 +376,6 @@ public strictfp class GameWorld {
             matchMaker.addDied(ID,true);
         } else if (tree != null) {
             // If a there is a tree at this location, damage it.
-            tree.damageTree(damage,team,false);
-            matchMaker.addDied(ID,true);
         } else {
             // Else, nothing else exists where the bullet was spawned. Go ahead and add it to spatial index.
             objectInfo.spawnBullet(bullet, parent);
@@ -393,42 +391,6 @@ public strictfp class GameWorld {
     // *********************************
     // ****** DESTROYING ***************
     // *********************************
-
-    public void destroyTree(int id, Team destroyedBy, boolean fromChop){
-        InternalTree tree = objectInfo.getTreeByID(id);
-
-        // Only chopping can release goodies
-        if(fromChop) {
-            RobotType toSpawn = tree.getContainedRobot();
-            float containedBullets = tree.getContainedBullets();
-
-            // Spawn a robot if there was one in the tree
-            if (toSpawn != null && destroyedBy != Team.NEUTRAL && fromChop) {
-
-
-                //First, kill any scouts that would overlap with the new robot
-                InternalRobot[] overlappingBots = objectInfo.getAllRobotsWithinRadius(tree.getLocation(), toSpawn.bodyRadius);
-                for(InternalRobot bot : overlappingBots) {
-                    if(bot.getType() == RobotType.SCOUT) {
-                        this.destroyRobot(bot.getID());
-                    } else {
-                        // TODO: seems like we only hit this on floating point errors
-                        //throw new RuntimeException("The robot within the tree was overlapping with a non-scout robot");
-                    }
-                }
-
-                // Now spawn the new robot
-                this.spawnRobot(toSpawn, tree.getLocation(), destroyedBy);
-            }
-            if (containedBullets > 0 && fromChop) {
-                this.teamInfo.adjustBulletSupply(destroyedBy,containedBullets);
-            }
-        }
-
-        objectInfo.destroyTree(id);
-
-        matchMaker.addDied(id, false);
-    }
 
     public void destroyRobot(int id){
         InternalRobot robot = objectInfo.getRobotByID(id);

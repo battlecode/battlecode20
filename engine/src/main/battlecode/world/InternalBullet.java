@@ -143,7 +143,6 @@ public strictfp class InternalBullet implements InternalBody {
             if(hitTreeDist<hitRobotDist && hitTree != null) {
                 // And the closest thing hit was a tree...
                 gameWorld.destroyBullet(this.ID);
-                hitTree.damageTree(this.damage, this.team, false);
             } else  if (hitRobot != null){
                 /// And the closest thing hit was a robot...
                 gameWorld.destroyBullet(this.ID);

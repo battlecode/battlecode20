@@ -591,9 +591,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
                         closestTree = tree;
                     }
                 }
-                
-                // Damage the closest tree
-                closestTree.damageTree(GameConstants.TANK_BODY_DAMAGE, getTeam(), false);
             
                 // Now that damage has been done, refresh list of trees to see if it is still there
                 trees = gameWorld.getObjectInfo().getAllTreesWithinRadius(center, RobotType.TANK.bodyRadius);
@@ -697,11 +694,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             }
             hitRobot.damageRobot(getType().attackPower);
         }
-        // Hit adjacent trees
-        for(InternalTree hitTree :
-                gameWorld.getObjectInfo().getAllTreesWithinRadius(getLocation(), GameConstants.LUMBERJACK_STRIKE_RADIUS)){
-            hitTree.damageTree(getType().attackPower, getTeam(), false);
-        }
 
         gameWorld.getMatchMaker().addAction(getID(), Action.LUMBERJACK_STRIKE, -1);
     }
@@ -796,13 +788,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
-    private void assertCanShake() throws GameActionException{
-        if(!canShake()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robots can only shake one tree per turn");
-        }
-    }
-
     private void assertCanInteractWithTree(MapLocation treeLoc) throws GameActionException{
         if(!canInteractWithTree(treeLoc)){
             throw new GameActionException(CANT_DO_THAT,
@@ -824,92 +809,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Can't water a neutral tree.");
         }
-    }
-
-    @Override
-    public boolean canChop(MapLocation loc) {
-        boolean correctType = (getType() == RobotType.LUMBERJACK);
-        boolean canInteract = canInteractWithTree(loc);
-
-        return correctType && canInteract && !hasAttacked();
-    }
-
-    @Override
-    public boolean canChop(int id) {
-        boolean correctType = (getType() == RobotType.LUMBERJACK);
-        boolean canInteract = canInteractWithTree(id);
-
-        return correctType && canInteract && !hasAttacked();
-    }
-
-    @Override
-    public void chop(MapLocation loc) throws GameActionException {
-        if(getType() != RobotType.LUMBERJACK){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Only lumberjacks can chop");
-        }
-        assertNotNull(loc);
-        assertIsWeaponReady(); // Chop counts as attack
-        assertCanInteractWithTree(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        chopTree(tree);
-    }
-
-    @Override
-    public void chop(int id) throws GameActionException {
-        if(getType() != RobotType.LUMBERJACK){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Only lumberjacks can chop");
-        }
-        assertIsWeaponReady();  // Chop counts as attack
-        assertCanInteractWithTree(id);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        chopTree(tree);
-    }
-
-    private void chopTree(InternalTree tree){
-        this.robot.incrementAttackCount(); // Chopping counts as attack
-
-        float chopDamage = GameConstants.LUMBERJACK_CHOP_DAMAGE;
-
-        tree.damageTree(chopDamage, getTeam(), true);
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.CHOP, -1);
-    }
-
-    @Override
-    public boolean canShake(MapLocation loc) {
-        return canInteractWithTree(loc) && canShake();
-    }
-
-    @Override
-    public boolean canShake(int id) {
-        return canInteractWithTree(id) && canShake();
-    }
-
-    @Override
-    public void shake(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanShake();
-        assertCanInteractWithTree(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        shakeTree(tree);
-    }
-
-    @Override
-    public void shake(int id) throws GameActionException {
-        assertCanShake();
-        assertCanInteractWithTree(id);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        shakeTree(tree);
-    }
-
-    private void shakeTree(InternalTree tree){
-        this.robot.incrementShakeCount();
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), tree.getContainedBullets());
-        tree.resetContainedBullets();
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.SHAKE_TREE, tree.getID());
     }
 
     @Override
@@ -957,11 +856,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canWater(){
         boolean correctType = getType() == RobotType.GARDENER;
         return correctType && this.robot.getWaterCount() < 1;
-    }
-
-    @Override
-    public boolean canShake(){
-        return this.robot.getShakeCount() < 1;
     }
 
     @Override

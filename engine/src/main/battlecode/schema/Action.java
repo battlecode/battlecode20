@@ -28,16 +28,6 @@ public final class Action {
    */
   public static final byte FIRE_PENTAD = 2;
   /**
-   * Perform a lumberjack-chop.
-   * Target: none
-   */
-  public static final byte CHOP = 3;
-  /**
-   * Shake a tree.
-   * Target: tree
-   */
-  public static final byte SHAKE_TREE = 4;
-  /**
    * Plant a tree.
    * Target: tree
    */
@@ -73,7 +63,7 @@ public final class Action {
    */
   public static final byte LUMBERJACK_STRIKE = 11;
 
-  public static final String[] names = { "FIRE", "FIRE_TRIAD", "FIRE_PENTAD", "CHOP", "SHAKE_TREE", "PLANT_TREE", "WATER_TREE", "SPAWN_UNIT", "DIE_EXCEPTION", "DIE_SUICIDE", "DIE_KILLED", "LUMBERJACK_STRIKE", };
+  public static final String[] names = { "FIRE", "FIRE_TRIAD", "FIRE_PENTAD", "CHOP_TREE", "SHAKE_TREE", "PLANT_TREE", "WATER_TREE", "SPAWN_UNIT", "DIE_EXCEPTION", "DIE_SUICIDE", "DIE_KILLED", "LUMBERJACK_STRIKE", };
 
   public static String name(int e) { return names[e]; }
 }

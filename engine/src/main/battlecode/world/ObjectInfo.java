@@ -97,8 +97,6 @@ public strictfp class ObjectInfo {
     /**
      * Apply an operation for every tree.
      * Return false to stop iterating.
-     * If you call destroyTree() on a tree that hasn't been seen yet,
-     * that tree will be silently skipped.
      *
      * @param op a lambda (bullet) -> void
      */
@@ -291,15 +289,6 @@ public strictfp class ObjectInfo {
     // ****************************
     // *** DESTROYING OBJECTS *****
     // ****************************
-
-    public void destroyTree(int id){
-        InternalTree tree = getTreeByID(id);
-        decrementTreeCount(tree.getTeam());
-
-        MapLocation loc = tree.getLocation();
-        gameTreesByID.remove(id);
-        treeIndex.delete(fromPoint(loc),id);
-    }
 
     public void destroyRobot(int id){
         InternalRobot robot = getRobotByID(id);

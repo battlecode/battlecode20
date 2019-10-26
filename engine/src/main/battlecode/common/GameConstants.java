@@ -82,11 +82,6 @@ public interface GameConstants {
      *      maxHealth = NEUTRAL_TREE_HEALTH_RATE * treeRadius
      */
     float NEUTRAL_TREE_HEALTH_RATE = 200;
-
-    /**
-     * The chop damage when lumberjacks perform the chop action on a tree.
-     */
-    float LUMBERJACK_CHOP_DAMAGE = 5;
     
     /**
      * The damage a tank does to a tree when it attempts to move on top of it.
@@ -159,7 +154,7 @@ public interface GameConstants {
      */
     float GENERAL_SPAWN_OFFSET = .01f;
 
-    /** The distance around a robot's edge it can interact with robots/trees (water, shake, chop, etc) */
+    /** The distance around a robot's edge it can interact with robots/trees (water, etc) */
     float INTERACTION_DIST_FROM_EDGE = 1f;
 
     /** The amount of health a tree gains when watered. */

@@ -801,107 +801,6 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Tests whether the robot can chop a tree at the given location.
-     * Checks if the location is within {@link GameConstants#INTERACTION_DIST_FROM_EDGE},
-     * the robot's type, if a tree exists, and if the robot hasn't attacked this turn.
-     *
-     * @param loc The location of the tree to chop
-     * @return true if this robot can chop the tree; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canChop(MapLocation loc);
-
-    /**
-     * Tests whether the robot can chop a tree with the given ID. Checks if the tree is within
-     * {@link GameConstants#INTERACTION_DIST_FROM_EDGE}, the robot's type,
-     * if a tree exists, and if the robot hasn't attacked this turn.
-     *
-     * @param id The ID of the tree to chop
-     * @return true if this robot can chop the tree; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canChop(int id);
-
-    /**
-     * Chops the tree at the given location. This action counts as an attack.
-     *
-     * @param loc the location of the tree to chop
-     * @throws GameActionException if the given location does not contain
-     * a tree, the specified tree is not within {@link GameConstants#INTERACTION_DIST_FROM_EDGE}
-     * of this robot, this robot is not of type LUMBERJACK, or this robot has already attacked
-     * this turn.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void chop(MapLocation loc) throws GameActionException;
-
-    /**
-     * Chops the tree with the given ID. This action counts as an attack.
-     *
-     * @param id the ID of the tree you wish to chop
-     * @throws GameActionException if there isn't a tree with the given id,
-     * the specified tree is not within one stride of this robot, this robot
-     * is not of type LUMBERJACK, or this robot has already attacked this turn.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void chop(int id) throws GameActionException;
-
-    /**
-     * Tests whether this robot can shake a tree at the given location. Checks
-     * if the tree is within {@link GameConstants#INTERACTION_DIST_FROM_EDGE},
-     * if a tree exists, and if the robot hasn't shaken this turn.
-     *
-     * @param loc The location of the tree to shake
-     * @return true if this robot can shake the tree; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canShake(MapLocation loc);
-
-    /**
-     * Tests whether this robot can shake a tree with the given ID. Checks if the
-     * tree is within {@link GameConstants#INTERACTION_DIST_FROM_EDGE},
-     * if a tree exists, and if the robot hasn't shaken this turn.
-     *
-     * @param id The ID of the tree to shake
-     * @return true if this robot can shake the tree; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canShake(int id);
-
-    /**
-     * Shakes the tree at the given location for all the bullets held within
-     * the tree; these bullets will be added to your team's bullet supply.
-     * Robots can only shake once per turn.
-     *
-     * @param loc the location of the tree to shake
-     * @throws GameActionException if the given location does not contain
-     * a tree, if the tree (not location) is not within {@link GameConstants#INTERACTION_DIST_FROM_EDGE}
-     * of this robot, or if this robot has already shaken a tree this turn.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void shake(MapLocation loc) throws GameActionException;
-
-    /**
-     * Shakes the tree with the given ID for all the bullets held within
-     * the tree; these bullets will be added to your team's bullet supply.
-     * Robots can only shake once per turn.
-     *
-     * @param id the ID of the tree to shake
-     * @throws GameActionException if there isn't a tree with the given id,
-     * if the tree (not location) is not within one stride of this robot,
-     * or if this robot has already shaken a tree this turn
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void shake(int id) throws GameActionException;
-
-    /**
      * Tests whether this robot can water a tree at the given location. Checks robot
      * stride radius, the robot's type, if a tree exists, and if the robot hasn't
      * watered this turn.
@@ -969,19 +868,9 @@ public strictfp interface RobotController {
     boolean canWater();
 
     /**
-     * Tests whether this robot can shake a tree, taking into
-     * account how many times this robot has shaken this turn.
-     *
-     * @return true if this robot can shake a tree; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canShake();
-
-    /**
      * Tests whether there is a tree at the given location and, if so,
      * if the tree is within one stride of this robot and can therefore be
-     * interacted with through chop(), shake(), or water().
+     * interacted with through or water().
      *
      * @param loc the location you wish to test
      * @return true if there is a tree located at loc and if said tree is
@@ -994,7 +883,7 @@ public strictfp interface RobotController {
     /**
      * Tests whether there is a tree with the given ID and, if so,
      * if the tree is within one stride of this robot and can therefore be
-     * interacted with through chop(), shake(), or water().
+     * interacted with through or water().
      *
      * @param id the ID of the tree you wish to test
      * @return true if there is a tree with id and if said tree is
