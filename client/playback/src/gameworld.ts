@@ -10,7 +10,7 @@ export type DiedBodiesSchema = {
   id: Int32Array,
   x: Float32Array,
   y: Float32Array,
-  radius: Float32Array
+  // radius: Float32Array
 }
 
 export type BodiesSchema = {
@@ -19,29 +19,29 @@ export type BodiesSchema = {
   type: Int8Array,
   x: Float32Array,
   y: Float32Array,
-  health: Float32Array,
-  radius: Float32Array,
-  maxHealth: Float32Array,
+  // health: Float32Array,
+  // radius: Float32Array,
+  // maxHealth: Float32Array,
   bytecodesUsed: Int32Array, // Only relevant for non-neutral bodies
-  containedBullets: Int32Array, // Only relevant for neutral trees
-  containedBody: Int8Array // Only relevant for neutral trees
+  // containedBullets: Int32Array, // Only relevant for neutral trees
+  // containedBody: Int8Array // Only relevant for neutral trees
 };
 
-export type BulletsSchema = {
-  id: Int32Array,
-  x: Float32Array,
-  y: Float32Array,
-  velX: Float32Array,
-  velY: Float32Array,
-  damage: Float32Array,
-  spawnedTime: Uint16Array
-};
+// export type BulletsSchema = {
+//   id: Int32Array,
+//   x: Float32Array,
+//   y: Float32Array,
+//   velX: Float32Array,
+//   velY: Float32Array,
+//   damage: Float32Array,
+//   spawnedTime: Uint16Array
+// };
 
 // An array of numbers corresponding to team stats, which map to RobotTypes
 
 export type TeamStats = {
-  bullets: number,
-  vps: number,
+  // bullets: number,
+  // vps: number,
   robots: [number, number, number, number, number, number, number] // Corresponds to robot type and bullet tree (length 7)
 };
 
@@ -75,9 +75,8 @@ export default class GameWorld {
    * Bodies that died this round.
    * {
    *   id: Int32Array,
-   *   x: Float32Array,
-   *   y: Float32Array,
-   *   radius: Float32Array
+   *   x: Int32Array,
+   *   y: Int32Array,
    * }
    */
   diedBodies: StructOfArrays<DiedBodiesSchema>;
@@ -88,20 +87,15 @@ export default class GameWorld {
    *   id: Int32Array,
    *   team: Int8Array,
    *   type: Int8Array,
-   *   x: Float32Array,
-   *   y: Float32Array,
-   *   health: Float32Array,
-   *   radius: Float32Array,
-   *   maxHealth: Float32Array,
+   *   x: Int32Array,
+   *   y: Int32Array,
    *   bytecodesUsed: Int32Array,
-   *   containedBullets: Float32Array,
-   *   containedBody: Int8Array
    * }
    */
   bodies: StructOfArrays<BodiesSchema>;
 
   /*
-   * Bullets.
+   * Bullets. (Not used in 2019)
    * {
    *   id: Int32Array,
    *   x: Float32Array,
@@ -112,7 +106,7 @@ export default class GameWorld {
    *   spawnedTime: Uint16Array
    * }, 'id', capacity)
    */
-  bullets: StructOfArrays<BulletsSchema>;
+  // bullets: StructOfArrays<BulletsSchema>;
 
   /*
    * Stats for each team
@@ -176,7 +170,7 @@ export default class GameWorld {
   // We pass these into flatbuffers functions to avoid allocations, but that's
   // it, they don't hold any state
   private _bodiesSlot: schema.SpawnedBodyTable;
-  private _bulletsSlot: schema.SpawnedBulletTable;
+  // private _bulletsSlot: schema.SpawnedBulletTable;
   private _vecTableSlot1: schema.VecTable;
   private _vecTableSlot2: schema.VecTable;
   private _rgbTableSlot: schema.RGBTable;
@@ -186,44 +180,44 @@ export default class GameWorld {
 
     this.diedBodies = new StructOfArrays({
       id: new Int32Array(0),
-      x: new Float32Array(0),
-      y: new Float32Array(0),
-      radius: new Float32Array(0)
+      x: new Int32Array(0),
+      y: new Int32Array(0),
+      // radius: new Float32Array(0)
     }, 'id');
 
     this.bodies = new StructOfArrays({
       id: new Int32Array(0),
       team: new Int8Array(0),
       type: new Int8Array(0),
-      x: new Float32Array(0),
-      y: new Float32Array(0),
-      health: new Float32Array(0),
-      radius: new Float32Array(0),
-      maxHealth: new Float32Array(0),
+      x: new Int32Array(0),
+      y: new Int32Array(0),
+      // health: new Float32Array(0),
+      // radius: new Float32Array(0),
+      // maxHealth: new Float32Array(0),
       bytecodesUsed: new Int32Array(0),
-      containedBullets: new Int32Array(0),
-      containedBody: new Int8Array(0)
+      // containedBullets: new Int32Array(0),
+      // containedBody: new Int8Array(0)
     }, 'id');
 
-    this.bullets = new StructOfArrays({
-      id: new Int32Array(0),
-      x: new Float32Array(0),
-      y: new Float32Array(0),
-      velX: new Float32Array(0),
-      velY: new Float32Array(0),
-      spawnedTime: new Uint16Array(0),
-      damage: new Float32Array(0)
-    }, 'id');
+    // this.bullets = new StructOfArrays({
+    //   id: new Int32Array(0),
+    //   x: new Float32Array(0),
+    //   y: new Float32Array(0),
+    //   velX: new Float32Array(0),
+    //   velY: new Float32Array(0),
+    //   spawnedTime: new Uint16Array(0),
+    //   damage: new Float32Array(0)
+    // }, 'id');
 
     // Instantiate stats
     this.stats = new Map<number, TeamStats>();
     for (let team in this.meta.teams) {
         var teamID = this.meta.teams[team].teamID;
         this.stats.set(teamID, {
-          bullets: 0,
-          vps: 0,
+          // bullets: 0,
+          // vps: 0,
           robots: [
-            0, // ARCHONS
+            0, // ARCHONS (TODO)
             0, // GARDENERS
             0, // LUMBERJACKS
             0, // SOLDIERS
@@ -259,7 +253,7 @@ export default class GameWorld {
     this.mapName = '????';
 
     this._bodiesSlot = new schema.SpawnedBodyTable()
-    this._bulletsSlot = new schema.SpawnedBulletTable()
+    // this._bulletsSlot = new schema.SpawnedBulletTable()
     this._vecTableSlot1 = new schema.VecTable();
     this._vecTableSlot2 = new schema.VecTable();
     this._rgbTableSlot = new schema.RGBTable();
@@ -271,10 +265,10 @@ export default class GameWorld {
     if (bodies) {
       this.insertBodies(bodies);
     }
-    const trees = map.trees();
-    if (trees) {
-      this.insertTrees(map.trees());
-    }
+    // const trees = map.trees();
+    // if (trees) {
+    //   this.insertTrees(map.trees());
+    // }
     const minCorner = map.minCorner();
     this.minCorner.x = minCorner.x();
     this.minCorner.y = minCorner.y();
@@ -303,7 +297,7 @@ export default class GameWorld {
     this.mapName = source.mapName;
     this.diedBodies.copyFrom(source.diedBodies);
     this.bodies.copyFrom(source.bodies);
-    this.bullets.copyFrom(source.bullets);
+    // this.bullets.copyFrom(source.bullets);
     this.indicatorDots.copyFrom(source.indicatorDots);
     this.indicatorLines.copyFrom(source.indicatorLines);
     this.stats = new Map<number, TeamStats>();
@@ -325,8 +319,8 @@ export default class GameWorld {
         var teamID = delta.teamIDsArray()[i];
         var statObj = this.stats.get(teamID);
 
-        statObj.bullets = delta.teamBullets(i);
-        statObj.vps = delta.teamVictoryPoints(i);
+        // statObj.bullets = delta.teamBullets(i);
+        // statObj.vps = delta.teamVictoryPoints(i);
 
         this.stats.set(teamID, statObj);
     }
@@ -341,18 +335,18 @@ export default class GameWorld {
     }
 
     // Simulate spawning
-    const bullets = delta.spawnedBullets(this._bulletsSlot);
-    if (bullets) {
-      this.insertBullets(bullets);
-    }
+    // const bullets = delta.spawnedBullets(this._bulletsSlot);
+    // if (bullets) {
+      // this.insertBullets(bullets);
+    // }
 
     // Simulate changed health levels
-    if (delta.healthChangedIDsLength() > 0) {
-      this.bodies.alterBulk({
-        id: delta.healthChangedIDsArray(),
-        health: delta.healthChangeLevelsArray()
-      });
-    }
+    // if (delta.healthChangedIDsLength() > 0) {
+    //   this.bodies.alterBulk({
+    //     id: delta.healthChangedIDsArray(),
+    //     health: delta.healthChangeLevelsArray()
+    //   });
+    // }
 
     // Simulate movement
     const movedLocs = delta.movedLocs(this._vecTableSlot1);
@@ -365,15 +359,15 @@ export default class GameWorld {
     }
 
     // Simulate actions
-    const containedBullets = this.bodies.arrays.containedBullets;
-    delta.actionsArray().forEach((action: schema.Action, index: number) => {
-      if (action === schema.Action.SHAKE_TREE) {
-        this.bodies.alter({
-          id: delta.actionTargetsArray()[index],
-          containedBullets: 0
-        })
-      }
-    });
+    // const containedBullets = this.bodies.arrays.containedBullets;
+    // delta.actionsArray().forEach((action: schema.Action, index: number) => {
+    //   if (action === schema.Action.SHAKE_TREE) {
+    //     this.bodies.alter({
+    //       id: delta.actionTargetsArray()[index],
+    //       containedBullets: 0
+    //     })Int
+    //   }
+    // });
 
     // Update bytecode costs
     if (delta.bytecodeIDsLength() > 0) {
@@ -404,9 +398,9 @@ export default class GameWorld {
       this.bodies.deleteBulk(delta.diedIDsArray());
 
     }
-    if (delta.diedBulletIDsLength() > 0) {
-      this.bullets.deleteBulk(delta.diedBulletIDsArray());
-    }
+    // if (delta.diedBulletIDsLength() > 0) {
+    //   this.bullets.deleteBulk(delta.diedBulletIDsArray());
+    // }
 
     // Insert indicator dots and lines
     this.insertIndicatorDots(delta);
@@ -427,12 +421,12 @@ export default class GameWorld {
     const idArray = this.diedBodies.arrays.id;
     const xArray = this.diedBodies.arrays.x;
     const yArray = this.diedBodies.arrays.y;
-    const radiusArray = this.diedBodies.arrays.radius;
+    // const radiusArray = this.diedBodies.arrays.radius;
     for (let i = startIndex; i < endIndex; i++) {
       const body = this.bodies.lookup(idArray[i]);
       xArray[i] = body.x;
       yArray[i] = body.y;
-      radiusArray[i] = body.radius;
+      // radiusArray[i] = body.radius;
     }
   }
 
@@ -506,16 +500,16 @@ export default class GameWorld {
     // Extra initialization
     const endIndex = startIndex + bodies.robotIDsLength();
     const typeArray = this.bodies.arrays.type;
-    const radiusArray = this.bodies.arrays.radius;
-    const healthArray = this.bodies.arrays.health;
-    const maxHealthArray = this.bodies.arrays.maxHealth;
-    for (let i = startIndex; i < endIndex; i++) {
-      const type = typeArray[i];
-      const typeInfo = this.meta.types[type];
-      radiusArray[i] = typeInfo.radius;
-      healthArray[i] = typeInfo.startHealth;
-      maxHealthArray[i] = typeInfo.maxHealth;
-    }
+    // const radiusArray = this.bodies.arrays.radius;
+    // const healthArray = this.bodies.arrays.health;
+    // const maxHealthArray = this.bodies.arrays.maxHealth;
+    // for (let i = startIndex; i < endIndex; i++) {
+    //   const type = typeArray[i];
+    //   const typeInfo = this.meta.types[type];
+    //   radiusArray[i] = typeInfo.radius;
+    //   healthArray[i] = typeInfo.startHealth;
+    //   maxHealthArray[i] = typeInfo.maxHealth;
+    // }
     StructOfArrays.fill(
       this.bodies.arrays.bytecodesUsed,
       0,
@@ -536,58 +530,58 @@ export default class GameWorld {
     );
   }
 
-  private insertBullets(bullets: schema.SpawnedBulletTable) {
-    const locs = bullets.locs(this._vecTableSlot1);
-    const vels = bullets.vels(this._vecTableSlot2);
+  // private insertBullets(bullets: schema.SpawnedBulletTable) {
+  //   const locs = bullets.locs(this._vecTableSlot1);
+  //   const vels = bullets.vels(this._vecTableSlot2);
 
-    const startI = this.bullets.insertBulk({
-      id: bullets.robotIDsArray(),
-      x: locs.xsArray(),
-      y: locs.ysArray(),
-      velX: vels.xsArray(),
-      velY: vels.ysArray(),
-      damage: bullets.damagesArray(),
-    });
+  //   const startI = this.bullets.insertBulk({
+  //     id: bullets.robotIDsArray(),
+  //     x: locs.xsArray(),
+  //     y: locs.ysArray(),
+  //     velX: vels.xsArray(),
+  //     velY: vels.ysArray(),
+  //     damage: bullets.damagesArray(),
+  //   });
 
-    // There may be an off-by-one error here but I think this is right
-    StructOfArrays.fill(this.bullets.arrays.spawnedTime, this.turn, startI, this.bullets.length);
-  }
+  //   // There may be an off-by-one error here but I think this is right
+  //   StructOfArrays.fill(this.bullets.arrays.spawnedTime, this.turn, startI, this.bullets.length);
+  // }
 
-  private insertTrees(trees: schema.NeutralTreeTable) {
-    const locs = trees.locs(this._vecTableSlot1);
+  // private insertTrees(trees: schema.NeutralTreeTable) {
+  //   const locs = trees.locs(this._vecTableSlot1);
 
-    const startI = this.bodies.insertBulk({
-      id: trees.robotIDsArray(),
-      radius: trees.radiiArray(),
-      health: trees.healthsArray(),
-      x: locs.xsArray(),
-      y: locs.ysArray(),
-      maxHealth: trees.maxHealthsArray(),
-      containedBullets: trees.containedBulletsArray(),
-      containedBody: trees.containedBodiesArray()
-    });
+  //   const startI = this.bodies.insertBulk({
+  //     id: trees.robotIDsArray(),
+  //     radius: trees.radiiArray(),
+  //     health: trees.healthsArray(),
+  //     x: locs.xsArray(),
+  //     y: locs.ysArray(),
+  //     maxHealth: trees.maxHealthsArray(),
+  //     containedBullets: trees.containedBulletsArray(),
+  //     containedBody: trees.containedBodiesArray()
+  //   });
 
-    StructOfArrays.fill(
-      this.bodies.arrays.bytecodesUsed,
-      0,
-      startI,
-      this.bodies.length
-    );
+  //   StructOfArrays.fill(
+  //     this.bodies.arrays.bytecodesUsed,
+  //     0,
+  //     startI,
+  //     this.bodies.length
+  //   );
 
-    StructOfArrays.fill(
-      this.bodies.arrays.team,
-      NEUTRAL_TEAM,
-      startI,
-      this.bodies.length
-    );
+  //   StructOfArrays.fill(
+  //     this.bodies.arrays.team,
+  //     NEUTRAL_TEAM,
+  //     startI,
+  //     this.bodies.length
+  //   );
 
-    StructOfArrays.fill(
-      this.bodies.arrays.type,
-      schema.BodyType.TREE_NEUTRAL,
-      startI,
-      this.bodies.length
-    );
-  }
+  //   StructOfArrays.fill(
+  //     this.bodies.arrays.type,
+  //     schema.BodyType.TREE_NEUTRAL,
+  //     startI,
+  //     this.bodies.length
+  //   );
+  // }
 
 }
 

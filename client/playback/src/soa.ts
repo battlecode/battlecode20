@@ -517,7 +517,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
 }
 
 /**
- * An object corresponding to a  row in the database.
+ * An object corresponding to a row in the database.
  */
 export type Row<Schema> = {[P in keyof Schema]: number};
 

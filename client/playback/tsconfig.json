@@ -4,12 +4,16 @@
     "moduleResolution": "node",
     "outDir": "out",
     "target": "es6",
-    // "strictNullChecks": true,
     "declaration": true,
+    "strict": false,
+    "strictNullChecks": false,
     "lib": [ "es2016", "dom" ],
     "noStrictGenericChecks": true,
-    "noImplicitUseStrict": true
+    "noImplicitUseStrict": true,
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
     "out",
