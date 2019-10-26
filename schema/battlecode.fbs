@@ -5,14 +5,12 @@ namespace battlecode.schema;
 struct Vec {
     x: int = 0;
     y: int = 0;
-    z: int = 0;
 }
 
 /// A table of vectors.
 table VecTable {
     xs: [int];
     ys: [int];
-    zs: [int];
 }
 
 /// A table of RGB values.
@@ -46,7 +44,10 @@ enum BodyType : byte {
     /// Design schools create landscapers.
     DESIGN_SCHOOL,
     /// Fulfillment centers create drones.
-    FULFILLMENT_CENTER
+    FULFILLMENT_CENTER,
+    /// Indicates that there is no body.
+    /// May only appear in the containedBodies field of NeutralTreeTable.
+    NONE
 }
 
 /// A list of new bodies to be placed on the map.
@@ -311,4 +312,3 @@ table GameWrapper {
     /// The indices of the footers of the matches, in order.
     matchFooters: [int];
 }
-
