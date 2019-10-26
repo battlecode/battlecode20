@@ -12,8 +12,6 @@ public class TeamInfo {
     private final long[][] teamMemory;
     private final long[][] oldTeamMemory;
 
-    private int[] teamVictoryPoints = new int[3];
-
     public TeamInfo(long[][] oldTeamMemory){
         this.teamMemory = new long[2][oldTeamMemory[0].length];
         this.oldTeamMemory = oldTeamMemory;
@@ -31,17 +29,9 @@ public class TeamInfo {
         return oldTeamMemory;
     }
 
-    public int getVictoryPoints(Team t) {
-        return teamVictoryPoints[t.ordinal()];
-    }
-
     // *********************************
     // ***** UPDATE METHODS ************
     // *********************************
-
-    public void adjustVictoryPoints(Team t, int amount) {
-        teamVictoryPoints[t.ordinal()] += amount;
-    }
 
     public void setTeamMemory(Team t, int index, long state) {
         teamMemory[t.ordinal()][index] = state;

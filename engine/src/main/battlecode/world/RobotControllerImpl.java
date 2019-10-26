@@ -84,16 +84,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public int getTeamVictoryPoints(){
-        return gameWorld.getTeamInfo().getVictoryPoints(getTeam());
-    }
-
-    @Override
-    public int getOpponentVictoryPoints() {
-        return gameWorld.getTeamInfo().getVictoryPoints(getTeam().opponent());
-    }
-
-    @Override
     public int getRobotCount(){
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
@@ -569,10 +559,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** OTHER ACTION METHODS *******
     // ***********************************
 
-    @Override
-    public float getVictoryPointCost() {
-        return GameConstants.VP_BASE_COST + GameConstants.VP_INCREASE_PER_ROUND * getRoundNum();
-    }
 
     @Override
     public void disintegrate(){
