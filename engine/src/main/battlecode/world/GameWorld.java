@@ -31,9 +31,6 @@ public strictfp class GameWorld {
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
 
-    private RobotInfo[] previousBroadcasters;
-    private TIntObjectHashMap<RobotInfo> currentBroadcasters;
-
     private final RobotControlProvider controlProvider;
     private Random rand;
 
@@ -50,9 +47,6 @@ public strictfp class GameWorld {
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
         this.teamInfo = new TeamInfo(oldTeamMemory);
-
-        this.previousBroadcasters = new RobotInfo[0];
-        this.currentBroadcasters = new TIntObjectHashMap<>();
 
         this.controlProvider = cp;
 
@@ -185,9 +179,6 @@ public strictfp class GameWorld {
         // Increment round counter
         currentRound++;
 
-        // Update broadcast data
-        updateBroadCastData();
-
         // Process beginning of each robot's round
         objectInfo.eachRobot((robot) -> {
             robot.processBeginningOfRound();
@@ -287,28 +278,6 @@ public strictfp class GameWorld {
         setWinnerIfDestruction();
 
         matchMaker.addDied(id, false);
-    }
-
-    // *********************************
-    // ****** BROADCASTING *************
-    // *********************************
-
-    private void updateBroadCastData(){
-        this.previousBroadcasters = this.currentBroadcasters.values(
-                new RobotInfo[this.currentBroadcasters.size()]
-        );
-        this.currentBroadcasters.clear();
-    }
-
-    public void addBroadcaster(RobotInfo robot){
-        this.currentBroadcasters.put(robot.ID, robot);
-    }
-
-    /**
-     * Don't mutate this.
-     */
-    public RobotInfo[] getPreviousBroadcasters(){
-        return this.previousBroadcasters;
     }
 
 }
