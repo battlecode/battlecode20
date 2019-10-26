@@ -117,19 +117,10 @@ public strictfp class InternalBullet implements InternalBody {
         }
 
         if(hitRobot == null) {
-            // If bullet didn't hit anything...
-            if (!gameMap.onTheMap(bulletFinish)) {
-                /// ...and went off the map, destroy it.
-                gameWorld.destroyBullet(this.ID);
-            } else {
-                // ... and stayed on the map, keep it going.
-                setLocation(bulletFinish);
-            }
         } else {
             // If the bullet hit something...
             if (hitRobot != null){
                 /// And the closest thing hit was a robot...
-                gameWorld.destroyBullet(this.ID);
                 hitRobot.damageRobot(this.damage);
             } else {
                 // This should never happen

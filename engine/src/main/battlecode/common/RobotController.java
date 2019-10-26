@@ -35,15 +35,6 @@ public strictfp interface RobotController {
     int getRoundNum();
 
     /**
-     * Returns the team's total bullet supply.
-     *
-     * @return the team's total bullet supply.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    float getTeamBullets();
-
-    /**
      * Returns the team's total victory points.
      *
      * @return the team's total victory points.
@@ -183,16 +174,6 @@ public strictfp interface RobotController {
     boolean onTheMap(MapLocation center, float radius) throws GameActionException;
 
     /**
-     * Senses whether the given location is within the robot's bullet sense range.
-     *
-     * @param loc the location to check
-     * @return true if the given location is within the robot's bullet sense range, false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canSenseBulletLocation(MapLocation loc);
-
-    /**
      * Senses whether the given location is within the robot's sensor range.
      *
      * @param loc the location to check
@@ -305,17 +286,6 @@ public strictfp interface RobotController {
     boolean canSenseRobot(int id);
 
     /**
-     * Tests the given bullet exists and it is within this robot's
-     * sensor range.
-     *
-     * @param id the ID of the bullet to query
-     * @return true if the given bullet is within this robot's sensor range; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canSenseBullet(int id);
-
-    /**
      * Senses information about a particular robot given its ID.
      *
      * @param id the ID of the robot to query
@@ -326,18 +296,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     RobotInfo senseRobot(int id) throws GameActionException;
-
-    /**
-     * Senses information about a particular bullet given its ID.
-     *
-     * @param id the ID of the bullet to query
-     * @return a BulletInfo object for the sensed bullet.
-     * @throws GameActionException if the bullet cannot be sensed (for example,
-     * if it doesn't exist or is out of sight range).
-     *
-     * @battlecode.doc.costlymethod
-     */
-    BulletInfo senseBullet(int id) throws GameActionException;
 
     /**
      * Returns all robots within sense radius. The objects are returned in order of
@@ -393,44 +351,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     RobotInfo[] senseNearbyRobots(MapLocation center, float radius, Team team);
-
-    /**
-     * Returns all bullets within bullet sense radius. The objects are returned in 
-     * order of increasing distance from your robot.
-     *
-     * @return sorted array of BulletInfo objects, which contain information about all
-     * the bullets you sensed.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    BulletInfo[] senseNearbyBullets();
-
-    /**
-     * Returns all bullets that can be sensed within a certain radius of this
-     * robot. The objects are returned in order of increasing distance from
-     * your robot.
-     *
-     * @param radius return bullets this distance away from the center of
-     * this robot. If -1 is passed, bullets from the whole map are returned
-     * @return sorted array of BulletInfo objects of all the bullets you sensed.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    BulletInfo[] senseNearbyBullets(float radius);
-
-    /**
-     * Returns all bullets that can be sensed within a certain
-     * radius of a specified location. The objects are returned in order of
-     * increasing distance from the specified center.
-     *
-     * @param center center of the given search radius
-     * @param radius return bullets this distance away from the given center
-     * location. If -1 is passed, all bullets within bullet sense radius are returned
-     * @return sorted array of ? objects of the bullets you sensed.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    BulletInfo[] senseNearbyBullets(MapLocation center, float radius);
 
     /**
      * Returns an array of all the locations of the robots that have
@@ -787,20 +707,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     float getVictoryPointCost();
-
-    /**
-     * Donates the given amount of bullets to the reforestation fund in
-     * exchange for one victory point per ten bullets donated.  Note there
-     * are no fractions of victory points, meaning, for example, donating
-     * 11 bullets will only result in 1 victory point, not 1.1 victory points.
-     *
-     * @param bullets the amount of bullets you wish to donate
-     * @throws GameActionException if you have less bullets in your bullet
-     * supply than the amount of bullet you wish to donate.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void donate(float bullets) throws GameActionException;
 
     /**
      * Kills your robot and ends the current round. Never fails.

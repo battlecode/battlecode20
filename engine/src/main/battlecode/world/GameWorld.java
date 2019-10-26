@@ -25,7 +25,6 @@ public strictfp class GameWorld {
     protected boolean running = true;
 
     protected final IDGenerator idGenerator;
-    protected final IDGenerator bulletIdGenerator;
     protected final GameStats gameStats;
 
     private final LiveMap gameMap;
@@ -46,8 +45,6 @@ public strictfp class GameWorld {
 
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
-        this.bulletIdGenerator = new IDGenerator(gm.getSeed());
-        this.bulletIdGenerator.setStart(GameConstants.MAX_ROBOT_ID+1);
         this.gameStats = new GameStats();
 
         this.gameMap = gm;
@@ -116,9 +113,8 @@ public strictfp class GameWorld {
         objectInfo.eachDynamicBodyByExecOrder((body) -> {
             if (body instanceof InternalRobot) {
                 return updateRobot((InternalRobot) body);
-            } else if (body instanceof InternalBullet) {
-                return updateBullet((InternalBullet) body);
-            } else {
+            }
+            else {
                 throw new RuntimeException("non-robot non-bullet body registered as dynamic");
             }
         });
@@ -138,11 +134,6 @@ public strictfp class GameWorld {
         if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null) {
             destroyRobot(robot.getID());
         }
-        return true;
-    }
-
-    private boolean updateBullet(InternalBullet bullet) {
-        bullet.updateBullet();
         return true;
     }
 
@@ -236,12 +227,6 @@ public strictfp class GameWorld {
             return true;
         });
 
-        // Add the round bullet income
-        teamInfo.adjustBulletSupply(Team.A, Math.max(0, GameConstants.ARCHON_BULLET_INCOME -
-                GameConstants.BULLET_INCOME_UNIT_PENALTY * teamInfo.getBulletSupply(Team.A)));
-        teamInfo.adjustBulletSupply(Team.B, Math.max(0, GameConstants.ARCHON_BULLET_INCOME -
-                GameConstants.BULLET_INCOME_UNIT_PENALTY * teamInfo.getBulletSupply(Team.B)));
-
         // Check for end of match
         if (timeLimitReached() && gameStats.getWinner() == null) {
             boolean victorDetermined = false;
@@ -256,28 +241,6 @@ public strictfp class GameWorld {
             int bestRobotID = Integer.MIN_VALUE;
             Team bestRobotTeam = null;
 
-            // tiebreak by total bullets
-            if(!victorDetermined){
-                float totalBulletSupplyA = teamInfo.getBulletSupply(Team.A);
-                float totalBulletSupplyB = teamInfo.getBulletSupply(Team.B);
-                for(InternalRobot robot : objectInfo.robots()){
-                    if(robot.getID() > bestRobotID){
-                        bestRobotID = robot.getID();
-                        bestRobotTeam = robot.getTeam();
-                    }
-                    if(robot.getTeam() == Team.A){
-                        totalBulletSupplyA += robot.getType().bulletCost;
-                    }else{
-                        totalBulletSupplyB += robot.getType().bulletCost;
-                    }
-                }
-                if(totalBulletSupplyA != totalBulletSupplyB){
-                    setWinner(totalBulletSupplyA > totalBulletSupplyB ? Team.A : Team.B,
-                            DominationFactor.BARELY_BEAT);
-                    victorDetermined = true;
-                }
-            }
-
             // tiebreak by robot id
             if(!victorDetermined){
                 setWinner(bestRobotTeam, DominationFactor.WON_BY_DUBIOUS_REASONS);
@@ -285,8 +248,8 @@ public strictfp class GameWorld {
         }
 
         // update the round statistics
-        matchMaker.addTeamStat(Team.A,teamInfo.getBulletSupply(Team.A), teamInfo.getVictoryPoints(Team.A));
-        matchMaker.addTeamStat(Team.B, teamInfo.getBulletSupply(Team.B), teamInfo.getVictoryPoints(Team.B));
+        matchMaker.addTeamStat(Team.A, 0, teamInfo.getVictoryPoints(Team.A));
+        matchMaker.addTeamStat(Team.B, 0, teamInfo.getVictoryPoints(Team.B));
 
         if (gameStats.getWinner() != null) {
             running = false;
@@ -311,31 +274,6 @@ public strictfp class GameWorld {
         return spawnRobot(ID, type, location, team);
     }
 
-    public int spawnBullet(int ID, Team team, float speed, float damage, MapLocation location, Direction direction, InternalRobot parent){
-        InternalBullet bullet = new InternalBullet(
-                this, ID, team, speed, damage, location, direction);
-
-        matchMaker.addSpawnedBullet(bullet); // Even if the bullet will die this turn, make sure information about it is saved in the match file
-
-        // Check for collisions in the spot the bullet is being spawned
-        InternalRobot bot = this.objectInfo.getRobotAtLocation(location);
-
-        if(bot != null) {
-            // If a there is a bot at this location, damage it.
-            bot.damageRobot(damage);
-            matchMaker.addDied(ID,true);
-        } else {
-            // Else, nothing else exists where the bullet was spawned. Go ahead and add it to spatial index.
-            objectInfo.spawnBullet(bullet, parent);
-        }
-        return ID;
-    }
-
-    public int spawnBullet(Team team, float speed, float damage, MapLocation location, Direction direction, InternalRobot parent){
-        int ID = bulletIdGenerator.nextID();
-        return spawnBullet(ID, team, speed, damage, location, direction, parent);
-    }
-
     // *********************************
     // ****** DESTROYING ***************
     // *********************************
@@ -349,12 +287,6 @@ public strictfp class GameWorld {
         setWinnerIfDestruction();
 
         matchMaker.addDied(id, false);
-    }
-
-    public void destroyBullet(int id){
-        objectInfo.destroyBullet(id);
-
-        matchMaker.addDied(id, true);
     }
 
     // *********************************

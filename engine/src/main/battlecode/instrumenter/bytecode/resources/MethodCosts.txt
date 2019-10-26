@@ -23,7 +23,6 @@ battlecode/common/MapLocation/distanceSquaredTo                    2    false
 battlecode/common/MapLocation/distanceTo                           2    false
 battlecode/common/MapLocation/equals                               2    false
 battlecode/common/MapLocation/hashCode                             2    false
-battlecode/common/MapLocation/isWithinBulletSightRadius            2    false
 battlecode/common/MapLocation/isWithinDistance                     2    false
 battlecode/common/MapLocation/isWithinSensorRadius                 2    false
 battlecode/common/MapLocation/isWithinStrideDistance               2    false
@@ -41,8 +40,6 @@ battlecode/common/RobotController/canBuildRobot                     10    true
 battlecode/common/RobotController/canHireGardener                   10    true
 battlecode/common/RobotController/canMove                           10    true
 battlecode/common/RobotController/canSenseAllOfCircle               5     true
-battlecode/common/RobotController/canSenseBullet                    5     true
-battlecode/common/RobotController/canSenseBulletLocation            5     true
 battlecode/common/RobotController/canSenseLocation                  5     true
 battlecode/common/RobotController/canSensePartOfCircle              5     true
 battlecode/common/RobotController/canSenseRadius                    5     true
@@ -63,7 +60,6 @@ battlecode/common/RobotController/getRobotCount                     20    true
 battlecode/common/RobotController/getRoundLimit                     1     true
 battlecode/common/RobotController/getRoundNum                       1     true
 battlecode/common/RobotController/getTeam                           1     true
-battlecode/common/RobotController/getTeamBullets                    1     true
 battlecode/common/RobotController/getTeamMemory                     0     true
 battlecode/common/RobotController/getTeamVictoryPoints              1     true
 battlecode/common/RobotController/getType                           1     true
@@ -86,8 +82,6 @@ battlecode/common/RobotController/readBroadcastInt                  5     true
 battlecode/common/RobotController/repair                            0     true
 battlecode/common/RobotController/resign                            0     true
 battlecode/common/RobotController/senseBroadcastingRobotLocations   100   true
-battlecode/common/RobotController/senseBullet                       25    true
-battlecode/common/RobotController/senseNearbyBullets                50    true
 battlecode/common/RobotController/senseNearbyRobots                 100   true
 battlecode/common/RobotController/senseRobot                        25    true
 battlecode/common/RobotController/senseRobotAtLocation              20    true
