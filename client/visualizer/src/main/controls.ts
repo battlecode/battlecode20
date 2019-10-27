@@ -269,7 +269,7 @@ export default class Controls {
     console.log(file);
     const reader = new FileReader();
     reader.onload = () => {
-      this.onGameLoaded(reader.result);
+      this.onGameLoaded(<ArrayBuffer>reader.result);
     };
     reader.readAsArrayBuffer(file);
   }

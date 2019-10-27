@@ -48,7 +48,7 @@ module.exports = function(env) {
     // we're compiling for prod
     conf = merge(conf, {
       plugins: [
-        new webpack.optimize.UglifyJsPlugin(),
+        // new webpack.optimize.UglifyJsPlugin(),
         new webpack.LoaderOptionsPlugin({
           minimize: true,
           debug: false

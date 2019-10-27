@@ -54,15 +54,15 @@ export default class MapValidator {
     });
 
     // Neutral trees cannot have a smaller radius than the body they contain
-    map.originalBodies.forEach((unit: MapUnit, id: number) => {
-      if (unit.type === cst.TREE_NEUTRAL) {
-        const treeRadius = unit.radius;
-        const bodyRadius = cst.radiusFromBodyType(unit.containedBody);
-        if (treeRadius < bodyRadius) {
-          errors.push(`Tree ID ${id} with radius ${treeRadius.toFixed(2)} contains a body with radius ${bodyRadius}`);
-        }
-      }
-    });
+    // map.originalBodies.forEach((unit: MapUnit, id: number) => {
+    //   if (unit.type === cst.TREE_NEUTRAL) {
+    //     const treeRadius = unit.radius;
+    //     const bodyRadius = cst.radiusFromBodyType(unit.containedBody);
+    //     if (treeRadius < bodyRadius) {
+    //       errors.push(`Tree ID ${id} with radius ${treeRadius.toFixed(2)} contains a body with radius ${bodyRadius}`);
+    //     }
+    //   }
+    // });
 
     if (errors.length > 0) {
       alert(errors.join("\n"));
@@ -110,20 +110,20 @@ export default class MapValidator {
     });
 
     // Remove the body from neutral trees with a smaller radius than the contained body
-    map.originalBodies.forEach((unit: MapUnit, id: number) => {
-      if (unit.type === cst.TREE_NEUTRAL) {
-        const treeRadius = unit.radius;
-        const bodyRadius = cst.radiusFromBodyType(unit.containedBody);
-        if (treeRadius < bodyRadius) {
-          // TODO: figure out if this can be null???
-          if (map.originalBodies.get(id) == null) {
-            throw new Error('map.originalBodies is null????');
-          }
-          map.originalBodies.get(id)!.containedBody = cst.NONE;
-          actions.push(`Removed a body from tree ID ${id}`);
-        }
-      }
-    });
+    // map.originalBodies.forEach((unit: MapUnit, id: number) => {
+    //   if (unit.type === cst.TREE_NEUTRAL) {
+    //     const treeRadius = unit.radius;
+    //     const bodyRadius = cst.radiusFromBodyType(unit.containedBody);
+    //     if (treeRadius < bodyRadius) {
+    //       // TODO: figure out if this can be null???
+    //       if (map.originalBodies.get(id) == null) {
+    //         throw new Error('map.originalBodies is null????');
+    //       }
+    //       map.originalBodies.get(id)!.containedBody = cst.NONE;
+    //       actions.push(`Removed a body from tree ID ${id}`);
+    //     }
+    //   }
+    // });
 
     if (actions.length > 0) {
       alert(actions.join("\n"));

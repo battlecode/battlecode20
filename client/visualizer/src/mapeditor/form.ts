@@ -5,7 +5,7 @@ import {AllImages} from '../imageloader';
 import {schema, flatbuffers} from 'battlecode-playback';
 import Victor = require('victor');
 
-import {MapRenderer, Symmetry, MapUnit, HeaderForm, SymmetryForm, TreeForm, ArchonForm, RobotForm, UnitForm} from './index';
+import {MapRenderer, Symmetry, MapUnit, HeaderForm, SymmetryForm, RobotForm, UnitForm} from './index';
 
 export type GameMap = {
   name: string,
@@ -31,8 +31,8 @@ export default class MapEditorForm {
   // Forms
   private readonly header: HeaderForm;
   private readonly symmetry: SymmetryForm;
-  private readonly tree: TreeForm;
-  private readonly archon: ArchonForm;
+  // private readonly tree: TreeForm;
+  // private readonly archon: ArchonForm;
   private readonly robots: RobotForm;
 
   private inputArchon: HTMLInputElement;
@@ -72,8 +72,8 @@ export default class MapEditorForm {
     const cbMaxRadius = (x, y, id) => {return this.maxRadius(x, y, id)};
     this.header = new HeaderForm(() => {this.render()});
     this.symmetry = new SymmetryForm(() => {this.render()});
-    this.tree = new TreeForm(cbWidth, cbHeight, cbMaxRadius);
-    this.archon = new ArchonForm(cbWidth, cbHeight, cbMaxRadius);
+    // this.tree = new TreeForm(cbWidth, cbHeight, cbMaxRadius);
+    // this.archon = new ArchonForm(cbWidth, cbHeight, cbMaxRadius);
     this.robots = new RobotForm(cbWidth, cbHeight, cbMaxRadius);
 
     // Initialize the other fields
@@ -86,13 +86,7 @@ export default class MapEditorForm {
       if (this.originalBodies.has(id)) {
         // Set the corresponding form appropriately
         let body: MapUnit = this.originalBodies.get(id)!;
-        if (body.type === cst.ARCHON) {
-          this.inputArchon.click();
-        } else if (body.type === cst.TREE_NEUTRAL) {
-          this.inputTree.click();
-        } else {
-          this.inputRobots.click();
-        }
+        this.inputRobots.click();
         this.getActiveForm().setForm(body.loc, body, id);
       }
     };
@@ -110,7 +104,7 @@ export default class MapEditorForm {
    * Creates the div that contains all the map-editor related form elements.
    */
   private loadBaseDiv(): void {
-    this.forms.appendChild(this.tree.div);
+    // this.forms.appendChild(this.tree.div);
 
     this.div.appendChild(this.header.div);
     this.div.appendChild(this.symmetry.div);
@@ -168,16 +162,16 @@ export default class MapEditorForm {
     this.inputTree.onchange = () => {
       // Change the displayed form
       while (this.forms.firstChild) this.forms.removeChild(this.forms.firstChild);
-      if (this.inputTree.checked) {
-        this.forms.appendChild(this.tree.div);
-      }
+      // if (this.inputTree.checked) {
+      //   this.forms.appendChild(this.tree.div);
+      // }
     };
     this.inputArchon.onchange = () => {
       // Change the displayed form
       while (this.forms.firstChild) this.forms.removeChild(this.forms.firstChild);
-      if (this.inputArchon.checked) {
-        this.forms.appendChild(this.archon.div);
-      }
+      // if (this.inputArchon.checked) {
+      //   this.forms.appendChild(this.archon.div);
+      // }
     };
     this.inputRobots.onchange = () => {
       // Change the displayed form
@@ -264,8 +258,8 @@ export default class MapEditorForm {
    * @return the active form based on which radio button is selected
    */
   private getActiveForm(): UnitForm {
-    if (this.inputTree.checked) return this.tree;
-    if (this.inputArchon.checked) return this.archon;
+    // if (this.inputTree.checked) return this.tree;
+    // if (this.inputArchon.checked) return this.archon;
     return this.robots;
   }
 

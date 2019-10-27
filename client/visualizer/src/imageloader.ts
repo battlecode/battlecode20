@@ -18,7 +18,8 @@ export type AllImages = {
     refinery: Image,
     vaporator: Image,
     hq: Image
-  }, 
+  },
+  cow: Image,
   controls: {
     goNext: Image,
     goPrevious: Image,
@@ -65,6 +66,8 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   img(result, 'background', require(dirname + 'map/tiled_1.jpg'));
   img(result, 'unknown', require(dirname + 'sprites/unknown.png'));
   img(result, 'star', require(dirname + 'yellow_star.png'));
+  // TODO make cow
+  img(result, 'cow', require(dirname + 'sprites/unknown.png'));
 
 
   // these are the teams we expect robots to be in according to current

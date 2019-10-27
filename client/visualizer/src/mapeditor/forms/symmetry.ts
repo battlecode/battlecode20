@@ -130,14 +130,12 @@ export default class SymmetryForm {
     bodies.forEach((body: MapUnit, id: number) => {
       if (!this.onSymmetricLine(body.loc, width, height)) {
         const type = body.type;
-        const teamID = type === cst.TREE_NEUTRAL ? this.NEUTRAL_TEAM_ID : this.BLUE_TEAM_ID;
-        if (type === cst.TREE_NEUTRAL || type === cst.ARCHON) {
+        const teamID = type === cst.COW ? this.NEUTRAL_TEAM_ID : this.BLUE_TEAM_ID;
+        if (type === cst.COW) {
             symmetricBodies.set(id, {
             loc: this.transformLoc(body.loc, width, height),
             radius: body.radius,
             type: type,
-            containedBullets: body.containedBullets,
-            containedBody: body.containedBody,
             teamID: teamID
           });
         }

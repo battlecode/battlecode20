@@ -57,11 +57,12 @@ export default class MapEditor {
     helpDiv.style.textAlign = "left";
     div.appendChild(helpDiv);
 
-    helpDiv.innerHTML = `<i><br>Tip: "S"=quick add, "D"=quick delete.<br><br>
-      Note: In tournaments, a starting map consists only of neutral trees and
-      ${cst.MIN_NUMBER_OF_ARCHONS} to ${cst.MAX_NUMBER_OF_ARCHONS} archons per
-      team. The validator only checks for overlapping and off-map units.<br><br>
-      Note: The map editor currently does not support bullet trees.</i>`;
+    helpDiv.innerHTML = `Help text is not yet written :p`;
+    // `<i><br>Tip: "S"=quick add, "D"=quick delete.<br><br>
+    //   Note: In tournaments, a starting map consists only of neutral trees and
+    //   ${cst.MIN_NUMBER_OF_ARCHONS} to ${cst.MAX_NUMBER_OF_ARCHONS} archons per
+    //   team. The validator only checks for overlapping and off-map units.<br><br>
+    //   Note: The map editor currently does not support bullet trees.</i>`;
 
     return div;
   }
@@ -71,7 +72,7 @@ export default class MapEditor {
    */
   onkeydown(): (event: KeyboardEvent) => void {
     return (event: KeyboardEvent) => {
-      var input = document.activeElement.nodeName == "INPUT";
+      var input = (<Element>document.activeElement).nodeName == "INPUT";
       if(!input) {
         switch (event.keyCode) {
           case 67: // "c" - Toggle Circle Bots
