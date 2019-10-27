@@ -2,16 +2,19 @@ import {schema} from 'battlecode-playback';
 import {Symmetry} from './mapeditor/index';
 
 // Body types
-export const ARCHON = schema.BodyType.ARCHON;
-export const GARDENER = schema.BodyType.GARDENER;
-export const LUMBERJACK = schema.BodyType.LUMBERJACK;
-export const SOLDIER = schema.BodyType.SOLDIER;
-export const TANK = schema.BodyType.TANK;
-export const SCOUT = schema.BodyType.SCOUT;
-export const TREE_BULLET = schema.BodyType.TREE_BULLET;
-export const TREE_NEUTRAL = schema.BodyType.TREE_NEUTRAL;
-export const NONE = schema.BodyType.NONE;
+export const MINER = schema.BodyType.MINER;
+export const LANDSCAPER = schema.BodyType.LANDSCAPER;
+export const DRONE = schema.BodyType.DRONE;
+export const NET_GUN = schema.BodyType.NET_GUN;
+export const COW = schema.BodyType.COW;
+export const REFINERY = schema.BodyType.REFINERY;
+export const VAPORATOR = schema.BodyType.VAPORATOR;
+export const HQ = schema.BodyType.HQ;
+export const DESIGN_SCHOOL = schema.BodyType.DESIGN_SCHOOL;
+export const FULFILLMENT_CENTER = schema.BodyType.FULFILLMENT_CENTER;
 
+
+// TODO: Old constants
 // Game canvas rendering sizes
 export const BULLET_SIZE = .5;
 export const BULLET_SIZE_HALF = BULLET_SIZE / 2;
@@ -120,14 +123,16 @@ export const SERVER_MAPS = [
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
   switch(bodyType) {
-    case ARCHON:      return "archon";
-    case GARDENER:    return "gardener";
-    case LUMBERJACK:  return "lumberjack";
-    case SOLDIER:     return "soldier";
-    case TANK:        return "tank";
-    case SCOUT:       return "scout";
-    case TREE_BULLET: return "bulletTree";
-    case NONE:        return "";
+    case MINER:      return "miner";
+    case LANDSCAPER:    return "landscaper";
+    case DRONE:  return "drone";
+    case NET_GUN:     return "net_gun";
+    case COW:        return "cow";
+    case REFINERY:       return "refinery";
+    case VAPORATOR: return "vaporator";
+    case HQ:        return "hq";
+    case DESIGN_SCHOOL:        return "design_school";
+    case FULFILLMENT_CENTER:        return "fulfillment_center";
     default:          throw new Error("invalid body type");
   }
 }
@@ -141,16 +146,19 @@ export function symmetryToString(symmetry: Symmetry) {
   }
 }
 
+// TODO: fix radius (is this vision that can be toggled in sidebar?)
 export function radiusFromBodyType(bodyType: schema.BodyType) {
   switch(bodyType) {
-    case ARCHON:       return 2;
-    case GARDENER:     return 1;
-    case LUMBERJACK:   return 1;
-    case SOLDIER:      return 1;
-    case TANK:         return 2;
-    case SCOUT:        return 1;
-    case TREE_BULLET:  return 1;
-    case NONE:         return 0;
+    case MINER:               return 2;
+    case LANDSCAPER:          return 1;
+    case DRONE:               return 1;
+    case NET_GUN:             return 1;
+    case COW:                 return 2;
+    case REFINERY:            return 1;
+    case VAPORATOR:           return 1;
+    case HQ:                  return 2;
+    case DESIGN_SCHOOL:       return 1;
+    case FULFILLMENT_CENTER:  return 1;
     default:           throw new Error("invalid body type");
   }
 }
