@@ -216,7 +216,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
     assertValid(): void;
 }
 /**
- * An object corresponding to a  row in the database.
+ * An object corresponding to a row in the database.
  */
 export declare type Row<Schema> = {
     [P in keyof Schema]: number;

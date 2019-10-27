@@ -1,13 +1,10 @@
 import Metadata from './metadata';
 import GameWorld from './gameworld';
-// import { schema } from 'battlecode-schema';
-// import { flatbuffers } from 'flatbuffers';
 import { flatbuffers, schema } from 'battlecode-schema'
 
 export type Log = {
   team: string, // 'A' | 'B'
-  robotType: string, // 'ARCHON' | 'GARDENER' | 'LUMBERJACK'
-                     // | 'SOLDIER' | 'TANK' | 'SCOUT'
+  robotType: string, // All loggable bodies with team
   id: number,
   round: number,
   text: string
@@ -145,8 +142,7 @@ export default class Match {
 
     // Regex
     let lines = logs.split(/\r?\n/);
-    // TODO
-    let header = /^\[(A|B):(ARCHON|GARDENER|LUMBERJACK|SOLDIER|TANK|SCOUT)#(\d+)@(\d+)\] (.*)/;
+    let header = /^\[(A|B):(MINER|LANDSCAPER|DRONE|NET_GUN|REFINERY|VAPORATOR|HQ|DESIGN_SCHOOL|FULFILLMENT_CENTER)#(\d+)@(\d+)\] (.*)/;
 
     let roundLogs = new Array<Log>();
 

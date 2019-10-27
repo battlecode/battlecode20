@@ -1,21 +1,20 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const battlecode_schema_1 = require("battlecode-schema");
-const flatbuffers_1 = require("flatbuffers");
 const fs_1 = require("fs");
 const SIZE = 50;
 const SIZE2 = SIZE / 2;
 function createHeader(builder) {
     const bodies = [];
-    for (const body of [battlecode_schema_1.schema.BodyType.ARCHON, battlecode_schema_1.schema.BodyType.GARDENER, battlecode_schema_1.schema.BodyType.LUMBERJACK, battlecode_schema_1.schema.BodyType.SOLDIER, battlecode_schema_1.schema.BodyType.TANK, battlecode_schema_1.schema.BodyType.SCOUT, battlecode_schema_1.schema.BodyType.BULLET, battlecode_schema_1.schema.BodyType.TREE_BULLET, battlecode_schema_1.schema.BodyType.TREE_NEUTRAL]) {
+    // TODO: auto-update following long array from enum type?
+    // what's the default value?
+    for (const body of [battlecode_schema_1.schema.BodyType.MINER, battlecode_schema_1.schema.BodyType.LANDSCAPER, battlecode_schema_1.schema.BodyType.DRONE, battlecode_schema_1.schema.BodyType.NET_GUN, battlecode_schema_1.schema.BodyType.COW, battlecode_schema_1.schema.BodyType.REFINERY, battlecode_schema_1.schema.BodyType.VAPORATOR, battlecode_schema_1.schema.BodyType.HQ, battlecode_schema_1.schema.BodyType.DESIGN_SCHOOL, battlecode_schema_1.schema.BodyType.FULFILLMENT_CENTER]) {
         battlecode_schema_1.schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
-        battlecode_schema_1.schema.BodyTypeMetadata.addBulletAttack(builder, 1);
-        battlecode_schema_1.schema.BodyTypeMetadata.addBulletSpeed(builder, 1);
-        battlecode_schema_1.schema.BodyTypeMetadata.addCost(builder, 100);
-        battlecode_schema_1.schema.BodyTypeMetadata.addMaxHealth(builder, 100);
-        battlecode_schema_1.schema.BodyTypeMetadata.addRadius(builder, 1);
-        battlecode_schema_1.schema.BodyTypeMetadata.addStartHealth(builder, 100);
-        battlecode_schema_1.schema.BodyTypeMetadata.addStrideRadius(builder, 5);
         battlecode_schema_1.schema.BodyTypeMetadata.addType(builder, body);
+        battlecode_schema_1.schema.BodyTypeMetadata.addCost(builder, 100);
+        battlecode_schema_1.schema.BodyTypeMetadata.addStrideRadius(builder, 5);
+        battlecode_schema_1.schema.BodyTypeMetadata.addSightRadius(builder, 5);
+        battlecode_schema_1.schema.BodyTypeMetadata.addSoupLimit(builder, 100);
+        battlecode_schema_1.schema.BodyTypeMetadata.addDirtLimit(builder, 10);
         bodies.push(battlecode_schema_1.schema.BodyTypeMetadata.endBodyTypeMetadata(builder));
     }
     const teams = [];
@@ -55,7 +54,7 @@ function createEventWrapper(builder, event, type) {
 }
 exports.createEventWrapper = createEventWrapper;
 function createBenchGame(aliveCount, churnCount, moveCount, turns) {
-    let builder = new flatbuffers_1.flatbuffers.Builder();
+    let builder = new battlecode_schema_1.flatbuffers.Builder();
     let events = [];
     events.push(createEventWrapper(builder, createHeader(builder), battlecode_schema_1.schema.Event.GameHeader));
     let alive = new Array(aliveCount);
@@ -102,6 +101,7 @@ function createBenchGame(aliveCount, churnCount, moveCount, turns) {
         }
         alive.splice(0, churnCount);
         for (let i = 0; i < moveCount; i++) {
+            // TODO: change to discrete?
             const t = Math.random() * Math.PI * 2;
             movedXs[i] = SIZE2 + Math.cos(t) * SIZE2;
             movedYs[i] = SIZE2 + Math.sin(t) * SIZE2;
@@ -145,7 +145,7 @@ function createBenchGame(aliveCount, churnCount, moveCount, turns) {
 }
 exports.createBenchGame = createBenchGame;
 function createWanderGame(unitCount, turns) {
-    let builder = new flatbuffers_1.flatbuffers.Builder();
+    let builder = new battlecode_schema_1.flatbuffers.Builder();
     let events = [];
     events.push(createEventWrapper(builder, createHeader(builder), battlecode_schema_1.schema.Event.GameHeader));
     let ids = new Array(unitCount);
@@ -177,6 +177,8 @@ function createWanderGame(unitCount, turns) {
     events.push(createEventWrapper(builder, battlecode_schema_1.schema.MatchHeader.endMatchHeader(builder), battlecode_schema_1.schema.Event.MatchHeader));
     for (let i = 1; i < turns + 1; i++) {
         for (let i = 0; i < unitCount; i++) {
+            // TODO: change to discrete? 
+            // make a random walk function?
             const t = Math.random() * Math.PI * 2;
             velXs[i] += Math.cos(t) * .01;
             velYs[i] += Math.sin(t) * .01;

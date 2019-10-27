@@ -12,7 +12,8 @@
     "noImplicitUseStrict": true,
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "bench/**/*"
   ],
   "exclude": [
     "node_modules",

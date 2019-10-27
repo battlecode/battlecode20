@@ -1,7 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const gameworld_1 = require("./gameworld");
-// import { schema } from 'battlecode-schema';
-// import { flatbuffers } from 'flatbuffers';
 const battlecode_schema_1 = require("battlecode-schema");
 // Return a timestamp representing the _current time in ms, not necessarily from
 // any particular epoch.
@@ -84,7 +82,7 @@ class Match {
     parseLogs(round, logs) {
         // Regex
         let lines = logs.split(/\r?\n/);
-        let header = /^\[(A|B):(ARCHON|GARDENER|LUMBERJACK|SOLDIER|TANK|SCOUT)#(\d+)@(\d+)\] (.*)/;
+        let header = /^\[(A|B):(MINER|LANDSCAPER|DRONE|NET_GUN|REFINERY|VAPORATOR|HQ|DESIGN_SCHOOL|FULFILLMENT_CENTER)#(\d+)@(\d+)\] (.*)/;
         let roundLogs = new Array();
         // Parse each line
         let index = 0;

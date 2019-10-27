@@ -84,6 +84,7 @@ class Match {
     parseLogs(round, logs) {
         // Regex
         let lines = logs.split(/\r?\n/);
+        // TODO
         let header = /^\[(A|B):(ARCHON|GARDENER|LUMBERJACK|SOLDIER|TANK|SCOUT)#(\d+)@(\d+)\] (.*)/;
         let roundLogs = new Array();
         // Parse each line

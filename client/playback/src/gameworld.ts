@@ -6,6 +6,7 @@ import { schema } from 'battlecode-schema';
 import Victor = require('victor');
 import deepcopy = require('deepcopy');
 
+// let Position to be vector type?
 export type DiedBodiesSchema = {
   id: Int32Array,
   x: Int32Array,
@@ -42,7 +43,8 @@ export type BodiesSchema = {
 export type TeamStats = {
   // bullets: number,
   // vps: number,
-  robots: [number, number, number, number, number, number, number] // Corresponds to robot type and bullet tree (length 7)
+  // TODO: get size of array and auto-scale this array's size?
+  robots: [number, number, number, number, number, number, number, number, number, number, number] // Corresponds to robot type and bullet tree (length 11)
 };
 
 export type IndicatorDotsSchema = {
@@ -217,13 +219,17 @@ export default class GameWorld {
           // bullets: 0,
           // vps: 0,
           robots: [
-            0, // ARCHONS (TODO)
-            0, // GARDENERS
-            0, // LUMBERJACKS
-            0, // SOLDIERS
-            0, // TANKS
-            0, // SCOUTS
-            0, // TREE_BULLETS
+            0, // MINER
+            0, // LANDSCAPER
+            0, // DRONE
+            0, // NET_GUN
+            0, // COW
+            0, // REFINERY
+            0, // VAPORATOR
+            0, // HQ
+            0, // DESIGN_SCHOOL
+            0, // FULFILLMENT_CENTER
+            0, // NONE
         ]});
     }
 

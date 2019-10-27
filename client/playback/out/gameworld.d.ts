@@ -16,7 +16,7 @@ export declare type BodiesSchema = {
     bytecodesUsed: Int32Array;
 };
 export declare type TeamStats = {
-    robots: [number, number, number, number, number, number, number];
+    robots: [number, number, number, number, number, number, number, number, number, number, number];
 };
 export declare type IndicatorDotsSchema = {
     id: Int32Array;

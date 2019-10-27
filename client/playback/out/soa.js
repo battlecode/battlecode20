@@ -1,6 +1,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 // Map polyfill
 const Map = require("core-js/library/es6/map");
+// To somebody good at typescript, please fix @ts-ignore
 /**
  * A class that wraps a group of typed buffers.
  *
@@ -75,6 +76,7 @@ class StructOfArrays {
         for (const field in fields) {
             if (hasOwnProperty(fields, field)) {
                 const arr = fields[field];
+                // @ts-ignore
                 this.arrays[field] = new arr.constructor(this._capacity);
                 this.arrays[field].set(arr.slice(0, this._length));
                 this._fieldNames.push(field);
@@ -100,6 +102,7 @@ class StructOfArrays {
             for (const field in this.arrays) {
                 const oldArray = this.arrays[field];
                 const newArray = new oldArray.constructor(this._capacity);
+                // @ts-ignore
                 this.arrays[field] = newArray;
             }
         }
@@ -144,11 +147,13 @@ class StructOfArrays {
             throw new Error('Cannot insert without primary key');
         }
         const primary = numbers[this._primary];
+        // @ts-ignore
         if (this._primLookup.has(primary)) {
             throw new Error('Primary key already exists');
         }
         this._resize(this._length + 1);
         const index = this._length - 1;
+        // @ts-ignore
         this._primLookup.set(primary, index);
         this._alterAt(index, numbers);
         return index;
@@ -162,6 +167,7 @@ class StructOfArrays {
         if (!(this._primary in numbers)) {
             throw new Error(`Cannot alter without primary key: '${this._primary}'`);
         }
+        // @ts-ignore
         const p = (numbers[this._primary]);
         if (!this._primLookup.has(p)) {
             throw new Error(`Record with primary key does not exist: ${p}`);
@@ -179,6 +185,7 @@ class StructOfArrays {
         }
         const i = this._primLookup.get(primary);
         for (const field of this._fieldNames) {
+            // @ts-ignore
             result[field] = this.arrays[field][i];
         }
         return result;
@@ -197,6 +204,7 @@ class StructOfArrays {
     _alterAt(index, values) {
         for (const field in values) {
             if (hasOwnProperty(values, field) && field in this.arrays) {
+                // @ts-ignore
                 this.arrays[field][index] = (values[field]);
             }
         }
@@ -382,6 +390,7 @@ class StructOfArrays {
                 const oldArray = this.arrays[field];
                 const newArray = new oldArray.constructor(this._capacity);
                 newArray.set(oldArray);
+                // @ts-ignore
                 this.arrays[field] = newArray;
             }
         }

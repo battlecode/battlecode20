@@ -1,7 +1,6 @@
 import {readFileSync} from 'fs';
 import {crunch} from '../src/simulator';
-import {schema} from 'battlecode-schema';
-import { flatbuffers } from 'flatbuffers';
+import {schema, flatbuffers} from 'battlecode-schema';
 import Game from '../src/game';
 
 const wrapper = schema.GameWrapper.getRootAsGameWrapper(
