@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // Map polyfill
 const Map = require("core-js/library/es6/map");

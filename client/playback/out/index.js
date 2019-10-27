@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const gameworld_1 = require("./gameworld");
 exports.GameWorld = gameworld_1.default;

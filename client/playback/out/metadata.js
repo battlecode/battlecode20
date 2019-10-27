@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UNKNOWN_SPEC_VERSION = "UNKNOWN SPEC";
 exports.UNKNOWN_TEAM = "UNKNOWN TEAM";

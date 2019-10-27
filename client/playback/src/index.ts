@@ -8,8 +8,6 @@ import * as simulator from './simulator';
 import Match from './match';
 import {Log} from './match';
 import Game from './game';
-// import { schema } from 'battlecode-schema';
-// import { flatbuffers } from 'flatbuffers';
 import { flatbuffers, schema } from 'battlecode-schema';
 
 export {Game, Log, Match, GameWorld, gameworld, Metadata, metadata, StructOfArrays, soa, simulator, flatbuffers, schema};

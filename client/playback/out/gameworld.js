@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const soa_1 = require("./soa");
 const battlecode_schema_1 = require("battlecode-schema");

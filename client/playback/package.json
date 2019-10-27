@@ -5,12 +5,13 @@
   "author": "Teh Devs",
   "license": "GPL-3.0",
   "private": true,
-  "main": "out/src/index.js",
-  "typings": "out/src/index.d.ts",
+  "main": "out/index.js",
+  "typings": "out/index.d.ts",
   "scripts": {
     "clean": "rm -rf out",
-    "build": "tsc -p .",
-    "lint": "tslint \"**/*.ts\" -e \"out/**\"",
+    "build": "tsc -p src",
+    
+    "lint": "tslint \"src/**/*.ts\" -e \"out/**\"",
     "test": "npm run -s build && blue-tape \"out/test/**/*.js\" | tap-dot",
     "watch": "onchange -w \"**/*.ts\" -i -e \"out/**\" -- npm -s run build+test"
   },
