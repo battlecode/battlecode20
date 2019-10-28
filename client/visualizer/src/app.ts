@@ -13,7 +13,8 @@ import WebSocketListener from './websocket';
 import ScaffoldCommunicator from './scaffold';
 
 import {electron} from './electron-modules';
-import { TeamStats } from 'battlecode-playback/out/src/gameworld';
+import { TeamStats } from 'battlecode-playback/out/gameworld';
+// import TeamStats = gameworld.TeamStats;
 
 // webpack magic
 // this loads the stylesheet and injects it into the dom
@@ -305,8 +306,8 @@ export default class Client {
       }
 
       // Update the bullets and victory points
-      this.stats.setBullets(teamID, (teamStats as TeamStats).bullets);
-      this.stats.setVPs(teamID, (teamStats as TeamStats).vps);
+      // this.stats.setBullets(teamID, (teamStats as TeamStats).bullets);
+      // this.stats.setVPs(teamID, (teamStats as TeamStats).vps);
 
       // Update each robot count
       this.stats.robots.forEach((type: schema.BodyType) => {
@@ -593,7 +594,7 @@ export default class Client {
           let maxHealth = bodies.maxHealth[index];
           let type = bodies.type[index];
           let bytecodes = bodies.bytecodesUsed[index];
-          if (type === cst.TREE_NEUTRAL || type === cst.TREE_BULLET) {
+          if (type === cst.COW) {
             this.controls.setInfoString(id, x, y, health, maxHealth);
           } else {
             this.controls.setInfoString(id, x, y, health, maxHealth, bytecodes);

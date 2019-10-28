@@ -29,7 +29,7 @@ export default class Stats {
 
   // Key is the team ID
   private robotTds: Object = {}; // Secondary key is robot type
-  private statBars: Map<number, { bullets: StatBar, vps: StatBar }>;
+  // private statBars: Map<number, { bullets: StatBar, vps: StatBar }>;q
   private statsTableElement: HTMLTableElement;
 
   // Note: robot types and number of teams are currently fixed regardless of
@@ -37,7 +37,7 @@ export default class Stats {
   // statically.
 
   readonly robots: schema.BodyType[] = [
-    cst.ARCHON, cst.GARDENER, cst.LUMBERJACK, cst.SOLDIER, cst.TANK, cst.SCOUT, cst.TREE_BULLET
+    cst.MINER, cst.LANDSCAPER, cst.DRONE, cst.NET_GUN, cst.COW, cst.REFINERY, cst.VAPORATOR, cst.HQ, cst.DESIGN_SCHOOL, cst.FULFILLMENT_CENTER
   ];
 
   constructor(conf: Config, images: AllImages) {
@@ -108,12 +108,12 @@ export default class Stats {
       bar.height = "150";
       bar.vAlign = "bottom";
       // TODO: figure out if statbars.get(id) can actually be null??
-      bar.appendChild(this.statBars.get(id)!.bullets.bar);
+      // bar.appendChild(this.statBars.get(id)!.bullets.bar);
       bars.appendChild(bar);
 
       const count = document.createElement("td");
       // TODO: figure out if statbars.get(id) can actually be null??
-      count.appendChild(this.statBars.get(id)!.bullets.label);
+      // count.appendChild(this.statBars.get(id)!.bullets.label);
       counts.appendChild(count);
     });
 
@@ -123,28 +123,28 @@ export default class Stats {
       bar.height = "150";
       bar.vAlign = "bottom";
       // TODO: figure out if statbars.get(id) can actually be null??
-      bar.appendChild(this.statBars.get(id)!.vps.bar);
+      // bar.appendChild(this.statBars.get(id)!.vps.bar);
       bars.appendChild(bar);
 
       const count = document.createElement("td");
       // TODO: figure out if statbars.get(id) can actually be null??
-      count.appendChild(this.statBars.get(id)!.vps.label);
+      // count.appendChild(this.statBars.get(id)!.vps.label);
       counts.appendChild(count);
     });
 
     // Labels - "Bullets" and "Victory Points"
-    const labelBullets = document.createElement("td");
-    labelBullets.colSpan = 2;
-    labelBullets.innerText = "Bullets";
-    const labelVPs = document.createElement("td");
-    labelVPs.colSpan = 2;
-    labelVPs.innerText = "Victory Points";
+    // const labelBullets = document.createElement("td");
+    // labelBullets.colSpan = 2;
+    // labelBullets.innerText = "Bullets";
+    // const labelVPs = document.createElement("td");
+    // labelVPs.colSpan = 2;
+    // labelVPs.innerText = "Victory Points";
 
     table.appendChild(bars);
     table.appendChild(counts);
     table.appendChild(labels);
-    labels.appendChild(labelBullets);
-    labels.appendChild(labelVPs);
+    // labels.appendChild(labelBullets);
+    // labels.appendChild(labelVPs);
     return table;
   }
 
@@ -157,7 +157,7 @@ export default class Stats {
       this.div.removeChild(this.div.firstChild);
     }
     this.robotTds = {};
-    this.statBars = new Map<number, { bullets: StatBar, vps: StatBar }>();
+    // this.statBars = new Map<number, { bullets: StatBar, vps: StatBar }>();
 
     // Populate with new info
     // Add a section to the stats bar for each team in the match
@@ -181,11 +181,11 @@ export default class Stats {
       this.robotTds[teamID] = initialRobotCount;
 
       // Create the stat bar for bullets
-      let bullets = document.createElement("div");
-      bullets.className = "stat-bar";
-      bullets.style.backgroundColor = hex[inGameID];
-      let bulletsSpan = document.createElement("span");
-      bulletsSpan.innerHTML = "0";
+      // let bullets = document.createElement("div");
+      // bullets.className = "stat-bar";
+      // bullets.style.backgroundColor = hex[inGameID];
+      // let bulletsSpan = document.createElement("span");
+      // bulletsSpan.innerHTML = "0";
 
       // Create the stat bar for victory points
       let vps = document.createElement("div");
@@ -195,16 +195,16 @@ export default class Stats {
       vpsSpan.innerHTML = "0";
 
       // Store the stat bars
-      this.statBars.set(teamID, {
-        bullets: {
-          bar: bullets,
-          label: bulletsSpan
-        },
-        vps: {
-          bar: vps,
-          label: vpsSpan
-        }
-      });
+      // this.statBars.set(teamID, {
+      //   bullets: {
+      //     bar: bullets,
+      //     label: bulletsSpan
+      //   },
+      //   vps: {
+      //     bar: vps,
+      //     label: vpsSpan
+      //   }
+      // });
 
       // Add the team name banner and the robot count table
       teamDiv.appendChild(this.teamHeaderNode(teamName, inGameID));
@@ -230,29 +230,29 @@ export default class Stats {
   /**
    * Change the victory points of the given team
    */
-  setVPs(teamID: number, count: number) {
-    // TODO: figure out if statbars.get(id) can actually be null??
-    const statBar: StatBar = this.statBars.get(teamID)!.vps
-    statBar.label.innerText = String(count);
-    statBar.bar.style.height = `${100 * count / cst.VICTORY_POINT_THRESH}%`;
+  // setVPs(teamID: number, count: number) {
+  //   // TODO: figure out if statbars.get(id) can actually be null??
+  //   const statBar: StatBar = this.statBars.get(teamID)!.vps
+  //   statBar.label.innerText = String(count);
+  //   statBar.bar.style.height = `${100 * count / cst.VICTORY_POINT_THRESH}%`;
 
-    if (this.images.star.parentNode === statBar.bar) {
-      this.images.star.remove();
-    }
+  //   if (this.images.star.parentNode === statBar.bar) {
+  //     this.images.star.remove();
+  //   }
 
-    if (count >= cst.VICTORY_POINT_THRESH) {
-      this.images.star.id = "star";
-      statBar.bar.appendChild(this.images.star);
-    }
-  }
+  //   if (count >= cst.VICTORY_POINT_THRESH) {
+  //     this.images.star.id = "star";
+  //     statBar.bar.appendChild(this.images.star);
+  //   }
+  // }
 
   /**
    * Change the bullets of the given team
    */
-  setBullets(teamID: number, count: number) {
-    // TODO: figure out if statbars.get(id) can actually be null??
-    const statBar: StatBar = this.statBars.get(teamID)!.bullets;
-    statBar.label.innerText = String(count.toPrecision(5));
-    statBar.bar.style.height = `${100 * count / cst.BULLET_THRESH}%`;
-  }
+  // setBullets(teamID: number, count: number) {
+  //   // TODO: figure out if statbars.get(id) can actually be null??
+  //   const statBar: StatBar = this.statBars.get(teamID)!.bullets;
+  //   statBar.label.innerText = String(count.toPrecision(5));
+  //   statBar.bar.style.height = `${100 * count / cst.BULLET_THRESH}%`;
+  // }
 }

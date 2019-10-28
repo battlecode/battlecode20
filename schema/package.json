@@ -6,7 +6,7 @@
   "main": "ts/index.ts",
   "scripts": {
     "test": "true",
-    "build": "flatc --js -o js battlecode.fbs && flatc --java -o java battlecode.fbs"
+    "build": "flatc --ts -o js battlecode.fbs && flatc --java -o java battlecode.fbs"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/battlecode/battlecode-schema#readme",
   "dependencies": {
-    "@types/flatbuffers": "^1.9.1",
     "flatbuffers": "^1.11.0"
+  },
+  "devDependencies": {
+    "@types/flatbuffers": "^1.9.1"
   }
 }

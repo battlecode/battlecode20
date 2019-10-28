@@ -5,14 +5,12 @@ namespace battlecode.schema;
 struct Vec {
     x: int = 0;
     y: int = 0;
-    z: int = 0;
 }
 
 /// A table of vectors.
 table VecTable {
     xs: [int];
     ys: [int];
-    zs: [int];
 }
 
 /// A table of RGB values.
@@ -46,7 +44,10 @@ enum BodyType : byte {
     /// Design schools create landscapers.
     DESIGN_SCHOOL,
     /// Fulfillment centers create drones.
-    FULFILLMENT_CENTER
+    FULFILLMENT_CENTER,
+    /// Indicates that there is no body.
+    /// May only appear in the containedBodies field of NeutralTreeTable.
+    NONE
 }
 
 /// A list of new bodies to be placed on the map.
@@ -250,13 +251,28 @@ table Round {
     /// any target (typically 0).
     actionTargets: [int];
 
+    /// The IDs of bodies that set indicator dots
+    indicatorDotIDs: [int];
+    /// The location of the indicator dots
+    indicatorDotLocs: VecTable;
+    /// The RGB values of the indicator dots
+    indicatorDotRGBs: RGBTable;
+
+    /// The IDs of bodies that set indicator lines
+    indicatorLineIDs: [int];
+    /// The start location of the indicator lines
+    indicatorLineStartLocs: VecTable;
+    /// The end location of the indicator lines
+    indicatorLineEndLocs: VecTable;
+    /// The RGB values of the indicator lines
+    indicatorLineRGBs: RGBTable;
+    
     /// All logs sent this round.
     /// Messages from a particular robot in this round start on a new line, and
     /// have a header:
     /// '[' $TEAM ':' $ROBOTTYPE '#' $ID '@' $ROUND '] '
     /// $TEAM = 'A' | 'B'
-    /// $ROBOTTYPE = 'ARCHON' | 'GARDENER' | 'LUMBERJACK' 
-    ///            | 'SOLDIER' | 'TANK' | 'SCOUT' | other names...
+    /// $ROBOTTYPE = 'MINER' | 'LANDSCAPER' | other names...
     /// $ID = a number
     /// $ROUND = a number
     /// The header is not necessarily followed by a newline.
@@ -311,4 +327,3 @@ table GameWrapper {
     /// The indices of the footers of the matches, in order.
     matchFooters: [int];
 }
-

@@ -15,14 +15,14 @@ export type BodiesSchema = {
 };
 
 // Neutral tree information
-export type TreesSchema = {
-  robotIDs: number[],
-  xs: number[],
-  ys: number[],
-  radii: number[],
-  containedBullets: number[],
-  containedBodies: schema.BodyType[]
-};
+// export type TreesSchema = {
+//   robotIDs: number[],
+//   xs: number[],
+//   ys: number[],
+//   radii: number[],
+//   containedBullets: number[],
+//   containedBodies: schema.BodyType[]
+// };
 
 /**
  * Generates a .map17 file from a GameMap. Assumes the given GameMap represents
@@ -31,7 +31,7 @@ export type TreesSchema = {
 export default class MapGenerator {
 
   private static bodiesArray: BodiesSchema;
-  private static treesArray: TreesSchema
+  // private static treesArray: TreesSchema
 
   /**
    * Combines two maps of IDs to bodies into one map, assigning a unique ID
@@ -79,39 +79,28 @@ export default class MapGenerator {
   private static addBodies(bodies: Map<number, MapUnit>, minCorner: Victor) {
 
     bodies.forEach((unit: MapUnit, id: number) => {
-      if (unit.type === cst.TREE_NEUTRAL) {
-        this.addTree(
-          id,
-          unit.loc.x + minCorner.x,
-          unit.loc.y + minCorner.y,
-          unit.radius,
-          unit.containedBullets,
-          unit.containedBody
-        );
-      } else {
-        this.addBody(
-          id,
-          unit.teamID || 0, // Must be set if not a neutral tree
-          unit.type,
-          unit.loc.x + minCorner.x,
-          unit.loc.y + minCorner.y
-        );
-      }
+      this.addBody(
+        id,
+        unit.teamID || 0, // Must be set if not a neutral tree
+        unit.type,
+        unit.loc.x + minCorner.x,
+        unit.loc.y + minCorner.y
+      );
     });
   }
 
   /**
    * Adds a tree to the internal array
    */
-  private static addTree(robotID: number, x: number, y: number, radius: number,
-    containedBullets: number, containedBody: schema.BodyType) {
-    this.treesArray.robotIDs.push(robotID);
-    this.treesArray.xs.push(x);
-    this.treesArray.ys.push(y);
-    this.treesArray.radii.push(radius);
-    this.treesArray.containedBullets.push(containedBullets);
-    this.treesArray.containedBodies.push(containedBody);
-  }
+  // private static addTree(robotID: number, x: number, y: number, radius: number,
+  //   containedBullets: number, containedBody: schema.BodyType) {
+  //   this.treesArray.robotIDs.push(robotID);
+  //   this.treesArray.xs.push(x);
+  //   this.treesArray.ys.push(y);
+  //   this.treesArray.radii.push(radius);
+  //   this.treesArray.containedBullets.push(containedBullets);
+  //   this.treesArray.containedBodies.push(containedBody);
+  // }
 
   /**
    * Write fields to a schema.GameMap and write the game map out to a file
@@ -129,14 +118,14 @@ export default class MapGenerator {
     };
 
     // Neutral tree information
-    this.treesArray = {
-      robotIDs: [],
-      xs: [],
-      ys: [],
-      radii: [],
-      containedBullets: [],
-      containedBodies: []
-    };
+    // this.treesArray = {
+    //   robotIDs: [],
+    //   xs: [],
+    //   ys: [],
+    //   radii: [],
+    //   containedBullets: [],
+    //   containedBodies: []
+    // };
 
     // Get header information from form
     let name: string = map.name;
@@ -161,18 +150,18 @@ export default class MapGenerator {
     const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
     // Create the neutral trees table
-    let robotIDsVectorT = schema.NeutralTreeTable.createRobotIDsVector(builder, this.treesArray.robotIDs);
-    let locsVecTableT = this.createVecTable(builder, this.treesArray.xs, this.treesArray.ys);
-    let radiiVectorT = schema.NeutralTreeTable.createRadiiVector(builder, this.treesArray.radii);
-    let containedBulletsVectorT = schema.NeutralTreeTable.createContainedBulletsVector(builder, this.treesArray.containedBullets);
-    let containedBodiesVectorT = schema.NeutralTreeTable.createContainedBodiesVector(builder, this.treesArray.containedBodies);
-    schema.NeutralTreeTable.startNeutralTreeTable(builder)
-    schema.NeutralTreeTable.addRobotIDs(builder, robotIDsVectorT);
-    schema.NeutralTreeTable.addLocs(builder, locsVecTableT);
-    schema.NeutralTreeTable.addRadii(builder, radiiVectorT);
-    schema.NeutralTreeTable.addContainedBullets(builder, containedBulletsVectorT);
-    schema.NeutralTreeTable.addContainedBodies(builder, containedBodiesVectorT);
-    const trees = schema.NeutralTreeTable.endNeutralTreeTable(builder);
+    // let robotIDsVectorT = schema.NeutralTreeTable.createRobotIDsVector(builder, this.treesArray.robotIDs);
+    // let locsVecTableT = this.createVecTable(builder, this.treesArray.xs, this.treesArray.ys);
+    // let radiiVectorT = schema.NeutralTreeTable.createRadiiVector(builder, this.treesArray.radii);
+    // let containedBulletsVectorT = schema.NeutralTreeTable.createContainedBulletsVector(builder, this.treesArray.containedBullets);
+    // let containedBodiesVectorT = schema.NeutralTreeTable.createContainedBodiesVector(builder, this.treesArray.containedBodies);
+    // schema.NeutralTreeTable.startNeutralTreeTable(builder)
+    // schema.NeutralTreeTable.addRobotIDs(builder, robotIDsVectorT);
+    // schema.NeutralTreeTable.addLocs(builder, locsVecTableT);
+    // schema.NeutralTreeTable.addRadii(builder, radiiVectorT);
+    // schema.NeutralTreeTable.addContainedBullets(builder, containedBulletsVectorT);
+    // schema.NeutralTreeTable.addContainedBodies(builder, containedBodiesVectorT);
+    // const trees = schema.NeutralTreeTable.endNeutralTreeTable(builder);
 
     // Create the game map
     let nameP = builder.createString(name);
@@ -181,7 +170,6 @@ export default class MapGenerator {
     schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, minCorner.x, minCorner.y));
     schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, maxCorner.x, maxCorner.y));
     schema.GameMap.addBodies(builder, bodies);
-    schema.GameMap.addTrees(builder, trees);
     schema.GameMap.addRandomSeed(builder, randomSeed);
     const gameMap = schema.GameMap.endGameMap(builder);
 

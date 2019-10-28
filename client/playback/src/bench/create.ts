@@ -1,5 +1,4 @@
-import {schema} from 'battlecode-schema';
-import { flatbuffers } from 'flatbuffers';
+import {schema, flatbuffers} from 'battlecode-schema';
 import * as Map from 'core-js/library/es6/map';
 import {createWriteStream} from 'fs';
 
@@ -8,16 +7,16 @@ const SIZE2 = SIZE / 2;
 
 export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const bodies: flatbuffers.Offset[] = [];
-  for (const body of [schema.BodyType.ARCHON, schema.BodyType.GARDENER, schema.BodyType.LUMBERJACK, schema.BodyType.SOLDIER, schema.BodyType.TANK, schema.BodyType.SCOUT, schema.BodyType.BULLET, schema.BodyType.TREE_BULLET, schema.BodyType.TREE_NEUTRAL]) {
+  // TODO: auto-update following long array from enum type?
+  // what's the default value?
+  for (const body of [schema.BodyType.MINER, schema.BodyType.LANDSCAPER, schema.BodyType.DRONE, schema.BodyType.NET_GUN, schema.BodyType.COW, schema.BodyType.REFINERY, schema.BodyType.VAPORATOR, schema.BodyType.HQ, schema.BodyType.DESIGN_SCHOOL, schema.BodyType.FULFILLMENT_CENTER]) {
     schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
-    schema.BodyTypeMetadata.addBulletAttack(builder, 1);
-    schema.BodyTypeMetadata.addBulletSpeed(builder, 1);
-    schema.BodyTypeMetadata.addCost(builder, 100);
-    schema.BodyTypeMetadata.addMaxHealth(builder, 100);
-    schema.BodyTypeMetadata.addRadius(builder, 1);
-    schema.BodyTypeMetadata.addStartHealth(builder, 100);
-    schema.BodyTypeMetadata.addStrideRadius(builder, 5);
     schema.BodyTypeMetadata.addType(builder, body);
+    schema.BodyTypeMetadata.addCost(builder, 100);
+    schema.BodyTypeMetadata.addStrideRadius(builder, 5);
+    schema.BodyTypeMetadata.addSightRadius(builder, 5);
+    schema.BodyTypeMetadata.addSoupLimit(builder, 100);
+    schema.BodyTypeMetadata.addDirtLimit(builder, 10);
     bodies.push(schema.BodyTypeMetadata.endBodyTypeMetadata(builder));
   }
 
@@ -120,6 +119,7 @@ export function createBenchGame(aliveCount: number, churnCount: number, moveCoun
     alive.splice(0, churnCount);
 
     for (let i = 0; i < moveCount; i++) {
+      // TODO: change to discrete?
       const t = Math.random() * Math.PI * 2;
       movedXs[i] = SIZE2 + Math.cos(t) * SIZE2;
       movedYs[i] = SIZE2 + Math.sin(t) * SIZE2;
@@ -213,6 +213,8 @@ export function createWanderGame(unitCount: number, turns: number) {
 
   for (let i = 1; i < turns+1; i++) {
     for (let i = 0; i < unitCount; i++) {
+      // TODO: change to discrete? 
+      // make a random walk function?
       const t = Math.random() * Math.PI * 2;
       velXs[i] += Math.cos(t) * .01;
       velYs[i] += Math.sin(t) * .01;

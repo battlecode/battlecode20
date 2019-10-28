@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const gameworld_1 = require("./gameworld");
 exports.GameWorld = gameworld_1.default;
@@ -17,8 +18,6 @@ const match_1 = require("./match");
 exports.Match = match_1.default;
 const game_1 = require("./game");
 exports.Game = game_1.default;
-// import { schema } from 'battlecode-schema';
-// import { flatbuffers } from 'flatbuffers';
 const battlecode_schema_1 = require("battlecode-schema");
 exports.flatbuffers = battlecode_schema_1.flatbuffers;
 exports.schema = battlecode_schema_1.schema;

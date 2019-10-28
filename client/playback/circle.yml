@@ -1,7 +1,0 @@
-test:
-  override:
-    - npm test
-      # this is slightly terrible shell magic, that's fine
-      # just yell at people if they haven't committed the out/ directory
-      # this might break if the user and server are using different tsc compilers; hopefully they, uh, won't
-    - sh -c 'if [ $(git status --porcelain 2>/dev/null| grep "?? out\| M out" | wc -l) -ne 0 ]; then echo Regenerate the out/ directory with npm build and commit it; exit 1; fi'

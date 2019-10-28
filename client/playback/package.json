@@ -5,12 +5,13 @@
   "author": "Teh Devs",
   "license": "GPL-3.0",
   "private": true,
-  "main": "out/src/index.js",
-  "typings": "out/src/index.d.ts",
+  "main": "out/index.js",
+  "typings": "out/index.d.ts",
   "scripts": {
     "clean": "rm -rf out",
-    "build": "tsc -p .",
-    "lint": "tslint \"**/*.ts\" -e \"out/**\"",
+    "build": "tsc -p src",
+    
+    "lint": "tslint \"src/**/*.ts\" -e \"out/**\"",
     "test": "npm run -s build && blue-tape \"out/test/**/*.js\" | tap-dot",
     "watch": "onchange -w \"**/*.ts\" -i -e \"out/**\" -- npm -s run build+test"
   },
@@ -19,9 +20,6 @@
     "url": "github.com/battlecode/battlecode20"
   },
   "dependencies": {
-    "@types/core-js": "^0.9.34",
-    "@types/node": "^6.0.43",
-    "@types/victor": "^0.2.28",
     "battlecode-schema": "file:../../schema",
     "core-js": "^2.4.0",
     "deepcopy": "^0.6.3",
@@ -31,7 +29,10 @@
   },
   "devDependencies": {
     "@types/blue-tape": "^0.1.30",
+    "@types/core-js": "^0.9.34",
+    "@types/node": "^6.14.8",
     "@types/pako": "^0.2.31",
+    "@types/victor": "^0.2.28",
     "blue-tape": "^0.2.0",
     "onchange": "^2.5.0",
     "stream": "0.0.2",

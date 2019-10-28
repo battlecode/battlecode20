@@ -1,6 +1,8 @@
 // Map polyfill
 import * as Map from 'core-js/library/es6/map';
 
+// To somebody good at typescript, please fix @ts-ignore
+
 /**
  * A class that wraps a group of typed buffers.
  *
@@ -124,6 +126,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
     for (const field in fields) {
       if (hasOwnProperty(fields, field)) {
         const arr = fields[field];
+        // @ts-ignore
         this.arrays[field] = new (<any>arr).constructor(this._capacity);
         this.arrays[field].set(arr.slice(0, this._length));
         this._fieldNames.push(field);
@@ -153,6 +156,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
       for (const field in this.arrays) {
         const oldArray = this.arrays[field];
         const newArray = new (<any>oldArray.constructor)(this._capacity);
+        // @ts-ignore
         this.arrays[field] = newArray;
       }
     }
@@ -202,6 +206,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
       throw new Error('Cannot insert without primary key');
     }
     const primary = numbers[this._primary];
+    // @ts-ignore
     if (this._primLookup.has(primary)) {
       throw new Error('Primary key already exists');
     }
@@ -209,6 +214,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
     this._resize(this._length + 1);
 
     const index = this._length - 1;
+    // @ts-ignore
     this._primLookup.set(primary, index);
     this._alterAt(index, numbers);
     return index;
@@ -223,6 +229,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
     if (!(this._primary in numbers)) {
       throw new Error(`Cannot alter without primary key: '${this._primary}'`);
     }
+    // @ts-ignore
     const p = <number> (numbers[this._primary]);
     if (!this._primLookup.has(p)) {
       throw new Error(`Record with primary key does not exist: ${p}`);
@@ -242,6 +249,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
     }
     const i = this._primLookup.get(primary);
     for (const field of this._fieldNames) {
+      // @ts-ignore
       result[field] = this.arrays[field][i];
     }
     return <Row<Schema>> result;
@@ -263,6 +271,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
   private _alterAt(index: number, values: Partial<Row<Schema>>) {
     for (const field in values) {
       if (hasOwnProperty(values, field) && field in this.arrays) {
+        // @ts-ignore
         this.arrays[field][index] = <number> (values[field]);
       }
     }
@@ -462,6 +471,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
         const oldArray = this.arrays[field];
         const newArray = new (<any> oldArray.constructor)(this._capacity);
         newArray.set(oldArray);
+        // @ts-ignore
         this.arrays[field] = newArray;
       }
     }
@@ -517,7 +527,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
 }
 
 /**
- * An object corresponding to a  row in the database.
+ * An object corresponding to a row in the database.
  */
 export type Row<Schema> = {[P in keyof Schema]: number};
 

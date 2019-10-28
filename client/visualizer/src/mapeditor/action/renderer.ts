@@ -11,8 +11,6 @@ export type MapUnit = {
   loc: Victor,
   radius: number,
   type: schema.BodyType,
-  containedBullets: number,
-  containedBody: schema.BodyType,
   teamID?: number
 };
 
@@ -58,7 +56,7 @@ export default class MapRenderer {
       this.ctx = ctx;
     }
 
-    this.bgPattern = this.ctx.createPattern(imgs.background, 'repeat');
+    this.bgPattern = <CanvasPattern>this.ctx.createPattern(imgs.background, 'repeat');
   }
 
   /**
@@ -120,14 +118,10 @@ export default class MapRenderer {
       let img: HTMLImageElement;
 
       this.drawCircleBot(x, y, radius);
-      if (type === cst.TREE_NEUTRAL) {
-        img = this.imgs.tree.fullHealth;
-      } else {
-        const teamID = body.teamID || 1;
-        img = this.imgs.robot[cst.bodyTypeToString(body.type)][teamID];
-      }
+      const teamID = body.teamID || 1;
+      img = this.imgs.robot[cst.bodyTypeToString(body.type)][teamID];
       this.drawImage(img, x, y, radius);
-      this.drawGoodies(x, y, radius, body.containedBullets, body.containedBody);
+      // this.drawGoodies(x, y, radius, body.containedBullets, body.containedBody);
     });
 
     map.symmetricBodies.forEach((body: MapUnit) => {
@@ -137,13 +131,9 @@ export default class MapRenderer {
       let img: HTMLImageElement;
 
       this.drawCircleBot(x, y, radius);
-      if (body.type === cst.TREE_NEUTRAL) {
-        img = this.imgs.tree.fullHealth;
-      } else {
-        img = this.imgs.robot[cst.bodyTypeToString(body.type)][2];
-      }
+      img = this.imgs.robot[cst.bodyTypeToString(body.type)][2];
       this.drawImage(img, x, y, radius);
-      this.drawGoodies(x, y, radius, body.containedBullets, body.containedBody);
+      // this.drawGoodies(x, y, radius, body.containedBullets, body.containedBody);
     });
   }
 
@@ -193,10 +183,10 @@ export default class MapRenderer {
   /**
    * Draws goodies centered at (x, y) with the given radius, if there are any
    */
-  private drawGoodies(x: number, y: number, radius: number, bullets: number, body: schema.BodyType) {
-    if (bullets > 0) this.drawImage(this.imgs.tree.bullets, x, y, radius);
-    if (body !== cst.NONE) this.drawImage(this.imgs.tree.robot, x, y, radius);
-  }
+  // private drawGoodies(x: number, y: number, radius: number, bullets: number, body: schema.BodyType) {
+  //   if (bullets > 0) this.drawImage(this.imgs.tree.bullets, x, y, radius);
+  //   if (body !== cst.NONE) this.drawImage(this.imgs.tree.robot, x, y, radius);
+  // }
 
   /**
    * Draws an image centered at (x, y) with the given radius
