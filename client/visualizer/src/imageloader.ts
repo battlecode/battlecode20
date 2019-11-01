@@ -5,21 +5,18 @@ type Image = HTMLImageElement;
 export type AllImages = {
   background: Image, 
   star: Image,
+  cow: Image,
   robot: {
     netGun: Image,
     landscaper: Image,
     miner: Image,
     fulfillmentCenter: Image,
-    drone: {
-      empty: Image,
-      full: Image
-    }, 
-    souperCenter: Image,
+    drone: Image, 
+    designSchool: Image,
     refinery: Image,
-    vaporator: Image,
-    hq: Image
+    HQ: Image,
+    vaporator: Image
   },
-  cow: Image,
   controls: {
     goNext: Image,
     goPrevious: Image,
@@ -34,7 +31,7 @@ export type AllImages = {
 
 export function loadAll(config: Config, finished: (AllImages) => void) {
   let expected = 0, loaded = 0;
-  let result: any = {robot: {netGun: [], landscaper: [], miner: [], fulfillmentCenter: [], drone: {}, souperCenter: [], refinery: [], vaporator: [], hq: []}, controls: {}};
+  let result: any = {robot: {netGun: [], landscaper: [], miner: [], fulfillmentCenter: [], drone: [], designSchool: [], refinery: [], vaporator: [], HQ: []}, controls: {}};
 
   // write loaded image to obj[slot]
   function img(obj, slot, url: string) {
@@ -66,18 +63,17 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   img(result, 'background', require(dirname + 'map/tiled_1.jpg'));
   img(result, 'unknown', require(dirname + 'sprites/unknown.png'));
   img(result, 'star', require(dirname + 'yellow_star.png'));
-  // TODO make cow
-  img(result, 'cow', require(dirname + 'sprites/unknown.png'));
+  img(result, 'cow', require(dirname + 'sprites/Cow.png'));
 
 
   // these are the teams we expect robots to be in according to current
   // battlecode-server
   // TODO(jhgilles):
   // we'll need to update them if team configuration becomes more dynamic
-  img(result.drone, 'full_0', require(dirname + 'sprites/Drone_red_carry.png'));
-  img(result.drone, 'empty_0', require(dirname + 'sprites/Drone_red.png'));
-  img(result.drone, 'full_1', require(dirname + 'sprites/Drone_blue_carry.png'));
-  img(result.drone, 'empty_1', require(dirname + 'sprites/Drone_blue.png'));
+  img(result.robot.drone, 0, require(dirname + 'sprites/Drone_red_carry.png'));
+  img(result.robot.drone, 1, require(dirname + 'sprites/Drone_red.png'));
+  img(result.robot.drone, 2, require(dirname + 'sprites/Drone_blue_carry.png'));
+  img(result.robot.drone, 3, require(dirname + 'sprites/Drone_blue.png'));
 
   img(result.robot.netGun, 0, require(dirname + 'sprites/Net_gun_red.png'));
   img(result.robot.netGun, 1, require(dirname + 'sprites/Net_gun_blue.png'));
@@ -91,8 +87,8 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   img(result.robot.fulfillmentCenter, 0, require(dirname + 'sprites/Fulfillment_red.png'));
   img(result.robot.fulfillmentCenter, 1, require(dirname + 'sprites/Fulfillment_blue.png'));
   
-  img(result.robot.souperCenter, 0, require(dirname + 'sprites/SOUPER_red.png'));
-  img(result.robot.souperCenter, 1, require(dirname + 'sprites/SOUPER_blue.png'));
+  img(result.robot.designSchool, 0, require(dirname + 'sprites/SOUPER_red.png'));
+  img(result.robot.designSchool, 1, require(dirname + 'sprites/SOUPER_blue.png'));
   
   img(result.robot.refinery, 0, require(dirname + 'sprites/Refinery_red.png'));
   img(result.robot.refinery, 1, require(dirname + 'sprites/Refinery_blue.png'));
@@ -100,8 +96,8 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   img(result.robot.vaporator, 0, require(dirname + 'sprites/Vaporator_red.png'));
   img(result.robot.vaporator, 1, require(dirname + 'sprites/Vaporator_blue.png'));
   
-  img(result.robot.hq, 0, require(dirname + 'sprites/HQ_red.png'));
-  img(result.robot.hq, 1, require(dirname + 'sprites/HQ_blue.png'));
+  img(result.robot.HQ, 0, require(dirname + 'sprites/HQ_red.png'));
+  img(result.robot.HQ, 1, require(dirname + 'sprites/HQ_blue.png'));
   
 
   img(result.controls, 'goNext', require(dirname + 'controls/go-next.png'));

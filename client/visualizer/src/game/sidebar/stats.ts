@@ -37,12 +37,11 @@ export default class Stats {
   // statically.
 
   readonly robots: schema.BodyType[] = [
-    cst.MINER, cst.LANDSCAPER, cst.DRONE, cst.NET_GUN, cst.COW, cst.REFINERY, cst.VAPORATOR, cst.HQ, cst.DESIGN_SCHOOL, cst.FULFILLMENT_CENTER
+    cst.MINER, cst.LANDSCAPER, cst.DRONE, cst.NET_GUN, cst.REFINERY, cst.VAPORATOR, cst.HQ, cst.DESIGN_SCHOOL, cst.FULFILLMENT_CENTER
   ];
 
   constructor(conf: Config, images: AllImages) {
     this.images = images;
-
     this.div = document.createElement("div");
 
     let teamNames: Array<string> = ["?????", "?????"];
@@ -74,8 +73,11 @@ export default class Stats {
 
     // Create the table row with the robot images
     let robotImages: HTMLTableRowElement = document.createElement("tr");
+    console.log(this.images.robot);
     for (let robot of this.robots) {
       let robotName: string = cst.bodyTypeToString(robot);
+      console.log(robotName);
+      console.log(this.images.robot[robotName]);
       let td: HTMLTableCellElement = document.createElement("td");
       td.appendChild(this.images.robot[robotName][inGameID]);
       robotImages.appendChild(td);
