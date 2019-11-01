@@ -207,6 +207,7 @@ export default class Sidebar {
         
         document.onkeydown = (event) => {
           this.onkeydownControls(event);
+          // @ts-ignore
           var input = document.activeElement.nodeName == "INPUT";
           if(!input) {
             console.log(input);

@@ -2,20 +2,24 @@ import {Config} from './config';
 
 type Image = HTMLImageElement;
 
+
 export type AllImages = {
   background: Image, 
   star: Image,
   cow: Image,
   robot: {
-    netGun: Image,
-    landscaper: Image,
-    miner: Image,
-    fulfillmentCenter: Image,
-    drone: Image, 
-    designSchool: Image,
-    refinery: Image,
-    HQ: Image,
-    vaporator: Image
+    netGun: Array<Image>,
+    landscaper: Array<Image>,
+    miner: Array<Image>,
+    fulfillmentCenter: Array<Image>,
+    drone: {
+      empty: Array<Image>,
+      carry: Array<Image>
+    }
+    designSchool: Array<Image>,
+    refinery: Array<Image>,
+    HQ: Array<Image>,
+    vaporator: Array<Image>
   },
   controls: {
     goNext: Image,
@@ -31,7 +35,7 @@ export type AllImages = {
 
 export function loadAll(config: Config, finished: (AllImages) => void) {
   let expected = 0, loaded = 0;
-  let result: any = {robot: {netGun: [], landscaper: [], miner: [], fulfillmentCenter: [], drone: [], designSchool: [], refinery: [], vaporator: [], HQ: []}, controls: {}};
+  let result: any = {robot: {netGun: [], landscaper: [], miner: [], fulfillmentCenter: [], drone: {empty: [], carry: []}, designSchool: [], refinery: [], vaporator: [], HQ: []}, controls: {}};
 
   // write loaded image to obj[slot]
   function img(obj, slot, url: string) {
@@ -39,6 +43,7 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
     expected++;
     let image = new Image();
     image.onload = () => {
+      console.log(obj);
       obj[slot] = image;
       // hey, we found it
       loaded++;
@@ -59,6 +64,8 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   }
 
   const dirname = "./static/img/";
+  const RED: number = 1;
+  const BLU: number = 2;
 
   img(result, 'background', require(dirname + 'map/tiled_1.jpg'));
   img(result, 'unknown', require(dirname + 'sprites/unknown.png'));
@@ -70,34 +77,34 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   // battlecode-server
   // TODO(jhgilles):
   // we'll need to update them if team configuration becomes more dynamic
-  img(result.robot.drone, 0, require(dirname + 'sprites/Drone_red_carry.png'));
-  img(result.robot.drone, 1, require(dirname + 'sprites/Drone_red.png'));
-  img(result.robot.drone, 2, require(dirname + 'sprites/Drone_blue_carry.png'));
-  img(result.robot.drone, 3, require(dirname + 'sprites/Drone_blue.png'));
+  img(result.robot.drone.empty, RED, require(dirname + 'sprites/Drone_red.png'));
+  img(result.robot.drone.empty, BLU, require(dirname + 'sprites/Drone_blue.png'));
+  img(result.robot.drone.carry, RED, require(dirname + 'sprites/Drone_red_carry.png'));
+  img(result.robot.drone.carry, BLU, require(dirname + 'sprites/Drone_blue_carry.png'));
 
-  img(result.robot.netGun, 0, require(dirname + 'sprites/Net_gun_red.png'));
-  img(result.robot.netGun, 1, require(dirname + 'sprites/Net_gun_blue.png'));
+  img(result.robot.netGun, RED, require(dirname + 'sprites/Net_gun_red.png'));
+  img(result.robot.netGun, BLU, require(dirname + 'sprites/Net_gun_blue.png'));
   
-  img(result.robot.landscaper, 0, require(dirname + 'sprites/Landscaper_red.png'));
-  img(result.robot.landscaper, 1, require(dirname + 'sprites/Landscaper_blue.png'));
+  img(result.robot.landscaper, RED, require(dirname + 'sprites/Landscaper_red.png'));
+  img(result.robot.landscaper, BLU, require(dirname + 'sprites/Landscaper_blue.png'));
   
-  img(result.robot.miner, 0, require(dirname + 'sprites/Miner_red.png'));
-  img(result.robot.miner, 1, require(dirname + 'sprites/Miner_blue.png'));
+  img(result.robot.miner, RED, require(dirname + 'sprites/Miner_red.png'));
+  img(result.robot.miner, BLU, require(dirname + 'sprites/Miner_blue.png'));
   
-  img(result.robot.fulfillmentCenter, 0, require(dirname + 'sprites/Fulfillment_red.png'));
-  img(result.robot.fulfillmentCenter, 1, require(dirname + 'sprites/Fulfillment_blue.png'));
+  img(result.robot.fulfillmentCenter, RED, require(dirname + 'sprites/Fulfillment_red.png'));
+  img(result.robot.fulfillmentCenter, BLU, require(dirname + 'sprites/Fulfillment_blue.png'));
   
-  img(result.robot.designSchool, 0, require(dirname + 'sprites/SOUPER_red.png'));
-  img(result.robot.designSchool, 1, require(dirname + 'sprites/SOUPER_blue.png'));
+  img(result.robot.designSchool, RED, require(dirname + 'sprites/SOUPER_red.png'));
+  img(result.robot.designSchool, BLU, require(dirname + 'sprites/SOUPER_blue.png'));
   
-  img(result.robot.refinery, 0, require(dirname + 'sprites/Refinery_red.png'));
-  img(result.robot.refinery, 1, require(dirname + 'sprites/Refinery_blue.png'));
+  img(result.robot.refinery, RED, require(dirname + 'sprites/Refinery_red.png'));
+  img(result.robot.refinery, BLU, require(dirname + 'sprites/Refinery_blue.png'));
   
-  img(result.robot.vaporator, 0, require(dirname + 'sprites/Vaporator_red.png'));
-  img(result.robot.vaporator, 1, require(dirname + 'sprites/Vaporator_blue.png'));
+  img(result.robot.vaporator, RED, require(dirname + 'sprites/Vaporator_red.png'));
+  img(result.robot.vaporator, BLU, require(dirname + 'sprites/Vaporator_blue.png'));
   
-  img(result.robot.HQ, 0, require(dirname + 'sprites/HQ_red.png'));
-  img(result.robot.HQ, 1, require(dirname + 'sprites/HQ_blue.png'));
+  img(result.robot.HQ, RED, require(dirname + 'sprites/HQ_red.png'));
+  img(result.robot.HQ, BLU, require(dirname + 'sprites/HQ_blue.png'));
   
 
   img(result.controls, 'goNext', require(dirname + 'controls/go-next.png'));

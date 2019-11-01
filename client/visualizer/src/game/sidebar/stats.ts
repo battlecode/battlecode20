@@ -79,8 +79,17 @@ export default class Stats {
       console.log(robotName);
       console.log(this.images.robot[robotName]);
       let td: HTMLTableCellElement = document.createElement("td");
-      td.appendChild(this.images.robot[robotName][inGameID]);
+
+      console.log(inGameID);
+      if(robotName === "drone"){
+        td.appendChild(this.images.robot[robotName]['carry'][inGameID]);
+        td.appendChild(this.images.robot[robotName]['empty'][inGameID]);
+      }
+      else{
+        td.appendChild(this.images.robot[robotName][inGameID]);
+      }
       robotImages.appendChild(td);
+      console.log("Successful!");
     }
     table.appendChild(robotImages);
 
@@ -91,6 +100,8 @@ export default class Stats {
       robotCounts.appendChild(td);
     }
     table.appendChild(robotCounts);
+
+    console.log("Done!");
 
     return table;
   }
@@ -168,6 +179,7 @@ export default class Stats {
       let teamID = teamIDs[index];
       let teamName = teamNames[index];
       let inGameID = index + 1; // teams start at index 1
+      console.log("Team: " + inGameID);
 
       // A div element containing all stats information about this team
       let teamDiv = document.createElement("div");
