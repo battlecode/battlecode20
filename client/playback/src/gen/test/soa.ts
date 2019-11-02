@@ -1,4 +1,4 @@
-import StructOfArrays from '../soa';
+import StructOfArrays from '../../soa';
 import * as test from 'blue-tape';
 
 class B extends Uint8Array {}
