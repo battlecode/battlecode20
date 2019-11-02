@@ -1,5 +1,5 @@
 import {schema, flatbuffers} from 'battlecode-schema';
-import {createHeader, createEventWrapper} from '../bench/create';
+import {createHeader, createEventWrapper} from '../../gen/bench/create';
 
 function createMatch(matches: number, turnsPerMatch: number): flatbuffers.Offset {
   let builder = new flatbuffers.Builder();

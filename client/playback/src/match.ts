@@ -131,8 +131,12 @@ export default class Match {
       throw new Error(`Can't store delta ${delta.roundID()}, only have rounds up to ${this.deltas.length-1}`);
     }
     this.deltas.push(delta);
+    console.log(delta);
+    console.log(delta.roundID());
+    console.log(delta.logs());
+    console.log(this.deltas);
 
-    this.parseLogs(delta.roundID(), <string> delta.logs(flatbuffers.Encoding.UTF16_STRING));
+    // this.parseLogs(delta.roundID(), <string> delta.logs(flatbuffers.Encoding.UTF16_STRING));
   }
 
   /**
@@ -141,6 +145,7 @@ export default class Match {
   parseLogs(round: number, logs: string) {
 
     // Regex
+    console.log(logs);
     let lines = logs.split(/\r?\n/);
     let header = /^\[(A|B):(MINER|LANDSCAPER|DRONE|NET_GUN|REFINERY|VAPORATOR|HQ|DESIGN_SCHOOL|FULFILLMENT_CENTER)#(\d+)@(\d+)\] (.*)/;
 

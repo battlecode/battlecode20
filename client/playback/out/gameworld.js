@@ -90,8 +90,10 @@ class GameWorld {
     }
     loadFromMatchHeader(header) {
         const map = header.map();
+        console.log(this);
         const bodies = map.bodies(this._bodiesSlot);
-        if (bodies) {
+        console.log(this._bodiesSlot);
+        if (bodies.robotIDsLength) {
             this.insertBodies(bodies);
         }
         // const trees = map.trees();
@@ -140,7 +142,7 @@ class GameWorld {
             throw new Error(`Bad Round: this.turn = ${this.turn}, round.roundID() = ${delta.roundID()}`);
         }
         // Update bullet and vp stats
-        for (var i = 0; i < delta.teamIDsArray().length; i++) {
+        for (var i = 0; i < delta.teamIDsLength(); i++) {
             var teamID = delta.teamIDsArray()[i];
             var statObj = this.stats.get(teamID);
             // statObj.bullets = delta.teamBullets(i);
@@ -279,7 +281,7 @@ class GameWorld {
         // Update spawn stats
         var teams = bodies.teamIDsArray();
         var types = bodies.typesArray();
-        for (let i = 0; i < bodies.robotIDsArray().length; i++) {
+        for (let i = 0; i < bodies.robotIDsLength(); i++) {
             var statObj = this.stats.get(teams[i]);
             statObj.robots[types[i]] += 1;
             this.stats.set(teams[i], statObj);
@@ -312,8 +314,18 @@ class GameWorld {
         //   maxHealthArray[i] = typeInfo.maxHealth;
         // }
         soa_1.default.fill(this.bodies.arrays.bytecodesUsed, 0, startIndex, this.bodies.length);
-        soa_1.default.fill(this.bodies.arrays.containedBullets, 0, startIndex, this.bodies.length);
-        soa_1.default.fill(this.bodies.arrays.containedBody, battlecode_schema_1.schema.BodyType.NONE, startIndex, this.bodies.length);
+        // StructOfArrays.fill(
+        //   this.bodies.arrays.containedBullets,
+        //   0,
+        //   startIndex,
+        //   this.bodies.length
+        // );
+        // StructOfArrays.fill(
+        //   this.bodies.arrays.containedBody,
+        //   schema.BodyType.NONE,
+        //   startIndex,
+        //   this.bodies.length
+        // );
     }
 }
 exports.default = GameWorld;

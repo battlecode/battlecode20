@@ -1,6 +1,7 @@
 import {schema, flatbuffers} from 'battlecode-schema';
 import * as Map from 'core-js/library/es6/map';
 import {createWriteStream} from 'fs';
+import {gzip} from 'pako';
 
 const SIZE = 50;
 const SIZE2 = SIZE / 2;
@@ -9,7 +10,7 @@ export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const bodies: flatbuffers.Offset[] = [];
   // TODO: auto-update following long array from enum type?
   // what's the default value?
-  for (const body of [schema.BodyType.MINER, schema.BodyType.LANDSCAPER, schema.BodyType.DRONE, schema.BodyType.NET_GUN, schema.BodyType.COW, schema.BodyType.REFINERY, schema.BodyType.VAPORATOR, schema.BodyType.HQ, schema.BodyType.DESIGN_SCHOOL, schema.BodyType.FULFILLMENT_CENTER]) {
+  for (const body of [schema.BodyType.MINER, schema.BodyType.LANDSCAPER, schema.BodyType.DRONE, schema.BodyType.NET_GUN, schema.BodyType.COW, schema.BodyType.REFINERY, schema.BodyType.VAPORATOR, schema.BodyType.HQ, schema.BodyType.DESIGN_SCHOOL, schema.BodyType.FULFILLMENT_CENTER, schema.BodyType.NONE]) {
     schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
     schema.BodyTypeMetadata.addType(builder, body);
     schema.BodyTypeMetadata.addCost(builder, 100);
@@ -64,20 +65,28 @@ export function createBenchGame(aliveCount: number, churnCount: number, moveCoun
 
   events.push(createEventWrapper(builder, createHeader(builder), schema.Event.GameHeader));
 
-  let alive = new Array(aliveCount);
+  let robotIDs = new Array(aliveCount);
+  let teamIDs = new Array(aliveCount);
+  let types = new Array(aliveCount);
   let xs = new Array(aliveCount);
   let ys = new Array(aliveCount);
-  for (let i = 0; i < alive.length; i++) {
-    alive[i] = i;
+  for (let i = 0; i < robotIDs.length; i++) {
+    robotIDs[i] = i;
+    teamIDs[i] = i%2+1;
+    types[i] = 1;
     xs[i] = i;
     ys[i] = i;
   }
 
-  const locs = createVecTable(builder, xs, ys);
-  const initialIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, alive);
+  const bb_locs = createVecTable(builder, xs, ys);
+  const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, robotIDs);
+  const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, teamIDs);
+  const bb_types = schema.SpawnedBodyTable.createTypesVector(builder, types);
   schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
-  schema.SpawnedBodyTable.addLocs(builder, locs);
-  schema.SpawnedBodyTable.addRobotIDs(builder, initialIDs);
+  schema.SpawnedBodyTable.addLocs(builder, bb_locs);
+  schema.SpawnedBodyTable.addRobotIDs(builder, bb_robotIDs);
+  schema.SpawnedBodyTable.addTeamIDs(builder, bb_teamIDs);
+  schema.SpawnedBodyTable.addTypes(builder, bb_types);
   const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
   schema.GameMap.startGameMap(builder);
@@ -112,22 +121,24 @@ export function createBenchGame(aliveCount: number, churnCount: number, moveCoun
 
   for (let i = 1; i < turns+1; i++) {
     for (let j = 0; j < churnCount; j++) {
-      diedIDs[j] = alive[j];
+      diedIDs[j] = robotIDs[j];
       bornIDs[j] = nextID++;
-      alive.push(bornIDs[j]);
+      robotIDs.push(bornIDs[j]);
     }
-    alive.splice(0, churnCount);
+    robotIDs.splice(0, churnCount);
 
     for (let i = 0; i < moveCount; i++) {
       // TODO: change to discrete?
-      const t = Math.random() * Math.PI * 2;
-      movedXs[i] = SIZE2 + Math.cos(t) * SIZE2;
-      movedYs[i] = SIZE2 + Math.sin(t) * SIZE2;
+      // const t = Math.random() * Math.PI * 2;
+      // movedXs[i] = SIZE2 + Math.cos(t) * SIZE2;
+      // movedYs[i] = SIZE2 + Math.sin(t) * SIZE2;
+      movedXs[i] = Math.round(Math.random()*3)-1;
+      movedYs[i] = Math.round(Math.random()*3)-1;
     }
     const movedLocs = createVecTable(builder, movedXs, movedYs);
 
     for (let j = 0; j < moveCount; j++) {
-      movedIDs[j] = alive[j];
+      movedIDs[j] = robotIDs[j];
     }
     const diedP = schema.Round.createDiedIDsVector(builder, diedIDs);
 
@@ -275,9 +286,12 @@ export function createWanderGame(unitCount: number, turns: number) {
   builder.finish(wrapper);
   return builder.asUint8Array();
 }
+
+
 let stream = createWriteStream('test.bc20');
-stream.write(new Buffer(createBenchGame(128, 64, 128, 4096)));
+stream.write((gzip(createBenchGame(128, 0, 128, 4096))));
 stream.end();
-let stream2 = createWriteStream('wander.bc20');
-stream2.write(new Buffer(createWanderGame(128, 4096)));
-stream2.end();
+
+// let stream2 = createWriteStream('wander.bc20');
+// stream2.write(gzip(createWanderGame(128, 4096)));
+// stream2.end();
