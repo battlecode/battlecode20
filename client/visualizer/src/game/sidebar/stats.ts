@@ -73,14 +73,10 @@ export default class Stats {
 
     // Create the table row with the robot images
     let robotImages: HTMLTableRowElement = document.createElement("tr");
-    console.log(this.images.robot);
     for (let robot of this.robots) {
       let robotName: string = cst.bodyTypeToString(robot);
-      console.log(robotName);
-      console.log(this.images.robot[robotName]);
       let td: HTMLTableCellElement = document.createElement("td");
 
-      console.log(inGameID);
       if(robotName === "drone"){
         td.appendChild(this.images.robot[robotName]['carry'][inGameID]);
         td.appendChild(this.images.robot[robotName]['empty'][inGameID]);
@@ -89,7 +85,6 @@ export default class Stats {
         td.appendChild(this.images.robot[robotName][inGameID]);
       }
       robotImages.appendChild(td);
-      console.log("Successful!");
     }
     table.appendChild(robotImages);
 
@@ -100,8 +95,6 @@ export default class Stats {
       robotCounts.appendChild(td);
     }
     table.appendChild(robotCounts);
-
-    console.log("Done!");
 
     return table;
   }

@@ -43,7 +43,6 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
     expected++;
     let image = new Image();
     image.onload = () => {
-      console.log(obj);
       obj[slot] = image;
       // hey, we found it
       loaded++;

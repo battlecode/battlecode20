@@ -131,11 +131,8 @@ export default class Match {
       throw new Error(`Can't store delta ${delta.roundID()}, only have rounds up to ${this.deltas.length-1}`);
     }
     this.deltas.push(delta);
-    console.log(delta);
-    console.log(delta.roundID());
-    console.log(delta.logs());
-    console.log(this.deltas);
 
+    // TODO: make logs work
     // this.parseLogs(delta.roundID(), <string> delta.logs(flatbuffers.Encoding.UTF16_STRING));
   }
 

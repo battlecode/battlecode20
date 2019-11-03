@@ -90,10 +90,8 @@ class GameWorld {
     }
     loadFromMatchHeader(header) {
         const map = header.map();
-        console.log(this);
         const bodies = map.bodies(this._bodiesSlot);
-        console.log(this._bodiesSlot);
-        if (bodies.robotIDsLength) {
+        if (bodies && bodies.robotIDsLength) {
             this.insertBodies(bodies);
         }
         // const trees = map.trees();

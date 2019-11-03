@@ -118,10 +118,11 @@ export default class Renderer {
     const maxY = world.maxCorner.y;
 
     let nextXs: Int32Array, nextYs: Int32Array, realXs: Int32Array, realYs: Int32Array;
-    if (nextStep && lerpAmount) {
+    if (nextStep) {
       // Interpolated
       nextXs = nextStep.bodies.arrays.x;
       nextYs = nextStep.bodies.arrays.y;
+      lerpAmount = lerpAmount || 0;
     }
     else{
       // supposed to be error?
@@ -179,8 +180,11 @@ export default class Renderer {
       const x = realXs[i];
       const y = realYs[i];
 
-      if (type !== cst.COW) {
-        const img = this.imgs.robot[cst.bodyTypeToString(type)][team];
+      if (type !== cst.COW && type !== cst.NONE) {
+        let tmp = this.imgs.robot[cst.bodyTypeToString(type)]
+        // TODO how to change drone?
+        if(type == cst.DRONE) tmp = tmp.empty;
+        const img = tmp[team];
         this.drawCircleBot(x, y, radius);
         this.drawImage(img, x, y, radius);
         // this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
