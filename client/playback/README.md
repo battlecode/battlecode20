@@ -1,4 +1,4 @@
-# battlecode-playback 📼
+# Battlecode Playback 📼
 
 ## Overview
   Analyze battlecode match files programmatically.

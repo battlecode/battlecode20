@@ -1,5 +1,4 @@
-Battlecode Client 2020 🕸
-------------------------
+# Battlecode Visualizer 2020 📺
 
 This is the game client for Battlecode 2020, which can run in your web browser or as a standalone application.
 

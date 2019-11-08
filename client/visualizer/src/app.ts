@@ -230,7 +230,7 @@ export default class Client {
           toMain(`Can't load file from URL: invalid URL(${req.status})`);
         }
         else {
-          var lastGame = this.games.length
+          let lastGame = this.games.length
           this.games[lastGame] = new Game();
 
           try {
@@ -252,7 +252,7 @@ export default class Client {
     }
     
     this.controls.onGameLoaded = (data: ArrayBuffer) => {
-      var lastGame = this.games.length
+      let lastGame = this.games.length
       this.games[lastGame] = new Game();
       this.games[lastGame].loadFullGameRaw(data);
 
@@ -507,7 +507,7 @@ export default class Client {
         throw new Error('idk?????? i dont know what im doing document.actievElement is null??');
       }
       
-      var input = document.activeElement.nodeName == "INPUT";
+      let input = document.activeElement.nodeName == "INPUT";
       if(!input) {
         switch (event.keyCode) {
           case 80: // "p" - Pause/Unpause
