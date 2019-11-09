@@ -128,12 +128,15 @@ enum Action : byte {
     /// Dies from being shot (drones).
     /// Target: drone.
     DIE_SHOT,
-    /// Dies due to an uncaught exception
-    /// Target: none
-    DIE_EXCEPTION,
     /// Dies due to having too much dirt on top (buildings).
     /// Target: landscaper
-    DIE_TOO_MUCH_DIRT
+    DIE_TOO_MUCH_DIRT,
+    /// Dies from suicide.
+    /// Target: none.
+    DIE_SUICIDE,
+    /// Dies due to an uncaught exception
+    /// Target: none
+    DIE_EXCEPTION
 }
 
 // Metadata
