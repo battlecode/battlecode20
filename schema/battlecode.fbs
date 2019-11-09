@@ -51,9 +51,9 @@ enum BodyType : byte {
 table SpawnedBodyTable {
     /// The numeric ID of the new bodies.
     /// Will never be negative.
-    /// There will only be one body/bullet with a particular ID at a time.
+    /// There will only be one body with a particular ID at a time.
     /// So, there will never be two robots with the same ID, or a robot and
-    /// a bullet with the same ID.
+    /// a building with the same ID.
     robotIDs: [int];
     /// The teams of the new bodies.
     teamIDs: [byte];
@@ -236,27 +236,29 @@ table MatchFooter {
 table Round {
     /// The IDs of teams in the Game.
     teamIDs: [int];
-    /// The soup counts of the teams.
+    /// The refined soup counts of the teams.
     teamSoups: [int];
-    /// The victory points of the teams.
-    teamVictoryPoints: [int];
 
     /// The IDs of bodies that moved.
     movedIDs: [int];
-    /// The new locations of bodies that have moved. They are defined to be in
-    /// their new locations at exactly the time round.number*dt.
+    /// The new locations of bodies that have moved.
     movedLocs: VecTable;
 
     /// New bodies.
     spawnedBodies: SpawnedBodyTable;
 
-    /// The IDs of bodies that died.
+    /// The indexes of locations with changed pollution.
+    pollutionChangedLocs: [int];
+    /// The new pollution levels of bodies with changed pollution.
+    pollutionChangeLevels: [int];
+
+    /// The IDs of bodies that died (drowned units and shot drones).
     diedIDs: [int];
 
     /// The IDs of robots that performed actions.
     /// IDs may repeat.
     actionIDs: [int];
-    /// The actions performed.
+    /// The actions performed. These actions allow us to track how much soup or dirt a body carries.
     actions: [Action];
     /// The 'targets' of the performed actions. Actions without targets may have
     /// any target (typically 0).
@@ -324,6 +326,9 @@ table Round {
     /// (haha i guess you can never really escape string parsing can you)
     logs: string;
 
+    /// Potential message pool.
+    pool: [Message];
+
     /// The first sent Round in a match should have index 1. (The starting state,
     /// created by the MatchHeader, can be thought to have index 0.)
     /// It should increase by one for each following round.
@@ -333,6 +338,13 @@ table Round {
     bytecodeIDs: [int];
     /// The bytecodes used by the player bodies.
     bytecodesUsed: [int];
+}
+
+table Message {
+    /// The amount a team is paid to send the message.
+    bid: int;
+    /// Messages are 10-15 integers.
+    message: [int];
 }
 
 /// Necessary due to flatbuffers requiring unions to be wrapped in tables.
