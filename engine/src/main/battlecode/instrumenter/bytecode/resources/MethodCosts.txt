@@ -18,7 +18,6 @@ battlecode/common/MapLocation/equals                               2    false
 battlecode/common/MapLocation/hashCode                             2    false
 battlecode/common/MapLocation/isWithinDistance                     2    false
 battlecode/common/MapLocation/isWithinSensorRadius                 2    false
-battlecode/common/MapLocation/isWithinStrideDistance               2    false
 battlecode/common/MapLocation/subtract                             2    false
 battlecode/common/MapLocation/toString                             2    false
 battlecode/common/MapLocation/translate                            2    false
