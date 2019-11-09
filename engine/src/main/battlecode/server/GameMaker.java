@@ -272,11 +272,16 @@ public strictfp class GameMaker {
         for(RobotType type : RobotType.values()){
             BodyTypeMetadata.startBodyTypeMetadata(builder);
             BodyTypeMetadata.addType(builder, robotTypeToBodyType(type));
-            BodyTypeMetadata.addRadius(builder, type.bodyRadius);
-            BodyTypeMetadata.addMaxHealth(builder, type.maxHealth);
-            BodyTypeMetadata.addStartHealth(builder, type.getStartingHealth());
-            BodyTypeMetadata.addStrideRadius(builder, type.strideRadius);
-            BodyTypeMetadata.addSightRadius(builder, type.sensorRadius);
+            BodyTypeMetadata.addSpawnSource(builder, robotTypeToBodyType(type.spawnSource));
+            BodyTypeMetadata.addCost(builder, type.cost);
+            BodyTypeMetadata.addDirtLimit(builder, type.dirtLimit);
+            BodyTypeMetadata.addSoupLimit(builder, type.soupLimit);
+            BodyTypeMetadata.addActionCooldown(builder, type.actionCooldown);
+            BodyTypeMetadata.addSensorRadius(builder, type.sensorRadius);
+            BodyTypeMetadata.addPollutionRadius(builder, type.pollutionRadius);
+            BodyTypeMetadata.addPollutionAmount(builder, type.pollutionAmount);
+            BodyTypeMetadata.addMaxSoupProduced(builder, type.maxSoupProduced);
+            BodyTypeMetadata.addBytecodeLimit(builder, type.bytecodeLimit);
             bodyTypeMetadataOffsets.add(BodyTypeMetadata.endBodyTypeMetadata(builder));
         }
 
@@ -285,12 +290,16 @@ public strictfp class GameMaker {
     }
 
     private byte robotTypeToBodyType(RobotType type){
-        if (type == RobotType.ARCHON) return BodyType.ARCHON;
-        if (type == RobotType.GARDENER) return BodyType.GARDENER;
-        if (type == RobotType.SCOUT) return BodyType.SCOUT;
-        if (type == RobotType.SOLDIER) return BodyType.SOLDIER;
-        if (type == RobotType.LUMBERJACK) return BodyType.LUMBERJACK;
-        if (type == RobotType.TANK) return BodyType.TANK;
+        if (type == RobotType.HQ) return BodyType.HQ;
+        if (type == RobotType.MINER) return BodyType.MINER;
+        if (type == RobotType.REFINERY) return BodyType.REFINERY;
+        if (type == RobotType.VAPORATOR) return BodyType.VAPORATOR;
+        if (type == RobotType.DESIGN_SCHOOL) return BodyType.DESIGN_SCHOOL;
+        if (type == RobotType.FULFILLMENT_CENTER) return BodyType.FULFILLMENT_CENTER;
+        if (type == RobotType.LANDSCAPER) return BodyType.LANDSCAPER;
+        if (type == RobotType.DRONE) return BodyType.DRONE;
+        if (type == RobotType.NET_GUN) return BodyType.NET_GUN;
+        if (type == RobotType.COW) return BodyType.COW;
         return Byte.MIN_VALUE;
     }
 
@@ -319,7 +328,6 @@ public strictfp class GameMaker {
         private TIntArrayList spawnedBodiesRobotIDs;
         private TByteArrayList spawnedBodiesTeamIDs;
         private TByteArrayList spawnedBodiesTypes;
-        private TFloatArrayList spawnedBodiesRadii;
         private TFloatArrayList spawnedBodiesLocsXs; //For locs
         private TFloatArrayList spawnedBodiesLocsYs; //For locs
 
@@ -368,7 +376,6 @@ public strictfp class GameMaker {
             this.spawnedBodiesRobotIDs = new TIntArrayList();
             this.spawnedBodiesTeamIDs = new TByteArrayList();
             this.spawnedBodiesTypes = new TByteArrayList();
-            this.spawnedBodiesRadii = new TFloatArrayList();
             this.spawnedBodiesLocsXs = new TFloatArrayList();
             this.spawnedBodiesLocsYs = new TFloatArrayList();
             this.healthChangedIDs = new TIntArrayList();
@@ -575,7 +582,6 @@ public strictfp class GameMaker {
 
         public void addSpawnedRobot(InternalRobot robot) {
             spawnedBodiesRobotIDs.add(robot.getID());
-            spawnedBodiesRadii.add(robot.getType().bodyRadius);
             spawnedBodiesLocsXs.add(robot.getLocation().x);
             spawnedBodiesLocsYs.add(robot.getLocation().y);
             spawnedBodiesTeamIDs.add(TeamMapping.id(robot.getTeam()));
@@ -589,7 +595,6 @@ public strictfp class GameMaker {
             spawnedBodiesRobotIDs.clear();
             spawnedBodiesTeamIDs.clear();
             spawnedBodiesTypes.clear();
-            spawnedBodiesRadii.clear();
             spawnedBodiesLocsXs.clear();
             spawnedBodiesLocsYs.clear();
             healthChangedIDs.clear();

@@ -98,27 +98,27 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
-    @Override
-    public MapLocation[] getInitialArchonLocations(Team t){
-        assertNotNull(t);
-        if (t == Team.NEUTRAL) {
-            return new MapLocation[0];
-        } else {
-            BodyInfo[] initialRobots = gameWorld.getGameMap().getInitialBodies();
-            ArrayList<MapLocation> archonLocs = new ArrayList<>();
-            for (BodyInfo initial : initialRobots) {
-                if(initial.isRobot()){
-                    RobotInfo robot = (RobotInfo) initial;
-                    if (robot.type == RobotType.ARCHON && robot.team == t) {
-                        archonLocs.add(robot.getLocation());
-                    }
-                }
-            }
-            MapLocation[] array = archonLocs.toArray(new MapLocation[archonLocs.size()]);
-            Arrays.sort(array);
-            return array;
-        }
-    }
+    // @Override
+    // public MapLocation[] getInitialArchonLocations(Team t){
+    //     assertNotNull(t);
+    //     if (t == Team.NEUTRAL) {
+    //         return new MapLocation[0];
+    //     } else {
+    //         BodyInfo[] initialRobots = gameWorld.getGameMap().getInitialBodies();
+    //         ArrayList<MapLocation> archonLocs = new ArrayList<>();
+    //         for (BodyInfo initial : initialRobots) {
+    //             if(initial.isRobot()){
+    //                 RobotInfo robot = (RobotInfo) initial;
+    //                 if (robot.type == RobotType.ARCHON && robot.team == t) {
+    //                     archonLocs.add(robot.getLocation());
+    //                 }
+    //             }
+    //         }
+    //         MapLocation[] array = archonLocs.toArray(new MapLocation[archonLocs.size()]);
+    //         Arrays.sort(array);
+    //         return array;
+    //     }
+    // }
 
     // *********************************
     // ****** UNIT QUERY METHODS *******
@@ -171,20 +171,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
-    private void assertCanSensePartOfCircle(MapLocation center, float radius) throws GameActionException{
-        if(!canSensePartOfCircle(center, radius)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target circle not within sensor range");
-        }
-    }
-
-    private void assertCanSenseAllOfCircle(MapLocation center, float radius) throws GameActionException{
-        if(!canSenseAllOfCircle(center, radius)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target circle not completely within sensor range");
-        }
-    }
-
     @Override
     public boolean onTheMap(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
@@ -195,7 +181,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean onTheMap(MapLocation center, float radius) throws GameActionException{
         assertNotNull(center);
-        assertCanSenseAllOfCircle(center, radius);
+        // assertCanSenseAllOfCircle(center, radius);
         return gameWorld.getGameMap().onTheMap(center, radius);
     }
 
@@ -211,18 +197,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSensePartOfCircle(MapLocation center, float radius){
-        assertNotNull(center);
-        return canSenseRadius(getLocation().distanceTo(center)-radius);
-    }
-
-    @Override
-    public boolean canSenseAllOfCircle(MapLocation center, float radius){
-        assertNotNull(center);
-        return canSenseRadius(getLocation().distanceTo(center)+radius);
-    }
-
-    @Override
     public boolean isLocationOccupied(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
@@ -234,20 +208,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
         return gameWorld.getObjectInfo().getRobotAtLocation(loc) != null;
-    }
-
-    @Override
-    public boolean isCircleOccupied(MapLocation center, float radius) throws GameActionException{
-        assertNotNull(center);
-        assertCanSenseAllOfCircle(center, radius);
-        return !gameWorld.getObjectInfo().isEmpty(center, radius);
-    }
-
-    @Override
-    public boolean isCircleOccupiedExceptByThisRobot(MapLocation center, float radius) throws GameActionException{
-        assertNotNull(center);
-        assertCanSenseAllOfCircle(center, radius);
-        return !gameWorld.getObjectInfo().isEmptyExceptForRobot(center, radius, robot);
     }
 
     @Override
@@ -267,7 +227,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return false;
         }
         InternalRobot robot = gameWorld.getObjectInfo().getRobotByID(id);
-        return canSensePartOfCircle(robot.getLocation(), robot.getType().bodyRadius);
+        return canSenseLocation(robot.getLocation()); // TODO
     }
 
     @Override
@@ -306,7 +266,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 continue;
             }
             // check if can sense
-            if(!canSensePartOfCircle(sensedRobot.getLocation(), sensedRobot.getType().bodyRadius)){
+            if(!canSenseLocation(sensedRobot.getLocation())){
                 continue;
             }
             // check if right team
@@ -368,13 +328,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** MOVEMENT METHODS ***********
     // ***********************************
 
-  /*  private void assertIsPathable(MapLocation loc) throws GameActionException{
-        if(!onTheMap(loc, getType().bodyRadius) ||
-                isCircleOccupiedExceptByThisRobot(loc, getType().bodyRadius)){
-            throw new GameActionException(CANT_MOVE_THERE,
-                    "Cannot move to target location " + loc + ".");
-        }
-    }*/
     private void assertCanMove(MapLocation loc) throws GameActionException{
         if(!canMove(loc))
             throw new GameActionException(CANT_MOVE_THERE,
@@ -383,64 +336,24 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean canMove(Direction dir) {
-        return canMove(dir, getType().strideRadius);
-    }
-
-    @Override
-    public boolean canMove(Direction dir, float dist) {
         assertNotNull(dir);
-        dist = Math.max(0, Math.min(dist, getType().strideRadius));
-        MapLocation center = getLocation().add(dir, dist);
-        return canMove(center);
+        return canMove(getLocation().add(dir));
     }
     
     @Override
     public boolean canMove(MapLocation center) {
         assertNotNull(center);
-        float dist = getLocation().distanceTo(center);
-        if(dist > getType().strideRadius) {
-            Direction dir = getLocation().directionTo(center);
-            center = getLocation().add(dir, getType().strideRadius);
-        }
-        boolean newLocationIsEmpty;
-        if(getType() != RobotType.TANK && getType() != RobotType.SCOUT) {
-            newLocationIsEmpty = gameWorld.getObjectInfo().isEmptyExceptForRobot(center, getType().bodyRadius, robot);
-        } else { // Tanks have special condition due to body attack, Scouts can just go over ...
-            newLocationIsEmpty = gameWorld.getObjectInfo().noRobotsExceptForRobot(center, getType().bodyRadius, robot);
-        }
-        return gameWorld.getGameMap().onTheMap(center, getType().bodyRadius) &&
-                newLocationIsEmpty;
+        return getLocation().distanceTo(center) <= 1 && gameWorld.getGameMap().onTheMap(center) &&
+                gameWorld.getObjectInfo().isEmpty(center, 0);
     }
 
     @Override
     public void move(Direction dir) throws GameActionException {
-        move(dir, getType().strideRadius);
-    }
-
-    @Override
-    public void move(Direction dir, float dist) throws GameActionException {
-        assertNotNull(dir);
-        assertMoveReady();
-        dist = Math.max(0, Math.min(dist, getType().strideRadius));
-        MapLocation center = getLocation().add(dir, dist);
-        move(center);
-    }
-    
-    @Override
-    public void move(MapLocation center) throws GameActionException {
+        MapLocation center = getLocation().add(dir);
         assertNotNull(center);
         assertMoveReady();
-        float dist = getLocation().distanceTo(center);
-        if(dist > getType().strideRadius) {
-            Direction dir = getLocation().directionTo(center);
-            center = getLocation().add(dir, getType().strideRadius);
-        }
         assertCanMove(center);
-        
         this.robot.incrementMoveCount();
-        if(getType() == RobotType.TANK) { // If Tank, see if can actually move, as opposed to just body attack
-            
-        }
         this.robot.setLocation(center);
 
         gameWorld.getMatchMaker().addMoved(getID(), getLocation());
@@ -455,40 +368,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Can't purchase negative victory points");
         }
-    }
-
-    @Override
-    public boolean canStrike() {
-        boolean correctType = getType() == RobotType.LUMBERJACK;
-
-        return correctType && !hasAttacked();
-    }
-
-    @Override
-    public void strike() throws GameActionException {
-        if(getType() != RobotType.LUMBERJACK){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Only lumberjacks can strike");
-        }
-        assertIsWeaponReady();
-
-        this.robot.incrementAttackCount(); // Striking counts as attack.
-
-        // Hit adjacent robots
-        for(InternalRobot hitRobot :
-                gameWorld.getObjectInfo().getAllRobotsWithinRadius(getLocation(), GameConstants.LUMBERJACK_STRIKE_RADIUS)){
-            if(hitRobot.equals(this.robot)){
-                continue;
-            }
-            hitRobot.damageRobot(getType().attackPower);
-        }
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.LUMBERJACK_STRIKE, -1);
-    }
-
-    private boolean canInteractWithLocation(MapLocation loc){
-        assertNotNull(loc);
-        return this.robot.canInteractWithLocation(loc);
     }
 
     // ***********************************
@@ -516,40 +395,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(type);
         assertNotNull(dir);
         boolean hasBuildRequirements = hasRobotBuildRequirements(type);
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                type.bodyRadius;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-        boolean isClear = gameWorld.getGameMap().onTheMap(spawnLoc, type.bodyRadius) &&
-                gameWorld.getObjectInfo().isEmpty(spawnLoc, type.bodyRadius);
+        MapLocation spawnLoc = getLocation().add(dir, 1);
+        boolean isClear = gameWorld.getGameMap().onTheMap(spawnLoc) &&
+                gameWorld.getObjectInfo().isEmpty(spawnLoc, 0.5f); // TODO check empty cell
         boolean cooldownExpired = isBuildReady();
 
         // THIS IS LOOOOL
-        isClear = gameWorld.getGameMap().onTheMap(spawnLoc, 0) &&
+        isClear = gameWorld.getGameMap().onTheMap(spawnLoc) &&
                 gameWorld.getObjectInfo().isEmpty(spawnLoc, 0);
         return hasBuildRequirements && isClear && cooldownExpired;
     }
     
     @Override
-    public boolean canHireGardener(Direction dir) {
-        return canBuildRobot(RobotType.GARDENER, dir);
-    }
-
-    @Override
-    public void hireGardener(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertCanBuildRobot(RobotType.GARDENER, dir);
-
-        this.robot.setBuildCooldownTurns(RobotType.GARDENER.buildCooldownTurns);
-        
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                RobotType.GARDENER.bodyRadius;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-
-        int robotID = gameWorld.spawnRobot(RobotType.GARDENER, spawnLoc, getTeam());
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
+    public boolean canHireMiner(Direction dir) {
+        return canBuildRobot(RobotType.MINER, dir);
     }
 
     @Override
@@ -557,12 +416,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanBuildRobot(type, dir);
 
-        this.robot.setBuildCooldownTurns(type.buildCooldownTurns);
+        this.robot.setBuildCooldownTurns(type.actionCooldown); // TODO changed buildCooldownTurns to actionCooldown
         
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                type.bodyRadius;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
+        MapLocation spawnLoc = getLocation().add(dir, 1); // TODO fix spawn dist
 
         int robotID = gameWorld.spawnRobot(type, spawnLoc, getTeam());
 

@@ -14,7 +14,6 @@ public strictfp class InternalRobot implements InternalBody {
     private Team team;
     private RobotType type;
     private MapLocation location;
-    private float health;
 
     private long controlBits;
     private int currentBytecodeLimit;
@@ -27,8 +26,6 @@ public strictfp class InternalRobot implements InternalBody {
     private int moveCount;
     
     private int buildCooldownTurns;
-
-    private boolean healthChanged = false;
 
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
@@ -49,8 +46,6 @@ public strictfp class InternalRobot implements InternalBody {
         this.team = team;
         this.type = type;
         this.location = loc;
-
-        this.health = type.getStartingHealth();
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
@@ -96,10 +91,6 @@ public strictfp class InternalRobot implements InternalBody {
         return location;
     }
 
-    public float getHealth() {
-        return health;
-    }
-
     public long getControlBits() {
         return controlBits;
     }
@@ -138,13 +129,12 @@ public strictfp class InternalRobot implements InternalBody {
                 && this.cachedRobotInfo.team == team
                 && this.cachedRobotInfo.type == type
                 && this.cachedRobotInfo.location.equals(location)
-                && this.cachedRobotInfo.health == health
                 && this.cachedRobotInfo.attackCount == attackCount
                 && this.cachedRobotInfo.moveCount == moveCount) {
             return this.cachedRobotInfo;
         }
         return this.cachedRobotInfo = new RobotInfo(
-                ID, team, type, location, health, attackCount, moveCount);
+                ID, team, type, location, attackCount, moveCount);
     }
 
     // **********************************
@@ -157,10 +147,6 @@ public strictfp class InternalRobot implements InternalBody {
 
     public boolean canSenseRadius(float radius) {
         return radius <= this.type.sensorRadius;
-    }
-
-    public boolean canInteractWithLocation(MapLocation toInteract){
-        return this.location.distanceTo(toInteract) <= (this.type.bodyRadius + GameConstants.INTERACTION_DIST_FROM_EDGE);
     }
 
     // ******************************************
@@ -188,27 +174,14 @@ public strictfp class InternalRobot implements InternalBody {
         this.buildCooldownTurns = newTurns;
     }
 
-    public void repairRobot(float healAmount){
-        this.health = Math.min(this.health + healAmount, this.type.maxHealth);
-        if(health > this.type.maxHealth){
-            this.health = this.type.maxHealth;
-        }
-        this.healthChanged = true;
-    }
-
-    public void damageRobot(float damage){
-        this.health = Math.max(this.health - damage, 0);
-        this.healthChanged = true;
-        killRobotIfDead();
-    }
-
-    public boolean killRobotIfDead(){
-        if(this.health == 0){
-            gameWorld.destroyRobot(this.ID);
-            return true;
-        }
-        return false;
-    }
+    // TODO!!
+    // public boolean killRobotIfDead(){
+    //     if(this.health == 0){
+    //         gameWorld.destroyRobot(this.ID);
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     // *********************************
     // ****** GAMEPLAY METHODS *********
@@ -216,7 +189,7 @@ public strictfp class InternalRobot implements InternalBody {
 
     // should be called at the beginning of every round
     public void processBeginningOfRound() {
-        this.healthChanged = false;
+        // this.healthChanged = false;
     }
 
     public void processBeginningOfTurn() {
@@ -226,9 +199,9 @@ public strictfp class InternalRobot implements InternalBody {
         if(buildCooldownTurns > 0) {
             buildCooldownTurns--;
         }
-        if(getRoundsAlive() < 20 && this.type.isBuildable()){
-            this.repairRobot(.04f * getType().maxHealth);
-        }
+        // if(getRoundsAlive() < 20 && this.type.isBuildable()){
+        //     this.repairRobot(.04f * getType().maxHealth);
+        // }
         this.currentBytecodeLimit = getType().bytecodeLimit;
     }
 
@@ -239,20 +212,21 @@ public strictfp class InternalRobot implements InternalBody {
     }
 
     public void processEndOfRound() {
-        if(this.healthChanged){
-            gameWorld.getMatchMaker().addHealthChanged(getID(), getHealth());
-        }
+        // if(this.healthChanged){
+        //     gameWorld.getMatchMaker().addHealthChanged(getID(), getHealth());
+        // }
     }
 
     // *********************************
     // ****** BYTECODE METHODS *********
     // *********************************
 
+    // TODO
     public boolean canExecuteCode() {
-        if (getHealth() <= 0.0)
-            return false;
-        if(type.isBuildable())
-            return roundsAlive >= 20;
+        // if (getHealth() <= 0.0)
+        //     return false;
+        // if(type.isBuildable())
+        //     return roundsAlive >= 20;
         return true;
     }
 

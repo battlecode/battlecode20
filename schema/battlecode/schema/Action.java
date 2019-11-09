@@ -14,7 +14,7 @@ public final class Action {
   private Action() { }
   /**
    * Mines a unit of soup (miners).
-   * Target: tile.
+   * Target: location.
    */
   public static final byte MINE_SOUP = 0;
   /**
@@ -24,12 +24,12 @@ public final class Action {
   public static final byte REFINE_SOUP = 1;
   /**
    * Digs a unit of dirt (landscapers).
-   * Target: tile.
+   * Target: location.
    */
   public static final byte DIG_DIRT = 2;
   /**
    * Deposits a unit of dirt (landscapers).
-   * Target: tile.
+   * Target: location.
    */
   public static final byte DEPOSIT_DIRT = 3;
   /**

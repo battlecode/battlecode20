@@ -457,34 +457,6 @@ public strictfp interface RobotController {
      */
     void move(Direction dir) throws GameActionException;
 
-    /**
-     * Moves distance in the given direction. If the distance exceeds the robot's
-     * {@code strideRadius}, it is rescaled to {@code strideRadius}.
-     *
-     * @param dir the direction to move in
-     * @param distance the distance to move in that direction
-     * @throws GameActionException if the robot cannot move distance in this
-     * direction, such as already moved that turn, the target location being
-     * off the map, and the target destination being occupied with either
-     * another robot.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void move(Direction dir, float distance) throws GameActionException;
-    
-    /**
-     * Moves to the target MapLocation. If the target location is outside the robot's
-     * {@code strideRadius}, it is rescaled to be {@code strideRadius} away.
-     * 
-     * @param center the MapLocation to move to (or toward)
-     * @throws GameActionException if the robot can not move to the target MapLocation,
-     * such as already having moved that turn, the target location being off the map,
-     * or a target destination being occupied with either another robot.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void move(MapLocation center) throws GameActionException;
-
     // ***********************************
     // ****** ATTACK METHODS *************
     // ***********************************
@@ -509,7 +481,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    void strike() throws GameActionException;
+    // void strike() throws GameActionException;
 
     // ***********************************
     // ****** BUILDING/SPAWNING **********
@@ -565,18 +537,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     boolean canHireGardener(Direction dir);
-    
-    /**
-     * Hires a Gardener in the given direction.
-     *
-     * @param dir the direction to spawn the Gardener
-     * @throws GameActionException if you don't have enough currency, if
-     * the robot is still in build cooldown, if the direction is not a good build
-     * direction, or if this robot is not of an appropriate type.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void hireGardener(Direction dir) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

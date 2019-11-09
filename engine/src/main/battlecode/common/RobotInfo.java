@@ -26,11 +26,6 @@ public class RobotInfo implements  BodyInfo{
      * The current location of the robot.
      */
     public final MapLocation location;
-
-    /**
-     * The current health of the robot.
-     */
-    public final float health;
     
     /**
      * The number of times this robot has attacked in the current turn.
@@ -62,14 +57,12 @@ public class RobotInfo implements  BodyInfo{
         return true;
     }
 
-    public RobotInfo(int ID, Team team, RobotType type, MapLocation location,
-                     float health, int attackCount, int moveCount) {
+    public RobotInfo(int ID, Team team, RobotType type, MapLocation location, int attackCount, int moveCount) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
         this.location = location;
-        this.health = health;
         this.attackCount = attackCount;
         this.moveCount = moveCount;
     }
@@ -90,15 +83,6 @@ public class RobotInfo implements  BodyInfo{
      */
     public RobotType getType() {
         return type;
-    }
-
-    /**
-     * Returns the current health of this robot.
-     *
-     * @return the current health of this robot.
-     */
-    public float getHealth() {
-        return health;
     }
 
     /**
@@ -129,7 +113,6 @@ public class RobotInfo implements  BodyInfo{
         if (ID != robotInfo.ID) return false;
         if (Float.compare(robotInfo.attackCount, attackCount) != 0) return false;
         if (Float.compare(robotInfo.moveCount, moveCount) != 0) return false;
-        if (Float.compare(robotInfo.health, health) != 0) return false;
         if (team != robotInfo.team) return false;
         if (type != robotInfo.type) return false;
         return location.equals(robotInfo.location);
@@ -146,8 +129,6 @@ public class RobotInfo implements  BodyInfo{
         result = 31 * result + location.hashCode();
         result = 31 * result + attackCount;
         result = 31 * result + moveCount;
-        temp = Double.doubleToLongBits(health);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
 
@@ -158,7 +139,6 @@ public class RobotInfo implements  BodyInfo{
                 ", team=" + team +
                 ", type=" + type +
                 ", location=" + location +
-                ", health=" + health +
                 ", attackCount=" + attackCount +
                 ", moveCount=" + moveCount +
                 '}';

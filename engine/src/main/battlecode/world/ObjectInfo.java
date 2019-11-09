@@ -193,7 +193,7 @@ public strictfp class ObjectInfo {
                 new TIntProcedure() {           // Add each to a list
                     public boolean execute(int i) {
                         InternalRobot potentialRobot = getRobotByID(i);
-                        if (potentialRobot.getLocation().isWithinDistance(center,potentialRobot.getType().bodyRadius+radius))
+                        if (potentialRobot.getLocation().isWithinDistance(center, radius))
                             returnRobots.add(potentialRobot);
                         return true;   // Keep searching for results
                     }
@@ -215,7 +215,7 @@ public strictfp class ObjectInfo {
                 new TIntProcedure() {
                     public boolean execute(int i) {
                         InternalRobot potentialRobot = getRobotByID(i);
-                        if (potentialRobot.getLocation().isWithinDistance(loc,potentialRobot.getType().bodyRadius)) {
+                        if (potentialRobot.getLocation().isWithinDistance(loc, 0)) {
                             returnRobots.add(potentialRobot);
                             return false;
                         }
