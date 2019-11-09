@@ -49,12 +49,11 @@ export default class Sidebar {
     this.mapeditor = new MapEditor(conf, images);
     this.matchrunner = new MatchRunner(conf, () => {
       // Set callback for matchrunner in case the scaffold is loaded later
-      electron.remote.dialog.showOpenDialog(
-      {
+      electron.remote.dialog.showOpenDialog({
         title: 'Please select your battlecode-scaffold directory.',
         properties: ['openDirectory']
-      },
-      (filePaths) => {
+      }).then((result) => {
+        let filePaths = result.filePaths;
         if (filePaths.length > 0) {
           this.scaffold = new ScaffoldCommunicator(filePaths[0]);
           this.addScaffold(this.scaffold);

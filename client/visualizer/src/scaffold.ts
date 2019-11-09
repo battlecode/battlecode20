@@ -156,7 +156,9 @@ export default class ScaffoldCommunicator {
       {cwd: this.scaffoldPath}
     );
     const decoder = new window['TextDecoder']();
+    // @ts-ignore
     proc.stdout.on('data', (data) => onStdout(decoder.decode(data)));
+    // @ts-ignore
     proc.stderr.on('data', (data) => onStderr(decoder.decode(data)));
     proc.on('close', (code) => {
       if (code === 0) {

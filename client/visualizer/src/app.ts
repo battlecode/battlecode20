@@ -621,13 +621,12 @@ export default class Client {
 
         let lerp = Math.min(interpGameTime - match.current.turn, 1);
 
-        renderer.render(match.current,
-                        match.current.minCorner, match.current.maxCorner,
-                        nextStep, lerp);
+        // @ts-ignore
+        renderer.render(match.current, match.current.minCorner, match.current.maxCorner, nextStep, lerp);
       } else {
         // interpGameTime might be incorrect if we haven't computed fast enough
-        renderer.render(match.current,
-                        match.current.minCorner, match.current.maxCorner);
+        // @ts-ignore
+        renderer.render(match.current, match.current.minCorner, match.current.maxCorner);
       }
 
       this.updateStats(match.current, meta);
