@@ -13,32 +13,67 @@ package battlecode.schema;
 public final class Action {
   private Action() { }
   /**
-   * Build a unit.
+   * Mines a unit of soup (miners).
+   * Target: tile.
+   */
+  public static final byte MINE_SOUP = 0;
+  /**
+   * Refines a unit of soup (miners).
+   * Target: refinery.
+   */
+  public static final byte REFINE_SOUP = 1;
+  /**
+   * Digs a unit of dirt (landscapers).
+   * Target: tile.
+   */
+  public static final byte DIG_DIRT = 2;
+  /**
+   * Deposits a unit of dirt (landscapers).
+   * Target: tile.
+   */
+  public static final byte DEPOSIT_DIRT = 3;
+  /**
+   * Picks up a unit (drones).
+   * Target: unit picked up.
+   */
+  public static final byte PICK_UNIT = 4;
+  /**
+   * Drops off a unit (drones).
+   * Target: unit dropped off.
+   */
+  public static final byte DROP_UNIT = 5;
+  /**
+   * Builds a unit.
    * Target: spawned unit
    */
-  public static final byte SPAWN_UNIT = 7;
+  public static final byte SPAWN_UNIT = 6;
   /**
-   * Die due to an uncaught exception
+   * Shoots a drone.
+   * Target: drone shot.
+   */
+  public static final byte SHOOT = 7;
+  /**
+   * Dies from drowning.
+   * Target: none.
+   */
+  public static final byte DIE_DROWN = 8;
+  /**
+   * Dies from being shot (drones).
+   * Target: drone.
+   */
+  public static final byte DIE_SHOT = 9;
+  /**
+   * Dies due to an uncaught exception
    * Target: none
    */
-  public static final byte DIE_EXCEPTION = 8;
+  public static final byte DIE_EXCEPTION = 10;
   /**
-   * Die due to suicide.
-   * Target: none
+   * Dies due to having too much dirt on top (buildings).
+   * Target: landscaper
    */
-  public static final byte DIE_SUICIDE = 9;
-  /**
-   * Die due to being killed.
-   * Target: killer (lumberjack or tank)
-   */
-  public static final byte DIE_KILLED = 10;
-  /**
-   * Perform a lumberjack strike.
-   * Target: none
-   */
-  public static final byte LUMBERJACK_STRIKE = 11;
+  public static final byte DIE_TOO_MUCH_DIRT = 11;
 
-  public static final String[] names = { "FIRE", "FIRE_TRIAD", "FIRE_PENTAD", "CHOP_TREE", "SHAKE_TREE", "PLANT_TREE", "WATER_TREE", "SPAWN_UNIT", "DIE_EXCEPTION", "DIE_SUICIDE", "DIE_KILLED", "LUMBERJACK_STRIKE", };
+  public static final String[] names = { "MINE_SOUP", "REFINE_SOUP", "DIG_DIRT", "DEPOSIT_DIRT", "PICK_UNIT", "DROP_UNIT", "SPAWN_UNIT", "SHOOT", "DIE_DROWN", "DIE_SHOT", "DIE_EXCEPTION", "DIE_TOO_MUCH_DIRT", };
 
   public static String name(int e) { return names[e]; }
 }

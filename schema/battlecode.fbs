@@ -33,13 +33,13 @@ enum BodyType : byte {
     DRONE,
     /// Net guns shoot down drones.
     NET_GUN,
-    /// Cows produce polution.
+    /// Cows produce pollution.
     COW,
     /// Refineries turn crude soup into refined soup, and produce pollution.
     REFINERY,
     /// Vaporators reduce pollution.
     VAPORATOR,
-    // The hq produces miners, is also a net gun and a refinery.
+    /// The hq produces miners, is also a net gun and a refinery.
     HQ,
     /// Design schools create landscapers.
     DESIGN_SCHOOL,
@@ -98,21 +98,42 @@ table Tile {
 /// Actions may have 'targets', which are the units on which
 /// the actions were performed.
 enum Action : byte {
-    /// Build a unit.
+    /// Mines a unit of soup (miners).
+    /// Target: tile.
+    MINE_SOUP,
+    /// Refines a unit of soup (miners).
+    /// Target: refinery.
+    REFINE_SOUP,
+    /// Digs a unit of dirt (landscapers).
+    /// Target: tile.
+    DIG_DIRT,
+    /// Deposits a unit of dirt (landscapers).
+    /// Target: tile.
+    DEPOSIT_DIRT,
+    /// Picks up a unit (drones).
+    /// Target: unit picked up.
+    PICK_UNIT,
+    /// Drops off a unit (drones).
+    /// Target: unit dropped off.
+    DROP_UNIT,
+    /// Builds a unit.
     /// Target: spawned unit
     SPAWN_UNIT,
-    /// Die due to an uncaught exception
+    /// Shoots a drone.
+    /// Target: drone shot.
+    SHOOT,
+    /// Dies from drowning.
+    /// Target: none.
+    DIE_DROWN,
+    /// Dies from being shot (drones).
+    /// Target: drone.
+    DIE_SHOT,
+    /// Dies due to an uncaught exception
     /// Target: none
     DIE_EXCEPTION,
-    /// Die due to suicide.
-    /// Target: none
-    DIE_SUICIDE,
-    /// Die due to being killed.
-    /// Target: killer (bullet or lumberjack or tank)
-    DIE_KILLED,
-    /// Perform a lumberjack strike.
-    /// Target: none
-    LUMBERJACK_STRIKE
+    /// Dies due to having too much dirt on top (buildings).
+    /// Target: landscaper
+    DIE_TOO_MUCH_DIRT
 }
 
 // Metadata
@@ -121,19 +142,26 @@ enum Action : byte {
 table BodyTypeMetadata {
     /// The relevant type.
     type: BodyType;
-    /// The radius of the type, in distance units.
-    radius: float;
-    /// The cost of the type, in bullets.
-    cost: float;
-    /// The maxiumum health of the type, in health units.
-    maxHealth: float;
-    /// If unset, the same as maxHealth.
-    /// Otherwise, the health a body of this type starts with.
-    startHealth: float;
-    /// The maximum distance this type can move each turn
-    strideRadius: float;
-    /// The maximum distance this type can sense other robots
-    sightRadius: float;
+    /// The spawn source.
+    spawnSource: BodyType;
+    /// The cost of the type, in soup.
+    cost: int;
+    /// The maximum amount of dirt the type can carry.
+    dirtLimit: int;
+    /// The maximum amount of soup the type can carry.
+    soupLimit: int;
+    /// The number of cooldowns between every two actions, for pollution 0.
+    actionCooldown: int;
+    /// The maximum distance this type can sense other robots.
+    sensorRadius: int;
+    /// The distance this type pollutes.
+    pollutionRadius: int;
+    /// The amount of pollution this type creates.
+    pollutionAmount: int;
+    /// The maximum amount of soup this type processes every turn.
+    maxSoupProduced: int;
+    /// The bytecode limit of this type.
+    bytecodeLimit: int;
 }
 
 /// Data relevant to a particular team.
@@ -222,11 +250,6 @@ table Round {
     /// New bodies.
     spawnedBodies: SpawnedBodyTable;
 
-    /// The IDs of bodies with changed health.
-    healthChangedIDs: [int];
-    /// The new health levels of bodies with changed health.
-    healthChangeLevels: [float];
-
     /// The IDs of bodies that died.
     diedIDs: [int];
 
@@ -238,6 +261,31 @@ table Round {
     /// The 'targets' of the performed actions. Actions without targets may have
     /// any target (typically 0).
     actionTargets: [int];
+
+    /// The IDs of bodies whose dirt amount (amount of dirt on top that body) changed.
+    dirtChangedBodyIDs: [int];
+    /// The amount the dirt changed by.
+    dirtChangesBody: [int];
+
+    /// The indexes of the tiles whose dirt amount changed.
+    dirtChangedIdxs: [int];
+    /// The amount the dirt changed by.
+    dirtChanges: [int];
+
+    /// The indexes of the tiles whose water amount changed.
+    waterChangedIdxs: [int];
+    /// The amount the water changed by.
+    waterChanges: [int];
+
+    /// The indexes of the tiles whose pollution amount changed.
+    pollutionChangedIdxs: [int];
+    /// The amount the pollution changed by.
+    pollutionChanges: [int];
+
+    /// The indexes of the tiles whose soup amount changed.
+    soupChangedIdxs: [int];
+    /// The amount the soup changed by.
+    soupChanges: [int];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];
@@ -306,4 +354,3 @@ table GameWrapper {
     /// The indices of the footers of the matches, in order.
     matchFooters: [int];
 }
-
