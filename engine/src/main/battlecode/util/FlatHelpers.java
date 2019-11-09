@@ -54,6 +54,8 @@ public class FlatHelpers {
                 return BodyType.SOLDIER;
             case TANK:
                 return BodyType.TANK;
+            case DELIVERY_DRONE:
+                return BodyType.DELIVERY_DRONE;
             default:
                 throw new RuntimeException("No body type for: "+type);
         }

@@ -158,6 +158,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public int getMoveCount(){
         return this.robot.getMoveCount();
     }
+
+    @Override
+    public boolean isCurrentlyHoldingUnit() {
+        return this.robot.isCurrentlyHoldingUnit();
+    }
     
 
     // ***********************************
@@ -424,7 +429,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         MapLocation center = getLocation().add(dir, dist);
         move(center);
     }
-    
+
     @Override
     public void move(MapLocation center) throws GameActionException {
         assertNotNull(center);
@@ -443,7 +448,21 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.setLocation(center);
 
         gameWorld.getMatchMaker().addMoved(getID(), getLocation());
+
+        // also move the robot currently being picked up
+        if (this.robot.isCurrentlyHoldingUnit()) {
+            movePickedUpUnit(center);
+        }
     }
+
+    private void movePickedUpUnit(MapLocation center) throws GameActionException {
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        InternalRobot robot = gameWorld.getObjectInfo().getRobotByID(id);
+        robot.setLocation(center);
+
+        gameWorld.getMatchMaker().addMoved(id, getLocation());
+    }
+
 
     // ***********************************
     // ****** ATTACK METHODS *************
@@ -488,6 +507,66 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private boolean canInteractWithLocation(MapLocation loc){
         assertNotNull(loc);
         return this.robot.canInteractWithLocation(loc);
+    }
+
+    @Override
+    public boolean canPickUpOtherUnits() {
+        return getType() == RobotType.DELIVERY_DRONE;
+    }
+
+    @Override
+    public boolean canPickUpUnit(int id) {
+        return canPickUpOtherUnits() && unitWithinPickupDistance(id);
+    }
+
+    @Override
+    public void pickUpUnit(int id) throws GameActionException {
+        if (getType() != RobotType.DELIVERY_DRONE) {
+            throw new GameActionException(CANT_DO_THAT, "Only delivery drones can pick up other units");
+        } else if (this.robot.isCurrentlyHoldingUnit()) {
+            throw new GameActionException(CANT_DO_THAT, "Delivery drone is already holding a unit");
+        } else if (!unitWithinPickupDistance(id)) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot pick up; that unit is too far away");
+        }
+
+        InternalRobot robot = gameWorld.getObjectInfo().getRobotByID(id);
+        robot.blockUnit();
+
+        this.robot.pickUpUnit(id);
+    }
+
+    /**
+     * Check whether the specified unit is within the pickup radius of the robot
+     *
+     * @param id the id of the robot to pick up
+     */
+    private boolean unitWithinPickupDistance(int id) {
+        for (InternalRobot adjacentRobot :
+                gameWorld.getObjectInfo().getAllRobotsWithinRadius(getLocation(), RobotType.DELIVERY_DRONE.bodyRadius + GameConstants.DELIVERY_DRONE_PICKUP_RADIUS)) {
+            if (adjacentRobot.getID() == id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void dropUnit() throws GameActionException {
+        if (getType() != RobotType.DELIVERY_DRONE || !this.robot.isCurrentlyHoldingUnit()) {
+            throw new GameActionException(CANT_DO_THAT, "Only delivery drones can drop other units");
+        }
+
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        InternalRobot robot = gameWorld.getObjectInfo().getRobotByID(id);
+        robot.unBlockUnit();
+
+        this.robot.dropUnit();
+
+        // TODO: need to process killing
+        if (false) {
+            gameWorld.destroyRobot(id);
+        }
     }
 
     // ***********************************
@@ -549,6 +628,21 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int robotID = gameWorld.spawnRobot(RobotType.GARDENER, spawnLoc, getTeam());
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
+    }
+
+    @Override
+    public void buildDeliveryDrone(Direction dir) throws GameActionException {
+        this.robot.setBuildCooldownTurns(RobotType.DELIVERY_DRONE.buildCooldownTurns);
+
+        float spawnDist = getType().bodyRadius +
+                GameConstants.GENERAL_SPAWN_OFFSET +
+                RobotType.DELIVERY_DRONE.bodyRadius;
+        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
+
+        int robotID = gameWorld.spawnRobot(RobotType.DELIVERY_DRONE, spawnLoc, getTeam());
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
+
     }
 
     @Override

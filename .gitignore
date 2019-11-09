@@ -4,6 +4,10 @@ node_modules
 *.pyc
 venv/
 docker-compose.prod.yml
+.gradle
+.idea/
+battlecode20.iml
+npm-debug.log
 
 ## Frontend
 frontend/build

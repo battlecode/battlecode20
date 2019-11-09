@@ -20,6 +20,7 @@ public strictfp class InternalRobot {
     private int currentBytecodeLimit;
     private int bytecodesUsed;
     private int prevBytecodesUsed;
+    private boolean isLocked;
 
     private int roundsAlive;
     private int repairCount;
@@ -27,6 +28,11 @@ public strictfp class InternalRobot {
     private int moveCount;
     
     private int buildCooldownTurns;
+
+    private boolean currentlyHoldingUnit;
+    private int idOfUnitCurrentlyHeld;
+
+    private boolean blocked;
 
     private boolean healthChanged = false;
 
@@ -63,6 +69,11 @@ public strictfp class InternalRobot {
         this.moveCount = 0;
         
         this.buildCooldownTurns = 0;
+
+        this.currentlyHoldingUnit = false;
+        this.idOfUnitCurrentlyHeld = -1;
+
+        this.blocked = false;
 
         this.gameWorld = gw;
         this.controller = new RobotControllerImpl(gameWorld, this);
@@ -112,6 +123,10 @@ public strictfp class InternalRobot {
         return prevBytecodesUsed;
     }
 
+    public boolean getIsLocked() {
+        return isLocked;
+    }
+
     public int getRoundsAlive() {
         return roundsAlive;
     }
@@ -130,6 +145,18 @@ public strictfp class InternalRobot {
     
     public int getBuildCooldownTurns() {
         return buildCooldownTurns;
+    }
+
+    public boolean isCurrentlyHoldingUnit() {
+        return currentlyHoldingUnit;
+    }
+
+    public int getIdOfUnitCurrentlyHeld() {
+        return idOfUnitCurrentlyHeld;
+    }
+
+    public boolean isBlocked() {
+        return blocked;
     }
 
     public RobotInfo getRobotInfo() {
@@ -210,6 +237,24 @@ public strictfp class InternalRobot {
         return false;
     }
 
+    public void pickUpUnit(int id) {
+        this.currentlyHoldingUnit = true;
+        this.idOfUnitCurrentlyHeld = id;
+    }
+
+    public void dropUnit() {
+        this.currentlyHoldingUnit = false;
+        this.idOfUnitCurrentlyHeld = -1;
+    }
+
+    public void blockUnit() {
+        this.blocked = true;
+    }
+
+    public void unBlockUnit() {
+        this.blocked = false;
+    }
+
     // *********************************
     // ****** GAMEPLAY METHODS *********
     // *********************************
@@ -250,6 +295,8 @@ public strictfp class InternalRobot {
 
     public boolean canExecuteCode() {
         if (getHealth() <= 0.0)
+            return false;
+        if (getIsLocked())
             return false;
         if(type.isBuildable())
             return roundsAlive >= 20;

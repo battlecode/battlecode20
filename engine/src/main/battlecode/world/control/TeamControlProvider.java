@@ -94,6 +94,9 @@ public final class TeamControlProvider implements RobotControlProvider {
 
     @Override
     public void runRobot(InternalRobot robot) {
+        if (robot.isBlocked()) {  // picked up robots cannot perform actions
+            return;
+        }
 
         Team team = robot.getTeam();
         assert teamProviderMap.containsKey(team);

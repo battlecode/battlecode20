@@ -34,8 +34,12 @@ public final class BodyType {
    * Scouts are fast units that move around without obstruction.
    */
   public static final byte SCOUT = 5;
+  /**
+   * Delivery drones are slow units that can pick other units up
+   */
+  public static final byte DELIVERY_DRONE = 6;
 
-  public static final String[] names = { "ARCHON", "GARDENER", "LUMBERJACK", "SOLDIER", "TANK", "SCOUT", "TREE_BULLET", "TREE_NEUTRAL", "BULLET", "NONE", };
+  public static final String[] names = { "ARCHON", "GARDENER", "LUMBERJACK", "SOLDIER", "TANK", "SCOUT", "DELIVERY_DRONE", "TREE_BULLET", "TREE_NEUTRAL", "BULLET", "NONE", };
 
   public static String name(int e) { return names[e]; }
 }

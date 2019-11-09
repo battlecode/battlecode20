@@ -169,6 +169,14 @@ public strictfp class ObjectInfo {
 
     public void destroyRobot(int id){
         InternalRobot robot = getRobotByID(id);
+
+        // drop a unit if one is currently held
+        if (robot.getType() == RobotType.DELIVERY_DRONE && robot.isCurrentlyHoldingUnit()) {
+            int pickedUpUnitid = robot.getIdOfUnitCurrentlyHeld();
+            InternalRobot pickedUpUnit = getRobotByID(id);
+            pickedUpUnit.unBlockUnit();
+        }
+
         decrementRobotCount(robot.getTeam());
         decrementRobotTypeCount(robot.getTeam(), robot.getType());
 

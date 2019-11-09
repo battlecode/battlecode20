@@ -48,6 +48,12 @@ public enum RobotType {
      */
     SCOUT           (GARDENER,  10, 10,   80,   1, 1.5f,   0.5f,   14,  20,  1f, 15000),
     //                              HP    BC   BR    BS   AP   SR  BSR         STR   BCL
+    /**
+     * A unit that can pick up other units and drop them.
+     *
+     * @battlecode.doc.robottype
+     */
+    DELIVERY_DRONE  (ARCHON, 10,  50, 100, .5f, -1, -1, 7, 10, 1f, 15000),
     ;
     
     /**

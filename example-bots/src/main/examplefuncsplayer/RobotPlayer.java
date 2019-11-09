@@ -32,8 +32,44 @@ public strictfp class RobotPlayer {
             case LUMBERJACK:
                 runLumberjack();
                 break;
+            case DELIVERY_DRONE:
+                runDeliveryDrone();
+                break;
         }
 	}
+
+	static void runDeliveryDrone() throws GameActionException {
+        System.out.println("I'm a delivery drone!");
+        Team enemy = rc.getTeam().opponent();
+
+        // The code you want your robot to perform every round should be in this loop
+        while (true) {
+
+            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
+            try {
+
+                if (!rc.isCurrentlyHoldingUnit()) {
+                    // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
+                    RobotInfo[] robots = rc.senseNearbyRobots(RobotType.DELIVERY_DRONE.bodyRadius + GameConstants.DELIVERY_DRONE_PICKUP_RADIUS, enemy);
+
+                    if (robots.length > 0) {
+                        // Pick up a first robot within range
+                        rc.pickUpUnit(robots[0].getID());
+                    }
+                } else {
+                    // No close robots, so search for robots within sight radius
+                    tryMove(randomDirection());
+                }
+
+                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
+                Clock.yield();
+
+            } catch (Exception e) {
+                System.out.println("Delivery Drone Exception");
+                e.printStackTrace();
+            }
+        }
+    }
 
     static void runArchon() throws GameActionException {
         System.out.println("I'm an archon!");
@@ -50,6 +86,8 @@ public strictfp class RobotPlayer {
                 // Randomly attempt to build a gardener in this direction
                 if (rc.canHireGardener(dir) && Math.random() < .01) {
                     rc.hireGardener(dir);
+                } else if (Math.random() < 0.02) {
+                    rc.buildDeliveryDrone(dir);
                 }
 
                 // Move randomly
