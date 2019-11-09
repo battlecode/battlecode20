@@ -10,10 +10,10 @@
   "scripts": {
     "clean": "rm -rf out",
     "build": "tsc -p src",
-    "lint": "tslint \"src/**/*.ts\" -e \"out/**\"",
+    "lint": "tslint 'src/**/*.ts'",
     "gen": "mkdir -p out/files/ && ts-node src/gen/create.ts",
-    "test": "npm run gen && blue-tape \"out/gen/test/**/*.js\" | tap-dot",
-    "watch": "onchange -w \"**/*.ts\" -i -e \"out/**\" -- npm -s run build+test"
+    "watch": "onchange -i 'src/**/*.ts' -- npm run build",
+    "test": "npm run gen && blue-tape \"out/gen/test/**/*.js\" | tap-dot"
   },
   "repository": {
     "type": "git",

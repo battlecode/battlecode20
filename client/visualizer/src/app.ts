@@ -523,7 +523,7 @@ export default class Client {
             controls.stepForward();
             break;
           case 72: // "h" - Toggle Health Bars
-            conf.healthBars = !conf.healthBars;
+            // conf.healthBars = !conf.healthBars;
             break;
           case 67: // "c" - Toggle Circle Bots
             conf.circleBots = !conf.circleBots;
@@ -538,7 +538,7 @@ export default class Client {
             conf.sightRadius = !conf.sightRadius;
             break;
           case 77: // "m" - Toggle bullet sight radius
-            conf.bulletSightRadius = !conf.bulletSightRadius;
+            // conf.bulletSightRadius = !conf.bulletSightRadius;
             break;
         }
       }

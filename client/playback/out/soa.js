@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // Map polyfill
-const Map = require("core-js/library/es6/map");
+const Map = require("core-js/es/map");
 // To somebody good at typescript, please fix @ts-ignore
 /**
  * A class that wraps a group of typed buffers.

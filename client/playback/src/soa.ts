@@ -1,5 +1,5 @@
 // Map polyfill
-import * as Map from 'core-js/library/es6/map';
+import * as Map from 'core-js/es/map';
 
 // To somebody good at typescript, please fix @ts-ignore
 
