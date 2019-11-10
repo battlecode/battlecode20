@@ -19,9 +19,11 @@ export type BodiesSchema = {
   type: Int8Array,
   x: Int32Array,
   y: Int32Array,
-  dirt: Int32Array,
-  carryDirt: Int32Array,
-  isCarry: Uint8Array, // currently carrying something or being carried
+  onDirt: Int32Array, // the amount of dirt on top of the unit
+  carryDirt: Int32Array, // the amount of dirt landscaper is carrying 
+  cargo: Int32Array,  // info about current cargo. 0 when not carrying
+                      // unitID for drones, amount of dirt for landscaper, and amount of soup for miner
+  isCarried: Uint8Array, // whether the unit is being cariied or not
   bytecodesUsed: Int32Array, // Only relevant for non-neutral bodies
 };
 
@@ -185,9 +187,10 @@ export default class GameWorld {
       type: new Int8Array(0),
       x: new Int32Array(0),
       y: new Int32Array(0),
-      dirt: new Int32Array(0),
+      onDirt: new Int32Array(0),
       carryDirt: new Int32Array(0),
-      isCarry: new Uint8Array(0),
+      cargo: new Int32Array(0),
+      isCarried: new Uint8Array(0),
       bytecodesUsed: new Int32Array(0),
     }, 'id');
 
@@ -376,48 +379,78 @@ export default class GameWorld {
 
     // Action
     if(delta.actionsLength() > 0){
+      const arrays = this.bodies.arrays;
+      
       for(let i=0; i<delta.actionsLength(); i++){
         const action = delta.actions(i);
         const robotID = delta.actionIDs(i);
         const target = delta.actionTargets(i);
         switch (action) {
           // TODO: validate actions?
-          // List from fbs enum Action
+          // TODO: vaporator things?
+          // Actions list from battlecode.fbs enum Action
           
           case schema.Action.MINE_SOUP:
+            arrays.cargo[robotID] += 1;
+            this.mapStats.soup[target] -= 1;
             break;
+
+          case schema.Action.REFINE_SOUP:
+            const teamID = arrays.team[robotID];
+            this.teamStats[teamID].soup += 1;
+            arrays.cargo[robotID] -= 1;
+            break;
+
+          case schema.Action.DIG_DIRT:
+            this.mapStats.dirt[target] -= 1;
+            arrays.carryDirt[robotID] += 1;
+            break;
+          case schema.Action.DEPOSIT_DIRT:
+            this.mapStats.dirt[target] += 1;
+            arrays.carryDirt[robotID] -= 1;
+            break;
+
           case schema.Action.PICK_UNIT:
-            this.bodies.alter({ id: robotID, isCarry: 1 });
-            // this.bodies.alter({ id: target, iscarry: 1 });
+            this.bodies.alter({ id: robotID, cargo: target });
+            this.bodies.alter({ id: target, isCarried: 1 });
             break;
           case schema.Action.DROP_UNIT:
-            this.bodies.alter({ id: robotID, isCarry: 0 });
-            // this.bodies.alter({ id: target, iscarry: 0 });
+            this.bodies.alter({ id: robotID, cargo: 0 });
+            this.bodies.alter({ id: target, isCarried: 0 });
             break;
-        
+          
+          // spawnings are handled by spawnedBodies
+          case schema.Action.SPAWN_UNIT:
+            break;
+          
+          // deaths are handled by diedIDs
+          case schema.Action.SHOOT:
+            break;
+          case schema.Action.DIE_DROWN:
+            break;
+          case schema.Action.DIE_SHOT:
+            break;
+          case schema.Action.DIE_TOO_MUCH_DIRT:
+            break;
+          case schema.Action.DIE_SUICIDE:
+            break;
+
+          case schema.Action.DIE_EXCEPTION:
+            console.log(`Exception occured: robotID(${robotID}), target(${target}`);
+            break;
+
           default:
-            console.log(`Undefined action: action(${action}), robotID(${robotID}, targetID(${target}))`);
+            console.log(`Undefined action: action(${action}), robotID(${robotID}, target(${target}))`);
             break;
         }
       }
     }
 
-    // Simulate actions
-    // const containedBullets = this.bodies.arrays.containedBullets;
-    // delta.actionsArray().forEach((action: schema.Action, index: number) => {
-    //   if (action === schema.Action.SHAKE_TREE) {
-    //     this.bodies.alter({
-    //       id: delta.actionTargetsArray()[index],
-    //       containedBullets: 0
-    //     })
-    //   }
-    // });
-
     // Dirt changes on bodies
     if (delta.dirtChangedBodyIDsLength() > 0) {
       this.bodies.alterBulk({
         id: delta.dirtChangedBodyIDsArray(),
-        dirt: delta.dirtChangesBodyArray()
+        onDirt: delta.dirtChangesBodyArray()
       });
     }
     
@@ -556,18 +589,23 @@ export default class GameWorld {
     });
 
     // Extra initialization
-    StructOfArrays.fill(
-      this.bodies.arrays.bytecodesUsed,
-      0,
-      startIndex,
-      this.bodies.length
-    );
-    StructOfArrays.fill(
-      this.bodies.arrays.dirt,
-      0,
-      startIndex,
-      this.bodies.length
-    );
+    const arrays = this.bodies.arrays;
+    const initList = [
+      arrays.onDirt,
+      arrays.carryDirt,
+      arrays.cargo,
+      arrays.isCarried,
+      arrays.bytecodesUsed,
+    ];
+    
+    initList.forEach((arr) => {
+      StructOfArrays.fill(
+        arr,
+        0,
+        startIndex,
+        this.bodies.length
+      );
+    });
   }
 
 }

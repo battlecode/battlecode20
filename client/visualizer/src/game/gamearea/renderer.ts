@@ -111,7 +111,7 @@ export default class Renderer {
     const length = bodies.length;
     const types = bodies.arrays.type;
     const teams = bodies.arrays.team;
-    const carry = bodies.arrays.isCarry;
+    const cargo = bodies.arrays.cargo;
     const ids = bodies.arrays.id;
     const xs = bodies.arrays.x;
     const ys = bodies.arrays.y;
@@ -185,7 +185,7 @@ export default class Renderer {
         let tmp = this.imgs.robot[cst.bodyTypeToString(type)];
         // TODO how to change drone?
         if(type == cst.DRONE){
-          tmp = (carry[i]==1 ? tmp.carry : tmp.empty);
+          tmp = (cargo[i]!=0 ? tmp.carry : tmp.empty);
         }
 
         const img = tmp[team];
