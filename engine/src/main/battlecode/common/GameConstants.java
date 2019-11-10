@@ -61,6 +61,9 @@ public interface GameConstants {
     /** The radius around a lumberjack affected by a strike(). */
     float LUMBERJACK_STRIKE_RADIUS = 2;
 
+    /** The radius that delivery drones can pick up in */
+    int DELIVERY_DRONE_PICKUP_RADIUS = 2;
+
     // *********************************
     // ****** MISCELLANEOUS ************
     // *********************************
@@ -82,6 +85,12 @@ public interface GameConstants {
 
     /** The maximum radius a robot can have. */
     float MAX_ROBOT_RADIUS = 2;
+
+    /** The maximum number of integers that can be sent in one message. */
+    int MAX_BLOCKCHAIN_MESSAGE_LENGTH = 10;
+
+    /** The number of messages that get broadcasted every turn. */
+    int NUMBER_OF_BROADCASTED_MESSAGES = 10;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
@@ -91,5 +100,5 @@ public interface GameConstants {
     int GAME_DEFAULT_SEED = 6370;
 
     /** The default game maxiumum number of rounds. **/
-    int GAME_DEFAULT_ROUNDS = 20;
+    int GAME_DEFAULT_ROUNDS = 50;
 }

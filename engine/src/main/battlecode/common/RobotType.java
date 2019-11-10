@@ -23,25 +23,25 @@ public enum RobotType {
      * Refineries turn crude soup into refined soup, and produce pollution.
      * @battlecode.doc.robottype
      */
-    REFINERY                (MINER,  20,  0,  0,  0,  0,  4,  1,  10,  15000),
+    REFINERY                (MINER,  20,  0,  0,  0,  5,  4,  1,  10,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  MS   BL
     /**
      * Vaporators reduce pollution.
      * @battlecode.doc.robottype
      */
-    VAPORATOR               (MINER,  20,  0,  0,  0,  0,  4,  -1,  5,  15000),
+    VAPORATOR               (MINER,  20,  0,  0,  0,  5,  4,  -1,  5,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA   MS  BL
     /**
      * Design schools create landscapers.
      * @battlecode.doc.robottype
      */
-    DESIGN_SCHOOL           (MINER,  20,  0,  0,  0,  0,  0,  0,  0,  15000),
+    DESIGN_SCHOOL           (MINER,  20,  0,  0,  0,  5,  0,  0,  0,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  MS  BL
     /**
      * Fulfillment centers create drones.
      * @battlecode.doc.robottype
      */
-    FULFILLMENT_CENTER      (MINER,  20,  0,  0,  0,  0,  0,  0,  0,  15000),
+    FULFILLMENT_CENTER      (MINER,  20,  0,  0,  0,  5,  0,  0,  0,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  MS  BL
     /**
      * Landscapers take dirt from adjacent (decreasing the elevation)
@@ -55,7 +55,7 @@ public enum RobotType {
      * Drones pick up any unit and drop them somewhere else.
      * @battlecode.doc.robottype
      */
-    DRONE                   (FULFILLMENT_CENTER,  10,  0,  0,  8,  4,  0,  0,  0,  15000),
+    DELIVERY_DRONE          (FULFILLMENT_CENTER,  10,  0,  0,  8,  4,  0,  0,  0,  15000),
     //                       SS                   C    DL  SL  AC  SR  PR  PA  MS  BL
     /**
      * Net guns shoot down drones.
@@ -138,7 +138,7 @@ public enum RobotType {
      * @return whether the robot can move.
      */
     public boolean canMove() {
-        return this == MINER || this == LANDSCAPER || this == DRONE || this == COW;
+        return this == MINER || this == LANDSCAPER || this == DELIVERY_DRONE || this == COW;
     }
 
     /**
@@ -183,7 +183,16 @@ public enum RobotType {
      * @return whether the robot can pick up units.
      */
     public boolean canPickUpUnits() {
-        return this == DRONE;
+        return this == DELIVERY_DRONE;
+    }
+
+    /**
+     * Returns whether the robot can be picked up.
+     *
+     * @return whether the robot can be picked up.
+     */
+    public boolean canBePickedUp() {
+        return this == MINER || this == LANDSCAPER || this == COW;
     }
 
     RobotType(RobotType spawnSource, int cost, int dirtLimit, int soupLimit, int actionCooldown,

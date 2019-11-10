@@ -149,6 +149,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.getDirtCarrying();
     }
 
+    @Override
+    public boolean isCurrentlyHoldingUnit() {
+        return this.robot.isCurrentlyHoldingUnit();
+    }
+
+    private InternalRobot getRobotByID(int id) {
+        if (!gameWorld.getObjectInfo().existsRobot(id))
+            return null;
+        return this.gameWorld.getObjectInfo().getRobotByID(id);
+    }
+
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************
@@ -198,11 +209,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean canSenseRobot(int id) {
-        if(!gameWorld.getObjectInfo().existsRobot(id)){
-            return false;
-        }
-        InternalRobot robot = gameWorld.getObjectInfo().getRobotByID(id);
-        return canSenseLocation(robot.getLocation()); // TODO
+        InternalRobot sensedRobot = getRobotByID(id);
+        return sensedRobot == null ? false : canSenseLocation(sensedRobot.getLocation());
     }
 
     @Override
@@ -211,7 +219,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_SENSE_THAT,
                     "Can't sense given robot; It may not exist anymore");
         }
-        return gameWorld.getObjectInfo().getRobotByID(id).getRobotInfo();
+        return getRobotByID(id).getRobotInfo();
     }
 
     @Override
@@ -325,7 +333,89 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
-        this.gameWorld.getMatchMaker().addMoved(getID(), getLocation());
+        gameWorld.getMatchMaker().addMoved(getID(), getLocation());
+
+        // also move the robot currently being picked up
+        if (this.robot.isCurrentlyHoldingUnit()) {
+            movePickedUpUnit(center);
+        }
+    }
+
+    private void movePickedUpUnit(MapLocation center) throws GameActionException {
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        getRobotByID(id).setLocation(center);
+
+        gameWorld.getMatchMaker().addMoved(id, getLocation());
+    }
+
+    private void assertCanPickUpUnit(int id) throws GameActionException {
+        if(!canPickUpUnit(id))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot pick up the specified unit, possibly due to not being a delivery drone, " +
+                    "is already holding a unit, the unit not within pickup distance, or unit can't be picked up.");
+    }
+
+    @Override
+    public boolean canPickUpUnit(int id) {
+        return this.getType().canPickUpUnits() && !this.robot.isCurrentlyHoldingUnit() &&
+               unitWithinPickupDistance(id) && getRobotByID(id).getType().canBePickedUp();
+    }
+
+    @Override
+    public void pickUpUnit(int id) throws GameActionException {
+        assertCanPickUpUnit(id);
+        InternalRobot pickedUpRobot = getRobotByID(id);
+        pickedUpRobot.blockUnit();
+        gameWorld.removeRobot(pickedUpRobot.getLocation());
+        this.robot.pickUpUnit(id);
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UNIT, id);
+    }
+
+    /**
+     * Check whether the specified unit is within the pickup radius of the robot
+     *
+     * @param id the id of the robot to pick up
+     */
+    private boolean unitWithinPickupDistance(int id) {
+        for (InternalRobot adjacentRobot :
+                gameWorld.getAllRobotsWithinRadius(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS)) {
+            if (adjacentRobot.getID() == id)
+                return true;
+        }
+        return false;
+    }
+
+    private void assertCanDropUnit(Direction dir) throws GameActionException {
+        if(!canDropUnit(dir))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot drop a unit, possibly due to not being a delivery drone, " +
+                    "or not currently holding a unit.");
+    }
+
+    @Override
+    public boolean canDropUnit(Direction dir) {
+        try {
+            MapLocation loc = adjacentLocation(dir);
+            return this.getType().canPickUpUnits() && this.robot.isCurrentlyHoldingUnit() &&
+               onTheMap(loc) && !isLocationOccupied(loc);
+        } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void dropUnit(Direction dir) throws GameActionException {
+        assertCanDropUnit(dir);
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        InternalRobot droppedRobot = getRobotByID(id);
+        droppedRobot.unblockUnit();
+
+        this.robot.dropUnit();
+        gameWorld.addRobot(adjacentLocation(dir), droppedRobot);
+
+        // TODO: need to process killing
+        if (false) {
+            gameWorld.destroyRobot(id);
+        }
     }
 
     // ***********************************
@@ -372,6 +462,66 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
+
+
+    // ***********************************
+    // ****** BLOCKCHAINNNNNNNNNNN *******
+    // ***********************************
+
+    /**
+     * Sends a message to the blockchain at the indicated cost.
+     * 
+     * @param message the message to send.
+     * @param proofOfStake the price that the unit is willing to pay for the message. If
+     * the team does not have that much soup, the message will not be sent.
+     * 
+     */
+    @Override
+    public void sendMessage(int[] messageArray, int cost) throws GameActionException {
+        if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
+            throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
+                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
+        }
+        int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost) {
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, 
+                    "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+        }
+        // pay!
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
+        // create a block chain entry
+        BlockchainEntry bcentry = new BlockchainEntry(cost, messageArray);
+        // add
+        gameWorld.addNewMessage(bcentry);
+    }
+
+    /**
+     * Gets all messages that were sent at a given round.
+     * @param roundNumber the round index.
+     * @throws GameActionException
+     */
+    @Override
+    public String getRoundMessages(int roundNumber) throws GameActionException {
+        if (roundNumber < 0) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; in fact, no negative round numbers are allowed at all.");
+        }
+        if (roundNumber >= gameWorld.currentRound) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
+        }
+        // just get it!
+        ArrayList<BlockchainEntry> d = gameWorld.blockchain.get(roundNumber);
+        System.out.println(d);
+        BlockchainEntry[] d2 = d.toArray(new BlockchainEntry[d.size()]);
+        String[] stringMessageArray = new String[d2.length];
+        for (int i = 0; i < d2.length; i++) {
+            stringMessageArray[i] = d2[i].serializedMessage;
+        }
+        String serializedMessage = String.join(" ", stringMessageArray);
+        return serializedMessage;
+    }
+
 
     // ***********************************
     // ****** MINER METHODS **************
