@@ -183,7 +183,7 @@ export function createStandGame(turns: number) {
 
   events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
-  const unitCount = bodyVariety * 2 + 2;
+  const unitCount = bodyVariety * 2;
   let robotIDs = new Array(unitCount);
   let teamIDs = new Array(unitCount);
   let types = new Array(unitCount);
@@ -194,9 +194,7 @@ export function createStandGame(turns: number) {
     teamIDs[i] = i%2+1; // 1 2 1 2 1 2 ...
 
     let type = Math.floor(i/2);
-    if(type>=bodyVariety) type = schema.BodyType.DRONE;
-    else type = bodyTypeList[type];
-    types[i] = type;
+    types[i] = bodyTypeList[type];
 
     // assume map is large enough
     xs[i] = Math.floor(i/2) * 2 + 5;

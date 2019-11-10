@@ -25,11 +25,12 @@ export declare type MapStats = {
     maxCorner: Victor;
     bodies: schema.SpawnedBodyTable;
     randomSeed: number;
-    length: number;
     dirt: Int32Array;
     water: Int32Array;
     pollution: Int32Array;
     soup: Int32Array;
+    getIdx: (x: number, y: number) => number;
+    getLoc: (idx: number) => Victor;
 };
 export declare type TeamStats = {
     soup: number;

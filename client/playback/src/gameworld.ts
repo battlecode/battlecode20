@@ -34,11 +34,13 @@ export type MapStats = {
   bodies: schema.SpawnedBodyTable,
   randomSeed: number,
 
-  length: number, // total number of tiles
   dirt: Int32Array,
   water: Int32Array,
   pollution: Int32Array,
   soup: Int32Array
+
+  getIdx: (x:number, y:number) => number;
+  getLoc: (idx: number) => Victor;
 };
 
 export type TeamStats = {
@@ -223,11 +225,12 @@ export default class GameWorld {
       maxCorner: new Victor(0,0),
       bodies: new schema.SpawnedBodyTable(),
       randomSeed: 0,
-      length: 0,
       water: new Int32Array(0),
       dirt: new Int32Array(0),
       pollution: new Int32Array(0),
-      soup: new Int32Array(0)
+      soup: new Int32Array(0),
+      getIdx: (x:number, y:number) => 0,
+      getLoc: (idx: number) => new Victor(0,0)
     };
 
 
@@ -294,6 +297,14 @@ export default class GameWorld {
     this.mapStats.dirt = Int32Array.from(map.dirtArray());
     this.mapStats.pollution = Int32Array.from(map.pollutionArray());
     this.mapStats.soup = Int32Array.from(map.soupArray());
+
+    const maxy = (maxCorner.y()-minCorner.y());
+    this.mapStats.getIdx = (x:number, y:number) => (
+      x*maxy + y
+    );
+    this.mapStats.getLoc = (idx: number) => (
+      new Victor(Math.floor(idx / maxy), idx % maxy)
+    );
     
     // Check with header.totalRounds() ?
   }
@@ -408,6 +419,7 @@ export default class GameWorld {
           case schema.Action.DEPOSIT_DIRT:
             this.mapStats.dirt[target] += 1;
             arrays.carryDirt[robotID] -= 1;
+            // add onDirt of buildings?
             break;
 
           case schema.Action.PICK_UNIT:
@@ -445,37 +457,34 @@ export default class GameWorld {
         }
       }
     }
-
-    // Dirt changes on bodies
-    if (delta.dirtChangedBodyIDsLength() > 0) {
-      this.bodies.alterBulk({
-        id: delta.dirtChangedBodyIDsArray(),
-        onDirt: delta.dirtChangesBodyArray()
-      });
-    }
     
     // Dirt changes on map
-    for(let i = 0; i<delta.dirtChangedBodyIDsLength(); i++){
-      const idx = delta.dirtChangedIdxs(i);
-      this.mapStats.dirt[idx] = delta.dirtChanges(i);
+    for(let i = 0; i<delta.dirtChangesLength(); i++){
+      const x = delta.dirtChangedLocs().xs(i);
+      const y = delta.dirtChangedLocs().ys(i);
+      const mapIdx = this.mapStats.getIdx(x, y);
+      this.mapStats.dirt[mapIdx] = delta.dirtChanges(i);
     }
-
     // Water changes on map
     for(let i = 0; i<delta.waterChangesLength(); i++){
-      const idx = delta.waterChangedIdxs(i);
-      this.mapStats.water[idx] = delta.waterChanges(i);
+      const x = delta.waterChangedLocs().xs(i);
+      const y = delta.waterChangedLocs().ys(i);
+      const mapIdx = this.mapStats.getIdx(x, y);
+      this.mapStats.water[mapIdx] = delta.waterChanges(i);
     }
-
     // Pollution changes on map
     for(let i = 0; i<delta.pollutionChangesLength(); i++){
-      const idx = delta.pollutionChangedIdxs(i);
-      this.mapStats.pollution[idx] = delta.pollutionChanges(i);
+      const x = delta.pollutionChangedLocs().xs(i);
+      const y = delta.pollutionChangedLocs().ys(i);
+      const mapIdx = this.mapStats.getIdx(x, y);
+      this.mapStats.pollution[mapIdx] = delta.pollutionChanges(i);
     }
-
     // Soup changes on map
     for(let i = 0; i<delta.soupChangesLength(); i++){
-      const idx = delta.soupChangedIdxs(i);
-      this.mapStats.soup[idx] = delta.soupChanges(i);
+      const x = delta.soupChangedLocs().xs(i);
+      const y = delta.soupChangedLocs().ys(i);
+      const mapIdx = this.mapStats.getIdx(x, y);
+      this.mapStats.soup[mapIdx] = delta.soupChanges(i);
     }
 
     // Insert indicator dots and lines

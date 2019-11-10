@@ -303,7 +303,7 @@ table Round {
     indicatorLineEndLocs: VecTable;
     /// The RGB values of the indicator lines
     indicatorLineRGBs: RGBTable;
-    
+
     /// All logs sent this round.
     /// Messages from a particular robot in this round start on a new line, and
     /// have a header:
@@ -324,9 +324,6 @@ table Round {
     /// (haha i guess you can never really escape string parsing can you)
     logs: string;
 
-    /// Potential message pool.
-    pool: [Message];
-
     /// The first sent Round in a match should have index 1. (The starting state,
     /// created by the MatchHeader, can be thought to have index 0.)
     /// It should increase by one for each following round.
@@ -336,13 +333,6 @@ table Round {
     bytecodeIDs: [int];
     /// The bytecodes used by the player bodies.
     bytecodesUsed: [int];
-}
-
-table Message {
-    /// The amount a team is paid to send the message.
-    bid: int;
-    /// Messages are 10-15 integers.
-    message: [int];
 }
 
 /// Necessary due to flatbuffers requiring unions to be wrapped in tables.
