@@ -234,15 +234,22 @@ public final strictfp class GameMapIO {
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_DEFAULT_ROUNDS;
             final String mapName = raw.name();
-
-            ArrayList<BodyInfo> initBodies = new ArrayList<>();
+            int[] soupArray = new int[width*height];
+            int[] pollutionArray = new int[width*height];
+            int[] waterArray = new int[width*height];
+            for (int i = 0; i < width*height; i++) {
+                soupArray[i] = raw.soup(i);
+                pollutionArray[i] = raw.pollution(i);
+                waterArray[i] = raw.water(i);
+            }
+            ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
             initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies);
 
-            BodyInfo[] initialBodies = initBodies.toArray(new BodyInfo[initBodies.size()]);
+            RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
-                    width, height, origin, seed, rounds, mapName, initialBodies
+                    width, height, origin, seed, rounds, mapName, initialBodies, soupArray, pollutionArray, waterArray
             );
         }
 
@@ -257,40 +264,50 @@ public final strictfp class GameMapIO {
         public static int serialize(FlatBufferBuilder builder, LiveMap gameMap) {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
-
+            int[] soupArray = gameMap.getSoupArray();
+            int[] pollutionArray = gameMap.getPollutionArray();
+            int[] waterArray = gameMap.getWaterArray();
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
             ArrayList<Byte> bodyTypes = new ArrayList<>();
-            ArrayList<Float> bodyLocsXs = new ArrayList<>();
-            ArrayList<Float> bodyLocsYs = new ArrayList<>();
+            ArrayList<Integer> bodyLocsXs = new ArrayList<>();
+            ArrayList<Integer> bodyLocsYs = new ArrayList<>();
+            ArrayList<Integer> soupArrayList = new ArrayList<>();
+            ArrayList<Integer> pollutionArrayList = new ArrayList<>();
+            ArrayList<Integer> waterArrayList = new ArrayList<>();
 
-            for (BodyInfo initBody : gameMap.getInitialBodies()) {
-                if (initBody.isRobot()) {
-                    RobotInfo robot = (RobotInfo) initBody;
-                    bodyIDs.add(robot.ID);
-                    bodyTeamIDs.add(TeamMapping.id(robot.team));
-                    bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
-                    bodyLocsXs.add((float) robot.location.x);
-                    bodyLocsYs.add((float) robot.location.y);
-                } else {
-                    // ignore?
-                }
+            for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
+                soupArrayList.add(soupArray[i]);
+                pollutionArrayList.add(pollutionArray[i]);
+                waterArrayList.add(waterArray[i]);
+
+            }
+
+            for (RobotInfo robot : gameMap.getInitialBodies()) {
+                bodyIDs.add(robot.ID);
+                bodyTeamIDs.add(TeamMapping.id(robot.team));
+                bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
+                bodyLocsXs.add(robot.location.x);
+                bodyLocsYs.add(robot.location.y);
             }
 
             int robotIDs = SpawnedBodyTable.createRobotIDsVector(builder, ArrayUtils.toPrimitive(bodyIDs.toArray(new Integer[bodyIDs.size()])));
             int teamIDs = SpawnedBodyTable.createTeamIDsVector(builder, ArrayUtils.toPrimitive(bodyTeamIDs.toArray(new Byte[bodyTeamIDs.size()])));
             int types = SpawnedBodyTable.createTypesVector(builder, ArrayUtils.toPrimitive(bodyTypes.toArray(new Byte[bodyTypes.size()])));
             int locs = VecTable.createVecTable(builder,
-                    VecTable.createXsVector(builder, ArrayUtils.toPrimitive(bodyLocsXs.toArray(new Float[bodyLocsXs.size()]))),
-                    VecTable.createYsVector(builder, ArrayUtils.toPrimitive(bodyLocsYs.toArray(new Float[bodyLocsYs.size()]))));
+                    VecTable.createXsVector(builder, ArrayUtils.toPrimitive(bodyLocsXs.toArray(new Integer[bodyLocsXs.size()]))),
+                    VecTable.createYsVector(builder, ArrayUtils.toPrimitive(bodyLocsYs.toArray(new Integer[bodyLocsYs.size()]))));
             SpawnedBodyTable.startSpawnedBodyTable(builder);
             SpawnedBodyTable.addRobotIDs(builder, robotIDs);
             SpawnedBodyTable.addTeamIDs(builder, teamIDs);
             SpawnedBodyTable.addTypes(builder, types);
             SpawnedBodyTable.addLocs(builder, locs);
             int bodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
-
+            int soupArrayInt = battlecode.schema.GameMap.createSoupVector(builder, ArrayUtils.toPrimitive(soupArrayList.toArray(new Integer[soupArrayList.size()])));
+            int pollutionArrayInt = battlecode.schema.GameMap.createPollutionVector(builder, ArrayUtils.toPrimitive(pollutionArrayList.toArray(new Integer[pollutionArrayList.size()])));
+            int waterArrayInt = battlecode.schema.GameMap.createWaterVector(builder, ArrayUtils.toPrimitive(waterArrayList.toArray(new Integer[waterArrayList.size()])));
+  
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
@@ -299,6 +316,9 @@ public final strictfp class GameMapIO {
                     gameMap.getOrigin().y + gameMap.getHeight()));
             battlecode.schema.GameMap.addBodies(builder, bodies);
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
+            battlecode.schema.GameMap.addSoup(builder, soupArrayInt);
+            battlecode.schema.GameMap.addPollution(builder, pollutionArrayInt);
+            battlecode.schema.GameMap.addWater(builder, waterArrayInt);
 
             return battlecode.schema.GameMap.endGameMap(builder);
 
@@ -308,7 +328,7 @@ public final strictfp class GameMapIO {
         // *** HELPER METHODS *********
         // ****************************
 
-        private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<BodyInfo> initialBodies) {
+        private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<RobotInfo> initialBodies) {
             VecTable locs = bodyTable.locs();
             for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
                 RobotType bodyType = FlatHelpers.getRobotTypeFromBodyType(bodyTable.types(i));
@@ -317,7 +337,7 @@ public final strictfp class GameMapIO {
                 float bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
                 if (bodyType != null) {
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation((int) bodyX, (int) bodyY), bodyType.getStartingHealth(), 0, 0));
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation((int) bodyX, (int) bodyY), 0, 0));
                 }
             }
         }

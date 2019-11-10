@@ -74,7 +74,7 @@ public class RobotControllerTest {
         LiveMap map= new TestMapBuilder("test", 0, 0, 100, 100, 1337, 1000).build();
         TestGame game = new TestGame(map);
 
-        final int a = game.spawn(1, 1, RobotType.SOLDIER, Team.A);
+        final int a = game.spawn(1, 1, RobotType.MINER, Team.A);
 
         game.round((id, rc) -> {
             if (id != a) return;
@@ -85,7 +85,7 @@ public class RobotControllerTest {
             rc.move(Direction.EAST);
 
             final MapLocation newLocation = rc.getLocation();
-            assertEquals(new MapLocation(1 + RobotType.SOLDIER.strideRadius, 1), newLocation);
+            assertEquals(new MapLocation(2, 1), newLocation);
         });
 
         // Let delays go away
@@ -131,8 +131,8 @@ public class RobotControllerTest {
         // This creates the actual game.
         TestGame game = new TestGame(map);
 
-        final int soldierA = game.spawn(3, 5, RobotType.SOLDIER, Team.A);
-        final int soldierB = game.spawn(7, 5, RobotType.SOLDIER, Team.B);
+        final int soldierA = game.spawn(3, 5, RobotType.MINER, Team.A);
+        final int soldierB = game.spawn(7, 5, RobotType.MINER, Team.B);
 
         game.round((id, rc) -> {
             if(id != soldierA) return;
@@ -142,31 +142,6 @@ public class RobotControllerTest {
 
             assertNotEquals(actualBot,null);
             assertEquals(nullBot,null);
-        });
-    }
-
-    @Test
-    public void testNullIsCircleOccupied() throws GameActionException {
-
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-                .build();
-
-        // This creates the actual game.
-        TestGame game = new TestGame(map);
-
-        final int gardener = game.spawn(5, 5, RobotType.GARDENER, Team.A);
-
-
-        game.round((id, rc) -> {
-            if(id != gardener) return;
-
-            boolean exception = false;
-            try {
-                assertFalse(rc.isCircleOccupiedExceptByThisRobot(rc.getLocation(), 3));
-            } catch(Exception e) {
-                exception = true;
-            }
-            assertFalse(exception);
         });
     }
 
@@ -219,70 +194,69 @@ public class RobotControllerTest {
     //         assertEquals(testIDs[i],executionOrder.get(i));
     //     }
     // }
-    /*
-    @Test
-    public void sensingEachOtherTest() throws GameActionException {
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 50, 50, 1337, 100)
-                .build();
 
-        TestGame game = new TestGame(map);
+    // @Test
+    // public void sensingEachOtherTest() throws GameActionException {
+    //     LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 50, 50, 1337, 100)
+    //             .build();
 
-        final int tankA = game.spawn(10, 10, RobotType.TANK, Team.A);
-        final int soldierB = game.spawn(10, (float) 18.4534432, RobotType.SOLDIER, Team.B);
+    //     TestGame game = new TestGame(map);
 
-        game.waitRounds(50);
+    //     final int tankA = game.spawn(10, 10, RobotType.TANK, Team.A);
+    //     final int soldierB = game.spawn(10, (float) 18.4534432, RobotType.SOLDIER, Team.B);
 
+    //     game.waitRounds(50);
 
-        // Soldier can see tank
-        game.round((id, rc) -> {
-            if (id == soldierB) {
-                RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-                assertEquals(robots.length, 1);
-            }
-        });
-    }*/
+    //     // Soldier can see tank
+    //     game.round((id, rc) -> {
+    //         if (id == soldierB) {
+    //             RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+    //             assertEquals(robots.length, 1);
+    //         }
+    //     });
+    // }
 
-    @Test
-    public void turnOrderTest() throws GameActionException {
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 50, 50, 1337, 100)
-                .build();
+    // @Test
+    // public void turnOrderTest() throws GameActionException {
+    //     LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 50, 50, 1337, 100)
+    //             .build();
 
-        TestGame game = new TestGame(map);
+    //     TestGame game = new TestGame(map);
 
-        // Spawn two tanks close enough such that a ... fired from one
-        // at the other will hit after updating once.
-        final int tankA = game.spawn(10, 10, RobotType.TANK, Team.A);
-        final int tankB = game.spawn(15, 10, RobotType.TANK, Team.B);
-    }
+    //     // Spawn two tanks close enough such that a bullet fired from one
+    //     // at the other will hit after updating once.
+    //     final int tankA = game.spawn(10, 10, RobotType.TANK, Team.A);
+    //     final int tankB = game.spawn(15, 10, RobotType.TANK, Team.B);
+    // }
 
-    @Test
-    public void testImmediateCollisionDetection() throws GameActionException {
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-                .build();
+    // @Test
+    // public void testImmediateCollisionDetection() throws GameActionException {
+    //     LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
+    //             .build();
 
-        // This creates the actual game.
-        TestGame game = new TestGame(map);
+    //     // This creates the actual game.
+    //     TestGame game = new TestGame(map);
 
-        final int soldierA = game.spawn(2.99f,5,RobotType.SOLDIER,Team.A);
-        final int soldierB = game.spawn(5,5,RobotType.SOLDIER,Team.B);
+    //     final int soldierA = game.spawn(2.99f,5,RobotType.SOLDIER,Team.A);
+    //     final int soldierB = game.spawn(5,5,RobotType.SOLDIER,Team.B);
 
-        game.waitRounds(20); // Let units mature
+    //     game.waitRounds(20); // Let units mature
 
-        game.round((id, rc) -> {
-            if (id == soldierA) {
-                RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
-                assertEquals(nearbyRobots.length,1);
-                // Damage is done immediately
-            }
-        });
+    //     game.round((id, rc) -> {
+    //         if (id == soldierA) {
+    //             RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
+    //             assertEquals(nearbyRobots.length,1);
+    //             // Damage is done immediately
+    //         }
+    //     });
 
-        game.getBot(soldierB).damageRobot(RobotType.SOLDIER.maxHealth-RobotType.SOLDIER.attackPower-1);
+    //     game.getBot(soldierB).damageRobot(RobotType.SOLDIER.maxHealth-RobotType.SOLDIER.attackPower-1);
 
-        game.round((id, rc) -> {
-            if (id == soldierA) {
-                RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
-                // Damage is done immediately and robot is dead
-            }
-        });
-    }
+    //     game.round((id, rc) -> {
+    //         if (id == soldierA) {
+    //             RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
+    //             // Damage is done immediately and robot is dead
+    //         }
+    //     });
+    // }
 }

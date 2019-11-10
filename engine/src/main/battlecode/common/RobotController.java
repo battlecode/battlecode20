@@ -75,7 +75,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] getInitialArchonLocations(Team t);
+    // MapLocation[] getInitialArchonLocations(Team t);
 
     // *********************************
     // ****** UNIT QUERY METHODS *******
@@ -116,15 +116,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     MapLocation getLocation();
-
-    /**
-     * Returns this robot's current health.
-     *
-     * @return this robot's current health.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    float getHealth();
     
     /**
      * Returns the number of times the robot has attacked this turn.
@@ -194,28 +185,6 @@ public strictfp interface RobotController {
     boolean canSenseRadius(float radius);
 
     /**
-     * Senses whether any portion of the given circle is within the robot's sensor range.
-     *
-     * @param center the center of the circle to check
-     * @param radius the radius of the circle to check
-     * @return true if a portion of the circle is within the robot's sensor range; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canSensePartOfCircle(MapLocation center, float radius);
-
-    /**
-     * Senses whether all of the given circle is within the robot's sensor range.
-     *
-     * @param center the center of the circle to check
-     * @param radius the radius of the circle to check
-     * @return true if all of the circle is within the robot's sensor range; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canSenseAllOfCircle(MapLocation center, float radius);
-
-    /**
      * Senses whether there is a robot at the given location.
      *
      * @param loc the location to check
@@ -236,31 +205,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     boolean isLocationOccupiedByRobot(MapLocation loc) throws GameActionException;
-
-    /**
-     * Senses whether there is any robot within a given circle.
-     *
-     * @param center the center of the circle to check
-     * @param radius the radius of the circle to check
-     * @return true if there is a robot in the given circle; false otherwise.
-     * @throws GameActionException if any portion of the given circle is not within sensor range.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isCircleOccupied(MapLocation center, float radius) throws GameActionException;
-
-    /**
-     * Senses whether there is any robot within a given circle, ignoring this robot
-     * if it itself occupies the circle.
-     *
-     * @param center the center of the circle to check
-     * @param radius the radius of the circle to check
-     * @return true if there is a robot in the given circle; false otherwise.
-     * @throws GameActionException if any portion of the given circle is not within sensor range.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isCircleOccupiedExceptByThisRobot(MapLocation center, float radius) throws GameActionException;
 
     /**
      * Senses the robot at the given location, or null if there is no robot
@@ -408,24 +352,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     boolean canMove(Direction dir);
-
-    /**
-     * Tests whether this robot can move {@code distance} units in the given
-     * direction, without taking into account if they have already moved. Takes into
-     * account only the positions of other robots, and the
-     * edge of the game map. Does not take into account whether this robot is
-     * currently active. Note that one stride is equivalent to this robot's
-     * {@code strideRadius}.
-     *
-     * @param dir the direction to move in
-     * @param distance the distance of a move you wish to check. Must be
-     * in [0, RobotType.strideRadius]
-     * @return true if there is no external obstruction to prevent this robot
-     * from moving distance in the given direction; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMove(Direction dir, float distance);
     
     /**
      * Tests whether this robot can move to the target MapLocation. If
@@ -457,34 +383,6 @@ public strictfp interface RobotController {
      */
     void move(Direction dir) throws GameActionException;
 
-    /**
-     * Moves distance in the given direction. If the distance exceeds the robot's
-     * {@code strideRadius}, it is rescaled to {@code strideRadius}.
-     *
-     * @param dir the direction to move in
-     * @param distance the distance to move in that direction
-     * @throws GameActionException if the robot cannot move distance in this
-     * direction, such as already moved that turn, the target location being
-     * off the map, and the target destination being occupied with either
-     * another robot.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void move(Direction dir, float distance) throws GameActionException;
-    
-    /**
-     * Moves to the target MapLocation. If the target location is outside the robot's
-     * {@code strideRadius}, it is rescaled to be {@code strideRadius} away.
-     * 
-     * @param center the MapLocation to move to (or toward)
-     * @throws GameActionException if the robot can not move to the target MapLocation,
-     * such as already having moved that turn, the target location being off the map,
-     * or a target destination being occupied with either another robot.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void move(MapLocation center) throws GameActionException;
-
     // ***********************************
     // ****** ATTACK METHODS *************
     // ***********************************
@@ -497,7 +395,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canStrike();
+    // boolean canStrike();
 
     /**
      * Strikes and deals damage to all other robots within
@@ -509,7 +407,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    void strike() throws GameActionException;
+    // void strike() throws GameActionException;
 
     // ***********************************
     // ****** BUILDING/SPAWNING **********
@@ -555,28 +453,16 @@ public strictfp interface RobotController {
     void buildRobot(RobotType type, Direction dir) throws GameActionException;
 
     /**
-     * Tests whether the robot can hire a Gardener in the given direction.
-     * Checks cooldown turns remaining, currency, whether the robot can
+     * Tests whether the robot can hire a Miner in the given direction.
+     * Checks cooldown turns remaining, soup count, whether the robot can
      * hire, and that the given direction is not blocked.
      * 
      * @param dir the direction to build in
-     * @return whether it is possible to hire a gardener in the given direction.
+     * @return whether it is possible to hire a miner in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canHireGardener(Direction dir);
-    
-    /**
-     * Hires a Gardener in the given direction.
-     *
-     * @param dir the direction to spawn the Gardener
-     * @throws GameActionException if you don't have enough currency, if
-     * the robot is still in build cooldown, if the direction is not a good build
-     * direction, or if this robot is not of an appropriate type.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void hireGardener(Direction dir) throws GameActionException;
+    boolean canHireMiner(Direction dir);
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
