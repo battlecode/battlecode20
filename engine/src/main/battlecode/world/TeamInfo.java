@@ -13,9 +13,12 @@ public class TeamInfo {
     private final long[][] oldTeamMemory;
 
     private int[] teamSoup = new int[2];
+
     public TeamInfo(long[][] oldTeamMemory){
         this.teamMemory = new long[2][oldTeamMemory[0].length];
         this.oldTeamMemory = oldTeamMemory;
+        this.teamSoup[0] = 1000;
+        this.teamSoup[1] = 1000;
     }
 
     // *********************************
