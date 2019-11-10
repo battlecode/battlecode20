@@ -38,6 +38,8 @@ public strictfp class GameWorld {
     private final RobotControlProvider controlProvider;
     private Random rand;
 
+    private PriorityQueue<BlockchainEntry> blockchainQueue;
+
     private final GameMaker.MatchMaker matchMaker;
 
     @SuppressWarnings("unchecked")
@@ -59,6 +61,8 @@ public strictfp class GameWorld {
         this.controlProvider = cp;
 
         this.rand = new Random(gameMap.getSeed());
+
+        this.blockchainQueue = new PriorityQueue<BlockchainEntry>();
 
         this.matchMaker = matchMaker;
 
@@ -251,12 +255,26 @@ public strictfp class GameWorld {
         return currentRound >= gameMap.getRounds() - 1;
     }
 
+    public void processBlockchain() {
+        // process messages, take the K first ones!
+        for (int i = 0; i < GameConstants.NUMBER_OF_BROADCASTED_MESSAGES; i++) {
+            if (blockchainQueue.size() > 0) {
+                BlockchainEntry bcentry = blockchainQueue.poll();
+                // send this to match maker!
+                matchMaker.addBroadcastedMessage(bcentry.cost, bcentry.message);
+            }
+        }
+    }
+
     public void processEndOfRound() {
         // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
             robot.processEndOfRound();
             return true;
         });
+
+        // process blockchain messages
+        processBlockchain();
 
         // Check for end of match
         if (timeLimitReached() && gameStats.getWinner() == null) {
@@ -302,6 +320,24 @@ public strictfp class GameWorld {
     }
 
     // *********************************
+    // ****** BLOCKCHAIN *************** 
+    // *********************************
+
+    /**
+     * Add new message to the priority queue of messages, and also add them
+     * to the matchmaker.
+     * @param cost
+     * @param message
+     */
+    public void addNewMessage(int cost, String message) {
+        getMatchMaker().addNewMessage(cost, message);
+
+        // add it to the priority queue 
+        BlockchainEntry bcentry = new BlockchainEntry(cost, message);
+        blockchainQueue.add(bcentry);
+    }
+   
+    // *********************************
     // ****** DESTROYING ***************
     // *********************************
 
@@ -316,4 +352,22 @@ public strictfp class GameWorld {
         matchMaker.addDied(id, false);
     }
 
+}
+
+
+class BlockchainEntry implements Comparable<BlockchainEntry> {
+    int cost;
+    String message;
+
+    public BlockchainEntry(int cost, String message) {
+        this.cost = cost;
+        this.message = message;
+    }
+
+    // getters
+
+    @Override
+    public int compareTo(BlockchainEntry other) {
+        return this.cost - other.cost;
+    }
 }

@@ -352,6 +352,44 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
 
+
+    // ***********************************
+    // ****** BLOCKCHAINNNNNNNNNNN *******
+    // ***********************************
+
+    /**
+     * Sends a message to the blockchain at the indicated cost.
+     * 
+     * @param message the message to send.
+     * @param proofOfStake the price that the unit is willing to pay for the message. If
+     * the team does not have that much soup, the message will not be sent.
+     * 
+     */
+    @Override
+    public void sendMessage(int[] messageArray, int cost) throws GameActionException {
+        if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
+            throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
+                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
+        }
+        int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost) {
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, 
+                    "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+        }
+        // pay!
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
+        // Convert the array into string format
+        String[] stringMessageArray = new String[messageArray.length];
+        for (int i = 0; i < messageArray.length; i++) {
+            stringMessageArray[i] = Integer.toString(messageArray[i]);
+        }
+        String message = String.join("_", stringMessageArray);
+        System.out.println(message);
+        // add
+        gameWorld.addNewMessage(cost, message);
+    }
+
+
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************

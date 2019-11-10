@@ -369,6 +369,21 @@ public strictfp interface RobotController {
      */
     boolean canHireMiner(Direction dir);
 
+
+    // ***********************************
+    // ****** BLOCKCHAINNNNNNNNNNN *******
+    // ***********************************
+
+    /**
+     * Sends a message to the blockchain at the indicated cost.
+     * 
+     * @param messageArray the list of ints to send. if more than K messages, 
+     * @param proofOfStake the price that the unit is willing to pay for the message
+     * 
+     */
+    public void sendMessage(int[] messageArray, int cost) throws GameActionException;
+
+
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
