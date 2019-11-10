@@ -79,7 +79,7 @@ public strictfp class LiveMap {
                    int seed,
                    int rounds,
                    String mapName,
-                   BodyInfo[] initialBodies,
+                   RobotInfo[] initialBodies,
                    int[] soupArray,
                    int[] pollutionArray,
                    int[] waterArray) {
