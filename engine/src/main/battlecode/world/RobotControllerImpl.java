@@ -262,14 +262,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
-    
+
     private void assertIsReady() throws GameActionException{
         if(!isReady()){
             throw new GameActionException(NOT_ACTIVE,
                     "This robot's action cooldown has not expired.");
         }
     }
-    
+
     @Override
     public boolean isReady() {
         return this.robot.getCooldownTurns() == 0;
@@ -295,7 +295,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         return canMove(adjacentLocation(dir));
     }
-    
+
     @Override
     public boolean canMove(MapLocation center) {
         try {
@@ -362,67 +362,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
-    
-    @Override
-    public boolean canHireMiner(Direction dir) {
-        return (getType() == RobotType.HQ && canBuildRobot(RobotType.MINER, dir));
-    }
-
-    @Override
-    public void hireMiner(Direction dir) throws GameActionException {
-        assert (canHireMiner(dir));
-        buildRobot(RobotType.MINER, dir);
-    }
-
-    @Override
-    public boolean canHireLandscaper(Direction dir) {
-        return (getType() == RobotType.DESIGN_SCHOOL && canBuildRobot(RobotType.LANDSCAPER, dir));
-    }
-
-    @Override
-    public void hireLandscaper(Direction dir) throws GameActionException {
-        assert (canHireMiner(dir));
-        buildRobot(RobotType.LANDSCAPER, dir);
-    }
-
-    @Override
-    public boolean canBuildDrone(Direction dir) {
-        return (getType() == RobotType.FULFILLMENT_CENTER && canBuildRobot(RobotType.DRONE, dir));
-    }
-
-    @Override
-    public void buildDrone(Direction dir) throws GameActionException {
-        assert (canHireMiner(dir));
-        buildRobot(RobotType.DRONE, dir);
-    }
-
-    // **************************************
-    // ********* DIRT MANIPULATION **********
-    // **************************************
-
-
-    @Override
-    public boolean canDig(Direction dir) {
-        assertNotNull(dir); //TODO: check soup/bytecode requirements
-        return (getType() == RobotType.MINER);
-    }
-
-    @Override
-    public void dig(Direction dir) {
-        assert(canDig(dir)); //TODO: write methods in GameWorld to change dirt, interface with these
-    }
-
-    @Override
-    public boolean canDeposit(Direction dir) {
-        assertNotNull(dir); //TODO: check soup/bytecode requirements
-        return (getType() == RobotType.MINER);
-    }
-
-    @Override
-    public void deposit(Direction dir) {
-        assert(canDeposit(dir)); //TODO: write methods in GameWorld to change dirt, interface with these
-    }
-
 
     // ***********************************
     // ****** MINER METHODS **************
