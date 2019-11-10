@@ -262,8 +262,8 @@ public final strictfp class GameMapIO {
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
             ArrayList<Byte> bodyTypes = new ArrayList<>();
-            ArrayList<Float> bodyLocsXs = new ArrayList<>();
-            ArrayList<Float> bodyLocsYs = new ArrayList<>();
+            ArrayList<Integer> bodyLocsXs = new ArrayList<>();
+            ArrayList<Integer> bodyLocsYs = new ArrayList<>();
 
             for (BodyInfo initBody : gameMap.getInitialBodies()) {
                 if (initBody.isRobot()) {
@@ -271,8 +271,8 @@ public final strictfp class GameMapIO {
                     bodyIDs.add(robot.ID);
                     bodyTeamIDs.add(TeamMapping.id(robot.team));
                     bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
-                    bodyLocsXs.add((float) robot.location.x);
-                    bodyLocsYs.add((float) robot.location.y);
+                    bodyLocsXs.add(robot.location.x);
+                    bodyLocsYs.add(robot.location.y);
                 } else {
                     // ignore?
                 }
