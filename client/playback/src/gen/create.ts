@@ -2,6 +2,7 @@ import {schema, flatbuffers} from 'battlecode-schema';
 import * as Map from 'core-js/library/es6/map';
 import {createWriteStream} from 'fs';
 import {gzip} from 'pako';
+import { isNull } from 'util';
 
 const SIZE = 50;
 const SIZE2 = SIZE / 2;
@@ -20,6 +21,7 @@ const bodyTypeList = [
   schema.BodyType.NONE
 ];
 const bodyVariety = bodyTypeList.length;
+
 function random(l: number, r: number): number{
   if(l>r){ console.log("Wrong call of random"); return -1; }
   return Math.floor(Math.random() * (r-l+1)) + l;
@@ -28,9 +30,34 @@ function trimEdge(x: number, l: number, r: number): number{
   return Math.min(Math.max(l, x), r);
 }
 
-export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
+
+export function createEventWrapper(builder: flatbuffers.Builder, event: flatbuffers.Offset, type: schema.Event): flatbuffers.Offset {
+  schema.EventWrapper.startEventWrapper(builder);
+  schema.EventWrapper.addEType(builder, type);
+  schema.EventWrapper.addE(builder, event);
+  return schema.EventWrapper.endEventWrapper(builder);
+}
+
+export function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: number[]) {
+  const xsP = schema.VecTable.createXsVector(builder, xs);
+  const ysP = schema.VecTable.createYsVector(builder, ys);
+  schema.VecTable.startVecTable(builder);
+  schema.VecTable.addXs(builder, xsP);
+  schema.VecTable.addYs(builder, ysP);
+  return schema.VecTable.endVecTable(builder);
+}
+
+export function createMap(builder: flatbuffers.Builder, bodies: number): flatbuffers.Offset {
+  schema.GameMap.startGameMap(builder);
+  if(!isNull(bodies)) schema.GameMap.addBodies(builder, bodies);
+  schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, 0, 0));
+  schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, SIZE, SIZE));
+  return schema.GameMap.endGameMap(builder);
+}
+
+
+export function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const bodies: flatbuffers.Offset[] = [];
-  // TODO: auto-update following long array from enum type?
   // what's the default value?
   for (const body of bodyTypeList) {
     schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
@@ -45,7 +72,7 @@ export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
 
   const teams: flatbuffers.Offset[] = [];
   for (let team of [1, 2]) {
-    const name = builder.createString('team'+team);
+    const name = builder.createString('team '+team);
     const packageName = builder.createString('big'+team+'.memes.big.dreams');
     schema.TeamData.startTeamData(builder);
     schema.TeamData.addName(builder, name);
@@ -65,20 +92,37 @@ export function createHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   return schema.GameHeader.endGameHeader(builder);
 }
 
-export function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: number[]) {
-  const xsP = schema.VecTable.createXsVector(builder, xs);
-  const ysP = schema.VecTable.createYsVector(builder, ys);
-  schema.VecTable.startVecTable(builder);
-  schema.VecTable.addXs(builder, xsP);
-  schema.VecTable.addYs(builder, ysP);
-  return schema.VecTable.endVecTable(builder);
+export function createGameFooter(builder: flatbuffers.Builder, winner: number): flatbuffers.Offset {
+  schema.GameFooter.startGameFooter(builder);
+  schema.GameFooter.addWinner(builder, winner);
+  return schema.GameFooter.endGameFooter(builder);
 }
 
-export function createEventWrapper(builder: flatbuffers.Builder, event: flatbuffers.Offset, type: schema.Event): flatbuffers.Offset {
-  schema.EventWrapper.startEventWrapper(builder);
-  schema.EventWrapper.addEType(builder, type);
-  schema.EventWrapper.addE(builder, event);
-  return schema.EventWrapper.endEventWrapper(builder);
+export function createMatchHeader(builder: flatbuffers.Builder, turns: number, map: number): flatbuffers.Offset {
+  schema.MatchHeader.startMatchHeader(builder);
+  schema.MatchHeader.addMaxRounds(builder, turns);
+  schema.MatchHeader.addMap(builder, map);
+
+  return schema.MatchHeader.endMatchHeader(builder);
+}
+
+export function createMatchFooter(builder: flatbuffers.Builder, turns: number, winner: number): flatbuffers.Offset {
+  schema.MatchFooter.startMatchFooter(builder);
+  schema.MatchFooter.addWinner(builder, winner);
+  schema.MatchFooter.addTotalRounds(builder, turns);
+
+  return schema.MatchFooter.endMatchFooter(builder);
+}
+
+export function createGameWrapper(builder: flatbuffers.Builder, events: flatbuffers.Offset[], turns: number): flatbuffers.Offset {
+  const eventsPacked = schema.GameWrapper.createEventsVector(builder, events);
+  const matchHeaders = schema.GameWrapper.createMatchHeadersVector(builder, [1]);
+  const matchFooters = schema.GameWrapper.createMatchFootersVector(builder, [turns+2]);
+  schema.GameWrapper.startGameWrapper(builder)
+  schema.GameWrapper.addEvents(builder, eventsPacked);
+  schema.GameWrapper.addMatchHeaders(builder, matchHeaders);
+  schema.GameWrapper.addMatchFooters(builder, matchFooters);
+  return schema.GameWrapper.endGameWrapper(builder);
 }
 
 // Game without any unit & changes
@@ -86,17 +130,10 @@ export function createBlankGame(turns: number){
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
-  events.push(createEventWrapper(builder, createHeader(builder), schema.Event.GameHeader));
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
-  schema.GameMap.startGameMap(builder);
-  schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, 0, 0));
-  schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, SIZE, SIZE));
-  const map = schema.GameMap.endGameMap(builder);
-
-  schema.MatchHeader.startMatchHeader(builder);
-  schema.MatchHeader.addMaxRounds(builder, turns);
-  schema.MatchHeader.addMap(builder, map);
-  events.push(createEventWrapper(builder, schema.MatchHeader.endMatchHeader(builder), schema.Event.MatchHeader));
+  const map = createMap(builder, null);
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
 
   for (let i = 1; i < turns+1; i++) {
     schema.Round.startRound(builder);
@@ -105,24 +142,10 @@ export function createBlankGame(turns: number){
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }
 
-  schema.MatchFooter.startMatchFooter(builder);
-  schema.MatchFooter.addWinner(builder, 1);
-  schema.MatchFooter.addTotalRounds(builder, turns);
-  events.push(createEventWrapper(builder, schema.MatchFooter.endMatchFooter(builder), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
 
-  schema.GameFooter.startGameFooter(builder);
-  schema.GameFooter.addWinner(builder, 1);
-  events.push(createEventWrapper(builder, schema.GameFooter.endGameFooter(builder), schema.Event.GameFooter));
-
-  const eventsPacked = schema.GameWrapper.createEventsVector(builder, events);
-  const matchHeaders = schema.GameWrapper.createMatchHeadersVector(builder, [1]);
-  const matchFooters = schema.GameWrapper.createMatchHeadersVector(builder, [turns+2]);
-  schema.GameWrapper.startGameWrapper(builder)
-  schema.GameWrapper.addEvents(builder, eventsPacked);
-  schema.GameWrapper.addMatchHeaders(builder, matchHeaders);
-  schema.GameWrapper.addMatchFooters(builder, matchFooters);
-  const wrapper = schema.GameWrapper.endGameWrapper(builder);
-
+  const wrapper = createGameWrapper(builder, events, turns);
   builder.finish(wrapper);
   return builder.asUint8Array();
 }
@@ -132,21 +155,25 @@ export function createStandGame(turns: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
-  events.push(createEventWrapper(builder, createHeader(builder), schema.Event.GameHeader));
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
-  // TODO: make both drones
-  const unitCount = bodyVariety * 2;
+  const unitCount = bodyVariety * 2 + 2;
   let robotIDs = new Array(unitCount);
   let teamIDs = new Array(unitCount);
   let types = new Array(unitCount);
   let xs = new Array(unitCount);
   let ys = new Array(unitCount);
-  for (let i = 0; i < robotIDs.length; i++) {
+  for (let i = 0; i < unitCount; i++) {
     robotIDs[i] = i;
-    teamIDs[i] = i%2+1;
-    types[i] = bodyTypeList[i % bodyVariety];
+    teamIDs[i] = i%2+1; // 1 2 1 2 1 2 ...
+
+    let type = Math.floor(i/2);
+    if(type>=bodyVariety) type = schema.BodyType.DRONE;
+    else type = bodyTypeList[type];
+    types[i] = type;
+
     // assume map is large enough
-    xs[i] = (i % bodyVariety) * 2 + 10;
+    xs[i] = Math.floor(i/2) * 2 + 5;
     ys[i] = 5*(i%2)+5;
   }
 
@@ -161,16 +188,8 @@ export function createStandGame(turns: number) {
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
   const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
-  schema.GameMap.startGameMap(builder);
-  schema.GameMap.addBodies(builder, bodies);
-  schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, 0, 0));
-  schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, SIZE, SIZE));
-  const map = schema.GameMap.endGameMap(builder);
-
-  schema.MatchHeader.startMatchHeader(builder);
-  schema.MatchHeader.addMaxRounds(builder, turns);
-  schema.MatchHeader.addMap(builder, map);
-  events.push(createEventWrapper(builder, schema.MatchHeader.endMatchHeader(builder), schema.Event.MatchHeader));
+  const map = createMap(builder, bodies);
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
 
   for (let i = 1; i < turns+1; i++) {
     schema.Round.startRound(builder);
@@ -179,24 +198,10 @@ export function createStandGame(turns: number) {
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }
 
-  schema.MatchFooter.startMatchFooter(builder);
-  schema.MatchFooter.addWinner(builder, 1);
-  schema.MatchFooter.addTotalRounds(builder, turns);
-  events.push(createEventWrapper(builder, schema.MatchFooter.endMatchFooter(builder), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
 
-  schema.GameFooter.startGameFooter(builder);
-  schema.GameFooter.addWinner(builder, 1);
-  events.push(createEventWrapper(builder, schema.GameFooter.endGameFooter(builder), schema.Event.GameFooter));
-
-  const eventsPacked = schema.GameWrapper.createEventsVector(builder, events);
-  const matchHeaders = schema.GameWrapper.createMatchHeadersVector(builder, [1]);
-  const matchFooters = schema.GameWrapper.createMatchHeadersVector(builder, [turns+2]);
-  schema.GameWrapper.startGameWrapper(builder)
-  schema.GameWrapper.addEvents(builder, eventsPacked);
-  schema.GameWrapper.addMatchHeaders(builder, matchHeaders);
-  schema.GameWrapper.addMatchFooters(builder, matchFooters);
-  const wrapper = schema.GameWrapper.endGameWrapper(builder);
-
+  const wrapper = createGameWrapper(builder, events, turns);
   builder.finish(wrapper);
   return builder.asUint8Array();
 }
@@ -206,7 +211,7 @@ export function createWanderGame(unitCount: number, turns: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
-  events.push(createEventWrapper(builder, createHeader(builder), schema.Event.GameHeader));
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
   let robotIDs = new Array(unitCount);
   let teamIDs = new Array(unitCount);
@@ -236,16 +241,8 @@ export function createWanderGame(unitCount: number, turns: number) {
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
   const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
-  schema.GameMap.startGameMap(builder);
-  schema.GameMap.addBodies(builder, bodies);
-  schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, 0, 0));
-  schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, SIZE, SIZE));
-  const map = schema.GameMap.endGameMap(builder);
-  
-  schema.MatchHeader.startMatchHeader(builder);
-  schema.MatchHeader.addMaxRounds(builder, turns);
-  schema.MatchHeader.addMap(builder, map);
-  events.push(createEventWrapper(builder, schema.MatchHeader.endMatchHeader(builder), schema.Event.MatchHeader));
+  const map = createMap(builder, bodies);
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
 
   for (let i = 1; i < turns+1; i++) {
     for (let i = 0; i < unitCount; i++) {
@@ -271,24 +268,10 @@ export function createWanderGame(unitCount: number, turns: number) {
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }
 
-  schema.MatchFooter.startMatchFooter(builder);
-  schema.MatchFooter.addWinner(builder, 1);
-  schema.MatchFooter.addTotalRounds(builder, turns);
-  events.push(createEventWrapper(builder, schema.MatchFooter.endMatchFooter(builder), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
 
-  schema.GameFooter.startGameFooter(builder);
-  schema.GameFooter.addWinner(builder, 1);
-  events.push(createEventWrapper(builder, schema.GameFooter.endGameFooter(builder), schema.Event.GameFooter));
-
-  const eventsPacked = schema.GameWrapper.createEventsVector(builder, events);
-  const matchHeaders = schema.GameWrapper.createMatchHeadersVector(builder, [1]);
-  const matchFooters = schema.GameWrapper.createMatchHeadersVector(builder, [turns+2]);
-  schema.GameWrapper.startGameWrapper(builder)
-  schema.GameWrapper.addEvents(builder, eventsPacked);
-  schema.GameWrapper.addMatchHeaders(builder, matchHeaders);
-  schema.GameWrapper.addMatchFooters(builder, matchFooters);
-  const wrapper = schema.GameWrapper.endGameWrapper(builder);
-
+  const wrapper = createGameWrapper(builder, events, turns);
   builder.finish(wrapper);
   return builder.asUint8Array();
 }
@@ -298,7 +281,7 @@ export function createActiveGame(aliveCount: number, churnCount: number, moveCou
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
-  events.push(createEventWrapper(builder, createHeader(builder), schema.Event.GameHeader));
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
   let robotIDs = new Array(aliveCount);
   let teamIDs = new Array(aliveCount);
@@ -324,16 +307,8 @@ export function createActiveGame(aliveCount: number, churnCount: number, moveCou
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
   const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
-  schema.GameMap.startGameMap(builder);
-  schema.GameMap.addBodies(builder, bodies);
-  schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, 0, 0));
-  schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, SIZE, SIZE));
-  const map = schema.GameMap.endGameMap(builder);
-
-  schema.MatchHeader.startMatchHeader(builder);
-  schema.MatchHeader.addMaxRounds(builder, turns);
-  schema.MatchHeader.addMap(builder, map);
-  events.push(createEventWrapper(builder, schema.MatchHeader.endMatchHeader(builder), schema.Event.MatchHeader));
+  const map = createMap(builder, bodies);
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
 
   const diedIDs = new Array(churnCount);
 
@@ -398,24 +373,10 @@ export function createActiveGame(aliveCount: number, churnCount: number, moveCou
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }
 
-  schema.MatchFooter.startMatchFooter(builder);
-  schema.MatchFooter.addWinner(builder, 1);
-  schema.MatchFooter.addTotalRounds(builder, turns);
-  events.push(createEventWrapper(builder, schema.MatchFooter.endMatchFooter(builder), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
 
-  schema.GameFooter.startGameFooter(builder);
-  schema.GameFooter.addWinner(builder, 1);
-  events.push(createEventWrapper(builder, schema.GameFooter.endGameFooter(builder), schema.Event.GameFooter));
-
-  const eventsPacked = schema.GameWrapper.createEventsVector(builder, events);
-  const matchHeaders = schema.GameWrapper.createMatchHeadersVector(builder, [1]);
-  const matchFooters = schema.GameWrapper.createMatchHeadersVector(builder, [turns+2]);
-  schema.GameWrapper.startGameWrapper(builder)
-  schema.GameWrapper.addEvents(builder, eventsPacked);
-  schema.GameWrapper.addMatchHeaders(builder, matchHeaders);
-  schema.GameWrapper.addMatchFooters(builder, matchFooters);
-  const wrapper = schema.GameWrapper.endGameWrapper(builder);
-
+  const wrapper = createGameWrapper(builder, events, turns);
   builder.finish(wrapper);
   return builder.asUint8Array();
 }
