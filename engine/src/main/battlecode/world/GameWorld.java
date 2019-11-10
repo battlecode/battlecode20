@@ -241,6 +241,19 @@ public strictfp class GameWorld {
         robots[loc.x][loc.y] = null;
     }
 
+    public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius) {
+        ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
+        int minX = Math.max(center.x - radius, 0);
+        int minY = Math.max(center.y - radius, 0);
+        int maxX = Math.min(center.x + radius, this.gameMap.getWidth() - 1);
+        int maxY = Math.min(center.y + radius, this.gameMap.getHeight() - 1);
+        for (int x = minX; x <= maxX; x++)
+            for (int y = minY; y <= maxY; y++)
+                if (robots[x][y] != null)
+                    returnRobots.add(robots[x][y]);
+        return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+    }
+
     // *********************************
     // ****** GAMEPLAY *****************
     // *********************************
@@ -339,5 +352,4 @@ public strictfp class GameWorld {
 
         matchMaker.addDied(id, false);
     }
-
 }
