@@ -20,6 +20,8 @@ public strictfp class InternalRobot {
     private int bytecodesUsed;
 
     private int roundsAlive;
+    private int soupCarrying; // amount of soup the robot is carrying (miners)
+    private int dirtCarrying; // amount of dirt the robot is carrying (landscapers and buildings)
     
     private int cooldownTurns;
 
@@ -48,6 +50,8 @@ public strictfp class InternalRobot {
         this.bytecodesUsed = 0;
 
         this.roundsAlive = 0;
+        this.soupCarrying = 0;
+        this.dirtCarrying = 0;
         
         this.cooldownTurns = 0;
 
@@ -94,6 +98,14 @@ public strictfp class InternalRobot {
     public int getRoundsAlive() {
         return roundsAlive;
     }
+
+    public int getSoupCarrying() {
+        return soupCarrying;
+    }
+
+    public int getDirtCarrying() {
+        return dirtCarrying;
+    }
     
     public int getCooldownTurns() {
         return cooldownTurns;
@@ -115,11 +127,21 @@ public strictfp class InternalRobot {
     // ****** CHECK METHODS *************
     // **********************************
 
+    /**
+     * Returns whether this robot can sense the given location.
+     * 
+     * @param toSense the MapLocation to sense
+     */
     public boolean canSenseLocation(MapLocation toSense){
         return this.location.distanceTo(toSense) <= this.type.sensorRadius;
     }
 
-    public boolean canSenseRadius(float radius) {
+    /**
+     * Returns whether this robot can sense something a given radius away.
+     * 
+     * @param radius the distance to sense
+     */
+    public boolean canSenseRadius(int radius) {
         return radius <= this.type.sensorRadius;
     }
 
@@ -127,11 +149,28 @@ public strictfp class InternalRobot {
     // ****** UPDATE METHODS ********************
     // ******************************************
 
-    public void setLocation(MapLocation loc){
+    /**
+     * Sets the location of the robot.
+     * 
+     * @param loc the new location of the robot
+     */
+    public void setLocation(MapLocation loc) {
         this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = loc;
     }
+
+    /**
+     * Resets the action cooldown using the formula cooldown = type_cooldown + pollution_at_location.
+     */
+    public void resetCooldownTurns() {
+        setCooldownTurns(this.type.actionCooldown + this.gameWorld.getPollution(this.location));
+    }
     
+    /**
+     * Sets the action cooldown given the number of turns.
+     * 
+     * @param newTurns the number of cooldown turns
+     */
     public void setCooldownTurns(int newTurns) {
         this.cooldownTurns = newTurns;
     }
@@ -155,8 +194,8 @@ public strictfp class InternalRobot {
     }
 
     public void processBeginningOfTurn() {
-        if(cooldownTurns > 0) {
-            cooldownTurns--;
+        if (this.cooldownTurns > 0) {
+            this.cooldownTurns--;
         }
         // if(getRoundsAlive() < 20 && this.type.isBuildable()){
         //     this.repairRobot(.04f * getType().maxHealth);
@@ -165,8 +204,8 @@ public strictfp class InternalRobot {
     }
 
     public void processEndOfTurn() {
-        gameWorld.getMatchMaker().addBytecodes(ID, this.bytecodesUsed);
-        roundsAlive++;
+        this.gameWorld.getMatchMaker().addBytecodes(ID, this.bytecodesUsed);
+        this.roundsAlive++;
     }
 
     public void processEndOfRound() {
@@ -189,7 +228,7 @@ public strictfp class InternalRobot {
     }
 
     public void setBytecodesUsed(int numBytecodes) {
-        bytecodesUsed = numBytecodes;
+        this.bytecodesUsed = numBytecodes;
     }
 
     public int getBytecodeLimit() {
@@ -201,9 +240,9 @@ public strictfp class InternalRobot {
     // *********************************
 
     public void suicide(){
-        gameWorld.destroyRobot(getID());
+        this.gameWorld.destroyRobot(getID());
 
-        gameWorld.getMatchMaker().addAction(getID(), Action.DIE_SUICIDE, -1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIE_SUICIDE, -1);
     }
 
     // *****************************************

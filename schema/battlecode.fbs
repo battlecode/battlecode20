@@ -256,11 +256,6 @@ table Round {
     /// any target (typically 0).
     actionTargets: [int];
 
-    /// The IDs of bodies whose dirt amount (amount of dirt on top that body) changed.
-    dirtChangedBodyIDs: [int];
-    /// The amount the dirt changed by.
-    dirtChangesBody: [int];
-
     /// The indexes of the locations whose dirt amount changed.
     dirtChangedLocs: VecTable;
     /// The amount the dirt changed by.

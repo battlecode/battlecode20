@@ -338,9 +338,6 @@ public strictfp class GameMaker {
         private TByteArrayList actions; // Actions
         private TIntArrayList actionTargets; // ints (IDs)
 
-        private TIntArrayList dirtChangedBodyIDs; // ints
-        private TIntArrayList dirtChangesBody; // ints
-
         private TFloatArrayList dirtChangedLocsXs; //For locs
         private TFloatArrayList dirtChangedLocsYs; //For locs
         private TIntArrayList dirtChanges; // ints
@@ -405,8 +402,6 @@ public strictfp class GameMaker {
             this.actionIDs = new TIntArrayList();
             this.actions = new TByteArrayList();
             this.actionTargets = new TIntArrayList();
-            this.dirtChangedBodyIDs = new TIntArrayList();
-            this.dirtChangesBody = new TIntArrayList();
             this.dirtChangedLocsXs = new TFloatArrayList();
             this.dirtChangedLocsYs = new TFloatArrayList();
             this.dirtChanges = new TIntArrayList();
@@ -508,10 +503,6 @@ public strictfp class GameMaker {
                 int actionsP = byteVector(builder, actions, Round::startActionsVector);
                 int actionTargetsP = intVector(builder, actionTargets, Round::startActionTargetsVector);
 
-                // The dirt changes on bodies (buildings)
-                int dirtChangedBodyIDsP = intVector(builder, dirtChangedBodyIDs, Round::startDirtChangedBodyIDsVector);
-                int dirtChangesBodyP = intVector(builder, dirtChangesBody, Round::startDirtChangesBodyVector);
-
                 // The dirt changes on locations
                 int dirtChangedLocsP = createVecTable(builder, dirtChangedLocsXs, dirtChangedLocsYs);
                 int dirtChangesP = intVector(builder, dirtChanges, Round::startDirtChangesVector);
@@ -563,8 +554,6 @@ public strictfp class GameMaker {
                 Round.addActionIDs(builder, actionIDsP);
                 Round.addActions(builder, actionsP);
                 Round.addActionTargets(builder, actionTargetsP);
-                Round.addDirtChangedBodyIDs(builder, dirtChangedBodyIDsP);
-                Round.addDirtChangesBody(builder, dirtChangesBodyP);
                 Round.addDirtChangedLocs(builder, dirtChangedLocsP);
                 Round.addDirtChanges(builder, dirtChangesP);
                 Round.addWaterChangedLocs(builder, waterChangedLocsP);
@@ -616,11 +605,6 @@ public strictfp class GameMaker {
             actionIDs.add(userID);
             actions.add(action);
             actionTargets.add(targetID);
-        }
-
-        public void addDirtChangedBody(int id, int change) {
-            dirtChangedBodyIDs.add(id);
-            dirtChangesBody.add(change);
         }
 
         public void addDirtChanged(MapLocation loc, int change) {
@@ -712,8 +696,6 @@ public strictfp class GameMaker {
             actionIDs.clear();
             actions.clear();
             actionTargets.clear();
-            dirtChangedBodyIDs.clear();
-            dirtChangesBody.clear();
             dirtChangedLocsXs.clear();
             dirtChangedLocsYs.clear();
             dirtChanges.clear();
