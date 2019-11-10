@@ -46,7 +46,7 @@ public strictfp class LiveMap {
      * i.e. in game correct MapLocations that need to have the origin
      * subtracted from them to be used to index into the map arrays.
      */
-    private final BodyInfo[] initialBodies;
+    private final RobotInfo[] initialBodies;
 
     private int[] soupArray;
     private int[] pollutionArray;
@@ -58,7 +58,7 @@ public strictfp class LiveMap {
                    int seed,
                    int rounds,
                    String mapName,
-                   BodyInfo[] initialBodies) {
+                   RobotInfo[] initialBodies) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -216,7 +216,7 @@ public strictfp class LiveMap {
      * @return the list of starting bodies on the map.
      *         MUST NOT BE MODIFIED.
      */
-    public BodyInfo[] getInitialBodies() {
+    public RobotInfo[] getInitialBodies() {
         return initialBodies;
     }
 

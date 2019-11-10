@@ -79,7 +79,7 @@ public class TestGame {
      * @param type type of the robot to spawn
      * @param team team of the robot to spawn
      */
-    public int spawn(float x, float y, RobotType type, Team team) {
+    public int spawn(int x, int y, RobotType type, Team team) {
         return world.spawnRobot(type, new MapLocation(x, y), team);
     }
 
