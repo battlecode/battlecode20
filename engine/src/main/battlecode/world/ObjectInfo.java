@@ -58,6 +58,8 @@ public strictfp class ObjectInfo {
                 RobotType.class));
         robotTypeCount.put(Team.B, new EnumMap<>(
                 RobotType.class));
+        robotTypeCount.put(Team.NEUTRAL, new EnumMap<>(
+                RobotType.class));
     }
 
     public int getRobotTypeCount(Team team, RobotType type) {
@@ -283,6 +285,7 @@ public strictfp class ObjectInfo {
     }
 
     private void incrementRobotTypeCount(Team team, RobotType type) {
+        robotTypeCount.get(team);
         if (robotTypeCount.get(team).containsKey(type)) {
             robotTypeCount.get(team).put(type,
                     robotTypeCount.get(team).get(type) + 1);

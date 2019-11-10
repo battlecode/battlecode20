@@ -214,7 +214,7 @@ public strictfp class Server implements Runnable {
         // Load the map for the match
         final LiveMap loadedMap;
         try {
-            loadedMap = GameMapIO.loadMap("maptest", new File("/Users/ezou/dev/battlecode20/engine/src/main/battlecode/world/resources"/*options.get("bc.game.map-path")*/));
+            loadedMap = GameMapIO.loadMap("maptest", new File("/Users/ashlin/dev/battlecode20/engine/src/main/battlecode/world/resources"/*options.get("bc.game.map-path")*/));
             debug("running map " + loadedMap);
         } catch (IOException e) {
             warn("Couldn't load map " + mapName + ", skipping");

@@ -216,6 +216,7 @@ public class CowControlProvider implements RobotControlProvider {
                     Direction randomDir = DIRECTIONS[(rand + i) % 4];
                     if (rc.canMove(randomDir)) { //TODO: make cow slightly smarter so it doesn't drown immediately
                         rc.move(randomDir);
+                        System.out.println("This cow is moving!");
                         return;
                     }
                 }
