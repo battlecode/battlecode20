@@ -121,7 +121,10 @@ input[type='file'] {
 }
 
 .custom-button:active, button:target {
-    background-color: #999;
+    background-color: rgb(0,123,255);
+}
+.custom-button:focus {
+    outline: none;
 }
 
 #gamearea {

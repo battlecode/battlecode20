@@ -74,8 +74,8 @@ export default class MatchQueue {
     // disguise the default upload file button with a label
     let uploadLabel = document.createElement("label");
     uploadLabel.setAttribute("for", "file-upload");
-    uploadLabel.setAttribute("class", "custom-button uploadfilebutton");
-    uploadLabel.innerText = 'upload';
+    uploadLabel.setAttribute("class", "custom-button");
+    uploadLabel.innerText = 'Upload';
 
     // create the functional button
     let upload = document.createElement('input');
