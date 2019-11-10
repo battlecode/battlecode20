@@ -360,18 +360,6 @@ public strictfp interface RobotController {
      */
     void buildRobot(RobotType type, Direction dir) throws GameActionException;
 
-    /**
-     * Tests whether the robot can hire a Miner in the given direction.
-     * Checks cooldown turns remaining, soup count, whether the robot can
-     * hire, and that the given direction is not blocked.
-     * 
-     * @param dir the direction to build in
-     * @return whether it is possible to hire a miner in the given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canHireMiner(Direction dir);
-
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
@@ -418,61 +406,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void setIndicatorLine(MapLocation startLoc, MapLocation endLoc, int red, int green, int blue);
-
-    // ***********************************
-    // ******** TEAM MEMORY **************
-    // ***********************************
-
-    /**
-     * Sets the team's "memory", which is saved for the next game in the match.
-     * The memory is an array of {@link GameConstants#TEAM_MEMORY_LENGTH} longs.
-     * If this method is called more than once with the same index in the same
-     * game, the last call is what is saved for the next game.
-     *
-     * @param index the index of the array to set
-     * @param value the data that the team should remember for the next game
-     * @throws java.lang.ArrayIndexOutOfBoundsException if {@code index} is less
-     * than zero or greater than or equal to
-     * {@link GameConstants#TEAM_MEMORY_LENGTH}.
-     * @see #getTeamMemory
-     * @see #setTeamMemory(int, long, long)
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void setTeamMemory(int index, long value);
-
-    /**
-     * Sets this team's "memory". This function allows for finer control than
-     * {@link #setTeamMemory(int, long)} provides. For example, if
-     * {@code mask == 0xFF} then only the eight least significant bits of the
-     * memory will be set.
-     *
-     * @param index the index of the array to set
-     * @param value the data that the team should remember for the next game
-     * @param mask indicates which bits should be set
-     * @throws java.lang.ArrayIndexOutOfBoundsException if {@code index} is less
-     * than zero or greater than or equal to
-     * {@link GameConstants#TEAM_MEMORY_LENGTH}.
-     * @see #getTeamMemory
-     * @see #setTeamMemory(int, long)
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void setTeamMemory(int index, long value, long mask);
-
-    /**
-     * Returns the team memory from the last game of the match. The return value
-     * is an array of length {@link GameConstants#TEAM_MEMORY_LENGTH}. If
-     * setTeamMemory was not called in the last game, or there was no last game,
-     * the corresponding long defaults to 0.
-     *
-     * @return the team memory from the the last game of the match.
-     * @see #setTeamMemory(int, long)
-     * @see #setTeamMemory(int, long, long)
-     *
-     * @battlecode.doc.costlymethod
-     */
-    long[] getTeamMemory();
 
     // ***********************************
     // ******** DEBUG METHODS ************

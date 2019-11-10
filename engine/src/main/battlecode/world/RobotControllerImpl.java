@@ -332,11 +332,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         boolean cooldownExpired = isReady();
         return hasBuildRequirements && isClear && cooldownExpired;
     }
-    
-    @Override
-    public boolean canHireMiner(Direction dir) {
-        return canBuildRobot(RobotType.MINER, dir);
-    }
 
     @Override
     public void buildRobot(RobotType type, Direction dir) throws GameActionException {
@@ -386,26 +381,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(startLoc);
         assertNotNull(endLoc);
         gameWorld.getMatchMaker().addIndicatorLine(getID(), startLoc, endLoc, red, green, blue);
-    }
-
-    // ***********************************
-    // ******** TEAM MEMORY **************
-    // ***********************************
-
-    @Override
-    public void setTeamMemory(int index, long value) {
-        gameWorld.getTeamInfo().setTeamMemory(robot.getTeam(), index, value);
-    }
-
-    @Override
-    public void setTeamMemory(int index, long value, long mask) {
-        gameWorld.getTeamInfo().setTeamMemory(robot.getTeam(), index, value, mask);
-    }
-
-    @Override
-    public long[] getTeamMemory() {
-        long[] arr = gameWorld.getTeamInfo().getOldTeamMemory()[robot.getTeam().ordinal()];
-        return Arrays.copyOf(arr, arr.length);
     }
 
     // ***********************************
