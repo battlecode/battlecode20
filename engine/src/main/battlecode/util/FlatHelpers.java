@@ -7,11 +7,9 @@ import battlecode.schema.RGBTable;
 import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.TByteCollection;
 import gnu.trove.list.TByteList;
-import gnu.trove.list.TFloatList;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.TCharList;
 import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.list.array.TFloatArrayList;
 
 import java.util.List;
 import java.util.function.ObjIntConsumer;
@@ -120,18 +118,6 @@ public class FlatHelpers {
         return builder.endVector();
     }
 
-    public static int floatVector(FlatBufferBuilder builder,
-                                  TFloatList arr,
-                                  ObjIntConsumer<FlatBufferBuilder> start) {
-        final int length = arr.size();
-        start.accept(builder, length);
-
-        for (int i = length - 1; i >= 0; i--) {
-            builder.addFloat(arr.get(i));
-        }
-        return builder.endVector();
-    }
-
     public static int byteVector(FlatBufferBuilder builder,
                                  TByteList arr,
                                  ObjIntConsumer<FlatBufferBuilder> start) {
@@ -156,12 +142,12 @@ public class FlatHelpers {
         return builder.endVector();
     }
 
-    public static int createVecTable(FlatBufferBuilder builder, TFloatList xs, TFloatList ys) {
+    public static int createVecTable(FlatBufferBuilder builder, TIntList xs, TIntList ys) {
         if (xs.size() != ys.size()) {
             throw new RuntimeException("Mismatched x/y length: "+xs.size()+" != "+ys.size());
         }
-        int xsP = floatVector(builder, xs, VecTable::startXsVector);
-        int ysP = floatVector(builder, ys, VecTable::startYsVector);
+        int xsP = intVector(builder, xs, VecTable::startXsVector);
+        int ysP = intVector(builder, ys, VecTable::startYsVector);
         return VecTable.createVecTable(builder, xsP, ysP);
     }
 

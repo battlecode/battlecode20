@@ -31,11 +31,11 @@ public interface GameConstants {
     // ****** GAME PARAMETERS **********
     // *********************************
 
+    /** The initial amount of soup each team gets. */
+    int INITIAL_SOUP = 1000;
+
     /** The number of victory points required to win the game. */
     int VICTORY_POINTS_TO_WIN = 1000;
-
-    /** The number of longs that your team can remember between games. */
-    int TEAM_MEMORY_LENGTH = 32;
 
     /** The number of indicator strings that a player can associate with a robot. */
     int NUMBER_OF_INDICATOR_STRINGS = 3;
@@ -97,5 +97,5 @@ public interface GameConstants {
     int GAME_DEFAULT_SEED = 6370;
 
     /** The default game maxiumum number of rounds. **/
-    int GAME_DEFAULT_ROUNDS = 100;
+    int GAME_DEFAULT_ROUNDS = 20;
 }

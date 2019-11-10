@@ -31,6 +31,7 @@ public strictfp class GameWorld {
     private int[] pollution;
     private int[] water;
     private int[] dirt;
+    private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
@@ -46,20 +47,20 @@ public strictfp class GameWorld {
     private final GameMaker.MatchMaker matchMaker;
 
     @SuppressWarnings("unchecked")
-    public GameWorld(LiveMap gm, RobotControlProvider cp,
-                     long[][] oldTeamMemory, GameMaker.MatchMaker matchMaker) {
+    public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.initialSoup = gm.getSoupArray();
         this.soup = gm.getSoupArray();
         this.pollution = gm.getPollutionArray();
         this.water = gm.getWaterArray();
         this.dirt = gm.getDirtArray();
+        this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
-        this.teamInfo = new TeamInfo(oldTeamMemory);
+        this.teamInfo = new TeamInfo();
 
         this.controlProvider = cp;
 
@@ -221,10 +222,44 @@ public strictfp class GameWorld {
         return gameMap.onTheMap(loc) ? water[locationToIndex(loc)] : 0;
     }
 
+    public void removeSoup(MapLocation loc) {
+        removeSoup(loc, 1);
+    }
+
     public void removeSoup(MapLocation loc, int amount) {
         int idx = locationToIndex(loc);
         if (gameMap.onTheMap(loc))
             soup[idx] = Math.max(0, soup[idx] - amount);
+    }
+
+    public InternalRobot getRobot(MapLocation loc) {
+        return robots[loc.x][loc.y];
+    }
+
+    public void moveRobot(MapLocation start, MapLocation end) {
+        addRobot(end, robots[start.x][start.y]);
+        removeRobot(start);
+    }
+
+    public void addRobot(MapLocation loc, InternalRobot robot) {
+        robots[loc.x][loc.y] = robot;
+    }
+
+    public void removeRobot(MapLocation loc) {
+        robots[loc.x][loc.y] = null;
+    }
+
+    public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius) {
+        ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
+        int minX = Math.max(center.x - radius, 0);
+        int minY = Math.max(center.y - radius, 0);
+        int maxX = Math.min(center.x + radius, this.gameMap.getWidth() - 1);
+        int maxY = Math.min(center.y + radius, this.gameMap.getHeight() - 1);
+        for (int x = minX; x <= maxX; x++)
+            for (int y = minY; y <= maxY; y++)
+                if (robots[x][y] != null)
+                    returnRobots.add(robots[x][y]);
+        return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
     }
 
     // *********************************
@@ -302,6 +337,7 @@ public strictfp class GameWorld {
     public int spawnRobot(int ID, RobotType type, MapLocation location, Team team){
         InternalRobot robot = new InternalRobot(this, ID, type, location, team);
         objectInfo.spawnRobot(robot);
+        addRobot(location, robot);
 
         controlProvider.robotSpawned(robot);
         matchMaker.addSpawnedRobot(robot);
@@ -352,6 +388,7 @@ public strictfp class GameWorld {
 
     public void destroyRobot(int id){
         InternalRobot robot = objectInfo.getRobotByID(id);
+        removeRobot(robot.getLocation());
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
@@ -360,7 +397,6 @@ public strictfp class GameWorld {
 
         matchMaker.addDied(id, false);
     }
-
 }
 
 

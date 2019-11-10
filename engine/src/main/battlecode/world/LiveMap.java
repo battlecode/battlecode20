@@ -67,14 +67,15 @@ public strictfp class LiveMap {
         this.rounds = rounds;
         this.mapName = mapName;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        this.soupArray = new int[width*height];
-        this.pollutionArray = new int[width*height];
-        this.waterArray = new int[width*height];
-        this.dirtArray = new int[width*height];
+        this.soupArray = new int[width * height];
+        this.pollutionArray = new int[width * height];
+        this.waterArray = new int[width * height];
+        this.dirtArray = new int[width * height];
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
+
     public LiveMap(int width,
                    int height,
                    MapLocation origin,
@@ -136,8 +137,8 @@ public strictfp class LiveMap {
 
     @Override
     public int hashCode() {
-        int result = (width != +0.0f ? Float.floatToIntBits(width) : 0);
-        result = 31 * result + (height != +0.0f ? Float.floatToIntBits(height) : 0);
+        int result = width;
+        result = 31 * result + height;
         result = 31 * result + origin.hashCode();
         result = 31 * result + seed;
         result = 31 * result + rounds;
@@ -176,17 +177,16 @@ public strictfp class LiveMap {
     /**
      * Determines whether or not the location at the specified
      * coordinates is on the map. The coordinate should be a shifted one
-     * (takes into account the origin).
+     * (takes into account the origin). Assumes grid format (0 <= x < width).
      *
      * @param x the (shifted) x-coordinate of the location
      * @param y the (shifted) y-coordinate of the location
      * @return true if the given coordinates are on the map,
      *         false if they're not
      */
-    private boolean onTheMap(float x, float y) {
-        return (x >= origin.x && y >= origin.y && x <= origin.x + width && y <= origin.y + height);
+    private boolean onTheMap(int x, int y) {
+        return (x >= origin.x && y >= origin.y && x < origin.x + width && y < origin.y + height);
     }
-
 
     /**
      * Determines whether or not the specified location is on the map.
@@ -207,7 +207,7 @@ public strictfp class LiveMap {
      * @return true if the given circle is on the map,
      *         false if it's not
      */
-    public boolean onTheMap(MapLocation loc, float radius){
+    public boolean onTheMap(MapLocation loc, int radius){
         return (onTheMap(loc.translate(-radius, 0)) &&
                 onTheMap(loc.translate(radius, 0)) &&
                 onTheMap(loc.translate(0, -radius)) &&

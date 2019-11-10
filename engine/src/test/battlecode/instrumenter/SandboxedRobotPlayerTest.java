@@ -101,7 +101,6 @@ public class SandboxedRobotPlayerTest {
 
         verify(rc).resign();
         verify(rc).senseNearbyRobots();
-        verify(rc).setTeamMemory(0, 0);
     }
 
     // @Test
