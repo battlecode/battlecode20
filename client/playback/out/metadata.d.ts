@@ -37,10 +37,15 @@ export declare class Team {
  */
 export declare class BodyType {
     type: schema.BodyType;
+    spawnSource: schema.BodyType;
     cost: number;
-    strideRadius: number;
-    sightRadius: number;
-    soupLimit: number;
     dirtLimit: number;
-    constructor(type: schema.BodyType, cost: number, strideRadius: number, sightRadius: number, soupLimit: number, dirtLimit: number);
+    soupLimit: number;
+    actionCooldown: number;
+    sensorRadius: number;
+    pollutionRadius: number;
+    pollutionAmount: number;
+    maxSoupProduced: number;
+    bytecodeLimit: number;
+    constructor(type: schema.BodyType, spawnSource: schema.BodyType, cost: number, soupLimit: number, dirtLimit: number, actionCooldown: number, sensorRadius: number, pollutionRadius: number, pollutionAmount: number, maxSoupProduced: number, bytecodeLimit: number);
 }

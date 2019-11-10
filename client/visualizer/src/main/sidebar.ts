@@ -235,7 +235,7 @@ export default class Sidebar {
                 this.conf.sightRadius = !this.conf.sightRadius;
                 break;
               case 77: // "m" - Toggle bullet sight radius
-                this.conf.bulletSightRadius = !this.conf.bulletSightRadius;
+                // this.conf.bulletSightRadius = !this.conf.bulletSightRadius;
                 break;
             }
           }

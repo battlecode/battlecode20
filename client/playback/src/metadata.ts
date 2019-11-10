@@ -47,11 +47,16 @@ export default class Metadata {
       const body = header.bodyTypeMetadata(i);
       this.types[body.type()] = new BodyType(
         body.type(),
+        body.spawnSource(),
         body.cost(),
-        body.strideRadius(),
-        body.sightRadius(),
+        body.dirtLimit(),
         body.soupLimit(),
-        body.dirtLimit()
+        body.actionCooldown(),
+        body.sensorRadius(),
+        body.pollutionRadius(),
+        body.pollutionAmount(),
+        body.maxSoupProduced(),
+        body.bytecodeLimit()
       );
     }
     // SAFE
@@ -86,35 +91,34 @@ export class Team {
 export class BodyType {
   // schema.BodyTypeMetadata
 
-  /// The relevant type.
   type: schema.BodyType;
-
-  /// The cost of the type, in refined soup.
+  spawnSource: schema.BodyType;
   cost: number;
-  
-  /// The maximum distance this type can move each turn
-  strideRadius: number;
-
-  /// The maximum distance this type can sense other trees and robots
-  sightRadius: number;
-
-  /// need to encode the formula
-  // ??
-
-  /// Amount of soup this body type can carry; only positive for miners.
-  soupLimit: number;
-
-  /// Amount of dirt this body type can carry; only positive for landscapers.
   dirtLimit: number;
+  soupLimit: number;
+  actionCooldown: number;
+  sensorRadius: number;
+  pollutionRadius: number;
+  pollutionAmount: number;
+  maxSoupProduced: number;
+  bytecodeLimit: number;
   
+  constructor(type: schema.BodyType, spawnSource: schema.BodyType, cost: number,
+      soupLimit: number, dirtLimit: number, actionCooldown: number,
+      sensorRadius: number, pollutionRadius: number, pollutionAmount: number,
+      maxSoupProduced: number, bytecodeLimit: number) {
 
-  constructor(type: schema.BodyType, cost: number, strideRadius: number, sightRadius: number, soupLimit: number, dirtLimit: number) {
     this.type = type;
+    this.spawnSource = spawnSource;
     this.cost = cost;
-    this.strideRadius = strideRadius;
-    this.sightRadius = sightRadius;
-    this.soupLimit = soupLimit;
     this.dirtLimit = dirtLimit;
+    this.soupLimit = soupLimit;
+    this.actionCooldown = actionCooldown;
+    this.sensorRadius = sensorRadius;
+    this.pollutionRadius = pollutionRadius;
+    this.pollutionAmount = pollutionAmount;
+    this.maxSoupProduced = maxSoupProduced;
+    this.bytecodeLimit = bytecodeLimit;
     Object.freeze(this);
   }
 }

@@ -298,7 +298,7 @@ export default class Client {
   private updateStats(world: GameWorld, meta: Metadata) {
     for (let team in meta.teams) {
       let teamID = meta.teams[team].teamID;
-      let teamStats = world.stats.get(teamID);
+      let teamStats = world.teamStats.get(teamID);
 
       // TODO: maybe this check isn't needed???
       if (teamStats == undefined) {

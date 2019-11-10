@@ -2,7 +2,7 @@ import * as config from '../../config';
 import * as cst from '../../constants';
 import NextStep from './../nextstep';
 
-import {GameWorld, Metadata, schema} from 'battlecode-playback';
+import {GameWorld, Metadata, schema, Game} from 'battlecode-playback';
 import {AllImages} from '../../imageloader';
 import Victor = require('victor');
 
@@ -111,6 +111,7 @@ export default class Renderer {
     const length = bodies.length;
     const types = bodies.arrays.type;
     const teams = bodies.arrays.team;
+    const carry = bodies.arrays.isCarry;
     const ids = bodies.arrays.id;
     const xs = bodies.arrays.x;
     const ys = bodies.arrays.y;
@@ -181,9 +182,12 @@ export default class Renderer {
       const y = realYs[i];
 
       if (type !== cst.COW && type !== cst.NONE) {
-        let tmp = this.imgs.robot[cst.bodyTypeToString(type)]
+        let tmp = this.imgs.robot[cst.bodyTypeToString(type)];
         // TODO how to change drone?
-        if(type == cst.DRONE) tmp = tmp.empty;
+        if(type == cst.DRONE){
+          tmp = (carry[i]==1 ? tmp.carry : tmp.empty);
+        }
+
         const img = tmp[team];
         this.drawCircleBot(x, y, radius);
         this.drawImage(img, x, y, radius);
@@ -233,7 +237,7 @@ export default class Renderer {
     }
 
     if (this.conf.sightRadius) {
-      const sightRadius = this.metadata.types[type].sightRadius;
+      const sightRadius = this.metadata.types[type].sensorRadius;
       this.ctx.beginPath();
       this.ctx.arc(x, y, sightRadius, 0, 2 * Math.PI);
       this.ctx.strokeStyle = "#46ff00";
