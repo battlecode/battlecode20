@@ -3,6 +3,7 @@ import * as Map from 'core-js/library/es6/map';
 import {createWriteStream} from 'fs';
 import {gzip} from 'pako';
 import { isNull } from 'util';
+import { Signer } from 'crypto';
 
 const SIZE = 50;
 const SIZE2 = SIZE / 2;
@@ -24,12 +25,104 @@ const bodyVariety = bodyTypeList.length;
 
 function random(l: number, r: number): number{
   if(l>r){ console.log("Wrong call of random"); return -1; }
-  return Math.floor(Math.random() * (r-l+1)) + l;
+  return Math.min(Math.floor(Math.random() * (r-l+1)) + l, r);
 }
+
 function trimEdge(x: number, l: number, r: number): number{
   return Math.min(Math.max(l, x), r);
 }
 
+export type BodiesType = {
+  robotIDs: number[],
+  teamIDs: number[],
+  types: number[],
+  xs: number[],
+  ys: number[],
+};
+
+// Class to manage IDs of units
+export class IDsManager {
+  private maxID: number;
+  private used: Uint8Array;
+  private dead: Uint8Array;
+
+  // [0, maxID]
+  constructor(maxID: number) {
+    this.maxID = maxID;
+    this.used = new Uint8Array(maxID+1);
+    this.dead = new Uint8Array(maxID+1);
+  }
+
+  units(): number {
+    let res = 0;
+    for(let i=0; i<=this.maxID; i++) res += this.used[i];
+    return res;
+  }
+
+  isFull(): boolean {
+    return this.units() == this.maxID;
+  }
+
+  useNextID(): number {
+    if(this.isFull()) throw(Error("There are no available IDs"));
+    for(let i=0; i<=this.maxID; i++) if(this.used[i] == 0){
+      this.used[i] = 1;
+      return i;
+    }
+    throw(Error("This line is not supposed to happen"));
+  }
+
+  useRandomID(): number{
+    if(this.isFull()) throw(Error("There are no available IDs"));
+    const arr = new Array();
+    for(let i=0; i<=this.maxID; i++){
+      if(this.used[i] == 0) arr.push(i);
+    }
+
+    const idx = random(0, arr.length-1);
+    this.used[arr[idx]] = 1;
+    return arr[idx];
+  }
+
+  killID(ID: number): void {
+    if(this.used[ID] == 0) throw(Error("Can't kill unused ID"));
+    if(this.dead[ID] != 0) throw(Error("Can't kill a unit twice"));
+
+    this.dead[ID] = 1;
+  }
+
+  killRandomID(): number {
+    const arr = new Array();
+    for(let i=0; i<=this.maxID; i++){
+      if(this.used[i] == 1 && this.dead[i] == 0) arr.push(i);
+    }
+    if(arr.length == 0) throw(Error("There are no units to kill"))
+    
+    const idx = random(0, arr.length-1);
+    this.killID(arr[idx]);
+    return arr[idx];
+  }
+};
+
+export function createRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
+  const bodies: BodiesType = {
+    robotIDs: Array(unitCount),
+    teamIDs: Array(unitCount),
+    types: Array(unitCount),
+    xs: Array(unitCount),
+    ys: Array(unitCount),
+  };
+
+  for(let i=0; i<unitCount; i++){
+    bodies.robotIDs[i] = manager.useRandomID();
+    bodies.teamIDs[i] = random(1,2);
+    bodies.types[i] = bodyTypeList[random(0, bodyVariety-1)];
+    bodies.xs[i] = random(0, SIZE);
+    bodies.ys[i] = random(0, SIZE);
+  }
+
+  return bodies;
+}
 
 export function createEventWrapper(builder: flatbuffers.Builder, event: flatbuffers.Offset, type: schema.Event): flatbuffers.Offset {
   schema.EventWrapper.startEventWrapper(builder);
@@ -45,6 +138,20 @@ export function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: n
   schema.VecTable.addXs(builder, xsP);
   schema.VecTable.addYs(builder, ysP);
   return schema.VecTable.endVecTable(builder);
+}
+
+export function createSBTable(builder: flatbuffers.Builder, bodies: BodiesType): flatbuffers.Offset {
+  const bb_locs = createVecTable(builder, bodies.xs, bodies.ys);
+  const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, bodies.robotIDs);
+  const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, bodies.teamIDs);
+  const bb_types = schema.SpawnedBodyTable.createTypesVector(builder, bodies.types);
+
+  schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
+  schema.SpawnedBodyTable.addLocs(builder, bb_locs);
+  schema.SpawnedBodyTable.addRobotIDs(builder, bb_robotIDs);
+  schema.SpawnedBodyTable.addTeamIDs(builder, bb_teamIDs);
+  schema.SpawnedBodyTable.addTypes(builder, bb_types);
+  return schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 }
 
 export function createMap(builder: flatbuffers.Builder, bodies: number, name: string): flatbuffers.Offset {
@@ -74,7 +181,6 @@ export function createMap(builder: flatbuffers.Builder, bodies: number, name: st
   return schema.GameMap.endGameMap(builder);
 }
 
-
 export function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const bodies: flatbuffers.Offset[] = [];
   // what's the default value?
@@ -98,7 +204,7 @@ export function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offs
 
   const teams: flatbuffers.Offset[] = [];
   for (let team of [1, 2]) {
-    const name = builder.createString('team '+team);
+    const name = builder.createString('Team '+team);
     const packageName = builder.createString('big'+team+'.memes.big.dreams');
     schema.TeamData.startTeamData(builder);
     schema.TeamData.addName(builder, name);
@@ -307,10 +413,55 @@ export function createPickGame(turns: number) {
 }
 
 // Game with spawning and dying random units
-// export function createLifeGame(turns: number) {}
+export function createLifeGame(turns: number) {
+  let builder = new flatbuffers.Builder();
+  let events: flatbuffers.Offset[] = [];
+  const maxID = 2048;
+
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
+
+  const manager = new IDsManager(maxID);
+
+  const bodies = createRandomBodies(manager, 10);
+  const SBTable = createSBTable(builder, bodies);
+  const map = createMap(builder, SBTable, "Life Demo");
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
+
+  for (let i = 1; i < turns+1; i++) {
+
+    const dieUnits = Math.min(2, maxID - manager.units());
+    const spawnUnits = dieUnits;
+
+    const diedIDs = new Array();
+    for(let i=0; i<dieUnits; i++){
+      const ID = manager.killRandomID();
+      diedIDs.push(ID);
+    }
+
+    const bodies = createRandomBodies(manager, spawnUnits);
+
+    const bb_diedIDs = schema.Round.createDiedIDsVector(builder, diedIDs);
+    const bb_spawnedBodies = createSBTable(builder, bodies);
+
+    schema.Round.startRound(builder);
+    schema.Round.addRoundID(builder, i);
+
+    schema.Round.addDiedIDs(builder, bb_diedIDs);
+    schema.Round.addSpawnedBodies(builder, bb_spawnedBodies);
+
+    events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
+  }
+
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
+
+  const wrapper = createGameWrapper(builder, events, turns);
+  builder.finish(wrapper);
+  return builder.asUint8Array();
+}
 
 // Game with every units, moving in random constant speed & direction
-export function createWanderGame(unitCount: number, turns: number) {
+export function createWanderGame(turns: number, unitCount: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
@@ -489,7 +640,8 @@ function main(){
     { name: "blank", game: createBlankGame(512)},
     { name: "stand", game: createStandGame(1024) },
     { name: "pick", game: createPickGame(1024) },
-    { name: "wander", game: createWanderGame(64, 2048) },
+    { name: "wander", game: createWanderGame(2048, 64) },
+    { name: "life", game: createLifeGame(512) },
     // { name: "active", game: createActiveGame(128, 128, 128, 4096) },
   ];
   const prefix = "out/files/";
