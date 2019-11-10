@@ -54,7 +54,7 @@ public strictfp class RobotPlayer {
     }
 
     static void runMiner() throws GameActionException {
-        if (tryMove())
+        if (tryMove(randomDirection()))
             System.out.println("I moved!");
         tryBuild(randomSpawnedByMiner(), randomDirection());
         for (Direction dir : directions)
@@ -66,7 +66,7 @@ public strictfp class RobotPlayer {
     }
 
     static void runRefinery() throws GameActionException {
-
+        System.out.println("Pollution: " + rc.sensePollution(rc.getLocation()));
     }
 
     static void runVaporator() throws GameActionException {

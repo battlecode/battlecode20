@@ -264,6 +264,18 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
 
     /**
+     * Returns the pollution level at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @param loc the given location
+     * @return the pollution level at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int sensePollution(MapLocation loc) throws GameActionException;
+
+    /**
      * Returns the location adjacent to current location in the given direction.
      *
      * @param dir the given direction

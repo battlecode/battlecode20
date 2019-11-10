@@ -255,6 +255,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public int sensePollution(MapLocation loc) throws GameActionException {
+        if(!canSenseLocation(loc)){
+            throw new GameActionException(CANT_SENSE_THAT,
+                    "Can't sense the pollution level of the specified location " +
+                            "(outside of sensor radius).");
+        }
+        return this.gameWorld.getPollution(loc);
+    }
+
+    @Override
     public MapLocation adjacentLocation(Direction dir) {
         return getLocation().add(dir);
     }
