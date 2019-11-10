@@ -74,129 +74,97 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // *********************************
 
     @Override
-    public int getRoundLimit(){
+    public int getRoundLimit() {
         return gameWorld.getGameMap().getRounds();
     }
 
     @Override
-    public int getRoundNum(){
+    public int getRoundNum() {
         return gameWorld.getCurrentRound();
     }
 
     @Override
-    public int getTeamVictoryPoints(){
-        return gameWorld.getTeamInfo().getVictoryPoints(getTeam());
+    public int getTeamSoup() {
+        return gameWorld.getTeamInfo().getSoup(getTeam());
     }
 
     @Override
-    public int getOpponentVictoryPoints() {
-        return gameWorld.getTeamInfo().getVictoryPoints(getTeam().opponent());
-    }
-
-    @Override
-    public int getRobotCount(){
+    public int getRobotCount() {
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
-    @Override
-    public MapLocation[] getInitialArchonLocations(Team t){
-        assertNotNull(t);
-        if (t == Team.NEUTRAL) {
-            return new MapLocation[0];
-        } else {
-            BodyInfo[] initialRobots = gameWorld.getGameMap().getInitialBodies();
-            ArrayList<MapLocation> archonLocs = new ArrayList<>();
-            for (BodyInfo initial : initialRobots) {
-                if(initial.isRobot()){
-                    RobotInfo robot = (RobotInfo) initial;
-                    if (robot.type == RobotType.ARCHON && robot.team == t) {
-                        archonLocs.add(robot.getLocation());
-                    }
-                }
-            }
-            MapLocation[] array = archonLocs.toArray(new MapLocation[archonLocs.size()]);
-            Arrays.sort(array);
-            return array;
-        }
-    }
+    // @Override
+    // public MapLocation[] getInitialArchonLocations(Team t){
+    //     assertNotNull(t);
+    //     if (t == Team.NEUTRAL) {
+    //         return new MapLocation[0];
+    //     } else {
+    //         BodyInfo[] initialRobots = gameWorld.getGameMap().getInitialBodies();
+    //         ArrayList<MapLocation> archonLocs = new ArrayList<>();
+    //         for (BodyInfo initial : initialRobots) {
+    //             if(initial.isRobot()){
+    //                 RobotInfo robot = (RobotInfo) initial;
+    //                 if (robot.type == RobotType.ARCHON && robot.team == t) {
+    //                     archonLocs.add(robot.getLocation());
+    //                 }
+    //             }
+    //         }
+    //         MapLocation[] array = archonLocs.toArray(new MapLocation[archonLocs.size()]);
+    //         Arrays.sort(array);
+    //         return array;
+    //     }
+    // }
 
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
 
     @Override
-    public int getID(){
+    public int getID() {
         return this.robot.getID();
     }
 
     @Override
-    public Team getTeam(){
+    public Team getTeam() {
         return this.robot.getTeam();
     }
 
     @Override
-    public RobotType getType(){
+    public RobotType getType() {
         return this.robot.getType();
     }
 
     @Override
-    public MapLocation getLocation(){
+    public MapLocation getLocation() {
         return this.robot.getLocation();
     }
 
     @Override
-    public float getHealth(){
-        return this.robot.getHealth();
+    public int getSoupCarrying() {
+        return this.robot.getSoupCarrying();
     }
-    
+
     @Override
-    public int getAttackCount(){
-        return this.robot.getAttackCount();
+    public int getDirtCarrying() {
+        return this.robot.getDirtCarrying();
     }
-    
-    @Override
-    public int getMoveCount(){
-        return this.robot.getMoveCount();
-    }
-    
 
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************
 
-    private void assertCanSenseLocation(MapLocation loc) throws GameActionException{
+    private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
         if(!canSenseLocation(loc)){
             throw new GameActionException(CANT_SENSE_THAT,
                     "Target location not within sensor range");
         }
     }
 
-    private void assertCanSensePartOfCircle(MapLocation center, float radius) throws GameActionException{
-        if(!canSensePartOfCircle(center, radius)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target circle not within sensor range");
-        }
-    }
-
-    private void assertCanSenseAllOfCircle(MapLocation center, float radius) throws GameActionException{
-        if(!canSenseAllOfCircle(center, radius)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target circle not completely within sensor range");
-        }
-    }
-
     @Override
-    public boolean onTheMap(MapLocation loc) throws GameActionException {
+    public boolean onTheMap(MapLocation loc) {
         assertNotNull(loc);
-        assertCanSenseLocation(loc);
+        // assertCanSenseLocation(loc);
         return gameWorld.getGameMap().onTheMap(loc);
-    }
-
-    @Override
-    public boolean onTheMap(MapLocation center, float radius) throws GameActionException{
-        assertNotNull(center);
-        assertCanSenseAllOfCircle(center, radius);
-        return gameWorld.getGameMap().onTheMap(center, radius);
     }
 
     @Override
@@ -206,55 +174,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseRadius(float radius) {
+    public boolean canSenseRadius(int radius) {
         return this.robot.canSenseRadius(radius);
-    }
-
-    @Override
-    public boolean canSensePartOfCircle(MapLocation center, float radius){
-        assertNotNull(center);
-        return canSenseRadius(getLocation().distanceTo(center)-radius);
-    }
-
-    @Override
-    public boolean canSenseAllOfCircle(MapLocation center, float radius){
-        assertNotNull(center);
-        return canSenseRadius(getLocation().distanceTo(center)+radius);
     }
 
     @Override
     public boolean isLocationOccupied(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
-        return !gameWorld.getObjectInfo().isEmpty(loc, 0);
-    }
-
-    @Override
-    public boolean isLocationOccupiedByRobot(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanSenseLocation(loc);
-        return gameWorld.getObjectInfo().getRobotAtLocation(loc) != null;
-    }
-
-    @Override
-    public boolean isCircleOccupied(MapLocation center, float radius) throws GameActionException{
-        assertNotNull(center);
-        assertCanSenseAllOfCircle(center, radius);
-        return !gameWorld.getObjectInfo().isEmpty(center, radius);
-    }
-
-    @Override
-    public boolean isCircleOccupiedExceptByThisRobot(MapLocation center, float radius) throws GameActionException{
-        assertNotNull(center);
-        assertCanSenseAllOfCircle(center, radius);
-        return !gameWorld.getObjectInfo().isEmptyExceptForRobot(center, radius, robot);
+        return this.gameWorld.getRobot(loc) != null;
     }
 
     @Override
     public RobotInfo senseRobotAtLocation(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
-        InternalRobot bot = gameWorld.getObjectInfo().getRobotAtLocation(loc);
+        InternalRobot bot = gameWorld.getRobot(loc);
         if(bot != null) {
             return bot.getRobotInfo();
         }
@@ -267,7 +202,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return false;
         }
         InternalRobot robot = gameWorld.getObjectInfo().getRobotByID(id);
-        return canSensePartOfCircle(robot.getLocation(), robot.getType().bodyRadius);
+        return canSenseLocation(robot.getLocation()); // TODO
     }
 
     @Override
@@ -285,19 +220,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(float radius) {
+    public RobotInfo[] senseNearbyRobots(int radius) {
         return senseNearbyRobots(radius, null);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(float radius, Team team) {
+    public RobotInfo[] senseNearbyRobots(int radius, Team team) {
         return senseNearbyRobots(getLocation(), radius, team);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(MapLocation center, float radius, Team team) {
+    public RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team) {
         assertNotNull(center);
-        InternalRobot[] allSensedRobots = gameWorld.getObjectInfo().getAllRobotsWithinRadius(center,
+        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadius(center,
                 radius == -1 ? getType().sensorRadius : radius);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
@@ -306,7 +241,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 continue;
             }
             // check if can sense
-            if(!canSensePartOfCircle(sensedRobot.getLocation(), sensedRobot.getType().bodyRadius)){
+            if(!canSenseLocation(sensedRobot.getLocation())){
                 continue;
             }
             // check if right team
@@ -319,62 +254,36 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
     }
 
+    @Override
+    public MapLocation adjacentLocation(Direction dir) {
+        return getLocation().add(dir);
+    }
+
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
-
-    private void assertMoveReady() throws GameActionException{
-        if(hasMoved()){
+    
+    private void assertIsReady() throws GameActionException{
+        if(!isReady()){
             throw new GameActionException(NOT_ACTIVE,
-                    "This robot has already moved this turn.");
-        }
-    }
-
-    private void assertIsWeaponReady() throws GameActionException{
-        if(hasAttacked()){
-            throw new GameActionException(NOT_ACTIVE,
-                    "This robot has already attacked this turn.");
+                    "This robot's action cooldown has not expired.");
         }
     }
     
-    private void assertIsBuildReady() throws GameActionException{
-        if(!isBuildReady()){
-            throw new GameActionException(NOT_ACTIVE,
-                    "This robot's build cooldown has not expired.");
-        }
+    @Override
+    public boolean isReady() {
+        return this.robot.getCooldownTurns() == 0;
     }
 
     @Override
-    public boolean hasMoved() {
-        return getMoveCount() > 0;
-    }
-
-    @Override
-    public boolean hasAttacked() {
-        return getAttackCount() > 0;
-    }
-    
-    @Override
-    public boolean isBuildReady() {
-        return this.robot.getBuildCooldownTurns() == 0;
-    }
-
-    @Override
-    public int getBuildCooldownTurns() {
-        return this.robot.getBuildCooldownTurns();
+    public int getCooldownTurns() {
+        return this.robot.getCooldownTurns();
     }
 
     // ***********************************
     // ****** MOVEMENT METHODS ***********
     // ***********************************
 
-  /*  private void assertIsPathable(MapLocation loc) throws GameActionException{
-        if(!onTheMap(loc, getType().bodyRadius) ||
-                isCircleOccupiedExceptByThisRobot(loc, getType().bodyRadius)){
-            throw new GameActionException(CANT_MOVE_THERE,
-                    "Cannot move to target location " + loc + ".");
-        }
-    }*/
     private void assertCanMove(MapLocation loc) throws GameActionException{
         if(!canMove(loc))
             throw new GameActionException(CANT_MOVE_THERE,
@@ -383,111 +292,30 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean canMove(Direction dir) {
-        return canMove(dir, 1f);
-    }
-
-    @Override
-    public boolean canMove(Direction dir, float dist) {
         assertNotNull(dir);
-        MapLocation center = getLocation().add(dir, dist);
-        return canMove(center);
+        return canMove(adjacentLocation(dir));
     }
     
     @Override
     public boolean canMove(MapLocation center) {
-        assertNotNull(center);
-        float dist = getLocation().distanceTo(center);
-        if(dist > 1f) {
-            Direction dir = getLocation().directionTo(center);
-            center = getLocation().add(dir, 1f);
-        }
-        boolean newLocationIsEmpty;
-        if(getType() != RobotType.TANK && getType() != RobotType.SCOUT) {
-            newLocationIsEmpty = gameWorld.getObjectInfo().isEmptyExceptForRobot(center, getType().bodyRadius, robot);
-        } else { // Tanks have special condition due to body attack, Scouts can just go over ...
-            newLocationIsEmpty = gameWorld.getObjectInfo().noRobotsExceptForRobot(center, getType().bodyRadius, robot);
-        }
-        return gameWorld.getGameMap().onTheMap(center, getType().bodyRadius) &&
-                newLocationIsEmpty;
+        try {
+            assertNotNull(center);
+            return getType().canMove() && getLocation().distanceTo(center) <= 1 &&
+                onTheMap(center) && !isLocationOccupied(center);
+        } catch (GameActionException e) { return false; }
     }
 
     @Override
     public void move(Direction dir) throws GameActionException {
-        move(dir, getType().strideRadius);
-    }
-
-    @Override
-    public void move(Direction dir, float dist) throws GameActionException {
-        assertNotNull(dir);
-        assertMoveReady();
-        dist = Math.max(0, Math.min(dist, getType().strideRadius));
-        MapLocation center = getLocation().add(dir, dist);
-        move(center);
-    }
-    
-    @Override
-    public void move(MapLocation center) throws GameActionException {
+        MapLocation center = adjacentLocation(dir);
         assertNotNull(center);
-        assertMoveReady();
-        float dist = getLocation().distanceTo(center);
-        if(dist > getType().strideRadius) {
-            Direction dir = getLocation().directionTo(center);
-            center = getLocation().add(dir, getType().strideRadius);
-        }
+        assertIsReady();
         assertCanMove(center);
-        
-        this.robot.incrementMoveCount();
-        if(getType() == RobotType.TANK) { // If Tank, see if can actually move, as opposed to just body attack
-            
-        }
+        this.robot.resetCooldownTurns();
+        this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
-        gameWorld.getMatchMaker().addMoved(getID(), getLocation());
-    }
-
-    // ***********************************
-    // ****** ATTACK METHODS *************
-    // ***********************************
-
-    private void assertNonNegative(float cost) throws GameActionException{
-        if(cost < 0) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't purchase negative victory points");
-        }
-    }
-
-    @Override
-    public boolean canStrike() {
-        boolean correctType = getType() == RobotType.LUMBERJACK;
-
-        return correctType && !hasAttacked();
-    }
-
-    @Override
-    public void strike() throws GameActionException {
-        if(getType() != RobotType.LUMBERJACK){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Only lumberjacks can strike");
-        }
-        assertIsWeaponReady();
-
-        this.robot.incrementAttackCount(); // Striking counts as attack.
-
-        // Hit adjacent robots
-        for(InternalRobot hitRobot :
-                gameWorld.getObjectInfo().getAllRobotsWithinRadius(getLocation(), GameConstants.LUMBERJACK_STRIKE_RADIUS)){
-            if(hitRobot.equals(this.robot)){
-                continue;
-            }
-            hitRobot.damageRobot(getType().attackPower);
-        }
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.LUMBERJACK_STRIKE, -1);
-    }
-
-    private boolean canInteractWithLocation(MapLocation loc){
-        assertNotNull(loc);
-        return this.robot.canInteractWithLocation(loc);
+        this.gameWorld.getMatchMaker().addMoved(getID(), getLocation());
     }
 
     // ***********************************
@@ -499,56 +327,28 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Can't build desired robot in given direction, possibly due to " +
                             "insufficient currency, this robot can't build, " +
-                            "cooldown not expired, or the spawn location is occupied");
+                            "cooldown not expired, or the spawn location is occupied.");
         }
     }
 
     @Override
     public boolean hasRobotBuildRequirements(RobotType type) {
         assertNotNull(type);
-        boolean validBuilder = getType() == type.spawnSource;
-        return validBuilder;
+        return getType().canBuild(type) &&
+               gameWorld.getTeamInfo().getSoup(getTeam()) >= type.cost;
     }
 
     @Override
     public boolean canBuildRobot(RobotType type, Direction dir) {
-        assertNotNull(type);
-        assertNotNull(dir);
-        boolean hasBuildRequirements = hasRobotBuildRequirements(type);
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                type.bodyRadius;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-        boolean isClear = gameWorld.getGameMap().onTheMap(spawnLoc, type.bodyRadius) &&
-                gameWorld.getObjectInfo().isEmpty(spawnLoc, type.bodyRadius);
-        boolean cooldownExpired = isBuildReady();
-
-        // THIS IS LOOOOL
-        isClear = gameWorld.getGameMap().onTheMap(spawnLoc, 0) &&
-                gameWorld.getObjectInfo().isEmpty(spawnLoc, 0);
-        return hasBuildRequirements && isClear && cooldownExpired;
-    }
-    
-    @Override
-    public boolean canHireGardener(Direction dir) {
-        return canBuildRobot(RobotType.GARDENER, dir);
-    }
-
-    @Override
-    public void hireGardener(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertCanBuildRobot(RobotType.GARDENER, dir);
-
-        this.robot.setBuildCooldownTurns(RobotType.GARDENER.buildCooldownTurns);
-        
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                RobotType.GARDENER.bodyRadius;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-
-        int robotID = gameWorld.spawnRobot(RobotType.GARDENER, spawnLoc, getTeam());
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
+        try {
+            assertNotNull(type);
+            assertNotNull(dir);
+            boolean hasBuildRequirements = hasRobotBuildRequirements(type);
+            MapLocation spawnLoc = adjacentLocation(dir);
+            boolean isClear = onTheMap(spawnLoc) && !isLocationOccupied(spawnLoc);
+            boolean cooldownExpired = isReady();
+            return hasBuildRequirements && isClear && cooldownExpired;
+        } catch (GameActionException e) { return false; }
     }
 
     @Override
@@ -556,26 +356,141 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanBuildRobot(type, dir);
 
-        this.robot.setBuildCooldownTurns(type.buildCooldownTurns);
-        
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                type.bodyRadius;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
+        this.robot.resetCooldownTurns();
 
-        int robotID = gameWorld.spawnRobot(type, spawnLoc, getTeam());
+        int robotID = gameWorld.spawnRobot(type, adjacentLocation(dir), getTeam());
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
+    }
+    
+    @Override
+    public boolean canHireMiner(Direction dir) {
+        return (getType() == RobotType.HQ && canBuildRobot(RobotType.MINER, dir));
+    }
+
+    @Override
+    public void hireMiner(Direction dir) throws GameActionException {
+        assert (canHireMiner(dir));
+        buildRobot(RobotType.MINER, dir);
+    }
+
+    @Override
+    public boolean canHireLandscaper(Direction dir) {
+        return (getType() == RobotType.DESIGN_SCHOOL && canBuildRobot(RobotType.LANDSCAPER, dir));
+    }
+
+    @Override
+    public void hireLandscaper(Direction dir) throws GameActionException {
+        assert (canHireMiner(dir));
+        buildRobot(RobotType.LANDSCAPER, dir);
+    }
+
+    @Override
+    public boolean canBuildDrone(Direction dir) {
+        return (getType() == RobotType.FULFILLMENT_CENTER && canBuildRobot(RobotType.DRONE, dir));
+    }
+
+    @Override
+    public void buildDrone(Direction dir) throws GameActionException {
+        assert (canHireMiner(dir));
+        buildRobot(RobotType.DRONE, dir);
+    }
+
+    // **************************************
+    // ********* DIRT MANIPULATION **********
+    // **************************************
+
+
+    @Override
+    public boolean canDig(Direction dir) {
+        assertNotNull(dir); //TODO: check soup/bytecode requirements
+        return (getType() == RobotType.MINER);
+    }
+
+    @Override
+    public void dig(Direction dir) {
+        assert(canDig(dir)); //TODO: write methods in GameWorld to change dirt, interface with these
+    }
+
+    @Override
+    public boolean canDeposit(Direction dir) {
+        assertNotNull(dir); //TODO: check soup/bytecode requirements
+        return (getType() == RobotType.MINER);
+    }
+
+    @Override
+    public void deposit(Direction dir) {
+        assert(canDeposit(dir)); //TODO: write methods in GameWorld to change dirt, interface with these
+    }
+
+
+    // ***********************************
+    // ****** MINER METHODS **************
+    // ***********************************
+
+    private void assertCanMineSoup(Direction dir) throws GameActionException{
+        if(!canMineSoup(dir)){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can't mine soup in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't mine, " +
+                            "or the mine location doesn't contain soup.");
+        }
+    }
+
+    @Override
+    public boolean canMineSoup(Direction dir) {
+        MapLocation center = adjacentLocation(dir);
+        return getType().canMine() && isReady() && onTheMap(center) && gameWorld.getSoup(center) > 0;
+    }
+
+    @Override
+    public void mineSoup(Direction dir) throws GameActionException {
+        assertNotNull(dir);
+        assertCanMineSoup(dir);
+        this.robot.resetCooldownTurns();
+        this.gameWorld.removeSoup(adjacentLocation(dir));
+        this.robot.addSoupCarrying(1);
+
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_SOUP, -1);
+    }
+
+    private void assertCanRefineSoup(Direction dir) throws GameActionException{
+        if(!canRefineSoup(dir)){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can't refine soup in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't refine, " +
+                            "this robot doesn't have crude soup, " +
+                            "or the location doesn't have a refinery.");
+        }
+    }
+
+    @Override
+    public boolean canRefineSoup(Direction dir) {
+        MapLocation center = adjacentLocation(dir);
+        if (!onTheMap(center))
+            return false;
+        InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
+        return getType().canRefine() && isReady() && getSoupCarrying() > 0 &&
+               adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
+    }
+
+    @Override
+    public void refineSoup(Direction dir, int amount) throws GameActionException {
+        assertNotNull(dir);
+        assertCanRefineSoup(dir);
+        if (amount > this.getSoupCarrying())
+            amount = this.getSoupCarrying();
+        this.robot.resetCooldownTurns();
+        this.robot.removeSoupCarrying(amount);
+        InternalRobot refinery = this.gameWorld.getRobot(adjacentLocation(dir));
+        refinery.addSoupCarrying(amount);
+
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.REFINE_SOUP, refinery.getID());
     }
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
-    @Override
-    public float getVictoryPointCost() {
-        return GameConstants.VP_BASE_COST + GameConstants.VP_INCREASE_PER_ROUND * getRoundNum();
-    }
 
     @Override
     public void disintegrate(){
@@ -607,26 +522,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(startLoc);
         assertNotNull(endLoc);
         gameWorld.getMatchMaker().addIndicatorLine(getID(), startLoc, endLoc, red, green, blue);
-    }
-
-    // ***********************************
-    // ******** TEAM MEMORY **************
-    // ***********************************
-
-    @Override
-    public void setTeamMemory(int index, long value) {
-        gameWorld.getTeamInfo().setTeamMemory(robot.getTeam(), index, value);
-    }
-
-    @Override
-    public void setTeamMemory(int index, long value, long mask) {
-        gameWorld.getTeamInfo().setTeamMemory(robot.getTeam(), index, value, mask);
-    }
-
-    @Override
-    public long[] getTeamMemory() {
-        long[] arr = gameWorld.getTeamInfo().getOldTeamMemory()[robot.getTeam().ordinal()];
-        return Arrays.copyOf(arr, arr.length);
     }
 
     // ***********************************

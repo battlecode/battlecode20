@@ -34,19 +34,8 @@ public class TestGame {
      * @param map the game map
      */
     public TestGame(LiveMap map) {
-        this(map, new long[2][GameConstants.TEAM_MEMORY_LENGTH]);
-    }
-
-    /**
-     * Creates a test game with the given map and team memory.
-     *
-     * @param map the game map
-     * @param memory the previous round's team memory
-     */
-    public TestGame(LiveMap map, long[][] memory) {
         world = new GameWorld(map,
                 new TestControlProvider(),
-                memory,
                 // this is a hack.
                 // there should be a cleaner way to do this?
                 Mockito.mock(GameMaker.MatchMaker.class));
@@ -57,7 +46,7 @@ public class TestGame {
      *
      * @return the x coordinate of the map origin.
      */
-    public float getOriginX() {
+    public int getOriginX() {
         return world.getGameMap().getOrigin().x;
     }
 
@@ -66,7 +55,7 @@ public class TestGame {
      *
      * @return the y coordinate of the map origin.
      */
-    public float getOriginY() {
+    public int getOriginY() {
         return world.getGameMap().getOrigin().y;
     }
 
@@ -79,7 +68,7 @@ public class TestGame {
      * @param type type of the robot to spawn
      * @param team team of the robot to spawn
      */
-    public int spawn(float x, float y, RobotType type, Team team) {
+    public int spawn(int x, int y, RobotType type, Team team) {
         return world.spawnRobot(type, new MapLocation(x, y), team);
     }
 

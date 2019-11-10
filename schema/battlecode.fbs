@@ -258,30 +258,35 @@ table Round {
     /// any target (typically 0).
     actionTargets: [int];
 
-    /// The IDs of bodies whose dirt amount (amount of dirt on top that body) changed.
-    dirtChangedBodyIDs: [int];
-    /// The amount the dirt changed by.
-    dirtChangesBody: [int];
-
     /// The indexes of the locations whose dirt amount changed.
-    dirtChangedIdxs: [int];
+    dirtChangedLocs: VecTable;
     /// The amount the dirt changed by.
     dirtChanges: [int];
 
     /// The indexes of the locations whose water amount changed.
-    waterChangedIdxs: [int];
+    waterChangedLocs: VecTable;
     /// The amount the water changed by.
     waterChanges: [int];
 
     /// The indexes of the locations whose pollution amount changed.
-    pollutionChangedIdxs: [int];
+    pollutionChangedLocs: VecTable;
     /// The amount the pollution changed by.
     pollutionChanges: [int];
 
     /// The indexes of the locations whose soup amount changed.
-    soupChangedIdxs: [int];
+    soupChangedLocs: VecTable;
     /// The amount the soup changed by.
     soupChanges: [int];
+
+    /// Costs of new message requests.
+    newMessagesCosts: [int];
+    /// New message requests.
+    newMessages: [string];
+
+    /// Costs of broadcasted messages.
+    broadcastedMessagesCosts: [int];
+    /// Broadcasted messages.
+    broadcastedMessages: [string];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];

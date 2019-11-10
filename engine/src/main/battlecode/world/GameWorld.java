@@ -26,7 +26,12 @@ public strictfp class GameWorld {
 
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
-
+    private final int[] initialSoup;
+    private int[] soup;
+    private int[] pollution;
+    private int[] water;
+    private int[] dirt;
+    private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
@@ -37,16 +42,20 @@ public strictfp class GameWorld {
     private final GameMaker.MatchMaker matchMaker;
 
     @SuppressWarnings("unchecked")
-    public GameWorld(LiveMap gm, RobotControlProvider cp,
-                     long[][] oldTeamMemory, GameMaker.MatchMaker matchMaker) {
-
+    public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
+        this.initialSoup = gm.getSoupArray();
+        this.soup = gm.getSoupArray();
+        this.pollution = gm.getPollutionArray();
+        this.water = gm.getWaterArray();
+        this.dirt = gm.getDirtArray();
+        this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
-        this.teamInfo = new TeamInfo(oldTeamMemory);
+        this.teamInfo = new TeamInfo();
 
         this.controlProvider = cp;
 
@@ -57,11 +66,8 @@ public strictfp class GameWorld {
         controlProvider.matchStarted(this);
 
         // Add the robots contained in the LiveMap to this world.
-        for(BodyInfo body : gameMap.getInitialBodies()){
-            if(body.isRobot()){
-                RobotInfo robot = (RobotInfo) body;
-                spawnRobot(robot.ID, robot.type, robot.location, robot.team);
-            }
+        for(RobotInfo robot : gameMap.getInitialBodies()){
+            spawnRobot(robot.ID, robot.type, robot.location, robot.team);
         }
 
         // Write match header at beginning of match
@@ -119,9 +125,7 @@ public strictfp class GameWorld {
         this.controlProvider.runRobot(robot);
         robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
 
-        if(robot.getHealth() > 0) { // Only processEndOfTurn if robot is still alive
-            robot.processEndOfTurn();
-        }
+        robot.processEndOfTurn();
 
         // If the robot terminates but the death signal has not yet
         // been visited:
@@ -171,6 +175,85 @@ public strictfp class GameWorld {
         return currentRound;
     }
 
+    /**
+     * Helper method that converts a location into an index.
+     * 
+     * @param loc the MapLocation
+     */
+    public int locationToIndex(MapLocation loc) {
+        return loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y) * gameMap.getWidth();
+    }
+
+    /**
+     * Helper method that converts an index into a location.
+     * 
+     * @param idx the index
+     */
+    public MapLocation indexToLocation(int idx) {
+        return new MapLocation(idx / gameMap.getWidth() + gameMap.getOrigin().x,
+                               idx % gameMap.getWidth() + gameMap.getOrigin().y);
+    }
+
+    public int initialSoupAtLocation(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? initialSoup[locationToIndex(loc)] : 0;
+    }
+
+    public int getSoup(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? soup[locationToIndex(loc)] : 0;
+    }
+
+    public int getPollution(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? pollution[locationToIndex(loc)] : 0;
+    }
+
+    public int getDirt(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? dirt[locationToIndex(loc)] : 0;
+    }
+
+    public int getWater(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? water[locationToIndex(loc)] : 0;
+    }
+
+    public void removeSoup(MapLocation loc) {
+        removeSoup(loc, 1);
+    }
+
+    public void removeSoup(MapLocation loc, int amount) {
+        int idx = locationToIndex(loc);
+        if (gameMap.onTheMap(loc))
+            soup[idx] = Math.max(0, soup[idx] - amount);
+    }
+
+    public InternalRobot getRobot(MapLocation loc) {
+        return robots[loc.x][loc.y];
+    }
+
+    public void moveRobot(MapLocation start, MapLocation end) {
+        addRobot(end, robots[start.x][start.y]);
+        removeRobot(start);
+    }
+
+    public void addRobot(MapLocation loc, InternalRobot robot) {
+        robots[loc.x][loc.y] = robot;
+    }
+
+    public void removeRobot(MapLocation loc) {
+        robots[loc.x][loc.y] = null;
+    }
+
+    public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius) {
+        ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
+        int minX = Math.max(center.x - radius, 0);
+        int minY = Math.max(center.y - radius, 0);
+        int maxX = Math.min(center.x + radius, this.gameMap.getWidth() - 1);
+        int maxY = Math.min(center.y + radius, this.gameMap.getHeight() - 1);
+        for (int x = minX; x <= maxX; x++)
+            for (int y = minY; y <= maxY; y++)
+                if (robots[x][y] != null)
+                    returnRobots.add(robots[x][y]);
+        return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+    }
+
     // *********************************
     // ****** GAMEPLAY *****************
     // *********************************
@@ -199,14 +282,6 @@ public strictfp class GameWorld {
         }
     }
 
-    public void setWinnerIfVictoryPoints() {
-        if(teamInfo.getVictoryPoints(Team.A) >= GameConstants.VICTORY_POINTS_TO_WIN) {
-            setWinner(Team.A, DominationFactor.PHILANTROPIED);
-        } else if(teamInfo.getVictoryPoints(Team.B) >= GameConstants.VICTORY_POINTS_TO_WIN) {
-            setWinner(Team.B, DominationFactor.PHILANTROPIED);
-        }
-    }
-
     public boolean timeLimitReached() {
         return currentRound >= gameMap.getRounds() - 1;
     }
@@ -222,12 +297,7 @@ public strictfp class GameWorld {
         if (timeLimitReached() && gameStats.getWinner() == null) {
             boolean victorDetermined = false;
 
-            // tiebreak by number of victory points
-            if(teamInfo.getVictoryPoints(Team.A) != teamInfo.getVictoryPoints(Team.B)){
-                setWinner(teamInfo.getVictoryPoints(Team.A) > teamInfo.getVictoryPoints(Team.B) ? Team.A : Team.B,
-                        DominationFactor.PWNED);
-                victorDetermined = true;
-            }
+            // TODO: tiebreakers
 
             int bestRobotID = Integer.MIN_VALUE;
             Team bestRobotTeam = Team.A; // null; ARBITRARY
@@ -239,8 +309,9 @@ public strictfp class GameWorld {
         }
 
         // update the round statistics
-        matchMaker.addTeamStat(Team.A, 0, teamInfo.getVictoryPoints(Team.A));
-        matchMaker.addTeamStat(Team.B, 0, teamInfo.getVictoryPoints(Team.B));
+
+        matchMaker.addTeamStat(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
+        matchMaker.addTeamStat(Team.B, teamInfo.getSoup(Team.B));
 
         if (gameStats.getWinner() != null) {
             running = false;
@@ -254,6 +325,7 @@ public strictfp class GameWorld {
     public int spawnRobot(int ID, RobotType type, MapLocation location, Team team){
         InternalRobot robot = new InternalRobot(this, ID, type, location, team);
         objectInfo.spawnRobot(robot);
+        addRobot(location, robot);
 
         controlProvider.robotSpawned(robot);
         matchMaker.addSpawnedRobot(robot);
@@ -271,6 +343,7 @@ public strictfp class GameWorld {
 
     public void destroyRobot(int id){
         InternalRobot robot = objectInfo.getRobotByID(id);
+        removeRobot(robot.getLocation());
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
@@ -279,5 +352,4 @@ public strictfp class GameWorld {
 
         matchMaker.addDied(id, false);
     }
-
 }

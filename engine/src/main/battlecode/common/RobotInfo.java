@@ -26,41 +26,20 @@ public class RobotInfo {
      * The current location of the robot.
      */
     public final MapLocation location;
-    
-    /**
-     * The number of times this robot has moved in the current turn.
-     */
-    public final int moveCount;
-
-
-    @Override
     public int getID() {
         return this.ID;
     }
 
-    @Override
     public MapLocation getLocation() {
         return this.location;
     }
 
-    @Override
-    public float getRadius() {
-        return this.type.bodyRadius;
-    }
-
-    @Override
-    public boolean isRobot() {
-        return true;
-    }
-
-    public RobotInfo(int ID, Team team, RobotType type, MapLocation location,
-                     float health, int attackCount, int moveCount) {
+    public RobotInfo(int ID, Team team, RobotType type, MapLocation location) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
         this.location = location;
-        this.moveCount = moveCount;
     }
 
     /**
@@ -79,16 +58,6 @@ public class RobotInfo {
      */
     public RobotType getType() {
         return type;
-    }
-
-
-    /**
-     * Returns the number of times this robot has moved this turn.
-     *
-     * @return the number of times this robot has moved this turn.
-     */
-    public int getMoveCount() {
-        return moveCount;
     }
 
     @Override
@@ -121,7 +90,6 @@ public class RobotInfo {
                 ", team=" + team +
                 ", type=" + type +
                 ", location=" + location +
-                 ", moveCount=" + moveCount +
                 '}';
     }
 }

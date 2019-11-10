@@ -20,7 +20,6 @@ public final class VecTable extends Table {
   public int xs(int j) { int o = __offset(4); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
   public int xsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer xsAsByteBuffer() { return __vector_as_bytebuffer(4, 4); }
-  public ByteBuffer xsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 4); }
   public int ys(int j) { int o = __offset(6); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
   public int ysLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer ysAsByteBuffer() { return __vector_as_bytebuffer(6, 4); }

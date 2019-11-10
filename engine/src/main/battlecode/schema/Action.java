@@ -14,7 +14,7 @@ public final class Action {
   private Action() { }
   /**
    * Mines a unit of soup (miners).
-   * Target: tile.
+   * Target: none.
    */
   public static final byte MINE_SOUP = 0;
   /**
@@ -44,7 +44,7 @@ public final class Action {
   public static final byte DROP_UNIT = 5;
   /**
    * Builds a unit.
-   * Target: spawned unit
+   * Target: spawned unit.
    */
   public static final byte SPAWN_UNIT = 6;
   /**
@@ -63,17 +63,22 @@ public final class Action {
    */
   public static final byte DIE_SHOT = 9;
   /**
-   * Dies due to an uncaught exception
-   * Target: none
-   */
-  public static final byte DIE_EXCEPTION = 10;
-  /**
    * Dies due to having too much dirt on top (buildings).
    * Target: landscaper
    */
-  public static final byte DIE_TOO_MUCH_DIRT = 11;
+  public static final byte DIE_TOO_MUCH_DIRT = 10;
+  /**
+   * Dies from suicide.
+   * Target: none.
+   */
+  public static final byte DIE_SUICIDE = 11;
+  /**
+   * Dies due to an uncaught exception
+   * Target: none.
+   */
+  public static final byte DIE_EXCEPTION = 12;
 
-  public static final String[] names = { "MINE_SOUP", "REFINE_SOUP", "DIG_DIRT", "DEPOSIT_DIRT", "PICK_UNIT", "DROP_UNIT", "SPAWN_UNIT", "SHOOT", "DIE_DROWN", "DIE_SHOT", "DIE_EXCEPTION", "DIE_TOO_MUCH_DIRT", };
+  public static final String[] names = { "MINE_SOUP", "REFINE_SOUP", "DIG_DIRT", "DEPOSIT_DIRT", "PICK_UNIT", "DROP_UNIT", "SPAWN_UNIT", "SHOOT", "DIE_DROWN", "DIE_SHOT", "DIE_TOO_MUCH_DIRT", "DIE_SUICIDE", "DIE_EXCEPTION", };
 
   public static String name(int e) { return names[e]; }
 }

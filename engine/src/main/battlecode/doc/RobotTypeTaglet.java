@@ -182,11 +182,12 @@ public class RobotTypeTaglet implements Taglet {
             appendField(builder, rt, "strideRadius");
             builder.append("<br />");
 
-            appendMethod(builder, rt, "canAttack");
-            if (rt.attackPower > 0) {
-                appendField(builder, rt, "attackPower");
-            }
-            builder.append("<br />");
+            // TODO: edit this
+            // appendMethod(builder, rt, "canAttack");
+            // if (rt.attackPower > 0) {
+            //     appendField(builder, rt, "attackPower");
+            // }
+            // builder.append("<br />");
 
             if (rt.spawnSource != null) {
                 appendField(builder, rt, "spawnSource");

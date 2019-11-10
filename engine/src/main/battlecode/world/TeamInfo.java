@@ -2,6 +2,7 @@ package battlecode.world;
 
 import battlecode.common.GameConstants;
 import battlecode.common.Team;
+import java.util.*;
 
 /**
  * This class is used to hold information regarding team specific values such as
@@ -9,48 +10,26 @@ import battlecode.common.Team;
  */
 public class TeamInfo {
 
-    private final long[][] teamMemory;
-    private final long[][] oldTeamMemory;
+    private int[] teamSoup = new int[2];
 
-    private int[] teamVictoryPoints = new int[3];
-
-    public TeamInfo(long[][] oldTeamMemory){
-        this.teamMemory = new long[2][oldTeamMemory[0].length];
-        this.oldTeamMemory = oldTeamMemory;
+    public TeamInfo() {
+        Arrays.fill(teamSoup, GameConstants.INITIAL_SOUP);
     }
 
     // *********************************
     // ***** GETTER METHODS ************
     // *********************************
 
-    public long[][] getTeamMemory() {
-        return teamMemory;
-    }
-
-    public long[][] getOldTeamMemory() {
-        return oldTeamMemory;
-    }
-
-    public int getVictoryPoints(Team t) {
-        return teamVictoryPoints[t.ordinal()];
+    // Breaks if t.ordinal() > 1 (Team NEUTRAL)
+    public int getSoup(Team t) {
+        return teamSoup[t.ordinal()];
     }
 
     // *********************************
     // ***** UPDATE METHODS ************
     // *********************************
 
-    public void adjustVictoryPoints(Team t, int amount) {
-        teamVictoryPoints[t.ordinal()] += amount;
-    }
-
-    public void setTeamMemory(Team t, int index, long state) {
-        teamMemory[t.ordinal()][index] = state;
-    }
-
-    public void setTeamMemory(Team t, int index, long state, long mask) {
-        long n = teamMemory[t.ordinal()][index];
-        n &= ~mask;
-        n |= (state & mask);
-        teamMemory[t.ordinal()][index] = n;
+    public void adjustSoup(Team t, int amount) {
+        teamSoup[t.ordinal()] += amount;
     }
 }

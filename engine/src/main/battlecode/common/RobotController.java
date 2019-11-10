@@ -42,17 +42,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    // int getTeamVictoryPoints();
-    // we don't have this either this year i think?
-
-    /**
-     * Returns your opponent's total victory points.
-     *
-     * @return your opponent's total victory points.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    // int getOpponentVictoryPoints();
+    int getTeamSoup();
 
     /**
      * Returns the location of the querying team's HQ.
@@ -75,7 +65,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    MapLocation[] getInitialArchonLocations(Team t);
+    // MapLocation[] getInitialArchonLocations(Team t);
 
     // *********************************
     // ****** UNIT QUERY METHODS *******
@@ -118,60 +108,38 @@ public strictfp interface RobotController {
     MapLocation getLocation();
 
     /**
-     * Returns this robot's current elevation.
+     * Returns the amount of soup this robot is carrying.
      *
-     * @return this robot's current elevation.
+     * @return the amount of soup this robot is carrying.
      *
      * @battlecode.doc.costlymethod
      */
-    int getElevation();
-    
+    int getSoupCarrying();
+
     /**
-     * Returns the number of times the robot has attacked this turn.
-     * 
-     * @return the number of times the robot has attacked this turn.
+     * Returns the amount of dirt this robot is carrying.
+     *
+     * @return the amount of dirt this robot is carrying.
      *
      * @battlecode.doc.costlymethod
      */
-    int getAttackCount();
-    
-    /**
-     * Returns the number of times the robot has moved this turn.
-     * 
-     * @return the number of times the robot has moved this turn.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getMoveCount();
+    int getDirtCarrying();
 
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************
 
     /**
-     * Senses whether a MapLocation is on the map. Will throw an exception if
+     * Senses whether a MapLocation is on the map. // Will throw an exception if
      * the location is not currently within sensor range.
      *
      * @param loc the location to check
      * @return true if the location is on the map; false otherwise.
-     * @throws GameActionException if the location is not within sensor range.
+     * // @throws GameActionException if the location is not within sensor range.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean onTheMap(MapLocation loc) throws GameActionException;
-
-    /**
-     * Senses whether a given circle is completely on the map. Will throw an exception if
-     * the circle is not completely within sensor range.
-     *
-     * @param center the center of the circle to check
-     * @param radius the radius of the circle to check
-     * @return true if the circle is completely on the map; false otherwise.
-     * @throws GameActionException if any portion of the given circle is not within sensor range.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean onTheMap(MapLocation center, float radius) throws GameActionException;
+    boolean onTheMap(MapLocation loc);
 
     /**
      * Senses whether the given location is within the robot's sensor range.
@@ -191,8 +159,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    // boolean canSenseRadius(float radius);
-    // this seems not applicable?
+    boolean canSenseRadius(int radius);
 
     /**
      * Senses whether there is a robot at the given location.
@@ -204,42 +171,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     boolean isLocationOccupied(MapLocation loc) throws GameActionException;
-
-    /**
-     * Senses whether there is a robot at the given location.
-     *
-     * @param loc the location to check
-     * @return true if there is a robot at the given location; false otherwise.
-     * @throws GameActionException if the location is not within sensor range.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isLocationOccupiedByRobot(MapLocation loc) throws GameActionException;
-
-    /**
-     * Senses whether there is any robot within a given circle.
-     *
-     * @param center the center of the circle to check
-     * @param radius the radius of the circle to check
-     * @return true if there is a robot in the given circle; false otherwise.
-     * @throws GameActionException if any portion of the given circle is not within sensor range.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isCircleOccupied(MapLocation center, float radius) throws GameActionException;
-
-    /**
-     * Senses whether there is any robot within a given circle, ignoring this robot
-     * if it itself occupies the circle.
-     *
-     * @param center the center of the circle to check
-     * @param radius the radius of the circle to check
-     * @return true if there is a robot in the given circle; false otherwise.
-     * @throws GameActionException if any portion of the given circle is not within sensor range.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isCircleOccupiedExceptByThisRobot(MapLocation center, float radius) throws GameActionException;
 
     /**
      * Senses the robot at the given location, or null if there is no robot
@@ -288,8 +219,22 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots();
 
     /**
-     * Returns all robots of a given team within sense radius. The objects are
-     * returned in order of increasing distance from your robot.
+     * Returns all robots that can be sensed within a certain radius of this
+     * robot. The objects are returned in order of increasing distance from
+     * your robot.
+     *
+     * @param radius return robots this distance away from the center of
+     * this robot. If -1 is passed, all robots within sense radius are returned.
+     * @return sorted array of RobotInfo objects of all the robots you sensed.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    RobotInfo[] senseNearbyRobots(int radius);
+
+    /**
+     * Returns all robots of a given team that can be sensed within a certain
+     * radius of this robot. The objects are returned in order of increasing distance
+     * from your robot.
      *
      * @param radius return robots this distance away from the center of
      * this robot. If -1 is passed, all robots within sense radius are returned
@@ -299,7 +244,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(float radius, Team team);
+    RobotInfo[] senseNearbyRobots(int radius, Team team);
 
     /**
      * Returns all robots of a given team that can be sensed within a certain
@@ -315,52 +260,47 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(MapLocation center, float radius, Team team);
+    RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
 
-
-    // ***********************************
-    // ****** MOVEMENT METHODS ***********
-    // ***********************************
-    
     /**
-     * Returns whether the robot has moved this turn.
-     * 
-     * @return true if the robot has moved this turn; false otherwise.
+     * Returns the location adjacent to current location in the given direction.
+     *
+     * @param dir the given direction
+     * @return the location adjacent to current location in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean hasMoved();
-    
-    /**
-     * Returns whether the robot has attacked this turn.
-     * 
-     * @return true if the robot has attacked this turn; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    // boolean hasAttacked();
+    MapLocation adjacentLocation(Direction dir);
+
+    // ***********************************
+    // ****** READINESS METHODS **********
+    // ***********************************
     
 
     //TODO: COME BACK TO THIS AFTER WE DETERMINE HOW COOLDOWNS ARE CODED.
 
     /**
-     * Returns whether the robot's build cooldown has expired.
+     * Returns whether the robot's action cooldown has expired.
      * 
-     * @return true if the robot's build cooldown has expired; false otherwise.
+     * @return true if the robot's action cooldown has expired; false otherwise.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean isBuildReady();
+    boolean isReady();
 
     /**
-     * Returns the number of cooldown turns remaining before this unit can build() again.
-     * When this number is 0, isBuildReady() is true.
+     * Returns the number of cooldown turns remaining before this unit can act again.
+     * When this number is 0, isReady() is true.
      *
-     * @return the number of cooldown turns remaining before this unit can build() again.
+     * @return the number of cooldown turns remaining before this unit can act again.
      *
      * @battlecode.doc.costlymethod
      */
-    int getBuildCooldownTurns();
+    int getCooldownTurns();
+
+    // ***********************************
+    // ****** MOVEMENT METHODS ***********
+    // ***********************************
 
     /**
      * Tells whether this robot can move one stride in the given direction,
@@ -375,24 +315,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     boolean canMove(Direction dir);
-
-    /**
-     * Tests whether this robot can move {@code distance} units in the given
-     * direction, without taking into account if they have already moved. Takes into
-     * account only the positions of other robots, and the
-     * edge of the game map. Does not take into account whether this robot is
-     * currently active. Note that one stride is equivalent to this robot's
-     * {@code strideRadius}.
-     *
-     * @param dir the direction to move in
-     * @param distance the distance of a move you wish to check. Must be
-     * in [0, RobotType.strideRadius]
-     * @return true if there is no external obstruction to prevent this robot
-     * from moving distance in the given direction; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMove(Direction dir, float distance);
     
     /**
      * Tests whether this robot can move to the target MapLocation. If
@@ -423,63 +345,8 @@ public strictfp interface RobotController {
      */
     void move(Direction dir) throws GameActionException;
 
-    /**
-     * Moves distance in the given direction. If the distance exceeds the robot's
-     * {@code strideRadius}, it is rescaled to {@code strideRadius}.
-     *
-     * @param dir the direction to move in
-     * @param distance the distance to move in that direction
-     * @throws GameActionException if the robot cannot move distance in this
-     * direction, such as already moved that turn, the target location being
-     * off the map, and the target destination being occupied with either
-     * another robot.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void move(Direction dir, float distance) throws GameActionException;
-    
-    /**
-     * Moves to the target MapLocation. If the target location is outside the robot's
-     * {@code strideRadius}, it is rescaled to be {@code strideRadius} away.
-     * 
-     * @param center the MapLocation to move to (or toward)
-     * @throws GameActionException if the robot can not move to the target MapLocation,
-     * such as already having moved that turn, the target location being off the map,
-     * or a target destination being occupied with either another robot.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void move(MapLocation center) throws GameActionException;
-
     // ***********************************
-    // ****** MINER METHODS *************
-    // ***********************************
-
-    /**
-     * Tests whether a robot is able to mine a location. This takes into accout
-     * the robot's type, if the robot has mined this turn, and location.
-     *
-     * @param loc the MapLocation to be mined
-     * @return true if the robot is able to strike this turn; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMine(MapLocation loc);
-
-    /**
-     * Strikes and deals damage to all other robots within
-     * {@link GameConstants#LUMBERJACK_STRIKE_RADIUS} of this robot. Note that only Lumberjacks
-     * can perform this function.
-     *
-     * @throws GameActionException if the robot is not of type LUMBERJACK or
-     * cannot attack due to having already attacked that turn.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void strike() throws GameActionException;
-
-    // ***********************************
-    // ****** SIGNALING METHODS **********
+    // ****** BUILDING/SPAWNING **********
     // ***********************************
 
     /**
@@ -521,44 +388,159 @@ public strictfp interface RobotController {
      */
     void buildRobot(RobotType type, Direction dir) throws GameActionException;
 
+    // ***********************************
+    // ****** MINER METHODS **************
+    // ***********************************
+
     /**
-     * Tests whether the robot can hire a Gardener in the given direction.
-     * Checks cooldown turns remaining, currency, whether the robot can
+     * Tests whether the robot can mine soup in the given direction.
+     * Checks cooldown turns remaining, whether the robot can mine,
+     * and that the given direction has soup.
+     *
+     * @param dir the direction to mine
+     * @return whether it is possible to mine soup in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canMineSoup(Direction dir);
+
+    /**
+     * Mines soup in the given direction.
+     *
+     * @param dir the direction to mine
+     * @throws GameActionException if this robot is not a miner, if
+     * the robot is still in cooldown, or if there is no soup to mine.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void mineSoup(Direction dir) throws GameActionException;
+
+    /**
+     * Tests whether the robot can refine soup in the given direction.
+     * Checks cooldown turns remaining, whether the robot can refine, whether
+     * the robot has crude soup, and that the given direction has a refinery.
+     *
+     * @param dir the direction to refine
+     * @return whether it is possible to refine soup in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canRefineSoup(Direction dir);
+
+    /**
+     * Refines soup in the given direction (max up to specified amount).
+     *
+     * @param dir the direction to refine
+     * @param amount the amount of soup to refine
+     * @throws GameActionException if this robot is not a miner, if
+     * the robot is still in cooldown, if there is no soup to refine,
+     * or if there is no refinery.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void refineSoup(Direction dir, int amount) throws GameActionException;
+
+    /**
+     * Hires a miner in the given direction.
+     * 
+     * @param dir the direction to build in
+     * @throws GameActionException if it is not possible to hire a miner in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void hireMiner(Direction dir) throws GameActionException;
+
+    /**
+     * Tests whether the robot can hire a Landscaper in the given direction.
+     * Checks cooldown turns remaining, soup count, whether the robot can
      * hire, and that the given direction is not blocked.
      * 
      * @param dir the direction to build in
-     * @return whether it is possible to hire a gardener in the given direction.
+     * @return whether it is possible to hire a landscaper in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canHireGardener(Direction dir);
-    
+    boolean canHireLandscaper(Direction dir);
+
     /**
-     * Hires a Gardener in the given direction.
-     *
-     * @param dir the direction to spawn the Gardener
-     * @throws GameActionException if you don't have enough currency, if
-     * the robot is still in build cooldown, if the direction is not a good build
-     * direction, or if this robot is not of an appropriate type.
+     * Hires a landscaper in the given direction.
+     * 
+     * @param dir the direction to build in
+     * @throws GameActionException if it is not possible to hire a landscaper in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    void hireGardener(Direction dir) throws GameActionException;
+    void hireLandscaper(Direction dir) throws GameActionException;
+
+    /**
+     * Tests whether the robot can build a drone in the given direction.
+     * Checks cooldown turns remaining, soup count, whether the robot can
+     * hire, and that the given direction is not blocked.
+     * 
+     * @param dir the direction to build in
+     * @return whether it is possible to build a drone in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canBuildDrone(Direction dir);
+
+    /**
+     * Builds a drone in the given direction.
+     * 
+     * @param dir the direction to build in
+     * @throws GameActionException if it is not possible to build a drone in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void buildDrone(Direction dir) throws GameActionException;
+
+    // **************************************
+    // ********* DIRT MANIPULATION **********
+    // **************************************
+
+    /**
+     * Tests whether the robot can dig in the given direction.
+     * 
+     * @param dir the direction to dig in
+     * @return whether it is possible to dig in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canDig(Direction dir);
+
+    /**
+     * Digs in the given direction.
+     * 
+     * @param dir the direction to dig in
+     * @throws GameActionException if cannot dig
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void dig(Direction dir);
+
+    /**
+     * Tests whether the robot can deposit dirt in the given direction.
+     * 
+     * @param dir the direction to deposit dirt in
+     * @return whether it is possible to deposit dirt in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canDeposit(Direction dir);
+
+    /**
+     * Deposits dirt in the given direction.
+     * 
+     * @param dir the direction to deposit dirt in
+     * @throws GameActionException if cannot deposit dirt
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void deposit(Direction dir);
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
-    /**
-     * Returns the current cost of a victory point in currency. This varies based
-     * on the round number, and is equal to {@link GameConstants#VP_BASE_COST} +
-     * NumRounds * {@link GameConstants#VP_INCREASE_PER_ROUND}.
-     *
-     * @return the current cost of a victory point in currency
-     *
-     * @battlecode.doc.costlymethod
-     */
-    float getVictoryPointCost();
 
     /**
      * Kills your robot and ends the current round. Never fails.
@@ -604,61 +586,6 @@ public strictfp interface RobotController {
     void setIndicatorLine(MapLocation startLoc, MapLocation endLoc, int red, int green, int blue);
 
     // ***********************************
-    // ******** TEAM MEMORY **************
-    // ***********************************
-
-    /**
-     * Sets the team's "memory", which is saved for the next game in the match.
-     * The memory is an array of {@link GameConstants#TEAM_MEMORY_LENGTH} longs.
-     * If this method is called more than once with the same index in the same
-     * game, the last call is what is saved for the next game.
-     *
-     * @param index the index of the array to set
-     * @param value the data that the team should remember for the next game
-     * @throws java.lang.ArrayIndexOutOfBoundsException if {@code index} is less
-     * than zero or greater than or equal to
-     * {@link GameConstants#TEAM_MEMORY_LENGTH}.
-     * @see #getTeamMemory
-     * @see #setTeamMemory(int, long, long)
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void setTeamMemory(int index, long value);
-
-    /**
-     * Sets this team's "memory". This function allows for finer control than
-     * {@link #setTeamMemory(int, long)} provides. For example, if
-     * {@code mask == 0xFF} then only the eight least significant bits of the
-     * memory will be set.
-     *
-     * @param index the index of the array to set
-     * @param value the data that the team should remember for the next game
-     * @param mask indicates which bits should be set
-     * @throws java.lang.ArrayIndexOutOfBoundsException if {@code index} is less
-     * than zero or greater than or equal to
-     * {@link GameConstants#TEAM_MEMORY_LENGTH}.
-     * @see #getTeamMemory
-     * @see #setTeamMemory(int, long)
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void setTeamMemory(int index, long value, long mask);
-
-    /**
-     * Returns the team memory from the last game of the match. The return value
-     * is an array of length {@link GameConstants#TEAM_MEMORY_LENGTH}. If
-     * setTeamMemory was not called in the last game, or there was no last game,
-     * the corresponding long defaults to 0.
-     *
-     * @return the team memory from the the last game of the match.
-     * @see #setTeamMemory(int, long)
-     * @see #setTeamMemory(int, long, long)
-     *
-     * @battlecode.doc.costlymethod
-     */
-    long[] getTeamMemory();
-
-    // ***********************************
     // ******** DEBUG METHODS ************
     // ***********************************
 
@@ -673,5 +600,4 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     long getControlBits();
-
 }

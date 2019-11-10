@@ -7,10 +7,9 @@ import battlecode.schema.RGBTable;
 import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.TByteCollection;
 import gnu.trove.list.TByteList;
-import gnu.trove.list.TFloatList;
 import gnu.trove.list.TIntList;
+import gnu.trove.list.TCharList;
 import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.list.array.TFloatArrayList;
 
 import java.util.List;
 import java.util.function.ObjIntConsumer;
@@ -23,18 +22,26 @@ import java.util.function.ObjIntConsumer;
 public class FlatHelpers {
     public static RobotType getRobotTypeFromBodyType(byte bodyType) {
         switch (bodyType) {
-            case BodyType.ARCHON:
-                return RobotType.ARCHON;
-            case BodyType.GARDENER:
-                return RobotType.GARDENER;
-            case BodyType.LUMBERJACK:
-                return RobotType.LUMBERJACK;
-            case BodyType.SCOUT:
-                return RobotType.SCOUT;
-            case BodyType.SOLDIER:
-                return RobotType.SOLDIER;
-            case BodyType.TANK:
-                return RobotType.TANK;
+            case BodyType.HQ:
+                return RobotType.HQ;
+            case BodyType.MINER:
+                return RobotType.MINER;
+            case BodyType.REFINERY:
+                return RobotType.REFINERY;
+            case BodyType.VAPORATOR:
+                return RobotType.VAPORATOR;
+            case BodyType.DESIGN_SCHOOL:
+                return RobotType.DESIGN_SCHOOL;
+            case BodyType.FULFILLMENT_CENTER:
+                return RobotType.FULFILLMENT_CENTER;
+            case BodyType.LANDSCAPER:
+                return RobotType.LANDSCAPER;
+            case BodyType.DRONE:
+                return RobotType.DRONE;
+            case BodyType.NET_GUN:
+                return RobotType.NET_GUN;
+            case BodyType.COW:
+                return RobotType.COW;
             default:
                 throw new RuntimeException("No robot type for: "+bodyType);
         }
@@ -42,18 +49,26 @@ public class FlatHelpers {
 
     public static byte getBodyTypeFromRobotType(RobotType type) {
         switch (type) {
-            case ARCHON:
-                return BodyType.ARCHON;
-            case GARDENER:
-                return BodyType.GARDENER;
-            case LUMBERJACK:
-                return BodyType.LUMBERJACK;
-            case SCOUT:
-                return BodyType.SCOUT;
-            case SOLDIER:
-                return BodyType.SOLDIER;
-            case TANK:
-                return BodyType.TANK;
+            case HQ:
+                return BodyType.HQ;
+            case MINER:
+                return BodyType.MINER;
+            case REFINERY:
+                return BodyType.REFINERY;
+            case VAPORATOR:
+                return BodyType.VAPORATOR;
+            case DESIGN_SCHOOL:
+                return BodyType.DESIGN_SCHOOL;
+            case FULFILLMENT_CENTER:
+                return BodyType.FULFILLMENT_CENTER;
+            case LANDSCAPER:
+                return BodyType.LANDSCAPER;
+            case DRONE:
+                return BodyType.DRONE;
+            case NET_GUN:
+                return BodyType.NET_GUN;
+            case COW:
+                return BodyType.COW;
             default:
                 throw new RuntimeException("No body type for: "+type);
         }
@@ -103,18 +118,6 @@ public class FlatHelpers {
         return builder.endVector();
     }
 
-    public static int floatVector(FlatBufferBuilder builder,
-                                  TFloatList arr,
-                                  ObjIntConsumer<FlatBufferBuilder> start) {
-        final int length = arr.size();
-        start.accept(builder, length);
-
-        for (int i = length - 1; i >= 0; i--) {
-            builder.addFloat(arr.get(i));
-        }
-        return builder.endVector();
-    }
-
     public static int byteVector(FlatBufferBuilder builder,
                                  TByteList arr,
                                  ObjIntConsumer<FlatBufferBuilder> start) {
@@ -127,12 +130,24 @@ public class FlatHelpers {
         return builder.endVector();
     }
 
-    public static int createVecTable(FlatBufferBuilder builder, TFloatList xs, TFloatList ys) {
+    public static int charVector(FlatBufferBuilder builder,
+                                  TCharList arr,
+                                  ObjIntConsumer<FlatBufferBuilder> start) {
+        final int length = arr.size();
+        start.accept(builder, length);
+
+        for (int i = length - 1; i >= 0; i--) {
+            builder.addInt(arr.get(i));
+        }
+        return builder.endVector();
+    }
+
+    public static int createVecTable(FlatBufferBuilder builder, TIntList xs, TIntList ys) {
         if (xs.size() != ys.size()) {
             throw new RuntimeException("Mismatched x/y length: "+xs.size()+" != "+ys.size());
         }
-        int xsP = floatVector(builder, xs, VecTable::startXsVector);
-        int ysP = floatVector(builder, ys, VecTable::startYsVector);
+        int xsP = intVector(builder, xs, VecTable::startXsVector);
+        int ysP = intVector(builder, ys, VecTable::startYsVector);
         return VecTable.createVecTable(builder, xsP, ysP);
     }
 

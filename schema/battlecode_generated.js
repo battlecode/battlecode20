@@ -20,56 +20,56 @@ battlecode.schema = battlecode.schema || {};
  */
 battlecode.schema.BodyType = {
   /**
+   * The hq produces miners, is also a net gun and a refinery.
+   */
+  HQ: 0,
+
+  /**
    * Miners extract crude soup and bring it to the refineries.
    */
-  MINER: 0,
+  MINER: 1,
+
+  /**
+   * Refineries turn crude soup into refined soup, and produce pollution.
+   */
+  REFINERY: 2,
+
+  /**
+   * Vaporators reduce pollution.
+   */
+  VAPORATOR: 3,
+
+  /**
+   * Design schools create landscapers.
+   */
+  DESIGN_SCHOOL: 4,
+
+  /**
+   * Fulfillment centers create drones.
+   */
+  FULFILLMENT_CENTER: 5,
 
   /**
    * Landscapers take dirt from adjacent (decreasing the elevation)
    * squares or deposit dirt onto adjacent squares, including
    * into water (increasing the elevation).
    */
-  LANDSCAPER: 1,
+  LANDSCAPER: 6,
 
   /**
    * Drones pick up any unit and drop them somewhere else.
    */
-  DRONE: 2,
+  DRONE: 7,
 
   /**
    * Net guns shoot down drones.
    */
-  NET_GUN: 3,
+  NET_GUN: 8,
 
   /**
    * Cows produce pollution.
    */
-  COW: 4,
-
-  /**
-   * Refineries turn crude soup into refined soup, and produce pollution.
-   */
-  REFINERY: 5,
-
-  /**
-   * Vaporators reduce pollution.
-   */
-  VAPORATOR: 6,
-
-  /**
-   * The hq produces miners, is also a net gun and a refinery.
-   */
-  HQ: 7,
-
-  /**
-   * Design schools create landscapers.
-   */
-  DESIGN_SCHOOL: 8,
-
-  /**
-   * Fulfillment centers create drones.
-   */
-  FULFILLMENT_CENTER: 9
+  COW: 9
 };
 
 /**
@@ -80,56 +80,56 @@ battlecode.schema.BodyType = {
  */
 battlecode.schema.BodyTypeName = {
   /**
+   * The hq produces miners, is also a net gun and a refinery.
+   */
+  0: 'HQ',
+
+  /**
    * Miners extract crude soup and bring it to the refineries.
    */
-  0: 'MINER',
+  1: 'MINER',
+
+  /**
+   * Refineries turn crude soup into refined soup, and produce pollution.
+   */
+  2: 'REFINERY',
+
+  /**
+   * Vaporators reduce pollution.
+   */
+  3: 'VAPORATOR',
+
+  /**
+   * Design schools create landscapers.
+   */
+  4: 'DESIGN_SCHOOL',
+
+  /**
+   * Fulfillment centers create drones.
+   */
+  5: 'FULFILLMENT_CENTER',
 
   /**
    * Landscapers take dirt from adjacent (decreasing the elevation)
    * squares or deposit dirt onto adjacent squares, including
    * into water (increasing the elevation).
    */
-  1: 'LANDSCAPER',
+  6: 'LANDSCAPER',
 
   /**
    * Drones pick up any unit and drop them somewhere else.
    */
-  2: 'DRONE',
+  7: 'DRONE',
 
   /**
    * Net guns shoot down drones.
    */
-  3: 'NET_GUN',
+  8: 'NET_GUN',
 
   /**
    * Cows produce pollution.
    */
-  4: 'COW',
-
-  /**
-   * Refineries turn crude soup into refined soup, and produce pollution.
-   */
-  5: 'REFINERY',
-
-  /**
-   * Vaporators reduce pollution.
-   */
-  6: 'VAPORATOR',
-
-  /**
-   * The hq produces miners, is also a net gun and a refinery.
-   */
-  7: 'HQ',
-
-  /**
-   * Design schools create landscapers.
-   */
-  8: 'DESIGN_SCHOOL',
-
-  /**
-   * Fulfillment centers create drones.
-   */
-  9: 'FULFILLMENT_CENTER'
+  9: 'COW'
 };
 
 /**
@@ -145,7 +145,7 @@ battlecode.schema.BodyTypeName = {
 battlecode.schema.Action = {
   /**
    * Mines a unit of soup (miners).
-   * Target: tile.
+   * Target: location.
    */
   MINE_SOUP: 0,
 
@@ -157,13 +157,13 @@ battlecode.schema.Action = {
 
   /**
    * Digs a unit of dirt (landscapers).
-   * Target: tile.
+   * Target: location.
    */
   DIG_DIRT: 2,
 
   /**
    * Deposits a unit of dirt (landscapers).
-   * Target: tile.
+   * Target: location.
    */
   DEPOSIT_DIRT: 3,
 
@@ -235,7 +235,7 @@ battlecode.schema.Action = {
 battlecode.schema.ActionName = {
   /**
    * Mines a unit of soup (miners).
-   * Target: tile.
+   * Target: location.
    */
   0: 'MINE_SOUP',
 
@@ -247,13 +247,13 @@ battlecode.schema.ActionName = {
 
   /**
    * Digs a unit of dirt (landscapers).
-   * Target: tile.
+   * Target: location.
    */
   2: 'DIG_DIRT',
 
   /**
    * Deposits a unit of dirt (landscapers).
-   * Target: tile.
+   * Target: location.
    */
   3: 'DEPOSIT_DIRT',
 
@@ -1207,30 +1207,121 @@ battlecode.schema.GameMap.prototype.randomSeed = function() {
 };
 
 /**
- * The tiles
+ * The dirt levels.
  *
  * @param {number} index
  * @param {battlecode.schema.Tile=} obj
  * @returns {battlecode.schema.Tile}
  */
-battlecode.schema.GameMap.prototype.tiles = function(index, obj) {
+battlecode.schema.GameMap.prototype.dirt = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? (obj || new battlecode.schema.Tile).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
 /**
  * @returns {number}
  */
-battlecode.schema.GameMap.prototype.tilesLength = function() {
+battlecode.schema.GameMap.prototype.dirtLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.GameMap.prototype.dirtArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * The water levels (above dirt).
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.GameMap.prototype.water = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} minCornerOffset
+ */
+battlecode.schema.GameMap.prototype.waterLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.GameMap.prototype.waterArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * The pollution levels.
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.GameMap.prototype.pollution = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} randomSeed
+ */
+battlecode.schema.GameMap.prototype.pollutionLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.GameMap.prototype.pollutionArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * The amount of crude soup to be mined.
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.GameMap.prototype.soup = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.GameMap.prototype.soupLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.GameMap.prototype.soupArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.GameMap.startGameMap = function(builder) {
-  builder.startObject(6);
+  builder.startObject(9);
 };
 
 /**
@@ -1275,36 +1366,121 @@ battlecode.schema.GameMap.addRandomSeed = function(builder, randomSeed) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} tilesOffset
+ * @param {flatbuffers.Offset} dirtOffset
  */
-battlecode.schema.GameMap.addTiles = function(builder, tilesOffset) {
-  builder.addFieldOffset(5, tilesOffset, 0);
+battlecode.schema.GameMap.addDirt = function(builder, dirtOffset) {
+  builder.addFieldOffset(5, dirtOffset, 0);
+};
+
+/**
+ * The polluion level of the tiles.
+ *
+ * @returns {number}
+ */
+battlecode.schema.GameMap.createDirtVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * The amount of crude soup to be mined on the tiles.
+ *
+ * @returns {number}
+ */
+battlecode.schema.GameMap.startDirtVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {Array.<flatbuffers.Offset>} data
- * @returns {flatbuffers.Offset}
+ * @param {flatbuffers.Offset} waterOffset
  */
-battlecode.schema.GameMap.createTilesVector = function(builder, data) {
+battlecode.schema.GameMap.addWater = function(builder, waterOffset) {
+  builder.addFieldOffset(6, waterOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} dirt
+ */
+battlecode.schema.GameMap.createWaterVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
+    builder.addInt32(data[i]);
   }
   return builder.endVector();
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {number} numElems
+ * @param {number} water
  */
-battlecode.schema.GameMap.startTilesVector = function(builder, numElems) {
+battlecode.schema.GameMap.startWaterVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @returns {flatbuffers.Offset}
+ * @param {flatbuffers.Offset} pollutionOffset
+ */
+battlecode.schema.GameMap.addPollution = function(builder, pollutionOffset) {
+  builder.addFieldOffset(7, pollutionOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {battlecode.schema.BodyType} type
+ */
+battlecode.schema.GameMap.createPollutionVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {battlecode.schema.BodyType} spawnSource
+ */
+battlecode.schema.GameMap.startPollutionVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} soupOffset
+ */
+battlecode.schema.GameMap.addSoup = function(builder, soupOffset) {
+  builder.addFieldOffset(8, soupOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} actionCooldown
+ */
+battlecode.schema.GameMap.createSoupVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} sensorRadius
+ */
+battlecode.schema.GameMap.startSoupVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} pollutionRadius
  */
 battlecode.schema.GameMap.endGameMap = function(builder) {
   var offset = builder.endObject();
@@ -1318,158 +1494,24 @@ battlecode.schema.GameMap.endGameMap = function(builder) {
  * @param {flatbuffers.Offset} maxCornerOffset
  * @param {flatbuffers.Offset} bodiesOffset
  * @param {number} randomSeed
- * @param {flatbuffers.Offset} tilesOffset
+ * @param {flatbuffers.Offset} dirtOffset
+ * @param {flatbuffers.Offset} waterOffset
+ * @param {flatbuffers.Offset} pollutionOffset
+ * @param {flatbuffers.Offset} soupOffset
  * @returns {flatbuffers.Offset}
  */
-battlecode.schema.GameMap.createGameMap = function(builder, nameOffset, minCornerOffset, maxCornerOffset, bodiesOffset, randomSeed, tilesOffset) {
+battlecode.schema.GameMap.createGameMap = function(builder, nameOffset, minCornerOffset, maxCornerOffset, bodiesOffset, randomSeed, dirtOffset, waterOffset, pollutionOffset, soupOffset) {
   battlecode.schema.GameMap.startGameMap(builder);
   battlecode.schema.GameMap.addName(builder, nameOffset);
   battlecode.schema.GameMap.addMinCorner(builder, minCornerOffset);
   battlecode.schema.GameMap.addMaxCorner(builder, maxCornerOffset);
   battlecode.schema.GameMap.addBodies(builder, bodiesOffset);
   battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
-  battlecode.schema.GameMap.addTiles(builder, tilesOffset);
+  battlecode.schema.GameMap.addDirt(builder, dirtOffset);
+  battlecode.schema.GameMap.addWater(builder, waterOffset);
+  battlecode.schema.GameMap.addPollution(builder, pollutionOffset);
+  battlecode.schema.GameMap.addSoup(builder, soupOffset);
   return battlecode.schema.GameMap.endGameMap(builder);
-}
-
-/**
- * A tile.
- *
- * @constructor
- */
-battlecode.schema.Tile = function() {
-  /**
-   * @type {flatbuffers.ByteBuffer}
-   */
-  this.bb = null;
-
-  /**
-   * @type {number}
-   */
-  this.bb_pos = 0;
-};
-
-/**
- * @param {number} i
- * @param {flatbuffers.ByteBuffer} bb
- * @returns {battlecode.schema.Tile}
- */
-battlecode.schema.Tile.prototype.__init = function(i, bb) {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {battlecode.schema.Tile=} obj
- * @returns {battlecode.schema.Tile}
- */
-battlecode.schema.Tile.getRootAsTile = function(bb, obj) {
-  return (obj || new battlecode.schema.Tile).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Tile.prototype.dirt = function() {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-};
-
-/**
- * The water level on the tile (above the dirt).
- *
- * @returns {number}
- */
-battlecode.schema.Tile.prototype.water = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-};
-
-/**
- * The polluion level of the tiles.
- *
- * @returns {number}
- */
-battlecode.schema.Tile.prototype.pollution = function() {
-  var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-};
-
-/**
- * The amount of crude soup to be mined on the tiles.
- *
- * @returns {number}
- */
-battlecode.schema.Tile.prototype.soup = function() {
-  var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- */
-battlecode.schema.Tile.startTile = function(builder) {
-  builder.startObject(4);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} dirt
- */
-battlecode.schema.Tile.addDirt = function(builder, dirt) {
-  builder.addFieldInt32(0, dirt, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} water
- */
-battlecode.schema.Tile.addWater = function(builder, water) {
-  builder.addFieldInt32(1, water, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} pollution
- */
-battlecode.schema.Tile.addPollution = function(builder, pollution) {
-  builder.addFieldInt32(2, pollution, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} soup
- */
-battlecode.schema.Tile.addSoup = function(builder, soup) {
-  builder.addFieldInt32(3, soup, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Tile.endTile = function(builder) {
-  var offset = builder.endObject();
-  return offset;
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} dirt
- * @param {number} water
- * @param {number} pollution
- * @param {number} soup
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Tile.createTile = function(builder, dirt, water, pollution, soup) {
-  battlecode.schema.Tile.startTile(builder);
-  battlecode.schema.Tile.addDirt(builder, dirt);
-  battlecode.schema.Tile.addWater(builder, water);
-  battlecode.schema.Tile.addPollution(builder, pollution);
-  battlecode.schema.Tile.addSoup(builder, soup);
-  return battlecode.schema.Tile.endTile(builder);
 }
 
 /**
@@ -1516,7 +1558,7 @@ battlecode.schema.BodyTypeMetadata.getRootAsBodyTypeMetadata = function(bb, obj)
  */
 battlecode.schema.BodyTypeMetadata.prototype.type = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {battlecode.schema.BodyType} */ (this.bb.readInt8(this.bb_pos + offset)) : battlecode.schema.BodyType.MINER;
+  return offset ? /** @type {battlecode.schema.BodyType} */ (this.bb.readInt8(this.bb_pos + offset)) : battlecode.schema.BodyType.HQ;
 };
 
 /**
@@ -1526,7 +1568,7 @@ battlecode.schema.BodyTypeMetadata.prototype.type = function() {
  */
 battlecode.schema.BodyTypeMetadata.prototype.spawnSource = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {battlecode.schema.BodyType} */ (this.bb.readInt8(this.bb_pos + offset)) : battlecode.schema.BodyType.MINER;
+  return offset ? /** @type {battlecode.schema.BodyType} */ (this.bb.readInt8(this.bb_pos + offset)) : battlecode.schema.BodyType.HQ;
 };
 
 /**
@@ -1631,7 +1673,7 @@ battlecode.schema.BodyTypeMetadata.startBodyTypeMetadata = function(builder) {
  * @param {battlecode.schema.BodyType} type
  */
 battlecode.schema.BodyTypeMetadata.addType = function(builder, type) {
-  builder.addFieldInt8(0, type, battlecode.schema.BodyType.MINER);
+  builder.addFieldInt8(0, type, battlecode.schema.BodyType.HQ);
 };
 
 /**
@@ -1639,7 +1681,7 @@ battlecode.schema.BodyTypeMetadata.addType = function(builder, type) {
  * @param {battlecode.schema.BodyType} spawnSource
  */
 battlecode.schema.BodyTypeMetadata.addSpawnSource = function(builder, spawnSource) {
-  builder.addFieldInt8(1, spawnSource, battlecode.schema.BodyType.MINER);
+  builder.addFieldInt8(1, spawnSource, battlecode.schema.BodyType.HQ);
 };
 
 /**
@@ -1718,10 +1760,21 @@ battlecode.schema.BodyTypeMetadata.addBytecodeLimit = function(builder, bytecode
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-battlecode.schema.BodyTypeMetadata.endBodyTypeMetadata = function(builder) {
-  var offset = builder.endObject();
-  return offset;
-};
+battlecode.schema.BodyTypeMetadata.createBodyTypeMetadata = function(builder, type, spawnSource, cost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, maxSoupProduced, bytecodeLimit) {
+  battlecode.schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
+  battlecode.schema.BodyTypeMetadata.addType(builder, type);
+  battlecode.schema.BodyTypeMetadata.addSpawnSource(builder, spawnSource);
+  battlecode.schema.BodyTypeMetadata.addCost(builder, cost);
+  battlecode.schema.BodyTypeMetadata.addDirtLimit(builder, dirtLimit);
+  battlecode.schema.BodyTypeMetadata.addSoupLimit(builder, soupLimit);
+  battlecode.schema.BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
+  battlecode.schema.BodyTypeMetadata.addSensorRadius(builder, sensorRadius);
+  battlecode.schema.BodyTypeMetadata.addPollutionRadius(builder, pollutionRadius);
+  battlecode.schema.BodyTypeMetadata.addPollutionAmount(builder, pollutionAmount);
+  battlecode.schema.BodyTypeMetadata.addMaxSoupProduced(builder, maxSoupProduced);
+  battlecode.schema.BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
+  return battlecode.schema.BodyTypeMetadata.endBodyTypeMetadata(builder);
+}
 
 /**
  * @param {flatbuffers.Builder} builder
@@ -2494,67 +2547,13 @@ battlecode.schema.Round.prototype.spawnedBodies = function(obj) {
 };
 
 /**
- * The indexes of locations with changed pollution.
- *
- * @param {number} index
- * @returns {number}
- */
-battlecode.schema.Round.prototype.pollutionChangedLocs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.pollutionChangedLocsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.pollutionChangedLocsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * The new pollution levels of bodies with changed pollution.
- *
- * @param {number} index
- * @returns {number}
- */
-battlecode.schema.Round.prototype.pollutionChangeLevels = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.pollutionChangeLevelsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.pollutionChangeLevelsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
  * The IDs of bodies that died (drowned units and shot drones).
  *
  * @param {number} index
  * @returns {number}
  */
 battlecode.schema.Round.prototype.diedIDs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 18);
+  var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2562,7 +2561,7 @@ battlecode.schema.Round.prototype.diedIDs = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.diedIDsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 18);
+  var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2570,7 +2569,7 @@ battlecode.schema.Round.prototype.diedIDsLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.diedIDsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 18);
+  var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2582,7 +2581,7 @@ battlecode.schema.Round.prototype.diedIDsArray = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.actionIDs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 20);
+  var offset = this.bb.__offset(this.bb_pos, 16);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2590,7 +2589,7 @@ battlecode.schema.Round.prototype.actionIDs = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.actionIDsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 20);
+  var offset = this.bb.__offset(this.bb_pos, 16);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2598,7 +2597,7 @@ battlecode.schema.Round.prototype.actionIDsLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.actionIDsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 20);
+  var offset = this.bb.__offset(this.bb_pos, 16);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2609,7 +2608,7 @@ battlecode.schema.Round.prototype.actionIDsArray = function() {
  * @returns {battlecode.schema.Action}
  */
 battlecode.schema.Round.prototype.actions = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 22);
+  var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? /** @type {battlecode.schema.Action} */ (this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index)) : /** @type {battlecode.schema.Action} */ (0);
 };
 
@@ -2617,7 +2616,7 @@ battlecode.schema.Round.prototype.actions = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.actionsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 22);
+  var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2625,7 +2624,7 @@ battlecode.schema.Round.prototype.actionsLength = function() {
  * @returns {Int8Array}
  */
 battlecode.schema.Round.prototype.actionsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 22);
+  var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2637,7 +2636,7 @@ battlecode.schema.Round.prototype.actionsArray = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.actionTargets = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 24);
+  var offset = this.bb.__offset(this.bb_pos, 20);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2645,7 +2644,7 @@ battlecode.schema.Round.prototype.actionTargets = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.actionTargetsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 24);
+  var offset = this.bb.__offset(this.bb_pos, 20);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2653,99 +2652,29 @@ battlecode.schema.Round.prototype.actionTargetsLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.actionTargetsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 24);
+  var offset = this.bb.__offset(this.bb_pos, 20);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * The IDs of bodies whose dirt amount (amount of dirt on top that body) changed.
+ * The indexes of the locations whose dirt amount changed.
  *
- * @param {number} index
- * @returns {number}
+ * @param {battlecode.schema.VecTable=} obj
+ * @returns {battlecode.schema.VecTable|null}
  */
-battlecode.schema.Round.prototype.dirtChangedBodyIDs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.dirtChangedBodyIDsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.dirtChangedBodyIDsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+battlecode.schema.Round.prototype.dirtChangedLocs = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
  * The amount the dirt changed by.
  *
  * @param {number} index
- * @returns {number}
- */
-battlecode.schema.Round.prototype.dirtChangesBody = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 28);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.dirtChangesBodyLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 28);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.dirtChangesBodyArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 28);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * The indexes of the tiles whose dirt amount changed.
- *
- * @param {number} index
- * @returns {number}
- */
-battlecode.schema.Round.prototype.dirtChangedIdxs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 30);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.dirtChangedIdxsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 30);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.dirtChangedIdxsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 30);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * The amount the dirt changed by.
- *
- * @param {number} index
- * @returns {number}
+ * @returns {battlecode.schema.Action}
  */
 battlecode.schema.Round.prototype.dirtChanges = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 32);
+  var offset = this.bb.__offset(this.bb_pos, 24);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2753,43 +2682,27 @@ battlecode.schema.Round.prototype.dirtChanges = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.dirtChangesLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 32);
+  var offset = this.bb.__offset(this.bb_pos, 24);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
 /**
- * @returns {Int32Array}
+ * @returns {Int8Array}
  */
 battlecode.schema.Round.prototype.dirtChangesArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 32);
+  var offset = this.bb.__offset(this.bb_pos, 24);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * The indexes of the tiles whose water amount changed.
+ * The indexes of the locations whose water amount changed.
  *
- * @param {number} index
- * @returns {number}
+ * @param {battlecode.schema.VecTable=} obj
+ * @returns {battlecode.schema.VecTable|null}
  */
-battlecode.schema.Round.prototype.waterChangedIdxs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 34);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.waterChangedIdxsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 34);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.waterChangedIdxsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 34);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+battlecode.schema.Round.prototype.waterChangedLocs = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
@@ -2799,7 +2712,7 @@ battlecode.schema.Round.prototype.waterChangedIdxsArray = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.waterChanges = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 36);
+  var offset = this.bb.__offset(this.bb_pos, 28);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2807,7 +2720,7 @@ battlecode.schema.Round.prototype.waterChanges = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.waterChangesLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 36);
+  var offset = this.bb.__offset(this.bb_pos, 28);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2815,35 +2728,19 @@ battlecode.schema.Round.prototype.waterChangesLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.waterChangesArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 36);
+  var offset = this.bb.__offset(this.bb_pos, 28);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * The indexes of the tiles whose pollution amount changed.
+ * The indexes of the locations whose pollution amount changed.
  *
- * @param {number} index
- * @returns {number}
+ * @param {battlecode.schema.VecTable=} obj
+ * @returns {battlecode.schema.VecTable|null}
  */
-battlecode.schema.Round.prototype.pollutionChangedIdxs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 38);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.pollutionChangedIdxsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 38);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.pollutionChangedIdxsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 38);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+battlecode.schema.Round.prototype.pollutionChangedLocs = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 30);
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
@@ -2853,7 +2750,7 @@ battlecode.schema.Round.prototype.pollutionChangedIdxsArray = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.pollutionChanges = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 40);
+  var offset = this.bb.__offset(this.bb_pos, 32);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2861,7 +2758,7 @@ battlecode.schema.Round.prototype.pollutionChanges = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.pollutionChangesLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 40);
+  var offset = this.bb.__offset(this.bb_pos, 32);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2869,35 +2766,19 @@ battlecode.schema.Round.prototype.pollutionChangesLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.pollutionChangesArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 40);
+  var offset = this.bb.__offset(this.bb_pos, 32);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * The indexes of the tiles whose soup amount changed.
+ * The indexes of the locations whose soup amount changed.
  *
- * @param {number} index
- * @returns {number}
+ * @param {battlecode.schema.VecTable=} obj
+ * @returns {battlecode.schema.VecTable|null}
  */
-battlecode.schema.Round.prototype.soupChangedIdxs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 42);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.soupChangedIdxsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 42);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.soupChangedIdxsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 42);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+battlecode.schema.Round.prototype.soupChangedLocs = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 34);
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
@@ -2907,7 +2788,7 @@ battlecode.schema.Round.prototype.soupChangedIdxsArray = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.soupChanges = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 44);
+  var offset = this.bb.__offset(this.bb_pos, 36);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2915,7 +2796,7 @@ battlecode.schema.Round.prototype.soupChanges = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.soupChangesLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 44);
+  var offset = this.bb.__offset(this.bb_pos, 36);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2923,8 +2804,102 @@ battlecode.schema.Round.prototype.soupChangesLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.soupChangesArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 44);
+  var offset = this.bb.__offset(this.bb_pos, 36);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * Costs of new message requests.
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.newMessagesCosts = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 38);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.newMessagesCostsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 38);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.Round.prototype.newMessagesCostsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 38);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * New message requests.
+ *
+ * @param {number} index
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+battlecode.schema.Round.prototype.newMessages = function(index, optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 40);
+  return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.newMessagesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 40);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * Costs of broadcasted messages.
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.broadcastedMessagesCosts = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 42);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.broadcastedMessagesCostsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 42);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.Round.prototype.broadcastedMessagesCostsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 42);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * Broadcasted messages.
+ *
+ * @param {number} index
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+battlecode.schema.Round.prototype.broadcastedMessages = function(index, optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 44);
+  return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.broadcastedMessagesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 44);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -3093,7 +3068,7 @@ battlecode.schema.Round.prototype.poolLength = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.roundID = function() {
-  var offset = this.bb.__offset(this.bb_pos, 64);
+  var offset = this.bb.__offset(this.bb_pos, 62);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -3104,7 +3079,7 @@ battlecode.schema.Round.prototype.roundID = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.bytecodeIDs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 66);
+  var offset = this.bb.__offset(this.bb_pos, 64);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -3112,7 +3087,7 @@ battlecode.schema.Round.prototype.bytecodeIDs = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.bytecodeIDsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 66);
+  var offset = this.bb.__offset(this.bb_pos, 64);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -3120,7 +3095,7 @@ battlecode.schema.Round.prototype.bytecodeIDsLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.bytecodeIDsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 66);
+  var offset = this.bb.__offset(this.bb_pos, 64);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -3131,7 +3106,7 @@ battlecode.schema.Round.prototype.bytecodeIDsArray = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.bytecodesUsed = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 68);
+  var offset = this.bb.__offset(this.bb_pos, 66);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -3352,8 +3327,9 @@ battlecode.schema.Round.startDiedIDsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} actionIDsOffset
  */
-battlecode.schema.Round.addActionIDs = function(builder, actionIDsOffset) {
-  builder.addFieldOffset(8, actionIDsOffset, 0);
+battlecode.schema.Round.prototype.bytecodesUsedLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 66);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -3361,20 +3337,17 @@ battlecode.schema.Round.addActionIDs = function(builder, actionIDsOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-battlecode.schema.Round.createActionIDsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
+battlecode.schema.Round.prototype.bytecodesUsedArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 66);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-battlecode.schema.Round.startActionIDsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+battlecode.schema.Round.startRound = function(builder) {
+  builder.startObject(32);
 };
 
 /**
@@ -3408,10 +3381,171 @@ battlecode.schema.Round.startActionsVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} teamSoupsOffset
+ */
+battlecode.schema.Round.addTeamSoups = function(builder, teamSoupsOffset) {
+  builder.addFieldOffset(1, teamSoupsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createTeamSoupsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startTeamSoupsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} movedIDsOffset
+ */
+battlecode.schema.Round.addMovedIDs = function(builder, movedIDsOffset) {
+  builder.addFieldOffset(2, movedIDsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createMovedIDsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startMovedIDsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} movedLocsOffset
+ */
+battlecode.schema.Round.addMovedLocs = function(builder, movedLocsOffset) {
+  builder.addFieldOffset(3, movedLocsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} spawnedBodiesOffset
+ */
+battlecode.schema.Round.addSpawnedBodies = function(builder, spawnedBodiesOffset) {
+  builder.addFieldOffset(4, spawnedBodiesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} diedIDsOffset
+ */
+battlecode.schema.Round.addDiedIDs = function(builder, diedIDsOffset) {
+  builder.addFieldOffset(5, diedIDsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createDiedIDsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startDiedIDsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} actionIDsOffset
+ */
+battlecode.schema.Round.addActionIDs = function(builder, actionIDsOffset) {
+  builder.addFieldOffset(6, actionIDsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createActionIDsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startActionIDsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} actionsOffset
+ */
+battlecode.schema.Round.addActions = function(builder, actionsOffset) {
+  builder.addFieldOffset(7, actionsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<battlecode.schema.Action>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createActionsVector = function(builder, data) {
+  builder.startVector(1, data.length, 1);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startActionsVector = function(builder, numElems) {
+  builder.startVector(1, numElems, 1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} actionTargetsOffset
  */
 battlecode.schema.Round.addActionTargets = function(builder, actionTargetsOffset) {
-  builder.addFieldOffset(10, actionTargetsOffset, 0);
+  builder.addFieldOffset(8, actionTargetsOffset, 0);
 };
 
 /**
@@ -3437,89 +3571,10 @@ battlecode.schema.Round.startActionTargetsVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} dirtChangedBodyIDsOffset
+ * @param {flatbuffers.Offset} dirtChangedLocsOffset
  */
-battlecode.schema.Round.addDirtChangedBodyIDs = function(builder, dirtChangedBodyIDsOffset) {
-  builder.addFieldOffset(11, dirtChangedBodyIDsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createDirtChangedBodyIDsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startDirtChangedBodyIDsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} dirtChangesBodyOffset
- */
-battlecode.schema.Round.addDirtChangesBody = function(builder, dirtChangesBodyOffset) {
-  builder.addFieldOffset(12, dirtChangesBodyOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createDirtChangesBodyVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startDirtChangesBodyVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} dirtChangedIdxsOffset
- */
-battlecode.schema.Round.addDirtChangedIdxs = function(builder, dirtChangedIdxsOffset) {
-  builder.addFieldOffset(13, dirtChangedIdxsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createDirtChangedIdxsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startDirtChangedIdxsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+battlecode.schema.Round.addDirtChangedLocs = function(builder, dirtChangedLocsOffset) {
+  builder.addFieldOffset(9, dirtChangedLocsOffset, 0);
 };
 
 /**
@@ -3527,7 +3582,7 @@ battlecode.schema.Round.startDirtChangedIdxsVector = function(builder, numElems)
  * @param {flatbuffers.Offset} dirtChangesOffset
  */
 battlecode.schema.Round.addDirtChanges = function(builder, dirtChangesOffset) {
-  builder.addFieldOffset(14, dirtChangesOffset, 0);
+  builder.addFieldOffset(10, dirtChangesOffset, 0);
 };
 
 /**
@@ -3553,31 +3608,10 @@ battlecode.schema.Round.startDirtChangesVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} waterChangedIdxsOffset
+ * @param {flatbuffers.Offset} waterChangedLocsOffset
  */
-battlecode.schema.Round.addWaterChangedIdxs = function(builder, waterChangedIdxsOffset) {
-  builder.addFieldOffset(15, waterChangedIdxsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createWaterChangedIdxsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startWaterChangedIdxsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+battlecode.schema.Round.addWaterChangedLocs = function(builder, waterChangedLocsOffset) {
+  builder.addFieldOffset(11, waterChangedLocsOffset, 0);
 };
 
 /**
@@ -3585,7 +3619,7 @@ battlecode.schema.Round.startWaterChangedIdxsVector = function(builder, numElems
  * @param {flatbuffers.Offset} waterChangesOffset
  */
 battlecode.schema.Round.addWaterChanges = function(builder, waterChangesOffset) {
-  builder.addFieldOffset(16, waterChangesOffset, 0);
+  builder.addFieldOffset(12, waterChangesOffset, 0);
 };
 
 /**
@@ -3611,31 +3645,10 @@ battlecode.schema.Round.startWaterChangesVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} pollutionChangedIdxsOffset
+ * @param {flatbuffers.Offset} pollutionChangedLocsOffset
  */
-battlecode.schema.Round.addPollutionChangedIdxs = function(builder, pollutionChangedIdxsOffset) {
-  builder.addFieldOffset(17, pollutionChangedIdxsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createPollutionChangedIdxsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startPollutionChangedIdxsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+battlecode.schema.Round.addPollutionChangedLocs = function(builder, pollutionChangedLocsOffset) {
+  builder.addFieldOffset(13, pollutionChangedLocsOffset, 0);
 };
 
 /**
@@ -3643,7 +3656,7 @@ battlecode.schema.Round.startPollutionChangedIdxsVector = function(builder, numE
  * @param {flatbuffers.Offset} pollutionChangesOffset
  */
 battlecode.schema.Round.addPollutionChanges = function(builder, pollutionChangesOffset) {
-  builder.addFieldOffset(18, pollutionChangesOffset, 0);
+  builder.addFieldOffset(14, pollutionChangesOffset, 0);
 };
 
 /**
@@ -3669,31 +3682,10 @@ battlecode.schema.Round.startPollutionChangesVector = function(builder, numElems
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} soupChangedIdxsOffset
+ * @param {flatbuffers.Offset} soupChangedLocsOffset
  */
-battlecode.schema.Round.addSoupChangedIdxs = function(builder, soupChangedIdxsOffset) {
-  builder.addFieldOffset(19, soupChangedIdxsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createSoupChangedIdxsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startSoupChangedIdxsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+battlecode.schema.Round.addSoupChangedLocs = function(builder, soupChangedLocsOffset) {
+  builder.addFieldOffset(15, soupChangedLocsOffset, 0);
 };
 
 /**
@@ -3701,7 +3693,7 @@ battlecode.schema.Round.startSoupChangedIdxsVector = function(builder, numElems)
  * @param {flatbuffers.Offset} soupChangesOffset
  */
 battlecode.schema.Round.addSoupChanges = function(builder, soupChangesOffset) {
-  builder.addFieldOffset(20, soupChangesOffset, 0);
+  builder.addFieldOffset(16, soupChangesOffset, 0);
 };
 
 /**
@@ -3722,6 +3714,122 @@ battlecode.schema.Round.createSoupChangesVector = function(builder, data) {
  * @param {number} numElems
  */
 battlecode.schema.Round.startSoupChangesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} newMessagesCostsOffset
+ */
+battlecode.schema.Round.addNewMessagesCosts = function(builder, newMessagesCostsOffset) {
+  builder.addFieldOffset(17, newMessagesCostsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createNewMessagesCostsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startNewMessagesCostsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} newMessagesOffset
+ */
+battlecode.schema.Round.addNewMessages = function(builder, newMessagesOffset) {
+  builder.addFieldOffset(18, newMessagesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createNewMessagesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startNewMessagesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} broadcastedMessagesCostsOffset
+ */
+battlecode.schema.Round.addBroadcastedMessagesCosts = function(builder, broadcastedMessagesCostsOffset) {
+  builder.addFieldOffset(19, broadcastedMessagesCostsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createBroadcastedMessagesCostsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startBroadcastedMessagesCostsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} broadcastedMessagesOffset
+ */
+battlecode.schema.Round.addBroadcastedMessages = function(builder, broadcastedMessagesOffset) {
+  builder.addFieldOffset(20, broadcastedMessagesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createBroadcastedMessagesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startBroadcastedMessagesVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -3833,39 +3941,10 @@ battlecode.schema.Round.addLogs = function(builder, logsOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} poolOffset
- */
-battlecode.schema.Round.addPool = function(builder, poolOffset) {
-  builder.addFieldOffset(29, poolOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<flatbuffers.Offset>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createPoolVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startPoolVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
  * @param {number} roundID
  */
 battlecode.schema.Round.addRoundID = function(builder, roundID) {
-  builder.addFieldInt32(30, roundID, 0);
+  builder.addFieldInt32(29, roundID, 0);
 };
 
 /**
@@ -3873,7 +3952,7 @@ battlecode.schema.Round.addRoundID = function(builder, roundID) {
  * @param {flatbuffers.Offset} bytecodeIDsOffset
  */
 battlecode.schema.Round.addBytecodeIDs = function(builder, bytecodeIDsOffset) {
-  builder.addFieldOffset(31, bytecodeIDsOffset, 0);
+  builder.addFieldOffset(30, bytecodeIDsOffset, 0);
 };
 
 /**
@@ -3902,7 +3981,7 @@ battlecode.schema.Round.startBytecodeIDsVector = function(builder, numElems) {
  * @param {flatbuffers.Offset} bytecodesUsedOffset
  */
 battlecode.schema.Round.addBytecodesUsed = function(builder, bytecodesUsedOffset) {
-  builder.addFieldOffset(32, bytecodesUsedOffset, 0);
+  builder.addFieldOffset(31, bytecodesUsedOffset, 0);
 };
 
 /**
@@ -3942,22 +4021,22 @@ battlecode.schema.Round.endRound = function(builder) {
  * @param {flatbuffers.Offset} movedIDsOffset
  * @param {flatbuffers.Offset} movedLocsOffset
  * @param {flatbuffers.Offset} spawnedBodiesOffset
- * @param {flatbuffers.Offset} pollutionChangedLocsOffset
- * @param {flatbuffers.Offset} pollutionChangeLevelsOffset
  * @param {flatbuffers.Offset} diedIDsOffset
  * @param {flatbuffers.Offset} actionIDsOffset
  * @param {flatbuffers.Offset} actionsOffset
  * @param {flatbuffers.Offset} actionTargetsOffset
- * @param {flatbuffers.Offset} dirtChangedBodyIDsOffset
- * @param {flatbuffers.Offset} dirtChangesBodyOffset
- * @param {flatbuffers.Offset} dirtChangedIdxsOffset
+ * @param {flatbuffers.Offset} dirtChangedLocsOffset
  * @param {flatbuffers.Offset} dirtChangesOffset
- * @param {flatbuffers.Offset} waterChangedIdxsOffset
+ * @param {flatbuffers.Offset} waterChangedLocsOffset
  * @param {flatbuffers.Offset} waterChangesOffset
- * @param {flatbuffers.Offset} pollutionChangedIdxsOffset
+ * @param {flatbuffers.Offset} pollutionChangedLocsOffset
  * @param {flatbuffers.Offset} pollutionChangesOffset
- * @param {flatbuffers.Offset} soupChangedIdxsOffset
+ * @param {flatbuffers.Offset} soupChangedLocsOffset
  * @param {flatbuffers.Offset} soupChangesOffset
+ * @param {flatbuffers.Offset} newMessagesCostsOffset
+ * @param {flatbuffers.Offset} newMessagesOffset
+ * @param {flatbuffers.Offset} broadcastedMessagesCostsOffset
+ * @param {flatbuffers.Offset} broadcastedMessagesOffset
  * @param {flatbuffers.Offset} indicatorDotIDsOffset
  * @param {flatbuffers.Offset} indicatorDotLocsOffset
  * @param {flatbuffers.Offset} indicatorDotRGBsOffset
@@ -3966,35 +4045,34 @@ battlecode.schema.Round.endRound = function(builder) {
  * @param {flatbuffers.Offset} indicatorLineEndLocsOffset
  * @param {flatbuffers.Offset} indicatorLineRGBsOffset
  * @param {flatbuffers.Offset} logsOffset
- * @param {flatbuffers.Offset} poolOffset
  * @param {number} roundID
  * @param {flatbuffers.Offset} bytecodeIDsOffset
  * @param {flatbuffers.Offset} bytecodesUsedOffset
  * @returns {flatbuffers.Offset}
  */
-battlecode.schema.Round.createRound = function(builder, teamIDsOffset, teamSoupsOffset, movedIDsOffset, movedLocsOffset, spawnedBodiesOffset, pollutionChangedLocsOffset, pollutionChangeLevelsOffset, diedIDsOffset, actionIDsOffset, actionsOffset, actionTargetsOffset, dirtChangedBodyIDsOffset, dirtChangesBodyOffset, dirtChangedIdxsOffset, dirtChangesOffset, waterChangedIdxsOffset, waterChangesOffset, pollutionChangedIdxsOffset, pollutionChangesOffset, soupChangedIdxsOffset, soupChangesOffset, indicatorDotIDsOffset, indicatorDotLocsOffset, indicatorDotRGBsOffset, indicatorLineIDsOffset, indicatorLineStartLocsOffset, indicatorLineEndLocsOffset, indicatorLineRGBsOffset, logsOffset, poolOffset, roundID, bytecodeIDsOffset, bytecodesUsedOffset) {
+battlecode.schema.Round.createRound = function(builder, teamIDsOffset, teamSoupsOffset, movedIDsOffset, movedLocsOffset, spawnedBodiesOffset, diedIDsOffset, actionIDsOffset, actionsOffset, actionTargetsOffset, dirtChangedLocsOffset, dirtChangesOffset, waterChangedLocsOffset, waterChangesOffset, pollutionChangedLocsOffset, pollutionChangesOffset, soupChangedLocsOffset, soupChangesOffset, newMessagesCostsOffset, newMessagesOffset, broadcastedMessagesCostsOffset, broadcastedMessagesOffset, indicatorDotIDsOffset, indicatorDotLocsOffset, indicatorDotRGBsOffset, indicatorLineIDsOffset, indicatorLineStartLocsOffset, indicatorLineEndLocsOffset, indicatorLineRGBsOffset, logsOffset, roundID, bytecodeIDsOffset, bytecodesUsedOffset) {
   battlecode.schema.Round.startRound(builder);
   battlecode.schema.Round.addTeamIDs(builder, teamIDsOffset);
   battlecode.schema.Round.addTeamSoups(builder, teamSoupsOffset);
   battlecode.schema.Round.addMovedIDs(builder, movedIDsOffset);
   battlecode.schema.Round.addMovedLocs(builder, movedLocsOffset);
   battlecode.schema.Round.addSpawnedBodies(builder, spawnedBodiesOffset);
-  battlecode.schema.Round.addPollutionChangedLocs(builder, pollutionChangedLocsOffset);
-  battlecode.schema.Round.addPollutionChangeLevels(builder, pollutionChangeLevelsOffset);
   battlecode.schema.Round.addDiedIDs(builder, diedIDsOffset);
   battlecode.schema.Round.addActionIDs(builder, actionIDsOffset);
   battlecode.schema.Round.addActions(builder, actionsOffset);
   battlecode.schema.Round.addActionTargets(builder, actionTargetsOffset);
-  battlecode.schema.Round.addDirtChangedBodyIDs(builder, dirtChangedBodyIDsOffset);
-  battlecode.schema.Round.addDirtChangesBody(builder, dirtChangesBodyOffset);
-  battlecode.schema.Round.addDirtChangedIdxs(builder, dirtChangedIdxsOffset);
+  battlecode.schema.Round.addDirtChangedLocs(builder, dirtChangedLocsOffset);
   battlecode.schema.Round.addDirtChanges(builder, dirtChangesOffset);
-  battlecode.schema.Round.addWaterChangedIdxs(builder, waterChangedIdxsOffset);
+  battlecode.schema.Round.addWaterChangedLocs(builder, waterChangedLocsOffset);
   battlecode.schema.Round.addWaterChanges(builder, waterChangesOffset);
-  battlecode.schema.Round.addPollutionChangedIdxs(builder, pollutionChangedIdxsOffset);
+  battlecode.schema.Round.addPollutionChangedLocs(builder, pollutionChangedLocsOffset);
   battlecode.schema.Round.addPollutionChanges(builder, pollutionChangesOffset);
-  battlecode.schema.Round.addSoupChangedIdxs(builder, soupChangedIdxsOffset);
+  battlecode.schema.Round.addSoupChangedLocs(builder, soupChangedLocsOffset);
   battlecode.schema.Round.addSoupChanges(builder, soupChangesOffset);
+  battlecode.schema.Round.addNewMessagesCosts(builder, newMessagesCostsOffset);
+  battlecode.schema.Round.addNewMessages(builder, newMessagesOffset);
+  battlecode.schema.Round.addBroadcastedMessagesCosts(builder, broadcastedMessagesCostsOffset);
+  battlecode.schema.Round.addBroadcastedMessages(builder, broadcastedMessagesOffset);
   battlecode.schema.Round.addIndicatorDotIDs(builder, indicatorDotIDsOffset);
   battlecode.schema.Round.addIndicatorDotLocs(builder, indicatorDotLocsOffset);
   battlecode.schema.Round.addIndicatorDotRGBs(builder, indicatorDotRGBsOffset);
@@ -4003,149 +4081,10 @@ battlecode.schema.Round.createRound = function(builder, teamIDsOffset, teamSoups
   battlecode.schema.Round.addIndicatorLineEndLocs(builder, indicatorLineEndLocsOffset);
   battlecode.schema.Round.addIndicatorLineRGBs(builder, indicatorLineRGBsOffset);
   battlecode.schema.Round.addLogs(builder, logsOffset);
-  battlecode.schema.Round.addPool(builder, poolOffset);
   battlecode.schema.Round.addRoundID(builder, roundID);
   battlecode.schema.Round.addBytecodeIDs(builder, bytecodeIDsOffset);
   battlecode.schema.Round.addBytecodesUsed(builder, bytecodesUsedOffset);
   return battlecode.schema.Round.endRound(builder);
-}
-
-/**
- * @constructor
- */
-battlecode.schema.Message = function() {
-  /**
-   * @type {flatbuffers.ByteBuffer}
-   */
-  this.bb = null;
-
-  /**
-   * @type {number}
-   */
-  this.bb_pos = 0;
-};
-
-/**
- * @param {number} i
- * @param {flatbuffers.ByteBuffer} bb
- * @returns {battlecode.schema.Message}
- */
-battlecode.schema.Message.prototype.__init = function(i, bb) {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {battlecode.schema.Message=} obj
- * @returns {battlecode.schema.Message}
- */
-battlecode.schema.Message.getRootAsMessage = function(bb, obj) {
-  return (obj || new battlecode.schema.Message).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * The amount a team is paid to send the message.
- *
- * @returns {number}
- */
-battlecode.schema.Message.prototype.bid = function() {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-};
-
-/**
- * Messages are 10-15 integers.
- *
- * @param {number} index
- * @returns {number}
- */
-battlecode.schema.Message.prototype.message = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Message.prototype.messageLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Message.prototype.messageArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- */
-battlecode.schema.Message.startMessage = function(builder) {
-  builder.startObject(2);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} bid
- */
-battlecode.schema.Message.addBid = function(builder, bid) {
-  builder.addFieldInt32(0, bid, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} messageOffset
- */
-battlecode.schema.Message.addMessage = function(builder, messageOffset) {
-  builder.addFieldOffset(1, messageOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Message.createMessageVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Message.startMessageVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Message.endMessage = function(builder) {
-  var offset = builder.endObject();
-  return offset;
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} bid
- * @param {flatbuffers.Offset} messageOffset
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Message.createMessage = function(builder, bid, messageOffset) {
-  battlecode.schema.Message.startMessage(builder);
-  battlecode.schema.Message.addBid(builder, bid);
-  battlecode.schema.Message.addMessage(builder, messageOffset);
-  return battlecode.schema.Message.endMessage(builder);
 }
 
 /**
