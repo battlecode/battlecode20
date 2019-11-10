@@ -26,7 +26,10 @@ public strictfp class GameWorld {
 
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
-
+    private final int[] initialSoup;
+    private int[] soup;
+    private int[] pollution;
+    private int[] water;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
@@ -39,7 +42,10 @@ public strictfp class GameWorld {
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp,
                      long[][] oldTeamMemory, GameMaker.MatchMaker matchMaker) {
-
+        this.initialSoup = gm.getSoupArray();
+        this.soup = gm.getSoupArray();
+        this.pollution = gm.getPollutionArray();
+        this.water = gm.getWaterArray();
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
@@ -166,6 +172,22 @@ public strictfp class GameWorld {
         return currentRound;
     }
 
+    public int initialSoupAtLocation(int x, int y) {
+        if (!gameMap.onTheMap(new MapLocation(x, y))) {
+            return 0;
+        }
+        return initialSoup[x - gameMap.getOrigin().x + (y - gameMap.getOrigin().y)*gameMap.getWidth()];
+    }
+    public int getSoup(MapLocation loc) {
+        if (!gameMap.onTheMap(loc)) {
+            return 0;
+        }
+        return soup[loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()];
+    }
+
+    public void removeSoup(MapLocation loc, int amount) {
+        soup[(loc.x - gameMap.getOrigin().x) + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()] = (int) Math.max(0.0, soup[(loc.x - gameMap.getOrigin().x) + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()] - amount);
+    }
     // *********************************
     // ****** GAMEPLAY *****************
     // *********************************
