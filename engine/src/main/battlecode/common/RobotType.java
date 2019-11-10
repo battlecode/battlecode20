@@ -151,6 +151,15 @@ public enum RobotType {
     }
 
     /**
+     * Returns whether the robot can deposit dirt.
+     *
+     * @return whether the robot can deposit dirt.
+     */
+    public boolean canDeposit() {
+        return this == LANDSCAPER;
+    }
+
+    /**
      * Returns whether the robot can mine.
      *
      * @return whether the robot can mine.
@@ -184,6 +193,17 @@ public enum RobotType {
      */
     public boolean canPickUpUnits() {
         return this == DRONE;
+    }
+
+    /**
+     * Returns whether the robot is a building.
+     * 
+     * @return whether the robot is a building.
+     */
+    public boolean isBuilding() {
+        return (this == HQ || this == REFINERY || this == VAPORATOR ||
+                this == DESIGN_SCHOOL || this == FULFILLMENT_CENTER ||
+                this == NET_GUN);
     }
 
     RobotType(RobotType spawnSource, int cost, int dirtLimit, int soupLimit, int actionCooldown,

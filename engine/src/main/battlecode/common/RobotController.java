@@ -441,6 +441,56 @@ public strictfp interface RobotController {
      */
     void refineSoup(Direction dir, int amount) throws GameActionException;
 
+    // ***************************************
+    // ********* LANDSCAPER METHODS **********
+    // ***************************************
+
+    /**
+     * Tests whether the robot can dig dirt in the given direction.
+     * Checks cooldown turns remaining, whether the robot can dig,
+     * that the robot can carry more dirt, and that the location is valid.
+     *
+     * @param dir the direction to dig in
+     * @return whether it is possible to dig dirt from the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canDigDirt(Direction dir);
+
+    /**
+     * Digs dirt in the given direction.
+     *
+     * @param dir the direction to dig in
+     * @throws GameActionException if this robot is not a landscaper, if
+     * the robot is still in cooldown, the robot cannot carry more dirt,
+     * or the location is not valid (there is a robot/building).
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void digDirt(Direction dir) throws GameActionException;
+
+    /**
+     * Tests whether the robot can deposit dirt in the given direction.
+     * Checks cooldown turns remaining, whether the robot can deposit dirt,
+     * and whether the robot has dirt.
+     *
+     * @param dir the direction to deposit
+     * @return whether it is possible to deposit dirt in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canDepositDirt(Direction dir);
+
+    /**
+     * Deposits dirt in the given direction (max up to specified amount).
+     *
+     * @param dir the direction to deposit
+     * @throws GameActionException if this robot is not a landscaper, if
+     * the robot is still in cooldown, if there is no dirt to deposit,
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void depositDirt(Direction dir) throws GameActionException;
 
     // ***********************************
     // ****** BLOCKCHAINNNNNNNNNNN *******
