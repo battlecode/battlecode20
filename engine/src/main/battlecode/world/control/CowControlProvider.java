@@ -9,8 +9,7 @@ import battlecode.world.InternalRobot;
 import java.util.*;
 
 /**
- * The control provider for zombies. Doesn't use instrumentation or anything,
- * just plain-old logic.
+ * The control provider for cows.
  *
  * @author james
  */
