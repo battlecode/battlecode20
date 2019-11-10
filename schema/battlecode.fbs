@@ -44,7 +44,9 @@ enum BodyType : byte {
     /// Net guns shoot down drones.
     NET_GUN,
     /// Cows produce pollution.
-    COW
+    COW,
+    
+    NONE
 }
 
 /// A list of new bodies to be placed on the map.

@@ -66,11 +66,6 @@ export interface Config {
   sightRadius: boolean;
 
   /**
-   * Whether or not to display the bullet sight radius
-   */
-  bulletSightRadius: boolean;
-
-  /**
    * The mode of the game
    */
   mode: Mode;
@@ -113,6 +108,5 @@ export function defaults(supplied?: any): Config {
     mode: supplied.mode || Mode.QUEUE,
     splash: supplied.splash || supplied.matchFileURL == null || true,
     sightRadius: supplied.sightRadius || false,
-    bulletSightRadius: supplied.bulletSightRadius || false
   };
 }

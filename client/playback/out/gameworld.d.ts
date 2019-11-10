@@ -13,9 +13,23 @@ export declare type BodiesSchema = {
     type: Int8Array;
     x: Int32Array;
     y: Int32Array;
+    dirt: Int32Array;
     bytecodesUsed: Int32Array;
 };
+export declare type MapStats = {
+    name: string;
+    minCorner: Victor;
+    maxCorner: Victor;
+    bodies: schema.SpawnedBodyTable;
+    randomSeed: number;
+    length: number;
+    dirt: Int32Array;
+    water: Int32Array;
+    pollution: Int32Array;
+    soup: Int32Array;
+};
 export declare type TeamStats = {
+    soup: number;
     robots: [number, number, number, number, number, number, number, number, number, number, number];
 };
 export declare type IndicatorDotsSchema = {
@@ -63,7 +77,8 @@ export default class GameWorld {
      * }
      */
     bodies: StructOfArrays<BodiesSchema>;
-    stats: Map<number, TeamStats>;
+    teamStats: Map<number, TeamStats>;
+    mapStats: MapStats;
     /**
      * Indicator dots.
      * {

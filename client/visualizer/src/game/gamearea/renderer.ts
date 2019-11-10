@@ -233,7 +233,7 @@ export default class Renderer {
     }
 
     if (this.conf.sightRadius) {
-      const sightRadius = this.metadata.types[type].sightRadius;
+      const sightRadius = this.metadata.types[type].sensorRadius;
       this.ctx.beginPath();
       this.ctx.arc(x, y, sightRadius, 0, 2 * Math.PI);
       this.ctx.strokeStyle = "#46ff00";

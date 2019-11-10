@@ -47,11 +47,30 @@ export function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: n
   return schema.VecTable.endVecTable(builder);
 }
 
-export function createMap(builder: flatbuffers.Builder, bodies: number): flatbuffers.Offset {
+export function createMap(builder: flatbuffers.Builder, bodies: number, name: string): flatbuffers.Offset {
+  const bb_name = builder.createString(name);
+
+  // all values default to zero
+  // TODO: test with nonzero values?
+  const bb_dirt = schema.GameMap.createDirtVector(builder, new Array(SIZE*SIZE));
+  const bb_water = schema.GameMap.createWaterVector(builder, new Array(SIZE*SIZE));
+  const bb_poll = schema.GameMap.createPollutionVector(builder, new Array(SIZE*SIZE));
+  const bb_soup = schema.GameMap.createSoupVector(builder, new Array(SIZE*SIZE));
+
   schema.GameMap.startGameMap(builder);
-  if(!isNull(bodies)) schema.GameMap.addBodies(builder, bodies);
+  schema.GameMap.addName(builder, bb_name);
+
   schema.GameMap.addMinCorner(builder, schema.Vec.createVec(builder, 0, 0));
   schema.GameMap.addMaxCorner(builder, schema.Vec.createVec(builder, SIZE, SIZE));
+
+  if(!isNull(bodies)) schema.GameMap.addBodies(builder, bodies);
+  schema.GameMap.addRandomSeed(builder, 42);
+
+  schema.GameMap.addDirt(builder, bb_dirt);
+  schema.GameMap.addWater(builder, bb_water);
+  schema.GameMap.addPollution(builder, bb_poll);
+  schema.GameMap.addSoup(builder, bb_soup);
+
   return schema.GameMap.endGameMap(builder);
 }
 
@@ -59,14 +78,21 @@ export function createMap(builder: flatbuffers.Builder, bodies: number): flatbuf
 export function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const bodies: flatbuffers.Offset[] = [];
   // what's the default value?
+  // Is there any way to automate this?
   for (const body of bodyTypeList) {
-    schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
-    schema.BodyTypeMetadata.addType(builder, body);
-    schema.BodyTypeMetadata.addCost(builder, 100);
-    schema.BodyTypeMetadata.addStrideRadius(builder, 5);
-    schema.BodyTypeMetadata.addSightRadius(builder, 5);
-    schema.BodyTypeMetadata.addSoupLimit(builder, 100);
-    schema.BodyTypeMetadata.addDirtLimit(builder, 10);
+    const btmd = schema.BodyTypeMetadata;
+    btmd.startBodyTypeMetadata(builder);
+    btmd.addType(builder, body);
+    btmd.addSpawnSource(builder, body); // Real spawn source?
+    btmd.addCost(builder, 100);
+    btmd.addDirtLimit(builder, 10);
+    btmd.addSoupLimit(builder, 100);
+    btmd.addActionCooldown(builder, 10);
+    btmd.addSensorRadius(builder, 3);
+    btmd.addPollutionRadius(builder, 3);
+    btmd.addPollutionAmount(builder, 1);
+    btmd.addMaxSoupProduced(builder, 0);
+    btmd.addBytecodeLimit(builder, 1000);
     bodies.push(schema.BodyTypeMetadata.endBodyTypeMetadata(builder));
   }
 
@@ -132,7 +158,7 @@ export function createBlankGame(turns: number){
 
   events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
-  const map = createMap(builder, null);
+  const map = createMap(builder, null, 'Blank Demo');
   events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
 
   for (let i = 1; i < turns+1; i++) {
@@ -188,7 +214,7 @@ export function createStandGame(turns: number) {
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
   const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
-  const map = createMap(builder, bodies);
+  const map = createMap(builder, bodies, "Stand Demo");
   events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
 
   for (let i = 1; i < turns+1; i++) {
@@ -241,7 +267,7 @@ export function createWanderGame(unitCount: number, turns: number) {
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
   const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
-  const map = createMap(builder, bodies);
+  const map = createMap(builder, bodies, 'Wander Demo');
   events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
 
   for (let i = 1; i < turns+1; i++) {
@@ -307,7 +333,7 @@ export function createActiveGame(aliveCount: number, churnCount: number, moveCou
   schema.SpawnedBodyTable.addTypes(builder, bb_types);
   const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 
-  const map = createMap(builder, bodies);
+  const map = createMap(builder, bodies, 'Active Demo');
   events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
 
   const diedIDs = new Array(churnCount);
