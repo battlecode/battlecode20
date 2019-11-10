@@ -11,40 +11,42 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    MINER                   (BASE,  10,  0,  40,  2,  8,  0,  0,  0,  15000), // chef?
-    //                       SS     SC   DL  SL   AC  SR  PR  PA  MS  BL
+    ARCHON          (null,    0,    400,   -1,   .5f,  -1,  -1,   10,  15, 1f,  30000),
+    //                              HP      BC   BR   BS   AP   SR  BSR  STR   BCL
     /**
-     * Landscapers take dirt from adjacent (decreasing the elevation)
-     * squares or deposit dirt onto adjacent squares, including
-     * into water (increasing the elevation).
+     * The main producer unit to make other units; can't build Archons or other Gardeners.
+     *
      * @battlecode.doc.robottype
      */
-    LANDSCAPER              (DESIGN_SCHOOL,  10,  40,  0,  4,  4,  0,  0,  0,  15000),
-    //                       SS              SC   DL   SL  AC  SR  PR  PA  MS  BL
+    GARDENER        (ARCHON,  10,   40,  100,   .5f,  -1,  -1,   7,  10,   1f, 15000),
+    //                              HP    BC   BR   BS   AP   SR  BSR  STR   BCL
     /**
-     * Drones pick up any unit and drop them somewhere else.
+     * A melee based unit that specializes at cutting down ...
+     *
      * @battlecode.doc.robottype
      */
-    DRONE                   (FULFILLMENT_CENTER,  10,  0,  0,  8,  4,  0,  0,  0,  15000),
-    //                       SS                   SC   DL  SL  AC  SR  PR  PA  MS  BL
+    LUMBERJACK      (GARDENER,  10, 50,  100,   .5f,  -1,   2,   7,  10,  1f, 15000),
+    //                              HP    BC   BR   BS   AP    SR  BSR  STR   BCL
     /**
      * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    COW                     (null,  0,  0,  0,  6,  0,  0,  0,  0,  0),
-    //                       SS     SC  DL  SL  AC  SR  PR  PA  MS  BL
+    SOLDIER         (GARDENER,  10, 50,  100,   .5f,   2f,   2,   7,  10,   1f, 15000),
+    //                              HP    BC   BR     BS    AP   SR   BSR  STR   BCL
     /**
      * Net guns shoot down drones.
      * @battlecode.doc.robottype
      */
-    NET_GUN                 (MINER,  7,  0,  0,  5,  6,  0,  0,  0,  15000),
-    //                       SS      SC  DL  SL  AC  SR  PR  PA  MS  BL
+    TANK            (GARDENER, 10,  200,  300,   .5f,   4,   5,   7,  10,  1f, 15000),
+    //                              HP    BC     BR   BS    AP   SR  BSR    STR   BCL
     /**
      * Refineries turn crude soup into refined soup, and produce pollution.
      * @battlecode.doc.robottype
      */
-    REFINERY                (MINER,  20,  0,  0,  0,  0,  4,  1,  10,  15000),
-    //                       SS      SC   DL  SL  AC  SR  PR  PA  MS   BL
+    SCOUT           (GARDENER,  10, 10,   80,   1, 1.5f,   0.5f,   14,  20,  1f, 15000),
+    //                              HP    BC   BR    BS   AP   SR  BSR         STR   BCL
+    ;
+    
     /**
      * Vaporators reduce pollution.
      * @battlecode.doc.robottype
@@ -98,7 +100,7 @@ public enum RobotType {
     public final int actionCooldown;
 
     /**
-     * Range for sensing robots and trees.
+     * Range for sensing robots.
      */
     public final int sensorRadius;
 
@@ -142,7 +144,7 @@ public enum RobotType {
     }
 
     /**
-     * Returns whether the robot can dig.
+     * Returns whether the robot can build all units except Gardeners and Archons.
      *
      * @return whether the robot can dig.
      */

@@ -273,25 +273,12 @@ public strictfp class GameMaker {
             BodyTypeMetadata.startBodyTypeMetadata(builder);
             BodyTypeMetadata.addType(builder, robotTypeToBodyType(type));
             BodyTypeMetadata.addRadius(builder, type.bodyRadius);
-            BodyTypeMetadata.addCost(builder, type.bulletCost);
             BodyTypeMetadata.addMaxHealth(builder, type.maxHealth);
             BodyTypeMetadata.addStartHealth(builder, type.getStartingHealth());
             BodyTypeMetadata.addStrideRadius(builder, type.strideRadius);
-            BodyTypeMetadata.addBulletAttack(builder, type.attackPower);
-            BodyTypeMetadata.addBulletSpeed(builder, type.bulletSpeed);
             BodyTypeMetadata.addSightRadius(builder, type.sensorRadius);
-            BodyTypeMetadata.addBulletSightRadius(builder, type.bulletSightRadius);
             bodyTypeMetadataOffsets.add(BodyTypeMetadata.endBodyTypeMetadata(builder));
         }
-
-        // Add bullet tree metadata
-        BodyTypeMetadata.startBodyTypeMetadata(builder);
-        BodyTypeMetadata.addType(builder, BodyType.TREE_BULLET);
-        BodyTypeMetadata.addRadius(builder, GameConstants.BULLET_TREE_RADIUS);
-        BodyTypeMetadata.addCost(builder, GameConstants.BULLET_TREE_COST);
-        BodyTypeMetadata.addMaxHealth(builder, GameConstants.BULLET_TREE_MAX_HEALTH);
-        BodyTypeMetadata.addStartHealth(builder, GameConstants.BULLET_TREE_MAX_HEALTH * .20F);
-        bodyTypeMetadataOffsets.add(BodyTypeMetadata.endBodyTypeMetadata(builder));
 
         // Make and return BodyTypeMetadata Vector offset
         return offsetVector(builder, bodyTypeMetadataOffsets, GameHeader::startBodyTypeMetadataVector);
@@ -336,19 +323,10 @@ public strictfp class GameMaker {
         private TFloatArrayList spawnedBodiesLocsXs; //For locs
         private TFloatArrayList spawnedBodiesLocsYs; //For locs
 
-        // SpawnedBulletTable for spawnedBullets
-        private TIntArrayList spawnedBulletsRobotIDs;
-        private TFloatArrayList spawnedBulletsDamages;
-        private TFloatArrayList spawnedBulletsLocsXs; //For locs
-        private TFloatArrayList spawnedBulletsLocsYs; //For locs
-        private TFloatArrayList spawnedBulletsVelsXs; //For vels
-        private TFloatArrayList spawnedBulletsVelsYs; //For vels
-
         private TIntArrayList healthChangedIDs; // ints
         private TFloatArrayList healthChangedLevels; // floats
 
         private TIntArrayList diedIDs; // ints
-        private TIntArrayList diedBulletIDs; //ints
 
         private TIntArrayList actionIDs; // ints
         private TByteArrayList actions; // Actions
@@ -356,7 +334,6 @@ public strictfp class GameMaker {
 
         // Round statistics
         private TIntArrayList teamIDs;
-        private TFloatArrayList teamBullets;
         private TIntArrayList teamVictoryPoints;
 
         // Indicator dots with locations and RGB values
@@ -394,21 +371,13 @@ public strictfp class GameMaker {
             this.spawnedBodiesRadii = new TFloatArrayList();
             this.spawnedBodiesLocsXs = new TFloatArrayList();
             this.spawnedBodiesLocsYs = new TFloatArrayList();
-            this.spawnedBulletsRobotIDs = new TIntArrayList();
-            this.spawnedBulletsDamages = new TFloatArrayList();
-            this.spawnedBulletsLocsXs = new TFloatArrayList();
-            this.spawnedBulletsLocsYs = new TFloatArrayList();
-            this.spawnedBulletsVelsXs = new TFloatArrayList();
-            this.spawnedBulletsVelsYs = new TFloatArrayList();
             this.healthChangedIDs = new TIntArrayList();
             this.healthChangedLevels = new TFloatArrayList();
             this.diedIDs = new TIntArrayList();
-            this.diedBulletIDs = new TIntArrayList();
             this.actionIDs = new TIntArrayList();
             this.actions = new TByteArrayList();
             this.actionTargets = new TIntArrayList();
             this.teamIDs = new TIntArrayList();
-            this.teamBullets = new TFloatArrayList();
             this.teamVictoryPoints = new TIntArrayList();
             this.indicatorDotIDs = new TIntArrayList();
             this.indicatorDotLocsX = new TFloatArrayList();
@@ -477,18 +446,6 @@ public strictfp class GameMaker {
                 SpawnedBodyTable.addTypes(builder, spawnedBodiesTypesP);
                 int spawnedBodiesP = SpawnedBodyTable.endSpawnedBodyTable(builder);
 
-                // The bullets that spawned
-                int spawnedBulletsRobotIDsP = intVector(builder, spawnedBulletsRobotIDs, SpawnedBulletTable::startRobotIDsVector);
-                int spawnedBulletsDamagesP = floatVector(builder, spawnedBulletsDamages, SpawnedBulletTable::startDamagesVector);
-                int spawnedBulletsLocsP = createVecTable(builder, spawnedBulletsLocsXs, spawnedBulletsLocsYs);
-                int spawnedBulletsVelsP = createVecTable(builder, spawnedBulletsVelsXs, spawnedBulletsVelsYs);
-                SpawnedBulletTable.startSpawnedBulletTable(builder);
-                SpawnedBulletTable.addRobotIDs(builder, spawnedBulletsRobotIDsP);
-                SpawnedBulletTable.addDamages(builder, spawnedBulletsDamagesP);
-                SpawnedBulletTable.addLocs(builder, spawnedBulletsLocsP);
-                SpawnedBulletTable.addVels(builder, spawnedBulletsVelsP);
-                int spawnedBulletsP = SpawnedBulletTable.endSpawnedBulletTable(builder);
-
                 // The bodies that moved
                 int movedIDsP = intVector(builder, movedIDs, Round::startMovedIDsVector);
                 int movedLocsP = createVecTable(builder, movedLocsXs, movedLocsYs);
@@ -500,9 +457,6 @@ public strictfp class GameMaker {
                 // The bodies that died
                 int diedIDsP = intVector(builder, diedIDs, Round::startDiedIDsVector);
 
-                // The bullets that died
-                int diedBulletIDsP = intVector(builder, diedBulletIDs, Round::startDiedBulletIDsVector);
-
                 // The actions that happened
                 int actionIDsP = intVector(builder, actionIDs, Round::startActionIDsVector);
                 int actionsP = byteVector(builder, actions, Round::startActionsVector);
@@ -510,7 +464,6 @@ public strictfp class GameMaker {
 
                 // Round statistics
                 int teamIDsP = intVector(builder, teamIDs, Round::startTeamIDsVector);
-                int teamBulletsP = floatVector(builder, teamBullets, Round::startTeamBulletsVector);
                 int teamVictoryPointsP = intVector(builder, teamVictoryPoints, Round::startTeamVictoryPointsVector);
 
                 // The indicator dots that were set
@@ -534,16 +487,13 @@ public strictfp class GameMaker {
                 Round.addMovedIDs(builder, movedIDsP);
                 Round.addMovedLocs(builder, movedLocsP);
                 Round.addSpawnedBodies(builder, spawnedBodiesP);
-                Round.addSpawnedBullets(builder, spawnedBulletsP);
                 Round.addHealthChangedIDs(builder, healthChangedIDsP);
                 Round.addHealthChangeLevels(builder, healthChangedLevelsP);
                 Round.addDiedIDs(builder, diedIDsP);
-                Round.addDiedBulletIDs(builder, diedBulletIDsP);
                 Round.addActionIDs(builder, actionIDsP);
                 Round.addActions(builder, actionsP);
                 Round.addActionTargets(builder, actionTargetsP);
                 Round.addTeamIDs(builder, teamIDsP);
-                Round.addTeamBullets(builder, teamBulletsP);
                 Round.addTeamVictoryPoints(builder, teamVictoryPointsP);
                 Round.addIndicatorDotIDs(builder, indicatorDotIDsP);
                 Round.addIndicatorDotLocs(builder, indicatorDotLocsP);
@@ -583,12 +533,8 @@ public strictfp class GameMaker {
             healthChangedLevels.add(newHealthLevel);
         }
 
-        public void addDied(int id, boolean isBullet) {
-            if (isBullet) {
-                diedBulletIDs.add(id);
-            } else {
-                diedIDs.add(id);
-            }
+        public void addDied(int id, boolean currency) {
+            diedIDs.add(id);
         }
 
         public void addAction(int userID, byte action, int targetID) {
@@ -597,9 +543,8 @@ public strictfp class GameMaker {
             actionTargets.add(targetID);
         }
 
-        public void addTeamStat(Team team, float bullets, int victoryPoints) {
+        public void addTeamStat(Team team, float currency, int victoryPoints) {
             teamIDs.add(TeamMapping.id(team));
-            teamBullets.add(bullets);
             teamVictoryPoints.add(victoryPoints);
         }
 
@@ -637,24 +582,6 @@ public strictfp class GameMaker {
             spawnedBodiesTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.getType()));
         }
 
-        public void addSpawnedTree(InternalTree tree) {
-            spawnedBodiesRobotIDs.add(tree.getID());
-            spawnedBodiesRadii.add(tree.getRadius());
-            spawnedBodiesLocsXs.add(tree.getLocation().x);
-            spawnedBodiesLocsYs.add(tree.getLocation().y);
-            spawnedBodiesTeamIDs.add(TeamMapping.id(tree.getTeam()));
-            spawnedBodiesTypes.add(tree.getTeam() == Team.NEUTRAL ? BodyType.TREE_NEUTRAL : BodyType.TREE_BULLET);
-        }
-
-        public void addSpawnedBullet(InternalBullet bullet) {
-            spawnedBulletsRobotIDs.add(bullet.getID());
-            spawnedBulletsDamages.add(bullet.getDamage());
-            spawnedBulletsLocsXs.add(bullet.getLocation().x);
-            spawnedBulletsLocsYs.add(bullet.getLocation().y);
-            spawnedBulletsVelsXs.add(bullet.getDirection().getDeltaX(bullet.getSpeed()));
-            spawnedBulletsVelsYs.add(bullet.getDirection().getDeltaY(bullet.getSpeed()));
-        }
-
         private void clearData() {
             movedIDs.clear();
             movedLocsXs.clear();
@@ -665,21 +592,13 @@ public strictfp class GameMaker {
             spawnedBodiesRadii.clear();
             spawnedBodiesLocsXs.clear();
             spawnedBodiesLocsYs.clear();
-            spawnedBulletsRobotIDs.clear();
-            spawnedBulletsDamages.clear();
-            spawnedBulletsLocsXs.clear();
-            spawnedBulletsLocsYs.clear();
-            spawnedBulletsVelsXs.clear();
-            spawnedBulletsVelsYs.clear();
             healthChangedIDs.clear();
             healthChangedLevels.clear();
             diedIDs.clear();
-            diedBulletIDs.clear();
             actionIDs.clear();
             actions.clear();
             actionTargets.clear();
             teamIDs.clear();
-            teamBullets.clear();
             teamVictoryPoints.clear();
             indicatorDotIDs.clear();
             indicatorDotLocsX.clear();

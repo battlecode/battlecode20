@@ -21,6 +21,5 @@ OLD, 2017, WAY BELOW:
 In the new way, we pull flatbuffers from npm as TypeScript directly, instead of having a local copy in JavaScript that we then need to convert into TypeScript manually. This is much nicer, and allows us to skip 1 step. It does require, however, that anyone using the battlecode schema also imports `@typings/flatbuffers` from npm.
 
 1. Update `battlecode.fbs`. Only add fields to the ends of tables; don't remove or rearrange any fields. Do not edit structs.
-2. Run `flatc --js -o js battlecode.fbs` and `flatc --java -o java battlecode.fbs` to update the JavaScript and Java files.
-3. Edit `js/index.d.ts` with the added functions and classes in `js/battlecode_generated.js` so typescript knows about things.
-4. Copy the Java files over to `../engine` and run `npm install` in both `../client/playback` and then `../client/visualizer`.
+2. Run `flatc --ts -o ts battlecode.fbs` and `flatc --java -o java battlecode.fbs` to update the JavaScript and Java files.
+3. Copy the Java files over to `../engine` and run `npm install` in both `../client/playback` and then `../client/visualizer`.

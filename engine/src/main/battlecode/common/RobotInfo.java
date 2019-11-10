@@ -43,7 +43,18 @@ public class RobotInfo {
         return this.location;
     }
 
-    public RobotInfo(int ID, Team team, RobotType type, MapLocation location, int moveCount) {
+    @Override
+    public float getRadius() {
+        return this.type.bodyRadius;
+    }
+
+    @Override
+    public boolean isRobot() {
+        return true;
+    }
+
+    public RobotInfo(int ID, Team team, RobotType type, MapLocation location,
+                     float health, int attackCount, int moveCount) {
         super();
         this.ID = ID;
         this.team = team;

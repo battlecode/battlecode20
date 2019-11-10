@@ -36,6 +36,7 @@ The other scripts are under maintenance.
   * The `analyze.js` below will be in source soon.
   * Commented lines are mostly explanations and legacies. Try to leave legacies somehow, so that it can be used later. (Searching commit list might be a bad idea)
   * You can edit `main` function in `src/gen/create.ts` to customize dummy files.
+  * In `src/gen/create.ts`, variables with prefix `bb_` means it's flatbuffers offset value.
 
 ---
 

@@ -9,19 +9,20 @@ import com.google.flatbuffers.*;
 
 @SuppressWarnings("unused")
 /**
- * A vector in two-dimensional space. Continuous space, of course.
+ * A vector in two-dimensional space. Discrete space, of course.
  * Defaults to the 0 vector.
  */
 public final class Vec extends Struct {
-  public Vec __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
+  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; }
+  public Vec __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public float x() { return bb.getFloat(bb_pos + 0); }
-  public float y() { return bb.getFloat(bb_pos + 4); }
+  public int x() { return bb.getInt(bb_pos + 0); }
+  public int y() { return bb.getInt(bb_pos + 4); }
 
-  public static int createVec(FlatBufferBuilder builder, float x, float y) {
+  public static int createVec(FlatBufferBuilder builder, int x, int y) {
     builder.prep(4, 8);
-    builder.putFloat(y);
-    builder.putFloat(x);
+    builder.putInt(y);
+    builder.putInt(x);
     return builder.offset();
   }
 }
