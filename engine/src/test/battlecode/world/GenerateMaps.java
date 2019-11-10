@@ -43,8 +43,8 @@ public class GenerateMaps {
                 .setWater()
                 .setPollution()
                 .build();
-        GameMapIO.writeMap(map, new File("/Users/mnocito/desktop/"));
-        LiveMap test = GameMapIO.loadMap("maptest", new File("/Users/mnocito/desktop"));
+        GameMapIO.writeMap(map, new File("/Users/ezou/dev/battlecode20/engine/src/main/battlecode/world/maptest"));
+        LiveMap test = GameMapIO.loadMap("maptest", new File("/Users/ezou/dev/battlecode20/engine/src/main/battlecode/world/resources"));
         System.out.println(test.toString());
 
     }
