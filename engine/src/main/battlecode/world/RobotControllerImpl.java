@@ -650,7 +650,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int robotID = gameWorld.spawnRobot(RobotType.DELIVERY_DRONE, spawnLoc, getTeam());
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
-
     }
 
     @Override
