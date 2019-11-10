@@ -88,9 +88,8 @@ public final class Round extends Table {
   /**
    * The indexes of the locations whose dirt amount changed.
    */
-  public int dirtChangedIdxs(int j) { int o = __offset(26); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int dirtChangedIdxsLength() { int o = __offset(26); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer dirtChangedIdxsAsByteBuffer() { return __vector_as_bytebuffer(26, 4); }
+  public VecTable dirtChangedLocs() { return dirtChangedLocs(new VecTable()); }
+  public VecTable dirtChangedLocs(VecTable obj) { int o = __offset(26); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The amount the dirt changed by.
    */
@@ -100,9 +99,8 @@ public final class Round extends Table {
   /**
    * The indexes of the locations whose water amount changed.
    */
-  public int waterChangedIdxs(int j) { int o = __offset(30); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int waterChangedIdxsLength() { int o = __offset(30); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer waterChangedIdxsAsByteBuffer() { return __vector_as_bytebuffer(30, 4); }
+  public VecTable waterChangedLocs() { return waterChangedLocs(new VecTable()); }
+  public VecTable waterChangedLocs(VecTable obj) { int o = __offset(30); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The amount the water changed by.
    */
@@ -112,9 +110,8 @@ public final class Round extends Table {
   /**
    * The indexes of the locations whose pollution amount changed.
    */
-  public int pollutionChangedIdxs(int j) { int o = __offset(34); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int pollutionChangedIdxsLength() { int o = __offset(34); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer pollutionChangedIdxsAsByteBuffer() { return __vector_as_bytebuffer(34, 4); }
+  public VecTable pollutionChangedLocs() { return pollutionChangedLocs(new VecTable()); }
+  public VecTable pollutionChangedLocs(VecTable obj) { int o = __offset(34); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The amount the pollution changed by.
    */
@@ -124,15 +121,36 @@ public final class Round extends Table {
   /**
    * The indexes of the locations whose soup amount changed.
    */
-  public int soupChangedIdxs(int j) { int o = __offset(38); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int soupChangedIdxsLength() { int o = __offset(38); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer soupChangedIdxsAsByteBuffer() { return __vector_as_bytebuffer(38, 4); }
+  public VecTable soupChangedLocs() { return soupChangedLocs(new VecTable()); }
+  public VecTable soupChangedLocs(VecTable obj) { int o = __offset(38); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The amount the soup changed by.
    */
   public int soupChanges(int j) { int o = __offset(40); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
   public int soupChangesLength() { int o = __offset(40); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer soupChangesAsByteBuffer() { return __vector_as_bytebuffer(40, 4); }
+  /**
+   * Costs of new message requests.
+   */
+  public int newMessagesCosts(int j) { int o = __offset(42); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int newMessagesCostsLength() { int o = __offset(42); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer newMessagesCostsAsByteBuffer() { return __vector_as_bytebuffer(42, 4); }
+  /**
+   * New message requests.
+   */
+  public String newMessages(int j) { int o = __offset(44); return o != 0 ? __string(__vector(o) + j * 4) : null; }
+  public int newMessagesLength() { int o = __offset(44); return o != 0 ? __vector_len(o) : 0; }
+  /**
+   * Costs of broadcasted messages.
+   */
+  public int broadcastedMessagesCosts(int j) { int o = __offset(46); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int broadcastedMessagesCostsLength() { int o = __offset(46); return o != 0 ? __vector_len(o) : 0; }
+  public ByteBuffer broadcastedMessagesCostsAsByteBuffer() { return __vector_as_bytebuffer(46, 4); }
+  /**
+   * Broadcasted messages.
+   */
+  public String broadcastedMessages(int j) { int o = __offset(48); return o != 0 ? __string(__vector(o) + j * 4) : null; }
+  public int broadcastedMessagesLength() { int o = __offset(48); return o != 0 ? __vector_len(o) : 0; }
   /**
    * The IDs of bodies that set indicator dots
    */
@@ -194,12 +212,6 @@ public final class Round extends Table {
   public String logs() { int o = __offset(56); return o != 0 ? __string(o + bb_pos) : null; }
   public ByteBuffer logsAsByteBuffer() { return __vector_as_bytebuffer(56, 1); }
   /**
-   * Potential message pool.
-   */
-  public Message pool(int j) { return pool(new Message(), j); }
-  public Message pool(Message obj, int j) { int o = __offset(58); return o != 0 ? obj.__init(__indirect(__vector(o) + j * 4), bb) : null; }
-  public int poolLength() { int o = __offset(58); return o != 0 ? __vector_len(o) : 0; }
-  /**
    * The first sent Round in a match should have index 1. (The starting state,
    * created by the MatchHeader, can be thought to have index 0.)
    * It should increase by one for each following round.
@@ -230,14 +242,18 @@ public final class Round extends Table {
       int actionTargetsOffset,
       int dirtChangedBodyIDsOffset,
       int dirtChangesBodyOffset,
-      int dirtChangedIdxsOffset,
+      int dirtChangedLocsOffset,
       int dirtChangesOffset,
-      int waterChangedIdxsOffset,
+      int waterChangedLocsOffset,
       int waterChangesOffset,
-      int pollutionChangedIdxsOffset,
+      int pollutionChangedLocsOffset,
       int pollutionChangesOffset,
-      int soupChangedIdxsOffset,
+      int soupChangedLocsOffset,
       int soupChangesOffset,
+      int newMessagesCostsOffset,
+      int newMessagesOffset,
+      int broadcastedMessagesCostsOffset,
+      int broadcastedMessagesOffset,
       int indicatorDotIDsOffset,
       int indicatorDotLocsOffset,
       int indicatorDotRGBsOffset,
@@ -246,15 +262,13 @@ public final class Round extends Table {
       int indicatorLineEndLocsOffset,
       int indicatorLineRGBsOffset,
       int logsOffset,
-      int poolOffset,
       int roundID,
       int bytecodeIDsOffset,
       int bytecodesUsedOffset) {
-    builder.startObject(31);
+    builder.startObject(34);
     Round.addBytecodesUsed(builder, bytecodesUsedOffset);
     Round.addBytecodeIDs(builder, bytecodeIDsOffset);
     Round.addRoundID(builder, roundID);
-    Round.addPool(builder, poolOffset);
     Round.addLogs(builder, logsOffset);
     Round.addIndicatorLineRGBs(builder, indicatorLineRGBsOffset);
     Round.addIndicatorLineEndLocs(builder, indicatorLineEndLocsOffset);
@@ -263,14 +277,18 @@ public final class Round extends Table {
     Round.addIndicatorDotRGBs(builder, indicatorDotRGBsOffset);
     Round.addIndicatorDotLocs(builder, indicatorDotLocsOffset);
     Round.addIndicatorDotIDs(builder, indicatorDotIDsOffset);
+    Round.addBroadcastedMessages(builder, broadcastedMessagesOffset);
+    Round.addBroadcastedMessagesCosts(builder, broadcastedMessagesCostsOffset);
+    Round.addNewMessages(builder, newMessagesOffset);
+    Round.addNewMessagesCosts(builder, newMessagesCostsOffset);
     Round.addSoupChanges(builder, soupChangesOffset);
-    Round.addSoupChangedIdxs(builder, soupChangedIdxsOffset);
+    Round.addSoupChangedLocs(builder, soupChangedLocsOffset);
     Round.addPollutionChanges(builder, pollutionChangesOffset);
-    Round.addPollutionChangedIdxs(builder, pollutionChangedIdxsOffset);
+    Round.addPollutionChangedLocs(builder, pollutionChangedLocsOffset);
     Round.addWaterChanges(builder, waterChangesOffset);
-    Round.addWaterChangedIdxs(builder, waterChangedIdxsOffset);
+    Round.addWaterChangedLocs(builder, waterChangedLocsOffset);
     Round.addDirtChanges(builder, dirtChangesOffset);
-    Round.addDirtChangedIdxs(builder, dirtChangedIdxsOffset);
+    Round.addDirtChangedLocs(builder, dirtChangedLocsOffset);
     Round.addDirtChangesBody(builder, dirtChangesBodyOffset);
     Round.addDirtChangedBodyIDs(builder, dirtChangedBodyIDsOffset);
     Round.addActionTargets(builder, actionTargetsOffset);
@@ -285,7 +303,7 @@ public final class Round extends Table {
     return Round.endRound(builder);
   }
 
-  public static void startRound(FlatBufferBuilder builder) { builder.startObject(31); }
+  public static void startRound(FlatBufferBuilder builder) { builder.startObject(34); }
   public static void addTeamIDs(FlatBufferBuilder builder, int teamIDsOffset) { builder.addOffset(0, teamIDsOffset, 0); }
   public static int createTeamIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startTeamIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
@@ -315,50 +333,51 @@ public final class Round extends Table {
   public static void addDirtChangesBody(FlatBufferBuilder builder, int dirtChangesBodyOffset) { builder.addOffset(10, dirtChangesBodyOffset, 0); }
   public static int createDirtChangesBodyVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startDirtChangesBodyVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addDirtChangedIdxs(FlatBufferBuilder builder, int dirtChangedIdxsOffset) { builder.addOffset(11, dirtChangedIdxsOffset, 0); }
-  public static int createDirtChangedIdxsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startDirtChangedIdxsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addDirtChangedLocs(FlatBufferBuilder builder, int dirtChangedLocsOffset) { builder.addOffset(11, dirtChangedLocsOffset, 0); }
   public static void addDirtChanges(FlatBufferBuilder builder, int dirtChangesOffset) { builder.addOffset(12, dirtChangesOffset, 0); }
   public static int createDirtChangesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startDirtChangesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addWaterChangedIdxs(FlatBufferBuilder builder, int waterChangedIdxsOffset) { builder.addOffset(13, waterChangedIdxsOffset, 0); }
-  public static int createWaterChangedIdxsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startWaterChangedIdxsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addWaterChangedLocs(FlatBufferBuilder builder, int waterChangedLocsOffset) { builder.addOffset(13, waterChangedLocsOffset, 0); }
   public static void addWaterChanges(FlatBufferBuilder builder, int waterChangesOffset) { builder.addOffset(14, waterChangesOffset, 0); }
   public static int createWaterChangesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startWaterChangesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addPollutionChangedIdxs(FlatBufferBuilder builder, int pollutionChangedIdxsOffset) { builder.addOffset(15, pollutionChangedIdxsOffset, 0); }
-  public static int createPollutionChangedIdxsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startPollutionChangedIdxsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addPollutionChangedLocs(FlatBufferBuilder builder, int pollutionChangedLocsOffset) { builder.addOffset(15, pollutionChangedLocsOffset, 0); }
   public static void addPollutionChanges(FlatBufferBuilder builder, int pollutionChangesOffset) { builder.addOffset(16, pollutionChangesOffset, 0); }
   public static int createPollutionChangesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startPollutionChangesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addSoupChangedIdxs(FlatBufferBuilder builder, int soupChangedIdxsOffset) { builder.addOffset(17, soupChangedIdxsOffset, 0); }
-  public static int createSoupChangedIdxsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startSoupChangedIdxsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addSoupChangedLocs(FlatBufferBuilder builder, int soupChangedLocsOffset) { builder.addOffset(17, soupChangedLocsOffset, 0); }
   public static void addSoupChanges(FlatBufferBuilder builder, int soupChangesOffset) { builder.addOffset(18, soupChangesOffset, 0); }
   public static int createSoupChangesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startSoupChangesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addIndicatorDotIDs(FlatBufferBuilder builder, int indicatorDotIDsOffset) { builder.addOffset(19, indicatorDotIDsOffset, 0); }
+  public static void addNewMessagesCosts(FlatBufferBuilder builder, int newMessagesCostsOffset) { builder.addOffset(19, newMessagesCostsOffset, 0); }
+  public static int createNewMessagesCostsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startNewMessagesCostsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addNewMessages(FlatBufferBuilder builder, int newMessagesOffset) { builder.addOffset(20, newMessagesOffset, 0); }
+  public static int createNewMessagesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startNewMessagesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addBroadcastedMessagesCosts(FlatBufferBuilder builder, int broadcastedMessagesCostsOffset) { builder.addOffset(21, broadcastedMessagesCostsOffset, 0); }
+  public static int createBroadcastedMessagesCostsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startBroadcastedMessagesCostsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addBroadcastedMessages(FlatBufferBuilder builder, int broadcastedMessagesOffset) { builder.addOffset(22, broadcastedMessagesOffset, 0); }
+  public static int createBroadcastedMessagesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startBroadcastedMessagesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addIndicatorDotIDs(FlatBufferBuilder builder, int indicatorDotIDsOffset) { builder.addOffset(23, indicatorDotIDsOffset, 0); }
   public static int createIndicatorDotIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startIndicatorDotIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addIndicatorDotLocs(FlatBufferBuilder builder, int indicatorDotLocsOffset) { builder.addOffset(20, indicatorDotLocsOffset, 0); }
-  public static void addIndicatorDotRGBs(FlatBufferBuilder builder, int indicatorDotRGBsOffset) { builder.addOffset(21, indicatorDotRGBsOffset, 0); }
-  public static void addIndicatorLineIDs(FlatBufferBuilder builder, int indicatorLineIDsOffset) { builder.addOffset(22, indicatorLineIDsOffset, 0); }
+  public static void addIndicatorDotLocs(FlatBufferBuilder builder, int indicatorDotLocsOffset) { builder.addOffset(24, indicatorDotLocsOffset, 0); }
+  public static void addIndicatorDotRGBs(FlatBufferBuilder builder, int indicatorDotRGBsOffset) { builder.addOffset(25, indicatorDotRGBsOffset, 0); }
+  public static void addIndicatorLineIDs(FlatBufferBuilder builder, int indicatorLineIDsOffset) { builder.addOffset(26, indicatorLineIDsOffset, 0); }
   public static int createIndicatorLineIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startIndicatorLineIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addIndicatorLineStartLocs(FlatBufferBuilder builder, int indicatorLineStartLocsOffset) { builder.addOffset(23, indicatorLineStartLocsOffset, 0); }
-  public static void addIndicatorLineEndLocs(FlatBufferBuilder builder, int indicatorLineEndLocsOffset) { builder.addOffset(24, indicatorLineEndLocsOffset, 0); }
-  public static void addIndicatorLineRGBs(FlatBufferBuilder builder, int indicatorLineRGBsOffset) { builder.addOffset(25, indicatorLineRGBsOffset, 0); }
-  public static void addLogs(FlatBufferBuilder builder, int logsOffset) { builder.addOffset(26, logsOffset, 0); }
-  public static void addPool(FlatBufferBuilder builder, int poolOffset) { builder.addOffset(27, poolOffset, 0); }
-  public static int createPoolVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
-  public static void startPoolVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addRoundID(FlatBufferBuilder builder, int roundID) { builder.addInt(28, roundID, 0); }
-  public static void addBytecodeIDs(FlatBufferBuilder builder, int bytecodeIDsOffset) { builder.addOffset(29, bytecodeIDsOffset, 0); }
+  public static void addIndicatorLineStartLocs(FlatBufferBuilder builder, int indicatorLineStartLocsOffset) { builder.addOffset(27, indicatorLineStartLocsOffset, 0); }
+  public static void addIndicatorLineEndLocs(FlatBufferBuilder builder, int indicatorLineEndLocsOffset) { builder.addOffset(28, indicatorLineEndLocsOffset, 0); }
+  public static void addIndicatorLineRGBs(FlatBufferBuilder builder, int indicatorLineRGBsOffset) { builder.addOffset(29, indicatorLineRGBsOffset, 0); }
+  public static void addLogs(FlatBufferBuilder builder, int logsOffset) { builder.addOffset(30, logsOffset, 0); }
+  public static void addRoundID(FlatBufferBuilder builder, int roundID) { builder.addInt(31, roundID, 0); }
+  public static void addBytecodeIDs(FlatBufferBuilder builder, int bytecodeIDsOffset) { builder.addOffset(32, bytecodeIDsOffset, 0); }
   public static int createBytecodeIDsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startBytecodeIDsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addBytecodesUsed(FlatBufferBuilder builder, int bytecodesUsedOffset) { builder.addOffset(30, bytecodesUsedOffset, 0); }
+  public static void addBytecodesUsed(FlatBufferBuilder builder, int bytecodesUsedOffset) { builder.addOffset(33, bytecodesUsedOffset, 0); }
   public static int createBytecodesUsedVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startBytecodesUsedVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endRound(FlatBufferBuilder builder) {

@@ -237,8 +237,8 @@ public strictfp class GameWorld {
         }
 
         // update the round statistics
-        matchMaker.addTeamStat(Team.A, 0, teamInfo.getVictoryPoints(Team.A));
-        matchMaker.addTeamStat(Team.B, 0, teamInfo.getVictoryPoints(Team.B));
+        matchMaker.addTeamStat(Team.A, teamInfo.getVictoryPoints(Team.A)); // TODO: change to soup
+        matchMaker.addTeamStat(Team.B, teamInfo.getVictoryPoints(Team.B));
 
         if (gameStats.getWinner() != null) {
             running = false;

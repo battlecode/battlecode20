@@ -9,6 +9,7 @@ import gnu.trove.TByteCollection;
 import gnu.trove.list.TByteList;
 import gnu.trove.list.TFloatList;
 import gnu.trove.list.TIntList;
+import gnu.trove.list.TCharList;
 import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TFloatArrayList;
 
@@ -139,6 +140,18 @@ public class FlatHelpers {
 
         for (int i = length - 1; i >= 0; i--) {
             builder.addByte(arr.get(i));
+        }
+        return builder.endVector();
+    }
+
+    public static int charVector(FlatBufferBuilder builder,
+                                  TCharList arr,
+                                  ObjIntConsumer<FlatBufferBuilder> start) {
+        final int length = arr.size();
+        start.accept(builder, length);
+
+        for (int i = length - 1; i >= 0; i--) {
+            builder.addInt(arr.get(i));
         }
         return builder.endVector();
     }

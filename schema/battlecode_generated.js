@@ -2701,28 +2701,12 @@ battlecode.schema.Round.prototype.dirtChangesBodyArray = function() {
 /**
  * The indexes of the locations whose dirt amount changed.
  *
- * @param {number} index
- * @returns {number}
+ * @param {battlecode.schema.VecTable=} obj
+ * @returns {battlecode.schema.VecTable|null}
  */
-battlecode.schema.Round.prototype.dirtChangedIdxs = function(index) {
+battlecode.schema.Round.prototype.dirtChangedLocs = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.dirtChangedIdxsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.dirtChangedIdxsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
@@ -2755,28 +2739,12 @@ battlecode.schema.Round.prototype.dirtChangesArray = function() {
 /**
  * The indexes of the locations whose water amount changed.
  *
- * @param {number} index
- * @returns {number}
+ * @param {battlecode.schema.VecTable=} obj
+ * @returns {battlecode.schema.VecTable|null}
  */
-battlecode.schema.Round.prototype.waterChangedIdxs = function(index) {
+battlecode.schema.Round.prototype.waterChangedLocs = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 30);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.waterChangedIdxsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 30);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.waterChangedIdxsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 30);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
@@ -2809,28 +2777,12 @@ battlecode.schema.Round.prototype.waterChangesArray = function() {
 /**
  * The indexes of the locations whose pollution amount changed.
  *
- * @param {number} index
- * @returns {number}
+ * @param {battlecode.schema.VecTable=} obj
+ * @returns {battlecode.schema.VecTable|null}
  */
-battlecode.schema.Round.prototype.pollutionChangedIdxs = function(index) {
+battlecode.schema.Round.prototype.pollutionChangedLocs = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 34);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.pollutionChangedIdxsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 34);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.pollutionChangedIdxsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 34);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
@@ -2863,28 +2815,12 @@ battlecode.schema.Round.prototype.pollutionChangesArray = function() {
 /**
  * The indexes of the locations whose soup amount changed.
  *
- * @param {number} index
- * @returns {number}
+ * @param {battlecode.schema.VecTable=} obj
+ * @returns {battlecode.schema.VecTable|null}
  */
-battlecode.schema.Round.prototype.soupChangedIdxs = function(index) {
+battlecode.schema.Round.prototype.soupChangedLocs = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 38);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.soupChangedIdxsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 38);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Round.prototype.soupChangedIdxsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 38);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
@@ -2915,12 +2851,12 @@ battlecode.schema.Round.prototype.soupChangesArray = function() {
 };
 
 /**
- * The IDs of bodies that set indicator dots
+ * Costs of new message requests.
  *
  * @param {number} index
  * @returns {number}
  */
-battlecode.schema.Round.prototype.indicatorDotIDs = function(index) {
+battlecode.schema.Round.prototype.newMessagesCosts = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 42);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2928,7 +2864,7 @@ battlecode.schema.Round.prototype.indicatorDotIDs = function(index) {
 /**
  * @returns {number}
  */
-battlecode.schema.Round.prototype.indicatorDotIDsLength = function() {
+battlecode.schema.Round.prototype.newMessagesCostsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 42);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2936,8 +2872,102 @@ battlecode.schema.Round.prototype.indicatorDotIDsLength = function() {
 /**
  * @returns {Int32Array}
  */
-battlecode.schema.Round.prototype.indicatorDotIDsArray = function() {
+battlecode.schema.Round.prototype.newMessagesCostsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 42);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * New message requests.
+ *
+ * @param {number} index
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+battlecode.schema.Round.prototype.newMessages = function(index, optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 44);
+  return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.newMessagesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 44);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * Costs of broadcasted messages.
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.broadcastedMessagesCosts = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 46);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.broadcastedMessagesCostsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 46);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.Round.prototype.broadcastedMessagesCostsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 46);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * Broadcasted messages.
+ *
+ * @param {number} index
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+battlecode.schema.Round.prototype.broadcastedMessages = function(index, optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 48);
+  return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.broadcastedMessagesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 48);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * The IDs of bodies that set indicator dots
+ *
+ * @param {number} index
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.indicatorDotIDs = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 50);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+battlecode.schema.Round.prototype.indicatorDotIDsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 50);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+battlecode.schema.Round.prototype.indicatorDotIDsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 50);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2948,7 +2978,7 @@ battlecode.schema.Round.prototype.indicatorDotIDsArray = function() {
  * @returns {battlecode.schema.VecTable|null}
  */
 battlecode.schema.Round.prototype.indicatorDotLocs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 44);
+  var offset = this.bb.__offset(this.bb_pos, 52);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -2959,7 +2989,7 @@ battlecode.schema.Round.prototype.indicatorDotLocs = function(obj) {
  * @returns {battlecode.schema.RGBTable|null}
  */
 battlecode.schema.Round.prototype.indicatorDotRGBs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 46);
+  var offset = this.bb.__offset(this.bb_pos, 54);
   return offset ? (obj || new battlecode.schema.RGBTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -2970,7 +3000,7 @@ battlecode.schema.Round.prototype.indicatorDotRGBs = function(obj) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.indicatorLineIDs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 48);
+  var offset = this.bb.__offset(this.bb_pos, 56);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -2978,7 +3008,7 @@ battlecode.schema.Round.prototype.indicatorLineIDs = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.indicatorLineIDsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 48);
+  var offset = this.bb.__offset(this.bb_pos, 56);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -2986,7 +3016,7 @@ battlecode.schema.Round.prototype.indicatorLineIDsLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.indicatorLineIDsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 48);
+  var offset = this.bb.__offset(this.bb_pos, 56);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -2997,7 +3027,7 @@ battlecode.schema.Round.prototype.indicatorLineIDsArray = function() {
  * @returns {battlecode.schema.VecTable|null}
  */
 battlecode.schema.Round.prototype.indicatorLineStartLocs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 50);
+  var offset = this.bb.__offset(this.bb_pos, 58);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -3008,7 +3038,7 @@ battlecode.schema.Round.prototype.indicatorLineStartLocs = function(obj) {
  * @returns {battlecode.schema.VecTable|null}
  */
 battlecode.schema.Round.prototype.indicatorLineEndLocs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 52);
+  var offset = this.bb.__offset(this.bb_pos, 60);
   return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -3019,7 +3049,7 @@ battlecode.schema.Round.prototype.indicatorLineEndLocs = function(obj) {
  * @returns {battlecode.schema.RGBTable|null}
  */
 battlecode.schema.Round.prototype.indicatorLineRGBs = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 54);
+  var offset = this.bb.__offset(this.bb_pos, 62);
   return offset ? (obj || new battlecode.schema.RGBTable).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -3048,28 +3078,8 @@ battlecode.schema.Round.prototype.indicatorLineRGBs = function(obj) {
  * @returns {string|Uint8Array|null}
  */
 battlecode.schema.Round.prototype.logs = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 56);
+  var offset = this.bb.__offset(this.bb_pos, 64);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * Potential message pool.
- *
- * @param {number} index
- * @param {battlecode.schema.Message=} obj
- * @returns {battlecode.schema.Message}
- */
-battlecode.schema.Round.prototype.pool = function(index, obj) {
-  var offset = this.bb.__offset(this.bb_pos, 58);
-  return offset ? (obj || new battlecode.schema.Message).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Round.prototype.poolLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 58);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -3080,7 +3090,7 @@ battlecode.schema.Round.prototype.poolLength = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.roundID = function() {
-  var offset = this.bb.__offset(this.bb_pos, 60);
+  var offset = this.bb.__offset(this.bb_pos, 66);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -3091,7 +3101,7 @@ battlecode.schema.Round.prototype.roundID = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.bytecodeIDs = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 62);
+  var offset = this.bb.__offset(this.bb_pos, 68);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -3099,7 +3109,7 @@ battlecode.schema.Round.prototype.bytecodeIDs = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.bytecodeIDsLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 62);
+  var offset = this.bb.__offset(this.bb_pos, 68);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -3107,7 +3117,7 @@ battlecode.schema.Round.prototype.bytecodeIDsLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.bytecodeIDsArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 62);
+  var offset = this.bb.__offset(this.bb_pos, 68);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -3118,7 +3128,7 @@ battlecode.schema.Round.prototype.bytecodeIDsArray = function() {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.bytecodesUsed = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 64);
+  var offset = this.bb.__offset(this.bb_pos, 70);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
 
@@ -3126,7 +3136,7 @@ battlecode.schema.Round.prototype.bytecodesUsed = function(index) {
  * @returns {number}
  */
 battlecode.schema.Round.prototype.bytecodesUsedLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 64);
+  var offset = this.bb.__offset(this.bb_pos, 70);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -3134,7 +3144,7 @@ battlecode.schema.Round.prototype.bytecodesUsedLength = function() {
  * @returns {Int32Array}
  */
 battlecode.schema.Round.prototype.bytecodesUsedArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 64);
+  var offset = this.bb.__offset(this.bb_pos, 70);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -3142,7 +3152,7 @@ battlecode.schema.Round.prototype.bytecodesUsedArray = function() {
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.Round.startRound = function(builder) {
-  builder.startObject(31);
+  builder.startObject(34);
 };
 
 /**
@@ -3424,31 +3434,10 @@ battlecode.schema.Round.startDirtChangesBodyVector = function(builder, numElems)
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} dirtChangedIdxsOffset
+ * @param {flatbuffers.Offset} dirtChangedLocsOffset
  */
-battlecode.schema.Round.addDirtChangedIdxs = function(builder, dirtChangedIdxsOffset) {
-  builder.addFieldOffset(11, dirtChangedIdxsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createDirtChangedIdxsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startDirtChangedIdxsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+battlecode.schema.Round.addDirtChangedLocs = function(builder, dirtChangedLocsOffset) {
+  builder.addFieldOffset(11, dirtChangedLocsOffset, 0);
 };
 
 /**
@@ -3482,31 +3471,10 @@ battlecode.schema.Round.startDirtChangesVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} waterChangedIdxsOffset
+ * @param {flatbuffers.Offset} waterChangedLocsOffset
  */
-battlecode.schema.Round.addWaterChangedIdxs = function(builder, waterChangedIdxsOffset) {
-  builder.addFieldOffset(13, waterChangedIdxsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createWaterChangedIdxsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startWaterChangedIdxsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+battlecode.schema.Round.addWaterChangedLocs = function(builder, waterChangedLocsOffset) {
+  builder.addFieldOffset(13, waterChangedLocsOffset, 0);
 };
 
 /**
@@ -3540,31 +3508,10 @@ battlecode.schema.Round.startWaterChangesVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} pollutionChangedIdxsOffset
+ * @param {flatbuffers.Offset} pollutionChangedLocsOffset
  */
-battlecode.schema.Round.addPollutionChangedIdxs = function(builder, pollutionChangedIdxsOffset) {
-  builder.addFieldOffset(15, pollutionChangedIdxsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createPollutionChangedIdxsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startPollutionChangedIdxsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+battlecode.schema.Round.addPollutionChangedLocs = function(builder, pollutionChangedLocsOffset) {
+  builder.addFieldOffset(15, pollutionChangedLocsOffset, 0);
 };
 
 /**
@@ -3598,31 +3545,10 @@ battlecode.schema.Round.startPollutionChangesVector = function(builder, numElems
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} soupChangedIdxsOffset
+ * @param {flatbuffers.Offset} soupChangedLocsOffset
  */
-battlecode.schema.Round.addSoupChangedIdxs = function(builder, soupChangedIdxsOffset) {
-  builder.addFieldOffset(17, soupChangedIdxsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createSoupChangedIdxsVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startSoupChangedIdxsVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+battlecode.schema.Round.addSoupChangedLocs = function(builder, soupChangedLocsOffset) {
+  builder.addFieldOffset(17, soupChangedLocsOffset, 0);
 };
 
 /**
@@ -3656,10 +3582,126 @@ battlecode.schema.Round.startSoupChangesVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} newMessagesCostsOffset
+ */
+battlecode.schema.Round.addNewMessagesCosts = function(builder, newMessagesCostsOffset) {
+  builder.addFieldOffset(19, newMessagesCostsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createNewMessagesCostsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startNewMessagesCostsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} newMessagesOffset
+ */
+battlecode.schema.Round.addNewMessages = function(builder, newMessagesOffset) {
+  builder.addFieldOffset(20, newMessagesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createNewMessagesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startNewMessagesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} broadcastedMessagesCostsOffset
+ */
+battlecode.schema.Round.addBroadcastedMessagesCosts = function(builder, broadcastedMessagesCostsOffset) {
+  builder.addFieldOffset(21, broadcastedMessagesCostsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createBroadcastedMessagesCostsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startBroadcastedMessagesCostsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} broadcastedMessagesOffset
+ */
+battlecode.schema.Round.addBroadcastedMessages = function(builder, broadcastedMessagesOffset) {
+  builder.addFieldOffset(22, broadcastedMessagesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+battlecode.schema.Round.createBroadcastedMessagesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+battlecode.schema.Round.startBroadcastedMessagesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} indicatorDotIDsOffset
  */
 battlecode.schema.Round.addIndicatorDotIDs = function(builder, indicatorDotIDsOffset) {
-  builder.addFieldOffset(19, indicatorDotIDsOffset, 0);
+  builder.addFieldOffset(23, indicatorDotIDsOffset, 0);
 };
 
 /**
@@ -3688,7 +3730,7 @@ battlecode.schema.Round.startIndicatorDotIDsVector = function(builder, numElems)
  * @param {flatbuffers.Offset} indicatorDotLocsOffset
  */
 battlecode.schema.Round.addIndicatorDotLocs = function(builder, indicatorDotLocsOffset) {
-  builder.addFieldOffset(20, indicatorDotLocsOffset, 0);
+  builder.addFieldOffset(24, indicatorDotLocsOffset, 0);
 };
 
 /**
@@ -3696,7 +3738,7 @@ battlecode.schema.Round.addIndicatorDotLocs = function(builder, indicatorDotLocs
  * @param {flatbuffers.Offset} indicatorDotRGBsOffset
  */
 battlecode.schema.Round.addIndicatorDotRGBs = function(builder, indicatorDotRGBsOffset) {
-  builder.addFieldOffset(21, indicatorDotRGBsOffset, 0);
+  builder.addFieldOffset(25, indicatorDotRGBsOffset, 0);
 };
 
 /**
@@ -3704,7 +3746,7 @@ battlecode.schema.Round.addIndicatorDotRGBs = function(builder, indicatorDotRGBs
  * @param {flatbuffers.Offset} indicatorLineIDsOffset
  */
 battlecode.schema.Round.addIndicatorLineIDs = function(builder, indicatorLineIDsOffset) {
-  builder.addFieldOffset(22, indicatorLineIDsOffset, 0);
+  builder.addFieldOffset(26, indicatorLineIDsOffset, 0);
 };
 
 /**
@@ -3733,7 +3775,7 @@ battlecode.schema.Round.startIndicatorLineIDsVector = function(builder, numElems
  * @param {flatbuffers.Offset} indicatorLineStartLocsOffset
  */
 battlecode.schema.Round.addIndicatorLineStartLocs = function(builder, indicatorLineStartLocsOffset) {
-  builder.addFieldOffset(23, indicatorLineStartLocsOffset, 0);
+  builder.addFieldOffset(27, indicatorLineStartLocsOffset, 0);
 };
 
 /**
@@ -3741,7 +3783,7 @@ battlecode.schema.Round.addIndicatorLineStartLocs = function(builder, indicatorL
  * @param {flatbuffers.Offset} indicatorLineEndLocsOffset
  */
 battlecode.schema.Round.addIndicatorLineEndLocs = function(builder, indicatorLineEndLocsOffset) {
-  builder.addFieldOffset(24, indicatorLineEndLocsOffset, 0);
+  builder.addFieldOffset(28, indicatorLineEndLocsOffset, 0);
 };
 
 /**
@@ -3749,7 +3791,7 @@ battlecode.schema.Round.addIndicatorLineEndLocs = function(builder, indicatorLin
  * @param {flatbuffers.Offset} indicatorLineRGBsOffset
  */
 battlecode.schema.Round.addIndicatorLineRGBs = function(builder, indicatorLineRGBsOffset) {
-  builder.addFieldOffset(25, indicatorLineRGBsOffset, 0);
+  builder.addFieldOffset(29, indicatorLineRGBsOffset, 0);
 };
 
 /**
@@ -3757,36 +3799,7 @@ battlecode.schema.Round.addIndicatorLineRGBs = function(builder, indicatorLineRG
  * @param {flatbuffers.Offset} logsOffset
  */
 battlecode.schema.Round.addLogs = function(builder, logsOffset) {
-  builder.addFieldOffset(26, logsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} poolOffset
- */
-battlecode.schema.Round.addPool = function(builder, poolOffset) {
-  builder.addFieldOffset(27, poolOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<flatbuffers.Offset>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Round.createPoolVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Round.startPoolVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+  builder.addFieldOffset(30, logsOffset, 0);
 };
 
 /**
@@ -3794,7 +3807,7 @@ battlecode.schema.Round.startPoolVector = function(builder, numElems) {
  * @param {number} roundID
  */
 battlecode.schema.Round.addRoundID = function(builder, roundID) {
-  builder.addFieldInt32(28, roundID, 0);
+  builder.addFieldInt32(31, roundID, 0);
 };
 
 /**
@@ -3802,7 +3815,7 @@ battlecode.schema.Round.addRoundID = function(builder, roundID) {
  * @param {flatbuffers.Offset} bytecodeIDsOffset
  */
 battlecode.schema.Round.addBytecodeIDs = function(builder, bytecodeIDsOffset) {
-  builder.addFieldOffset(29, bytecodeIDsOffset, 0);
+  builder.addFieldOffset(32, bytecodeIDsOffset, 0);
 };
 
 /**
@@ -3831,7 +3844,7 @@ battlecode.schema.Round.startBytecodeIDsVector = function(builder, numElems) {
  * @param {flatbuffers.Offset} bytecodesUsedOffset
  */
 battlecode.schema.Round.addBytecodesUsed = function(builder, bytecodesUsedOffset) {
-  builder.addFieldOffset(30, bytecodesUsedOffset, 0);
+  builder.addFieldOffset(33, bytecodesUsedOffset, 0);
 };
 
 /**
@@ -3877,14 +3890,18 @@ battlecode.schema.Round.endRound = function(builder) {
  * @param {flatbuffers.Offset} actionTargetsOffset
  * @param {flatbuffers.Offset} dirtChangedBodyIDsOffset
  * @param {flatbuffers.Offset} dirtChangesBodyOffset
- * @param {flatbuffers.Offset} dirtChangedIdxsOffset
+ * @param {flatbuffers.Offset} dirtChangedLocsOffset
  * @param {flatbuffers.Offset} dirtChangesOffset
- * @param {flatbuffers.Offset} waterChangedIdxsOffset
+ * @param {flatbuffers.Offset} waterChangedLocsOffset
  * @param {flatbuffers.Offset} waterChangesOffset
- * @param {flatbuffers.Offset} pollutionChangedIdxsOffset
+ * @param {flatbuffers.Offset} pollutionChangedLocsOffset
  * @param {flatbuffers.Offset} pollutionChangesOffset
- * @param {flatbuffers.Offset} soupChangedIdxsOffset
+ * @param {flatbuffers.Offset} soupChangedLocsOffset
  * @param {flatbuffers.Offset} soupChangesOffset
+ * @param {flatbuffers.Offset} newMessagesCostsOffset
+ * @param {flatbuffers.Offset} newMessagesOffset
+ * @param {flatbuffers.Offset} broadcastedMessagesCostsOffset
+ * @param {flatbuffers.Offset} broadcastedMessagesOffset
  * @param {flatbuffers.Offset} indicatorDotIDsOffset
  * @param {flatbuffers.Offset} indicatorDotLocsOffset
  * @param {flatbuffers.Offset} indicatorDotRGBsOffset
@@ -3893,13 +3910,12 @@ battlecode.schema.Round.endRound = function(builder) {
  * @param {flatbuffers.Offset} indicatorLineEndLocsOffset
  * @param {flatbuffers.Offset} indicatorLineRGBsOffset
  * @param {flatbuffers.Offset} logsOffset
- * @param {flatbuffers.Offset} poolOffset
  * @param {number} roundID
  * @param {flatbuffers.Offset} bytecodeIDsOffset
  * @param {flatbuffers.Offset} bytecodesUsedOffset
  * @returns {flatbuffers.Offset}
  */
-battlecode.schema.Round.createRound = function(builder, teamIDsOffset, teamSoupsOffset, movedIDsOffset, movedLocsOffset, spawnedBodiesOffset, diedIDsOffset, actionIDsOffset, actionsOffset, actionTargetsOffset, dirtChangedBodyIDsOffset, dirtChangesBodyOffset, dirtChangedIdxsOffset, dirtChangesOffset, waterChangedIdxsOffset, waterChangesOffset, pollutionChangedIdxsOffset, pollutionChangesOffset, soupChangedIdxsOffset, soupChangesOffset, indicatorDotIDsOffset, indicatorDotLocsOffset, indicatorDotRGBsOffset, indicatorLineIDsOffset, indicatorLineStartLocsOffset, indicatorLineEndLocsOffset, indicatorLineRGBsOffset, logsOffset, poolOffset, roundID, bytecodeIDsOffset, bytecodesUsedOffset) {
+battlecode.schema.Round.createRound = function(builder, teamIDsOffset, teamSoupsOffset, movedIDsOffset, movedLocsOffset, spawnedBodiesOffset, diedIDsOffset, actionIDsOffset, actionsOffset, actionTargetsOffset, dirtChangedBodyIDsOffset, dirtChangesBodyOffset, dirtChangedLocsOffset, dirtChangesOffset, waterChangedLocsOffset, waterChangesOffset, pollutionChangedLocsOffset, pollutionChangesOffset, soupChangedLocsOffset, soupChangesOffset, newMessagesCostsOffset, newMessagesOffset, broadcastedMessagesCostsOffset, broadcastedMessagesOffset, indicatorDotIDsOffset, indicatorDotLocsOffset, indicatorDotRGBsOffset, indicatorLineIDsOffset, indicatorLineStartLocsOffset, indicatorLineEndLocsOffset, indicatorLineRGBsOffset, logsOffset, roundID, bytecodeIDsOffset, bytecodesUsedOffset) {
   battlecode.schema.Round.startRound(builder);
   battlecode.schema.Round.addTeamIDs(builder, teamIDsOffset);
   battlecode.schema.Round.addTeamSoups(builder, teamSoupsOffset);
@@ -3912,14 +3928,18 @@ battlecode.schema.Round.createRound = function(builder, teamIDsOffset, teamSoups
   battlecode.schema.Round.addActionTargets(builder, actionTargetsOffset);
   battlecode.schema.Round.addDirtChangedBodyIDs(builder, dirtChangedBodyIDsOffset);
   battlecode.schema.Round.addDirtChangesBody(builder, dirtChangesBodyOffset);
-  battlecode.schema.Round.addDirtChangedIdxs(builder, dirtChangedIdxsOffset);
+  battlecode.schema.Round.addDirtChangedLocs(builder, dirtChangedLocsOffset);
   battlecode.schema.Round.addDirtChanges(builder, dirtChangesOffset);
-  battlecode.schema.Round.addWaterChangedIdxs(builder, waterChangedIdxsOffset);
+  battlecode.schema.Round.addWaterChangedLocs(builder, waterChangedLocsOffset);
   battlecode.schema.Round.addWaterChanges(builder, waterChangesOffset);
-  battlecode.schema.Round.addPollutionChangedIdxs(builder, pollutionChangedIdxsOffset);
+  battlecode.schema.Round.addPollutionChangedLocs(builder, pollutionChangedLocsOffset);
   battlecode.schema.Round.addPollutionChanges(builder, pollutionChangesOffset);
-  battlecode.schema.Round.addSoupChangedIdxs(builder, soupChangedIdxsOffset);
+  battlecode.schema.Round.addSoupChangedLocs(builder, soupChangedLocsOffset);
   battlecode.schema.Round.addSoupChanges(builder, soupChangesOffset);
+  battlecode.schema.Round.addNewMessagesCosts(builder, newMessagesCostsOffset);
+  battlecode.schema.Round.addNewMessages(builder, newMessagesOffset);
+  battlecode.schema.Round.addBroadcastedMessagesCosts(builder, broadcastedMessagesCostsOffset);
+  battlecode.schema.Round.addBroadcastedMessages(builder, broadcastedMessagesOffset);
   battlecode.schema.Round.addIndicatorDotIDs(builder, indicatorDotIDsOffset);
   battlecode.schema.Round.addIndicatorDotLocs(builder, indicatorDotLocsOffset);
   battlecode.schema.Round.addIndicatorDotRGBs(builder, indicatorDotRGBsOffset);
@@ -3928,149 +3948,10 @@ battlecode.schema.Round.createRound = function(builder, teamIDsOffset, teamSoups
   battlecode.schema.Round.addIndicatorLineEndLocs(builder, indicatorLineEndLocsOffset);
   battlecode.schema.Round.addIndicatorLineRGBs(builder, indicatorLineRGBsOffset);
   battlecode.schema.Round.addLogs(builder, logsOffset);
-  battlecode.schema.Round.addPool(builder, poolOffset);
   battlecode.schema.Round.addRoundID(builder, roundID);
   battlecode.schema.Round.addBytecodeIDs(builder, bytecodeIDsOffset);
   battlecode.schema.Round.addBytecodesUsed(builder, bytecodesUsedOffset);
   return battlecode.schema.Round.endRound(builder);
-}
-
-/**
- * @constructor
- */
-battlecode.schema.Message = function() {
-  /**
-   * @type {flatbuffers.ByteBuffer}
-   */
-  this.bb = null;
-
-  /**
-   * @type {number}
-   */
-  this.bb_pos = 0;
-};
-
-/**
- * @param {number} i
- * @param {flatbuffers.ByteBuffer} bb
- * @returns {battlecode.schema.Message}
- */
-battlecode.schema.Message.prototype.__init = function(i, bb) {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {battlecode.schema.Message=} obj
- * @returns {battlecode.schema.Message}
- */
-battlecode.schema.Message.getRootAsMessage = function(bb, obj) {
-  return (obj || new battlecode.schema.Message).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * The amount a team is paid to send the message.
- *
- * @returns {number}
- */
-battlecode.schema.Message.prototype.bid = function() {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-};
-
-/**
- * Messages are 10-15 integers.
- *
- * @param {number} index
- * @returns {number}
- */
-battlecode.schema.Message.prototype.message = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns {number}
- */
-battlecode.schema.Message.prototype.messageLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Int32Array}
- */
-battlecode.schema.Message.prototype.messageArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- */
-battlecode.schema.Message.startMessage = function(builder) {
-  builder.startObject(2);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} bid
- */
-battlecode.schema.Message.addBid = function(builder, bid) {
-  builder.addFieldInt32(0, bid, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} messageOffset
- */
-battlecode.schema.Message.addMessage = function(builder, messageOffset) {
-  builder.addFieldOffset(1, messageOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Message.createMessageVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-battlecode.schema.Message.startMessageVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Message.endMessage = function(builder) {
-  var offset = builder.endObject();
-  return offset;
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} bid
- * @param {flatbuffers.Offset} messageOffset
- * @returns {flatbuffers.Offset}
- */
-battlecode.schema.Message.createMessage = function(builder, bid, messageOffset) {
-  battlecode.schema.Message.startMessage(builder);
-  battlecode.schema.Message.addBid(builder, bid);
-  battlecode.schema.Message.addMessage(builder, messageOffset);
-  return battlecode.schema.Message.endMessage(builder);
 }
 
 /**
