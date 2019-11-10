@@ -1,6 +1,6 @@
 namespace battlecode.schema;
 
-/// A vector in three-dimensional space. Discrete space, of course.
+/// A vector in two-dimensional space. Discrete space, of course.
 /// Defaults to the 0 vector.
 struct Vec {
     x: int = 0;
@@ -21,10 +21,20 @@ table RGBTable {
 }
 
 /// The possible types of things that can exist.
-/// Note that neutral trees and bullets are not treated as bodies.
+/// Note that bullets are not treated as bodies.
 enum BodyType : byte {
+    /// The hq produces miners, is also a net gun and a refinery.
+    HQ,
     /// Miners extract crude soup and bring it to the refineries.
-    MINER, // chef?
+    MINER,
+    /// Refineries turn crude soup into refined soup, and produce pollution.
+    REFINERY,
+    /// Vaporators reduce pollution.
+    VAPORATOR,
+    /// Design schools create landscapers.
+    DESIGN_SCHOOL,
+    /// Fulfillment centers create drones.
+    FULFILLMENT_CENTER,
     /// Landscapers take dirt from adjacent (decreasing the elevation)
     /// squares or deposit dirt onto adjacent squares, including
     /// into water (increasing the elevation).
@@ -33,21 +43,8 @@ enum BodyType : byte {
     DRONE,
     /// Net guns shoot down drones.
     NET_GUN,
-    /// Cows produce polution.
-    COW,
-    /// Refineries turn crude soup into refined soup, and produce pollution.
-    REFINERY,
-    /// Vaporators reduce pollution.
-    VAPORATOR,
-    // The hq produces miners, is also a net gun and a refinery.
-    HQ,
-    /// Design schools create landscapers.
-    DESIGN_SCHOOL,
-    /// Fulfillment centers create drones.
-    FULFILLMENT_CENTER,
-    /// Indicates that there is no body.
-    /// May only appear in the containedBodies field of NeutralTreeTable.
-    NONE
+    /// Cows produce pollution.
+    COW
 }
 
 /// A list of new bodies to be placed on the map.
@@ -78,20 +75,14 @@ table GameMap {
     bodies: SpawnedBodyTable;
     /// The random seed of the map.
     randomSeed: int;
-    /// The tiles
-    tiles: [Tile];
-}
-
-/// A tile.
-table Tile {
-    // The dirt level on the tile.
-    dirt: int;
-    /// The water level on the tile (above the dirt).
-    water: int;
-    /// The polluion level of the tiles.
-    pollution: int;
-    /// The amount of crude soup to be mined on the tiles.
-    soup: int;
+    /// The dirt levels.
+    dirt: [int];
+    /// The water levels (above dirt).
+    water: [int];
+    /// The pollution levels.
+    pollution: [int];
+    /// The amount of crude soup to be mined.
+    soup: [int];
 }
 
 /// Actions that can be performed.
@@ -101,33 +92,45 @@ table Tile {
 /// Actions may have 'targets', which are the units on which
 /// the actions were performed.
 enum Action : byte {
-    /// Mines a unit of soup.
-    /// Target: tile.
+    /// Mines a unit of soup (miners).
+    /// Target: location.
     MINE_SOUP,
-    /// Refines a unit of soup.
+    /// Refines a unit of soup (miners).
     /// Target: refinery.
     REFINE_SOUP,
-    /// Digs a unit of dirt.
-    /// Target: tile.
+    /// Digs a unit of dirt (landscapers).
+    /// Target: location.
     DIG_DIRT,
-    /// Deposits a unit of dirt.
-    /// Target: tile.
+    /// Deposits a unit of dirt (landscapers).
+    /// Target: location.
     DEPOSIT_DIRT,
-    /// Picks up a unit.
+    /// Picks up a unit (drones).
     /// Target: unit picked up.
     PICK_UNIT,
-    /// Drops off a unit.
+    /// Drops off a unit (drones).
     /// Target: unit dropped off.
     DROP_UNIT,
+    /// Builds a unit.
+    /// Target: spawned unit
+    SPAWN_UNIT,
     /// Shoots a drone.
     /// Target: drone shot.
     SHOOT,
     /// Dies from drowning.
     /// Target: none.
     DIE_DROWN,
-    /// Dies from being shot (drones only).
+    /// Dies from being shot (drones).
+    /// Target: drone.
+    DIE_SHOT,
+    /// Dies due to having too much dirt on top (buildings).
+    /// Target: landscaper
+    DIE_TOO_MUCH_DIRT,
+    /// Dies from suicide.
     /// Target: none.
-    DIE_SHOT
+    DIE_SUICIDE,
+    /// Dies due to an uncaught exception
+    /// Target: none
+    DIE_EXCEPTION
 }
 
 // Metadata
@@ -136,19 +139,26 @@ enum Action : byte {
 table BodyTypeMetadata {
     /// The relevant type.
     type: BodyType;
-    /// The cost of the type, in refined soup.
-    cost: float;
-    /// The maximum distance this type can move each turn
-    strideRadius: int;
-    /// The maximum distance this type can sense other trees and robots
-    sightRadius: int;
-    /// need to encode the formula
-    /// TODO
-
-    /// Amount of soup this body type can carry; only positive for miners.
-    soupLimit: int;
-    /// Amount of dirt this body type can carry; only positive for landscapers.
+    /// The spawn source.
+    spawnSource: BodyType;
+    /// The cost of the type, in soup.
+    cost: int;
+    /// The maximum amount of dirt the type can carry.
     dirtLimit: int;
+    /// The maximum amount of soup the type can carry.
+    soupLimit: int;
+    /// The number of cooldowns between every two actions, for pollution 0.
+    actionCooldown: int;
+    /// The maximum distance this type can sense other robots.
+    sensorRadius: int;
+    /// The distance this type pollutes.
+    pollutionRadius: int;
+    /// The amount of pollution this type creates.
+    pollutionAmount: int;
+    /// The maximum amount of soup this type processes every turn.
+    maxSoupProduced: int;
+    /// The bytecode limit of this type.
+    bytecodeLimit: int;
 }
 
 /// Data relevant to a particular team.
@@ -224,7 +234,7 @@ table Round {
     /// The IDs of teams in the Game.
     teamIDs: [int];
     /// The refined soup counts of the teams.
-    teamSoup: [int];
+    teamSoups: [int];
 
     /// The IDs of bodies that moved.
     movedIDs: [int];
@@ -234,22 +244,42 @@ table Round {
     /// New bodies.
     spawnedBodies: SpawnedBodyTable;
 
-    /// The indexes of locations with changed pollution.
-    pollutionChangedLocs: [int];
-    /// The new pollution levels of bodies with changed pollution.
-    pollutionChangeLevels: [int];
-
     /// The IDs of bodies that died (drowned units and shot drones).
     diedIDs: [int];
 
     /// The IDs of robots that performed actions.
     /// IDs may repeat.
     actionIDs: [int];
-    /// The actions performed.
+    /// The actions performed. These actions allow us to track how much soup or dirt a body carries.
     actions: [Action];
     /// The 'targets' of the performed actions. Actions without targets may have
     /// any target (typically 0).
     actionTargets: [int];
+
+    /// The IDs of bodies whose dirt amount (amount of dirt on top that body) changed.
+    dirtChangedBodyIDs: [int];
+    /// The amount the dirt changed by.
+    dirtChangesBody: [int];
+
+    /// The indexes of the locations whose dirt amount changed.
+    dirtChangedIdxs: [int];
+    /// The amount the dirt changed by.
+    dirtChanges: [int];
+
+    /// The indexes of the locations whose water amount changed.
+    waterChangedIdxs: [int];
+    /// The amount the water changed by.
+    waterChanges: [int];
+
+    /// The indexes of the locations whose pollution amount changed.
+    pollutionChangedIdxs: [int];
+    /// The amount the pollution changed by.
+    pollutionChanges: [int];
+
+    /// The indexes of the locations whose soup amount changed.
+    soupChangedIdxs: [int];
+    /// The amount the soup changed by.
+    soupChanges: [int];
 
     /// The IDs of bodies that set indicator dots
     indicatorDotIDs: [int];

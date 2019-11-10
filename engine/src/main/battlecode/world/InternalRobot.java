@@ -23,8 +23,6 @@ public strictfp class InternalRobot implements InternalBody {
 
     private int roundsAlive;
     private int repairCount;
-    private int shakeCount;
-    private int waterCount;
     private int attackCount;
     private int moveCount;
     
@@ -61,8 +59,6 @@ public strictfp class InternalRobot implements InternalBody {
 
         this.roundsAlive = 0;
         this.repairCount = 0;
-        this.shakeCount = 0;
-        this.waterCount = 0;
         this.attackCount = 0;
         this.moveCount = 0;
         
@@ -123,14 +119,6 @@ public strictfp class InternalRobot implements InternalBody {
     public int getRepairCount() {
         return repairCount;
     }
-
-    public int getShakeCount() {
-        return shakeCount;
-    }
-
-    public int getWaterCount() {
-        return waterCount;
-    }
     
     public int getAttackCount() {
         return attackCount;
@@ -163,10 +151,6 @@ public strictfp class InternalRobot implements InternalBody {
     // ****** CHECK METHODS *************
     // **********************************
 
-    public boolean canSenseBulletLocation(MapLocation toSense) {
-        return this.location.distanceTo(toSense) <= this.type.bulletSightRadius;
-    }
-
     public boolean canSenseLocation(MapLocation toSense){
         return this.location.distanceTo(toSense) <= this.type.sensorRadius;
     }
@@ -179,10 +163,6 @@ public strictfp class InternalRobot implements InternalBody {
         return this.location.distanceTo(toInteract) <= (this.type.bodyRadius + GameConstants.INTERACTION_DIST_FROM_EDGE);
     }
 
-    public boolean canInteractWithCircle(MapLocation center, float radius) {
-        return this.location.distanceTo(center) <= (this.type.bodyRadius + radius + GameConstants.INTERACTION_DIST_FROM_EDGE);
-    }
-
     // ******************************************
     // ****** UPDATE METHODS ********************
     // ******************************************
@@ -190,14 +170,6 @@ public strictfp class InternalRobot implements InternalBody {
     public void setLocation(MapLocation loc){
         this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = loc;
-    }
-
-    public void incrementWaterCount(){
-        this.waterCount++;
-    }
-
-    public void incrementShakeCount(){
-        this.shakeCount++;
     }
 
     public void incrementRepairCount() {
@@ -251,8 +223,6 @@ public strictfp class InternalRobot implements InternalBody {
         attackCount = 0;
         moveCount = 0;
         repairCount = 0;
-        waterCount = 0;
-        shakeCount = 0;
         if(buildCooldownTurns > 0) {
             buildCooldownTurns--;
         }

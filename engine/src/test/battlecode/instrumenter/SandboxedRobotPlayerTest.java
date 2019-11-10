@@ -104,26 +104,23 @@ public class SandboxedRobotPlayerTest {
         verify(rc).setTeamMemory(0, 0);
     }
 
-    @Test
-    public void testYield() throws Exception {
-        SandboxedRobotPlayer player = new SandboxedRobotPlayer("testplayerclock", rc, 0, loader, out);
-        player.setBytecodeLimit(10000);
+    // @Test
+    // public void testYield() throws Exception {
+    //     SandboxedRobotPlayer player = new SandboxedRobotPlayer("testplayerclock", rc, 0, loader, out);
+    //     player.setBytecodeLimit(10000);
 
-        player.step();
+    //     player.step();
 
-        assertFalse(player.getTerminated());
-        verify(rc).broadcast(0, 1);
+    //     assertFalse(player.getTerminated());
 
-        player.step();
+    //     player.step();
 
-        assertFalse(player.getTerminated());
-        verify(rc).broadcast(0, 2);
+    //     assertFalse(player.getTerminated());
 
-        player.step();
+    //     player.step();
 
-        assertTrue(player.getTerminated());
-        verify(rc).broadcast(0, 3);
-    }
+    //     assertTrue(player.getTerminated());
+    // }
 
     @Test
     public void testBytecodeCountingWorks() throws Exception {
@@ -311,7 +308,6 @@ public class SandboxedRobotPlayerTest {
         player.setBytecodeLimit(200);
         player.step();
         assertTrue(player.getTerminated());
-        verify(rc).broadcast(0, 7);
     }
 
     @Test

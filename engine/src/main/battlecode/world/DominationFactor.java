@@ -9,15 +9,15 @@ public enum DominationFactor {
      */
     WON_BY_DUBIOUS_REASONS,
     /**
-     * Win by soup count + value of units.
+     * Win by more victory points (tiebreak 1).
      */
-    WON_BY_NET_WORTH,  
+    PWNED,
     /**
-     * Win by robot count.
+     * Win by destroying all enemy robots.
      */
-    WON_BY_ROBOT_COUNT,
+    DESTROYED,
     /**
-     * Win by more transactions in the blockchain.
+     * Won by donating enough currency to reach VICTORY_POINTS_TO_WIN.
      */
-    WON_BY_BLOCKCHAIN,
+    PHILANTROPIED
 }

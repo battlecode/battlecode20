@@ -185,20 +185,16 @@ public class RobotTypeTaglet implements Taglet {
             appendMethod(builder, rt, "canAttack");
             if (rt.attackPower > 0) {
                 appendField(builder, rt, "attackPower");
-                if (rt.bulletSpeed > 0)
-                    appendField(builder, rt, "bulletSpeed");
             }
             builder.append("<br />");
 
             if (rt.spawnSource != null) {
                 appendField(builder, rt, "spawnSource");
-                appendField(builder, rt, "bulletCost");
                 appendField(builder, rt, "buildCooldownTurns");
                 builder.append("<br />");
             }
 
             appendField(builder, rt, "sensorRadius");
-            appendField(builder, rt, "bulletSightRadius");
 
             if (rt.bytecodeLimit != 0) {
                 appendField(builder, rt, "bytecodeLimit");

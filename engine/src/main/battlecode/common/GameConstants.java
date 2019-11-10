@@ -51,22 +51,23 @@ public interface GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** Maximum ID a Robot will have*/
+    /** Maximum archons that can appear on a map (per team). */
+    int NUMBER_OF_ARCHONS_MAX = 3;
+
+    /** Maximum ID a Robot will have */
     int MAX_ROBOT_ID = 32000;
+    
+    /**
+     * The fraction of max health which gardener-produced robots start at.
+     */
+    float PLANTED_UNIT_STARTING_HEALTH_FRACTION = 0.2f;
 
     // *********************************
-    // ****** WATER ****************
-    // *********************************
+    // ****** ATTACKING ****************
+    // ********************************* 
 
-
-
-
-    // *********************************
-    // ****** MESSAGING ****************
-    // *********************************
-
-    /** The size of the team-shared array for signaling. */
-    int BROADCAST_MAX_CHANNELS = 10000;
+    /** The radius around a lumberjack affected by a strike(). */
+    float LUMBERJACK_STRIKE_RADIUS = 2;
 
     /** The maximum message length for signaling. */
     int BROADCAST_MAX_LENGTH = 20;
@@ -74,6 +75,21 @@ public interface GameConstants {
     // *********************************
     // ****** MISCELLANEOUS ************
     // *********************************
+
+    /** The price of 1 victory point at the start of the game */
+    float VP_BASE_COST = 7.5f;
+
+    /** The price the victory point cost increases each turn */
+    float VP_INCREASE_PER_ROUND = 12.5f / 3000f;
+
+    /**
+     * The distance, as measured at its minimum value, between the bodies
+     * of a creator robot and the robot it spawns.
+     */
+    float GENERAL_SPAWN_OFFSET = .01f;
+
+    /** The distance around a robot's edge it can interact with robots */
+    float INTERACTION_DIST_FROM_EDGE = 1f;
 
     /** The maximum radius a robot can have. */
     float MAX_ROBOT_RADIUS = 2;

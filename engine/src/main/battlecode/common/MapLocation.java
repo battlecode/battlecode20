@@ -35,6 +35,20 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
+     * Creates a new MapLocation representing the location
+     * with the given coordinates.
+     *
+     * @param x the x-coordinate of the location
+     * @param y the y-coordinate of the location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public MapLocation(float x, float y) {
+        this.x = (int) x;
+        this.y = (int) y;
+    }
+
+    /**
      * A comparison function for MapLocations. Smaller x values go first, with ties broken by smaller y values.
      *
      * @param other the MapLocation to compare to.
@@ -91,6 +105,19 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
+     * Computes the Euclidean distance from this location to the specified
+     * location.
+     *
+     * @param location the location to compute the distance to
+     * @return the distance to the given location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final float distanceTo(MapLocation location) {
+        return (float) Math.sqrt(distanceSquaredTo(location));
+    }
+
+    /**
      * Computes the squared distance from this location to the specified
      * location.
      *
@@ -99,7 +126,7 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      *
      * @battlecode.doc.costlymethod
      */
-    public final int distanceSquaredTo(MapLocation location) {
+    public final float distanceSquaredTo(MapLocation location) {
         int dx = this.x - location.x;
         int dy = this.y - location.y;
         return dx * dx + dy * dy;
@@ -120,6 +147,18 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
+     * Determines whether this location is within one stride of the given robot.
+     *
+     * @param robot the robot to test
+     * @return true if this location is within one stride of the given robot; false otherwise
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final boolean isWithinStrideDistance(RobotInfo robot){
+        return isWithinDistance(robot.location, 2 * robot.type.bodyRadius);
+    }
+
+    /**
      * Determines whether this location is within the sensor radius of the
      * given robot.
      *
@@ -134,6 +173,103 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
+     * Returns the Direction from this MapLocation to <code>location</code>.
+     * If <code>location</code> is null then the return value is null.
+     * If <code>location</code> equals this location then the return value is null.
+     * If the direction is not cardinal then the return value is null.
+     *
+     * @param location The location to which the Direction will be calculated
+     * @return The Direction to <code>location</code> from this MapLocation.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final Direction directionTo(MapLocation location) {
+        if(location == null)
+            return null;
+        if(this.equals(location))
+            return null;
+        int dx = this.x - location.x;
+        int dy = this.y - location.y;
+        if (dx == 0 && dy < 0)
+            return Direction.NORTH;
+        if (dx > 0 && dy == 0)
+            return Direction.EAST;
+        if (dx == 0 && dy > 0)
+            return Direction.SOUTH;
+        if (dx < 0 && dy == 0)
+            return Direction.WEST;
+        return null;
+    }
+
+    /**
+     * Returns a new MapLocation object representing a location
+     * one unit in distance from this one in the given direction.
+     *
+     * @param direction the direction to add to this location
+     * @return a MapLocation for the location one unit in distance in the given
+     *         direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final MapLocation add(Direction direction) {
+        if(direction == null)
+            return new MapLocation(x, y);
+        return this.add(direction, 1);
+    }
+
+    /**
+     * Returns a new MapLocation object representing a location
+     * {@code dist} units in distance from this one in the given direction.
+     *
+     * @param direction the direction to add to this location
+     * @param dist  the distance the locations should be apart
+     * @return a MapLocation for the location one unit in distance in the given
+     *         direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final MapLocation add(Direction direction, float dist) {
+        if(direction == null)
+            return new MapLocation(x, y);
+        return new MapLocation(x + (int) dist * direction.dx, y + (int) dist * direction.dy);
+    }
+
+    /**
+     * Returns a new MapLocation object representing a location
+     * one unit in distance from this one in the opposite direction
+     * of the given direction.
+     *
+     * @param direction the direction to subtract from this location
+     * @return a MapLocation for the location one unit in distance in the
+     *         opposite of the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final MapLocation subtract(Direction direction) {
+        if(direction == null)
+            return new MapLocation(x, y);
+        return this.add(direction.opposite());
+    }
+
+
+    /**
+     * Returns a new MapLocation object representing a location
+     * {@code dist} units in distance from this one in the given direction.
+     *
+     * @param direction the direction to subtract to this location
+     * @param dist  the distance the locations should be apart
+     * @return a MapLocation for the location one unit in distance in the given
+     *         direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final MapLocation subtract(Direction direction, float dist) {
+        if(direction == null)
+            return new MapLocation(x, y);
+        return this.add(direction.opposite(), 1);
+    }
+
+    /**
      * Returns a new MapLocation object translated from this location
      * by a fixed amount.
      *
@@ -143,8 +279,8 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      *
      * @battlecode.doc.costlymethod
      */
-    public final MapLocation translate(int dx, int dy) {
-        return new MapLocation(x + dx, y + dy);
+    public final MapLocation translate(float dx, float dy) {
+        return new MapLocation(x + (int) dx, y + (int) dy);
     }
 
     /**
@@ -153,6 +289,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      * @battlecode.doc.costlymethod
      */
     private MapLocation() {
-        this(0,0);
+        this(0, 0);
     }
 }
