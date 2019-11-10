@@ -302,7 +302,7 @@ public strictfp class Server implements Runnable {
         );
         teamProvider.registerControlProvider(
                 Team.NEUTRAL,
-                new NullControlProvider()
+                new CowControlProvider()
         );
         return teamProvider;
     }

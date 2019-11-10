@@ -37,13 +37,13 @@ public class GenerateMaps {
                         )
                 )
                 .addRobot(
-                        1,
-                        Team.NEUTRAL,
-                        RobotType.COW,
-                        new MapLocation(
-                                10,
-                                20
-                        )
+                    2,
+                    Team.NEUTRAL,
+                    RobotType.COW,
+                    new MapLocation(
+                        50,
+                        50
+                    )
                 )
                 .setSoup()
                 .setWater()
@@ -51,6 +51,7 @@ public class GenerateMaps {
                 .build();
         GameMapIO.writeMap(map, new File("/Users/ashlin/Documents/Battlecode/battlecode20/engine/src/main/battlecode/world/resources/"));
         LiveMap test = GameMapIO.loadMap("maptest", new File("/Users/ashlin/Documents/Battlecode/battlecode20/engine/src/main/battlecode/world/resources"));
+
         System.out.println(test.toString());
 
     }

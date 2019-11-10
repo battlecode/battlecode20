@@ -128,18 +128,14 @@ public class CowControlProvider implements RobotControlProvider {
 
         final RobotController rc = den.getController();
         final Map<RobotType, Integer> spawnQueue = denQueues.get(rc.getID());
-
         final ZombieSpawnSchedule zSchedule = world.getGameMap().getZombieSpawnSchedule(den.getLocation());
-
         // Update the spawn queue with the values from this round.
         for (ZombieCount count : zSchedule.getScheduleForRound(world.getCurrentRound())) {
             final int currentCount = spawnQueue.get(count.getType());
             spawnQueue.put(count.getType(), currentCount + count.getCount());
         }
-
         // Spawn as many available robots as possible
         spawnAllPossible(rc, spawnQueue);
-
         // Now we've tried every direction. If we still have things in queue, damage surrounding robots
         RobotType next = null;
         for (RobotType type : ZOMBIE_TYPES) {
@@ -210,14 +206,25 @@ public class CowControlProvider implements RobotControlProvider {
         try {
             boolean move = (world.getCurrentRound() % MOVE_FREQUENCY == 0);
             if (move) {
-                int rand = random.nextInt();
-                for (int i = 0; i < 4; i++) {
-                    Direction randomDir = DIRECTIONS[(rand + i) % 4];
-                    if (rc.canMove(randomDir)) { //TODO: make cow slightly smarter so it doesn't drown immediately
-                        rc.move(randomDir);
-                        System.out.println("This cow is moving!");
-                        return;
-                    }
+                // int rand = random.nextInt();
+                // for (int i = 0; i < 4; i++) {
+                //     Direction randomDir = DIRECTIONS[(rand + i) % 4];
+                //     if (rc.canMove(randomDir)) { //TODO: make cow slightly smarter so it doesn't drown immediately
+                //         rc.move(randomDir);
+                //         System.out.println("This cow is moving!");
+                //         return;
+                //     }
+                // } i feel like this is a better way to generate a random dir but for now lets just quit :)
+                double rand = random.nextDouble();
+                Direction randomDir;
+                if (rand < .25) randomDir = Direction.SOUTH;
+                else if (rand < .50) randomDir = Direction.WEST;
+                else if (rand < .75) randomDir = Direction.EAST;
+                else randomDir = Direction.NORTH;
+                if (rc.canMove(randomDir)) { //TODO: make cow slightly smarter so it doesn't drown immediately
+                    rc.move(randomDir);
+                    System.out.println("This cow is moving!");
+                    return;
                 }
             }
         } catch (Exception e) {
