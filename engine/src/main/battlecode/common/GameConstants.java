@@ -61,6 +61,9 @@ public interface GameConstants {
     /** The radius around a lumberjack affected by a strike(). */
     float LUMBERJACK_STRIKE_RADIUS = 2;
 
+    /** The radius that delivery drones can pick up in */
+    int DELIVERY_DRONE_PICKUP_RADIUS = 2;
+
     // *********************************
     // ****** MISCELLANEOUS ************
     // *********************************
@@ -97,5 +100,5 @@ public interface GameConstants {
     int GAME_DEFAULT_SEED = 6370;
 
     /** The default game maxiumum number of rounds. **/
-    int GAME_DEFAULT_ROUNDS = 20;
+    int GAME_DEFAULT_ROUNDS = 50;
 }

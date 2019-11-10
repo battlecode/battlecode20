@@ -127,6 +127,15 @@ public strictfp interface RobotController {
      */
     int getDirtCarrying();
 
+    /**
+     * Returns whether the robot is currently holding a unit
+     *
+     * @return true if the robot is currently holding another unit, false otherwise
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public boolean isCurrentlyHoldingUnit();
+
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************
@@ -263,6 +272,18 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
+
+    /**
+     * Returns the pollution level at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @param loc the given location
+     * @return the pollution level at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int sensePollution(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
@@ -441,6 +462,38 @@ public strictfp interface RobotController {
      */
     void refineSoup(Direction dir, int amount) throws GameActionException;
 
+    /**
+     * Tests whether a robot is able to pick up a specific unit.
+     *
+     * @param id the id of the robot to pick up
+     * @return true if id can be picked up by the robot, false otherwise
+     */
+    boolean canPickUpUnit(int id);
+
+    /**
+     * Picks up another unit.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
+     * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
+     * of this robot.
+     */
+    void pickUpUnit(int id) throws GameActionException;
+
+    /**
+     * Tests whether a robot is able to drop a unit in a specified direction.
+     *
+     * @param dir the specified direction
+     * @return true if a robot can be dropped off, false otherwise
+     */
+    boolean canDropUnit(Direction dir);
+
+    /**
+     * Drops the unit that is currently picked up.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
+     * holding a unit that it can drop.
+     */
+    void dropUnit(Direction dir) throws GameActionException;
 
     // ***********************************
     // ****** BLOCKCHAINNNNNNNNNNN *******
@@ -466,7 +519,6 @@ public strictfp interface RobotController {
      * @throws GameActionException
      */
     public String getRoundMessages(int roundNumber) throws GameActionException;
-
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

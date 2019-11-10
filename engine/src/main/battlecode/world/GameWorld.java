@@ -214,6 +214,13 @@ public strictfp class GameWorld {
         return gameMap.onTheMap(loc) ? pollution[locationToIndex(loc)] : 0;
     }
 
+    public void adjustPollution(MapLocation loc, int amount) {
+        if (gameMap.onTheMap(loc)) {
+            int idx = locationToIndex(loc);
+            pollution[idx] = Math.max(pollution[idx] + amount, 0);
+        }
+    }
+
     public int getDirt(MapLocation loc) {
         return gameMap.onTheMap(loc) ? dirt[locationToIndex(loc)] : 0;
     }
@@ -227,9 +234,10 @@ public strictfp class GameWorld {
     }
 
     public void removeSoup(MapLocation loc, int amount) {
-        int idx = locationToIndex(loc);
-        if (gameMap.onTheMap(loc))
+        if (gameMap.onTheMap(loc)) {
+            int idx = locationToIndex(loc);
             soup[idx] = Math.max(0, soup[idx] - amount);
+        }
     }
 
     public InternalRobot getRobot(MapLocation loc) {
@@ -251,15 +259,26 @@ public strictfp class GameWorld {
 
     public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius) {
         ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
+        for (MapLocation newLocation : getAllLocationsWithinRadius(center, radius))
+            if (robots[newLocation.x][newLocation.y] != null)
+                returnRobots.add(robots[newLocation.x][newLocation.y]);
+        return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+    }
+
+    public ArrayList<MapLocation> getAllLocationsWithinRadius(MapLocation center, int radius) {
+        ArrayList<MapLocation> returnLocations = new ArrayList<MapLocation>();
         int minX = Math.max(center.x - radius, 0);
         int minY = Math.max(center.y - radius, 0);
         int maxX = Math.min(center.x + radius, this.gameMap.getWidth() - 1);
         int maxY = Math.min(center.y + radius, this.gameMap.getHeight() - 1);
-        for (int x = minX; x <= maxX; x++)
-            for (int y = minY; y <= maxY; y++)
-                if (robots[x][y] != null)
-                    returnRobots.add(robots[x][y]);
-        return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                MapLocation newLocation = new MapLocation(x, y);
+                if (center.isWithinDistance(newLocation, radius))
+                    returnLocations.add(newLocation);
+            }
+        }
+        return returnLocations;
     }
 
     // *********************************

@@ -149,6 +149,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return this.robot.getDirtCarrying();
     }
 
+    @Override
+    public boolean isCurrentlyHoldingUnit() {
+        return this.robot.isCurrentlyHoldingUnit();
+    }
+
+    private InternalRobot getRobotByID(int id) {
+        if (!gameWorld.getObjectInfo().existsRobot(id))
+            return null;
+        return this.gameWorld.getObjectInfo().getRobotByID(id);
+    }
+
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************
@@ -198,11 +209,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean canSenseRobot(int id) {
-        if(!gameWorld.getObjectInfo().existsRobot(id)){
-            return false;
-        }
-        InternalRobot robot = gameWorld.getObjectInfo().getRobotByID(id);
-        return canSenseLocation(robot.getLocation()); // TODO
+        InternalRobot sensedRobot = getRobotByID(id);
+        return sensedRobot == null ? false : canSenseLocation(sensedRobot.getLocation());
     }
 
     @Override
@@ -211,7 +219,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_SENSE_THAT,
                     "Can't sense given robot; It may not exist anymore");
         }
-        return gameWorld.getObjectInfo().getRobotByID(id).getRobotInfo();
+        return getRobotByID(id).getRobotInfo();
     }
 
     @Override
@@ -252,6 +260,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
             validSensedRobots.add(sensedRobot.getRobotInfo());
         }
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
+    }
+
+    @Override
+    public int sensePollution(MapLocation loc) throws GameActionException {
+        if(!canSenseLocation(loc)){
+            throw new GameActionException(CANT_SENSE_THAT,
+                    "Can't sense the pollution level of the specified location " +
+                            "(outside of sensor radius).");
+        }
+        return this.gameWorld.getPollution(loc);
     }
 
     @Override
@@ -315,7 +333,89 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
-        this.gameWorld.getMatchMaker().addMoved(getID(), getLocation());
+        gameWorld.getMatchMaker().addMoved(getID(), getLocation());
+
+        // also move the robot currently being picked up
+        if (this.robot.isCurrentlyHoldingUnit()) {
+            movePickedUpUnit(center);
+        }
+    }
+
+    private void movePickedUpUnit(MapLocation center) throws GameActionException {
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        getRobotByID(id).setLocation(center);
+
+        gameWorld.getMatchMaker().addMoved(id, getLocation());
+    }
+
+    private void assertCanPickUpUnit(int id) throws GameActionException {
+        if(!canPickUpUnit(id))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot pick up the specified unit, possibly due to not being a delivery drone, " +
+                    "is already holding a unit, the unit not within pickup distance, or unit can't be picked up.");
+    }
+
+    @Override
+    public boolean canPickUpUnit(int id) {
+        return this.getType().canPickUpUnits() && !this.robot.isCurrentlyHoldingUnit() &&
+               unitWithinPickupDistance(id) && getRobotByID(id).getType().canBePickedUp();
+    }
+
+    @Override
+    public void pickUpUnit(int id) throws GameActionException {
+        assertCanPickUpUnit(id);
+        InternalRobot pickedUpRobot = getRobotByID(id);
+        pickedUpRobot.blockUnit();
+        gameWorld.removeRobot(pickedUpRobot.getLocation());
+        this.robot.pickUpUnit(id);
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UNIT, id);
+    }
+
+    /**
+     * Check whether the specified unit is within the pickup radius of the robot
+     *
+     * @param id the id of the robot to pick up
+     */
+    private boolean unitWithinPickupDistance(int id) {
+        for (InternalRobot adjacentRobot :
+                gameWorld.getAllRobotsWithinRadius(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS)) {
+            if (adjacentRobot.getID() == id)
+                return true;
+        }
+        return false;
+    }
+
+    private void assertCanDropUnit(Direction dir) throws GameActionException {
+        if(!canDropUnit(dir))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot drop a unit, possibly due to not being a delivery drone, " +
+                    "or not currently holding a unit.");
+    }
+
+    @Override
+    public boolean canDropUnit(Direction dir) {
+        try {
+            MapLocation loc = adjacentLocation(dir);
+            return this.getType().canPickUpUnits() && this.robot.isCurrentlyHoldingUnit() &&
+               onTheMap(loc) && !isLocationOccupied(loc);
+        } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void dropUnit(Direction dir) throws GameActionException {
+        assertCanDropUnit(dir);
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        InternalRobot droppedRobot = getRobotByID(id);
+        droppedRobot.unblockUnit();
+
+        this.robot.dropUnit();
+        gameWorld.addRobot(adjacentLocation(dir), droppedRobot);
+
+        // TODO: need to process killing
+        if (false) {
+            gameWorld.destroyRobot(id);
+        }
     }
 
     // ***********************************

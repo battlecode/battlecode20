@@ -39,7 +39,7 @@ public strictfp class RobotPlayer {
                     case DESIGN_SCHOOL:      runDesignSchool();      break;
                     case FULFILLMENT_CENTER: runFulfillmentCenter(); break;
                     case LANDSCAPER:         runLandscaper();        break;
-                    case DRONE:              runDrone();             break;
+                    case DELIVERY_DRONE:     runDeliveryDrone();     break;
                     case NET_GUN:            runNetGun();            break;
                 }
 
@@ -61,9 +61,11 @@ public strictfp class RobotPlayer {
     static void runMiner() throws GameActionException {
         tryBlockchain();
         tryMove(randomDirection());
-        if (tryMove())
+        if (tryMove(randomDirection()))
             System.out.println("I moved!");
-        tryBuild(randomSpawnedByMiner(), randomDirection());
+        // tryBuild(randomSpawnedByMiner(), randomDirection());
+        for (Direction dir : directions)
+            tryBuild(RobotType.FULFILLMENT_CENTER, dir);
         for (Direction dir : directions)
             if (tryRefine(dir))
                 System.out.println("I refined soup! " + rc.getTeamSoup());
@@ -72,19 +74,8 @@ public strictfp class RobotPlayer {
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
     }
 
-    static void tryBlockchain() throws GameActionException {
-        if (turnCount < 3) {
-            int[] message = new int[10];
-            for (int i = 0; i < 10; i++) {
-                message[i] = 123;
-            }
-            rc.sendMessage(message, 10);
-        }
-        System.out.println(rc.getRoundMessages(turnCount-1));
-    }
-
     static void runRefinery() throws GameActionException {
-
+        // System.out.println("Pollution: " + rc.sensePollution(rc.getLocation()));
     }
 
     static void runVaporator() throws GameActionException {
@@ -96,15 +87,29 @@ public strictfp class RobotPlayer {
     }
 
     static void runFulfillmentCenter() throws GameActionException {
-        
+        for (Direction dir : directions)
+            tryBuild(RobotType.DELIVERY_DRONE, dir);
     }
 
     static void runLandscaper() throws GameActionException {
         
     }
 
-    static void runDrone() throws GameActionException {
-        
+    static void runDeliveryDrone() throws GameActionException {
+        Team enemy = rc.getTeam().opponent();
+        if (!rc.isCurrentlyHoldingUnit()) {
+            // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
+            RobotInfo[] robots = rc.senseNearbyRobots(GameConstants.DELIVERY_DRONE_PICKUP_RADIUS, enemy);
+
+            if (robots.length > 0) {
+                // Pick up a first robot within range
+                rc.pickUpUnit(robots[0].getID());
+                System.out.println("I picked up " + robots[0].getID() + "!");
+            }
+        } else {
+            // No close robots, so search for robots within sight radius
+            tryMove(randomDirection());
+        }
     }
 
     static void runNetGun() throws GameActionException {
@@ -201,5 +206,17 @@ public strictfp class RobotPlayer {
             rc.refineSoup(dir, rc.getSoupCarrying());
             return true;
         } else return false;
+    }
+
+
+    static void tryBlockchain() throws GameActionException {
+        if (turnCount < 3) {
+            int[] message = new int[10];
+            for (int i = 0; i < 10; i++) {
+                message[i] = 123;
+            }
+            rc.sendMessage(message, 10);
+        }
+        // System.out.println(rc.getRoundMessages(turnCount-1));
     }
 }
