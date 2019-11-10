@@ -119,9 +119,7 @@ public strictfp class GameWorld {
         this.controlProvider.runRobot(robot);
         robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
 
-        if(robot.getHealth() > 0) { // Only processEndOfTurn if robot is still alive
-            robot.processEndOfTurn();
-        }
+        robot.processEndOfTurn();
 
         // If the robot terminates but the death signal has not yet
         // been visited:
@@ -224,8 +222,8 @@ public strictfp class GameWorld {
         }
 
         // update the round statistics
-        matchMaker.addTeamStat(Team.A, 0, 0);
-        matchMaker.addTeamStat(Team.B, 0, 0);
+        matchMaker.addTeamStat(Team.A, 0); // TODO: change to soup
+        matchMaker.addTeamStat(Team.B, 0);
 
         if (gameStats.getWinner() != null) {
             running = false;

@@ -20,13 +20,6 @@ public interface BodyInfo {
     MapLocation getLocation();
 
     /**
-     * Returns the radius of this body.
-     *
-     * @return the radius of this body.
-     */
-    float getRadius();
-
-    /**
      * Returns whether this body is a robot.
      *
      * @return true if this body is a robot; false otherwise.

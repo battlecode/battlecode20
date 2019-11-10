@@ -35,7 +35,7 @@ public class CowControlProvider implements RobotControlProvider {
     /**
      * The types & order to spawn zombie robots in.
      */
-    private static final RobotType COW_TYPE = RobotType.TANK;
+    private static final RobotType COW_TYPE = RobotType.COW;
 
     /**
      * The world we're operating in.

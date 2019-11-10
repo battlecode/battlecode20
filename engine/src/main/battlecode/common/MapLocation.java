@@ -148,18 +148,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
-     * Determines whether this location is within one stride of the given robot.
-     *
-     * @param robot the robot to test
-     * @return true if this location is within one stride of the given robot; false otherwise
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public final boolean isWithinStrideDistance(RobotInfo robot){
-        return isWithinDistance(robot.location, 2 * robot.type.bodyRadius);
-    }
-
-    /**
      * Determines whether this location is within the sensor radius of the
      * given robot.
      *
