@@ -223,7 +223,7 @@ public class CowControlProvider implements RobotControlProvider {
                     else randomDir = Direction.NORTH;
                 }
                 rc.move(randomDir);
-                System.out.println(rc.getLocation());
+                // System.out.println(rc.getLocation());
                 return;
             }
         } catch (Exception e) {

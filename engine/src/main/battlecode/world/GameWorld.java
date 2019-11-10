@@ -174,42 +174,51 @@ public strictfp class GameWorld {
         return currentRound;
     }
 
-    public int initialSoupAtLocation(int x, int y) {
-        if (!gameMap.onTheMap(new MapLocation(x, y))) {
-            return 0;
-        }
-        return initialSoup[x - gameMap.getOrigin().x + (y - gameMap.getOrigin().y)*gameMap.getWidth()];
+    /**
+     * Helper method that converts a location into an index.
+     * 
+     * @param loc the MapLocation
+     */
+    public int locationToIndex(MapLocation loc) {
+        return loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y) * gameMap.getWidth();
     }
+
+    /**
+     * Helper method that converts an index into a location.
+     * 
+     * @param idx the index
+     */
+    public MapLocation indexToLocation(int idx) {
+        return new MapLocation(idx / gameMap.getWidth() + gameMap.getOrigin().x,
+                               idx % gameMap.getWidth() + gameMap.getOrigin().y);
+    }
+
+    public int initialSoupAtLocation(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? initialSoup[locationToIndex(loc)] : 0;
+    }
+
     public int getSoup(MapLocation loc) {
-        if (!gameMap.onTheMap(loc)) {
-            return 0;
-        }
-        return soup[loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()];
+        return gameMap.onTheMap(loc) ? soup[locationToIndex(loc)] : 0;
     }
+
     public int getPollution(MapLocation loc) {
-        if (!gameMap.onTheMap(loc)) {
-            return 0;
-        }
-        return pollution[loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()];
+        return gameMap.onTheMap(loc) ? pollution[locationToIndex(loc)] : 0;
     }
+
     public int getDirt(MapLocation loc) {
-        if (!gameMap.onTheMap(loc)) {
-            return 0;
-        }
-        return dirt[loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()];
+        return gameMap.onTheMap(loc) ? dirt[locationToIndex(loc)] : 0;
     }
+
     public int getWater(MapLocation loc) {
-        if (!gameMap.onTheMap(loc)) {
-            return 0;
-        }
-        return water[loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()];
+        return gameMap.onTheMap(loc) ? water[locationToIndex(loc)] : 0;
     }
+
     public void removeSoup(MapLocation loc, int amount) {
-        if (!gameMap.onTheMap(loc)) {
-            return;
-        }
-        soup[(loc.x - gameMap.getOrigin().x) + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()] = (int) Math.max(0.0, soup[(loc.x - gameMap.getOrigin().x) + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()] - amount);
+        int idx = locationToIndex(loc);
+        if (gameMap.onTheMap(loc))
+            soup[idx] = Math.max(0, soup[idx] - amount);
     }
+
     // *********************************
     // ****** GAMEPLAY *****************
     // *********************************
