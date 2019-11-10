@@ -97,5 +97,5 @@ public interface GameConstants {
     int GAME_DEFAULT_SEED = 6370;
 
     /** The default game maxiumum number of rounds. **/
-    int GAME_DEFAULT_ROUNDS = 3000;
+    int GAME_DEFAULT_ROUNDS = 100;
 }

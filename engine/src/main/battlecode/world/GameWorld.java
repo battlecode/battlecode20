@@ -38,7 +38,10 @@ public strictfp class GameWorld {
     private final RobotControlProvider controlProvider;
     private Random rand;
 
+    // the pool of messages not yet sent
     private PriorityQueue<BlockchainEntry> blockchainQueue;
+    // the messages that have been broadcasted already
+    public ArrayList<ArrayList<BlockchainEntry>> blockchain;
 
     private final GameMaker.MatchMaker matchMaker;
 
@@ -63,6 +66,7 @@ public strictfp class GameWorld {
         this.rand = new Random(gameMap.getSeed());
 
         this.blockchainQueue = new PriorityQueue<BlockchainEntry>();
+        this.blockchain = new ArrayList<ArrayList<BlockchainEntry>>();
 
         this.matchMaker = matchMaker;
 
@@ -255,16 +259,6 @@ public strictfp class GameWorld {
         return currentRound >= gameMap.getRounds() - 1;
     }
 
-    public void processBlockchain() {
-        // process messages, take the K first ones!
-        for (int i = 0; i < GameConstants.NUMBER_OF_BROADCASTED_MESSAGES; i++) {
-            if (blockchainQueue.size() > 0) {
-                BlockchainEntry bcentry = blockchainQueue.poll();
-                // send this to match maker!
-                matchMaker.addBroadcastedMessage(bcentry.cost, bcentry.message);
-            }
-        }
-    }
 
     public void processEndOfRound() {
         // Process end of each robot's round
@@ -329,12 +323,27 @@ public strictfp class GameWorld {
      * @param cost
      * @param message
      */
-    public void addNewMessage(int cost, String message) {
-        getMatchMaker().addNewMessage(cost, message);
+    public void addNewMessage(BlockchainEntry block) {
+        getMatchMaker().addNewMessage(block.cost, block.serializedMessage);
 
         // add it to the priority queue 
-        BlockchainEntry bcentry = new BlockchainEntry(cost, message);
-        blockchainQueue.add(bcentry);
+        blockchainQueue.add(block);
+    }
+
+    public void processBlockchain() {
+        // process messages, take the K first ones!
+        ArrayList<BlockchainEntry> thisRoundMessages = new ArrayList<BlockchainEntry>();
+        for (int i = 0; i < GameConstants.NUMBER_OF_BROADCASTED_MESSAGES; i++) {
+            if (blockchainQueue.size() > 0) {
+                BlockchainEntry block = blockchainQueue.poll();
+                // send this to match maker!
+                matchMaker.addBroadcastedMessage(block.cost, block.serializedMessage);
+                // also add it to this round's list of messages!
+                thisRoundMessages.add(block);
+            }
+        }
+        // add this to the blockchain!
+        blockchain.add(thisRoundMessages);
     }
    
     // *********************************
@@ -355,19 +364,3 @@ public strictfp class GameWorld {
 }
 
 
-class BlockchainEntry implements Comparable<BlockchainEntry> {
-    int cost;
-    String message;
-
-    public BlockchainEntry(int cost, String message) {
-        this.cost = cost;
-        this.message = message;
-    }
-
-    // getters
-
-    @Override
-    public int compareTo(BlockchainEntry other) {
-        return this.cost - other.cost;
-    }
-}

@@ -43,5 +43,9 @@ public enum GameActionExceptionType {
     /**
      * Indicates when a robot tries to send too many messages to the blockchain.
      */
-    TOO_LONG_BLOCKCHAIN_MESSAGE
+    TOO_LONG_BLOCKCHAIN_MESSAGE,
+    /**
+     * Indicates when round number is out of range.
+     */
+    ROUND_OUT_OF_RANGE
 }

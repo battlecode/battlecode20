@@ -1,4 +1,5 @@
 package battlecode.common;
+import java.util.ArrayList;
 
 /**
  * A RobotController allows contestants to make their robot sense and interact
@@ -382,6 +383,14 @@ public strictfp interface RobotController {
      * 
      */
     public void sendMessage(int[] messageArray, int cost) throws GameActionException;
+
+
+    /**
+     * Gets all messages that were sent at a given round.
+     * @param roundNumber the round index.
+     * @throws GameActionException
+     */
+    public ArrayList<BlockchainEntry> getRoundMessages(int roundNumber) throws GameActionException;
 
 
     // ***********************************

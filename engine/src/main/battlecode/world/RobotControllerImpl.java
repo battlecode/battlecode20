@@ -378,15 +378,28 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
         // pay!
         gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
-        // Convert the array into string format
-        String[] stringMessageArray = new String[messageArray.length];
-        for (int i = 0; i < messageArray.length; i++) {
-            stringMessageArray[i] = Integer.toString(messageArray[i]);
-        }
-        String message = String.join("_", stringMessageArray);
-        System.out.println(message);
+        // create a block chain entry
+        BlockchainEntry bcentry = new BlockchainEntry(cost, messageArray);
         // add
-        gameWorld.addNewMessage(cost, message);
+        gameWorld.addNewMessage(bcentry);
+    }
+
+    /**
+     * Gets all messages that were sent at a given round.
+     * @param roundNumber the round index.
+     * @throws GameActionException
+     */
+    public ArrayList<BlockchainEntry> getRoundMessages(int roundNumber) throws GameActionException {
+        if (roundNumber < 0) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; in fact, no negative round numbers are allowed at all.");
+        }
+        if (roundNumber >= gameWorld.currentRound) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
+        }
+        // just get it!
+        return gameWorld.blockchain.get(roundNumber);
     }
 
 
