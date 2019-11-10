@@ -631,7 +631,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public boolean canBuildDeliveryDrone(Direction dir) {
+        return canBuildRobot(RobotType.DELIVERY_DRONE, dir);
+    }
+
+    @Override
     public void buildDeliveryDrone(Direction dir) throws GameActionException {
+        assertNotNull(dir);
+        assertCanBuildRobot(RobotType.DElIVERY_DRONE, dir);
+
         this.robot.setBuildCooldownTurns(RobotType.DELIVERY_DRONE.buildCooldownTurns);
 
         float spawnDist = getType().bodyRadius +

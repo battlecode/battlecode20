@@ -620,6 +620,18 @@ public strictfp interface RobotController {
     void hireGardener(Direction dir) throws GameActionException;
 
     /**
+     * Tests whether the robot can build a Delivery Drone in the given direction.
+     * Checks cooldown turns remaining, currency, whether the robot can
+     * hire, and that the given direction is not blocked.
+     *
+     * @param dir the direction to build in
+     * @return whether it is possible to build a delivery drone in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canBuildDeliveryDrone(Direction dir);
+
+    /**
      * Builds a delivery drone in the given direction.
      *
      * @param dir the direction to spawn the Gardener
