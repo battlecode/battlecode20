@@ -10,7 +10,6 @@ import battlecode.util.TeamMapping;
 import battlecode.world.*;
 import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.array.TCharArrayList;
 import gnu.trove.map.TObjectByteMap;
@@ -322,15 +321,15 @@ public strictfp class GameMaker {
     public class MatchMaker {
         private TIntArrayList movedIDs; // ints
         // VecTable for movedLocs in Round
-        private TFloatArrayList movedLocsXs;
-        private TFloatArrayList movedLocsYs;
+        private TIntArrayList movedLocsXs;
+        private TIntArrayList movedLocsYs;
 
         // SpawnedBodyTable for spawnedBodies
         private TIntArrayList spawnedBodiesRobotIDs;
         private TByteArrayList spawnedBodiesTeamIDs;
         private TByteArrayList spawnedBodiesTypes;
-        private TFloatArrayList spawnedBodiesLocsXs; //For locs
-        private TFloatArrayList spawnedBodiesLocsYs; //For locs
+        private TIntArrayList spawnedBodiesLocsXs; //For locs
+        private TIntArrayList spawnedBodiesLocsYs; //For locs
 
         private TIntArrayList diedIDs; // ints
 
@@ -338,20 +337,20 @@ public strictfp class GameMaker {
         private TByteArrayList actions; // Actions
         private TIntArrayList actionTargets; // ints (IDs)
 
-        private TFloatArrayList dirtChangedLocsXs; //For locs
-        private TFloatArrayList dirtChangedLocsYs; //For locs
+        private TIntArrayList dirtChangedLocsXs; //For locs
+        private TIntArrayList dirtChangedLocsYs; //For locs
         private TIntArrayList dirtChanges; // ints
 
-        private TFloatArrayList waterChangedLocsXs; //For locs
-        private TFloatArrayList waterChangedLocsYs; //For locs
+        private TIntArrayList waterChangedLocsXs; //For locs
+        private TIntArrayList waterChangedLocsYs; //For locs
         private TIntArrayList waterChanges; // ints
 
-        private TFloatArrayList pollutionChangedLocsXs; //For locs
-        private TFloatArrayList pollutionChangedLocsYs; //For locs
+        private TIntArrayList pollutionChangedLocsXs; //For locs
+        private TIntArrayList pollutionChangedLocsYs; //For locs
         private TIntArrayList pollutionChanges; // ints
 
-        private TFloatArrayList soupChangedLocsXs; //For locs
-        private TFloatArrayList soupChangedLocsYs; //For locs
+        private TIntArrayList soupChangedLocsXs; //For locs
+        private TIntArrayList soupChangedLocsYs; //For locs
         private TIntArrayList soupChanges; // ints
 
         private TIntArrayList newMessagesCosts;
@@ -366,18 +365,18 @@ public strictfp class GameMaker {
 
         // Indicator dots with locations and RGB values
         private TIntArrayList indicatorDotIDs;
-        private TFloatArrayList indicatorDotLocsX;
-        private TFloatArrayList indicatorDotLocsY;
+        private TIntArrayList indicatorDotLocsX;
+        private TIntArrayList indicatorDotLocsY;
         private TIntArrayList indicatorDotRGBsRed;
         private TIntArrayList indicatorDotRGBsGreen;
         private TIntArrayList indicatorDotRGBsBlue;
 
         // Indicator lines with locations and RGB values
         private TIntArrayList indicatorLineIDs;
-        private TFloatArrayList indicatorLineStartLocsX;
-        private TFloatArrayList indicatorLineStartLocsY;
-        private TFloatArrayList indicatorLineEndLocsX;
-        private TFloatArrayList indicatorLineEndLocsY;
+        private TIntArrayList indicatorLineStartLocsX;
+        private TIntArrayList indicatorLineStartLocsY;
+        private TIntArrayList indicatorLineEndLocsX;
+        private TIntArrayList indicatorLineEndLocsY;
         private TIntArrayList indicatorLineRGBsRed;
         private TIntArrayList indicatorLineRGBsGreen;
         private TIntArrayList indicatorLineRGBsBlue;
@@ -391,28 +390,28 @@ public strictfp class GameMaker {
 
         public MatchMaker() {
             this.movedIDs = new TIntArrayList();
-            this.movedLocsXs = new TFloatArrayList();
-            this.movedLocsYs = new TFloatArrayList();
+            this.movedLocsXs = new TIntArrayList();
+            this.movedLocsYs = new TIntArrayList();
             this.spawnedBodiesRobotIDs = new TIntArrayList();
             this.spawnedBodiesTeamIDs = new TByteArrayList();
             this.spawnedBodiesTypes = new TByteArrayList();
-            this.spawnedBodiesLocsXs = new TFloatArrayList();
-            this.spawnedBodiesLocsYs = new TFloatArrayList();
+            this.spawnedBodiesLocsXs = new TIntArrayList();
+            this.spawnedBodiesLocsYs = new TIntArrayList();
             this.diedIDs = new TIntArrayList();
             this.actionIDs = new TIntArrayList();
             this.actions = new TByteArrayList();
             this.actionTargets = new TIntArrayList();
-            this.dirtChangedLocsXs = new TFloatArrayList();
-            this.dirtChangedLocsYs = new TFloatArrayList();
+            this.dirtChangedLocsXs = new TIntArrayList();
+            this.dirtChangedLocsYs = new TIntArrayList();
             this.dirtChanges = new TIntArrayList();
-            this.waterChangedLocsXs = new TFloatArrayList();
-            this.waterChangedLocsYs = new TFloatArrayList();
+            this.waterChangedLocsXs = new TIntArrayList();
+            this.waterChangedLocsYs = new TIntArrayList();
             this.waterChanges = new TIntArrayList();
-            this.pollutionChangedLocsXs = new TFloatArrayList();
-            this.pollutionChangedLocsYs = new TFloatArrayList();
+            this.pollutionChangedLocsXs = new TIntArrayList();
+            this.pollutionChangedLocsYs = new TIntArrayList();
             this.pollutionChanges = new TIntArrayList();
-            this.soupChangedLocsXs = new TFloatArrayList();
-            this.soupChangedLocsYs = new TFloatArrayList();
+            this.soupChangedLocsXs = new TIntArrayList();
+            this.soupChangedLocsYs = new TIntArrayList();
             this.soupChanges = new TIntArrayList();
             this.newMessagesCosts = new TIntArrayList();
             this.newMessages = new TCharArrayList();
@@ -421,16 +420,16 @@ public strictfp class GameMaker {
             this.teamIDs = new TIntArrayList();
             this.teamSoups = new TIntArrayList();
             this.indicatorDotIDs = new TIntArrayList();
-            this.indicatorDotLocsX = new TFloatArrayList();
-            this.indicatorDotLocsY = new TFloatArrayList();
+            this.indicatorDotLocsX = new TIntArrayList();
+            this.indicatorDotLocsY = new TIntArrayList();
             this.indicatorDotRGBsRed = new TIntArrayList();
             this.indicatorDotRGBsBlue = new TIntArrayList();
             this.indicatorDotRGBsGreen = new TIntArrayList();
             this.indicatorLineIDs = new TIntArrayList();
-            this.indicatorLineStartLocsX = new TFloatArrayList();
-            this.indicatorLineStartLocsY = new TFloatArrayList();
-            this.indicatorLineEndLocsX = new TFloatArrayList();
-            this.indicatorLineEndLocsY = new TFloatArrayList();
+            this.indicatorLineStartLocsX = new TIntArrayList();
+            this.indicatorLineStartLocsY = new TIntArrayList();
+            this.indicatorLineEndLocsX = new TIntArrayList();
+            this.indicatorLineEndLocsY = new TIntArrayList();
             this.indicatorLineRGBsRed = new TIntArrayList();
             this.indicatorLineRGBsBlue = new TIntArrayList();
             this.indicatorLineRGBsGreen = new TIntArrayList();

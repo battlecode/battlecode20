@@ -189,7 +189,7 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     public final MapLocation add(Direction direction) {
         if(direction == null)
             return new MapLocation(x, y);
-        return new MapLocation(x + direction.dx, y + direction.dy);
+        return translate(direction.dx, direction.dy);
     }
 
     /**
@@ -219,8 +219,8 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      *
      * @battlecode.doc.costlymethod
      */
-    public final MapLocation translate(float dx, float dy) {
-        return new MapLocation(x + (int) dx, y + (int) dy);
+    public final MapLocation translate(int dx, int dy) {
+        return new MapLocation(x + dx, y + dy);
     }
 
     /**
