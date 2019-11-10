@@ -50,8 +50,12 @@ public final class BodyType {
    * Cows produce pollution.
    */
   public static final byte COW = 9;
+  /**
+   * Delivery drones are slow units that can pick other units up
+   */
+  public static final byte DELIVERY_DRONE = 10;
 
-  public static final String[] names = { "HQ", "MINER", "REFINERY", "VAPORATOR", "DESIGN_SCHOOL", "FULFILLMENT_CENTER", "LANDSCAPER", "DRONE", "NET_GUN", "COW", };
+  public static final String[] names = { "HQ", "MINER", "REFINERY", "VAPORATOR", "DESIGN_SCHOOL", "FULFILLMENT_CENTER", "LANDSCAPER", "DRONE", "NET_GUN", "COW", "DELIVERY_DRONE"};
 
   public static String name(int e) { return names[e]; }
 }

@@ -61,6 +61,9 @@ public interface GameConstants {
     /** The radius around a lumberjack affected by a strike(). */
     float LUMBERJACK_STRIKE_RADIUS = 2;
 
+    /** The radius that delivery drones can pick up in */
+    float DELIVERY_DRONE_PICKUP_RADIUS = 2;
+
     // *********************************
     // ****** MISCELLANEOUS ************
     // *********************************

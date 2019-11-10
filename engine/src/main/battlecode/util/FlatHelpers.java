@@ -42,6 +42,8 @@ public class FlatHelpers {
                 return RobotType.NET_GUN;
             case BodyType.COW:
                 return RobotType.COW;
+            case BodyType.DELIVERY_DRONE:
+                return RobotType.DELIVERY_DRONE;
             default:
                 throw new RuntimeException("No robot type for: "+bodyType);
         }
@@ -69,6 +71,8 @@ public class FlatHelpers {
                 return BodyType.NET_GUN;
             case COW:
                 return BodyType.COW;
+            case DELIVERY_DRONE:
+                return BodyType.DELIVERY_DRONE;
             default:
                 throw new RuntimeException("No body type for: "+type);
         }

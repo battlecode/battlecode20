@@ -126,6 +126,15 @@ public strictfp interface RobotController {
      */
     int getDirtCarrying();
 
+    /**
+     * Returns whether the robot is currently holding a unit
+     *
+     * @return true if the robot is currently holding another unit, false otherwise
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public boolean isCurrentlyHoldingUnit();
+
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************
@@ -475,6 +484,18 @@ public strictfp interface RobotController {
     boolean canBuildDrone(Direction dir);
 
     /**
+     * Tests whether the robot can build a Delivery Drone in the given direction.
+     * Checks cooldown turns remaining, currency, whether the robot can
+     * hire, and that the given direction is not blocked.
+     *
+     * @param dir the direction to build in
+     * @return whether it is possible to build a delivery drone in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canBuildDeliveryDrone(Direction dir);
+
+    /**
      * Builds a drone in the given direction.
      * 
      * @param dir the direction to build in
@@ -527,6 +548,54 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void deposit(Direction dir);
+
+    // **************************************
+    // ******* DELIVERY DRONE METHODS *******
+    // **************************************
+
+    /**
+     * Builds a delivery drone in the given direction.
+     *
+     * @param dir the direction to spawn the Gardener
+     * @throws GameActionException if you don't have enough currency, if
+     * the robot is still in build cooldown, if the direction is not a good build
+     * direction, or if this robot is not of an appropriate type.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void buildDeliveryDrone(Direction dir) throws GameActionException;
+
+    /**
+     * Tests whether a robot is able to pick up another unit. Only delivery drones should be able to do this.
+     *
+     * @return true if the robot is able to pick up and drop other units; false otherwise.
+     */
+    boolean canPickUpOtherUnits();
+
+    /**
+     * Tests whether a robot is able to pick up a specific unit.
+     *
+     * @param id the id of the robot to pick up
+     * @return true if id can be picked up by the robot, false otherwise
+     */
+    boolean canPickUpUnit(int id);
+
+    /**
+     * Picks up another unit.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
+     * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
+     * of this robot.
+     */
+    void pickUpUnit(int id) throws GameActionException;
+
+    /**
+     * Drops the unit that is currently picked up.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
+     * holding a unit that it can drop.
+     */
+    void dropUnit() throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

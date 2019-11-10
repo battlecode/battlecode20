@@ -69,6 +69,13 @@ public enum RobotType {
      */
     COW                     (null,  0,  0,  0,  0,  0,  0,  0,  0,  0),
     //                       SS     C   DL  SL  AC  SR  PR  PA  MS  BL
+    /**
+     * A unit that can pick up other units and drop them.
+     *
+     * @battlecode.doc.robottype
+     */
+    DELIVERY_DRONE  (FULFILLMENT_CENTER, 10,  50, 100, 0, -1, -1, 7, 0, 15000),
+    //                       SS     C   DL  SL  AC  SR  PR  PA  MS  BL
     ;
     
     /**
