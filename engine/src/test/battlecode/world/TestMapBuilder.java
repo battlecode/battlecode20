@@ -39,7 +39,6 @@ public class TestMapBuilder {
                 team,
                 type,
                 loc,
-                type.getStartingHealth(),
                 0,
                 0
         ));

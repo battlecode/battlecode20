@@ -24,19 +24,19 @@ public class GenerateMaps {
                 .addRobot(
                         0,
                         Team.A,
-                        RobotType.ARCHON,
+                        RobotType.HQ,
                         new MapLocation(
-                                RobotType.ARCHON.bodyRadius + 1,
-                                RobotType.ARCHON.bodyRadius + 1
+                                1,
+                                1
                         )
                 )
                 .addRobot(
                         1,
                         Team.B,
-                        RobotType.ARCHON,
+                        RobotType.HQ,
                         new MapLocation(
-                                99-RobotType.ARCHON.bodyRadius,
-                                99-RobotType.ARCHON.bodyRadius
+                                99,
+                                99
                         )
                 )
                 .build();
