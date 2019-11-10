@@ -235,11 +235,11 @@ public final strictfp class GameMapIO {
             final int rounds = GameConstants.GAME_DEFAULT_ROUNDS;
             final String mapName = raw.name();
 
-            ArrayList<BodyInfo> initBodies = new ArrayList<>();
+            ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
             initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies);
 
-            BodyInfo[] initialBodies = initBodies.toArray(new BodyInfo[initBodies.size()]);
+            RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
                     width, height, origin, seed, rounds, mapName, initialBodies
@@ -265,17 +265,12 @@ public final strictfp class GameMapIO {
             ArrayList<Integer> bodyLocsXs = new ArrayList<>();
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
 
-            for (BodyInfo initBody : gameMap.getInitialBodies()) {
-                if (initBody.isRobot()) {
-                    RobotInfo robot = (RobotInfo) initBody;
-                    bodyIDs.add(robot.ID);
-                    bodyTeamIDs.add(TeamMapping.id(robot.team));
-                    bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
-                    bodyLocsXs.add(robot.location.x);
-                    bodyLocsYs.add(robot.location.y);
-                } else {
-                    // ignore?
-                }
+            for (RobotInfo robot : gameMap.getInitialBodies()) {
+                bodyIDs.add(robot.ID);
+                bodyTeamIDs.add(TeamMapping.id(robot.team));
+                bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
+                bodyLocsXs.add(robot.location.x);
+                bodyLocsYs.add(robot.location.y);
             }
 
             int robotIDs = SpawnedBodyTable.createRobotIDsVector(builder, ArrayUtils.toPrimitive(bodyIDs.toArray(new Integer[bodyIDs.size()])));
@@ -308,7 +303,7 @@ public final strictfp class GameMapIO {
         // *** HELPER METHODS *********
         // ****************************
 
-        private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<BodyInfo> initialBodies) {
+        private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<RobotInfo> initialBodies) {
             VecTable locs = bodyTable.locs();
             for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
                 RobotType bodyType = FlatHelpers.getRobotTypeFromBodyType(bodyTable.types(i));
