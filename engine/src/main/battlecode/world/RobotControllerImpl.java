@@ -84,11 +84,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+
     public int getTeamSoup(){
         return gameWorld.getTeamInfo().getSoup(getTeam());
     }
 
     @Override
+
     public int getRobotCount(){
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }

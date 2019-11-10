@@ -195,18 +195,6 @@ public class RobotControllerTest {
     //     }
     // }
 
-    // @Test
-    // public void sensingEachOtherTest() throws GameActionException {
-    //     LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 50, 50, 1337, 100)
-    //             .build();
-
-    //     TestGame game = new TestGame(map);
-
-    //     final int tankA = game.spawn(10, 10, RobotType.TANK, Team.A);
-    //     final int soldierB = game.spawn(10, (float) 18.4534432, RobotType.SOLDIER, Team.B);
-
-    //     game.waitRounds(50);
-
     //     // Soldier can see tank
     //     game.round((id, rc) -> {
     //         if (id == soldierB) {
