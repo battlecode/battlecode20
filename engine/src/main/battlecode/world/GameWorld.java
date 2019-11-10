@@ -231,6 +231,8 @@ public strictfp class GameWorld {
         if (timeLimitReached() && gameStats.getWinner() == null) {
             boolean victorDetermined = false;
 
+            // TODO: tiebreakers
+            
             int bestRobotID = Integer.MIN_VALUE;
             Team bestRobotTeam = Team.A; // null; ARBITRARY
 
@@ -241,8 +243,9 @@ public strictfp class GameWorld {
         }
 
         // update the round statistics
-        matchMaker.addTeamStat(Team.A, 0); // TODO: change to soup
-        matchMaker.addTeamStat(Team.B, 0);
+
+        matchMaker.addTeamStat(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
+        matchMaker.addTeamStat(Team.B, teamInfo.getSoup(Team.B));
 
         if (gameStats.getWinner() != null) {
             running = false;

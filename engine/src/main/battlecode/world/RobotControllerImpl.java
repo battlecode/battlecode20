@@ -84,6 +84,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
+
+    public int getTeamSoup(){
+        return gameWorld.getTeamInfo().getSoup(getTeam());
+    }
+
+    @Override
+
     public int getRobotCount(){
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
@@ -132,18 +139,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public MapLocation getLocation(){
         return this.robot.getLocation();
-    }
-    
-    @Override
-    public int getAttackCount(){
-        return this.robot.getAttackCount();
-    }
-    
-    @Override
-    public int getMoveCount(){
-        return this.robot.getMoveCount();
-    }
-    
+    }    
 
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
@@ -164,13 +160,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean onTheMap(MapLocation center, float radius) throws GameActionException{
-        assertNotNull(center);
-        // assertCanSenseAllOfCircle(center, radius);
-        return gameWorld.getGameMap().onTheMap(center, radius);
-    }
-
-    @Override
     public boolean canSenseLocation(MapLocation loc) {
         assertNotNull(loc);
         return this.robot.canSenseLocation(loc);
@@ -185,14 +174,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean isLocationOccupied(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
-        return !gameWorld.getObjectInfo().isEmpty(loc, 0);
-    }
-
-    @Override
-    public boolean isLocationOccupiedByRobot(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanSenseLocation(loc);
-        return gameWorld.getObjectInfo().getRobotAtLocation(loc) != null;
+        return !gameWorld.getObjectInfo().isEmpty(loc);
     }
 
     @Override
@@ -230,17 +212,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(float radius) {
+    public RobotInfo[] senseNearbyRobots(int radius) {
         return senseNearbyRobots(radius, null);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(float radius, Team team) {
+    public RobotInfo[] senseNearbyRobots(int radius, Team team) {
         return senseNearbyRobots(getLocation(), radius, team);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(MapLocation center, float radius, Team team) {
+    public RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team) {
         assertNotNull(center);
         InternalRobot[] allSensedRobots = gameWorld.getObjectInfo().getAllRobotsWithinRadius(center,
                 radius == -1 ? getType().sensorRadius : radius);
@@ -267,46 +249,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
-
-    private void assertMoveReady() throws GameActionException{
-        if(hasMoved()){
-            throw new GameActionException(NOT_ACTIVE,
-                    "This robot has already moved this turn.");
-        }
-    }
-
-    private void assertIsWeaponReady() throws GameActionException{
-        if(hasAttacked()){
-            throw new GameActionException(NOT_ACTIVE,
-                    "This robot has already attacked this turn.");
-        }
-    }
     
-    private void assertIsBuildReady() throws GameActionException{
-        if(!isBuildReady()){
+    private void assertIsReady() throws GameActionException{
+        if(!isReady()){
             throw new GameActionException(NOT_ACTIVE,
                     "This robot's build cooldown has not expired.");
         }
     }
-
-    @Override
-    public boolean hasMoved() {
-        return getMoveCount() > 0;
-    }
-
-    @Override
-    public boolean hasAttacked() {
-        return getAttackCount() > 0;
-    }
     
     @Override
-    public boolean isBuildReady() {
-        return this.robot.getBuildCooldownTurns() == 0;
+    public boolean isReady() {
+        return this.robot.getCooldownTurns() == 0;
     }
 
     @Override
-    public int getBuildCooldownTurns() {
-        return this.robot.getBuildCooldownTurns();
+    public int getCooldownTurns() {
+        return this.robot.getCooldownTurns();
     }
 
     // ***********************************
@@ -329,30 +287,18 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canMove(MapLocation center) {
         assertNotNull(center);
         return getLocation().distanceTo(center) <= 1 && gameWorld.getGameMap().onTheMap(center) &&
-                gameWorld.getObjectInfo().isEmpty(center, 0);
+                gameWorld.getObjectInfo().isEmpty(center);
     }
 
     @Override
     public void move(Direction dir) throws GameActionException {
         MapLocation center = getLocation().add(dir);
         assertNotNull(center);
-        assertMoveReady();
+        assertIsReady();
         assertCanMove(center);
-        this.robot.incrementMoveCount();
         this.robot.setLocation(center);
 
         gameWorld.getMatchMaker().addMoved(getID(), getLocation());
-    }
-
-    // ***********************************
-    // ****** ATTACK METHODS *************
-    // ***********************************
-
-    private void assertNonNegative(float cost) throws GameActionException{
-        if(cost < 0) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't purchase negative victory points");
-        }
     }
 
     // ***********************************
@@ -371,8 +317,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean hasRobotBuildRequirements(RobotType type) {
         assertNotNull(type);
-        boolean validBuilder = getType() == type.spawnSource;
-        return validBuilder; // TODO: check enough soup
+        return getType() == type.spawnSource &&
+               gameWorld.getTeamInfo().getSoup(getTeam()) >= type.cost;
     }
 
     @Override
@@ -382,12 +328,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         boolean hasBuildRequirements = hasRobotBuildRequirements(type);
         MapLocation spawnLoc = getLocation().add(dir);
         boolean isClear = gameWorld.getGameMap().onTheMap(spawnLoc) &&
-                gameWorld.getObjectInfo().isEmpty(spawnLoc, 0.5f); // TODO check empty cell
-        boolean cooldownExpired = isBuildReady();
-
-        // THIS IS LOOOOL
-        isClear = gameWorld.getGameMap().onTheMap(spawnLoc) &&
-                gameWorld.getObjectInfo().isEmpty(spawnLoc, 0);
+                gameWorld.getObjectInfo().isEmpty(spawnLoc);
+        boolean cooldownExpired = isReady();
         return hasBuildRequirements && isClear && cooldownExpired;
     }
     
@@ -401,7 +343,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanBuildRobot(type, dir);
 
-        this.robot.setBuildCooldownTurns(type.actionCooldown); // TODO changed buildCooldownTurns to actionCooldown
+        this.robot.setCooldownTurns(type.actionCooldown);
         
         MapLocation spawnLoc = getLocation().add(dir); // TODO fix spawn dist
 
@@ -413,7 +355,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
 
     @Override
     public void disintegrate(){

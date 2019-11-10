@@ -337,7 +337,7 @@ public final strictfp class GameMapIO {
                 float bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
                 if (bodyType != null) {
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation((int) bodyX, (int) bodyY), 0, 0));
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation((int) bodyX, (int) bodyY)));
                 }
             }
         }
