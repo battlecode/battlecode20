@@ -86,6 +86,7 @@ export default class Sidebar {
     this.innerDiv.appendChild(this.stats.div);
   }
 
+
   /**
    * Sets a scaffold if a scaffold directory is found after everything is loaded
    */

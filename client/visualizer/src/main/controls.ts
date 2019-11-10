@@ -102,13 +102,13 @@ export default class Controls {
     let stopButton = this.createButton("playbackStop", () => this.restart());
     let goPreviousButton = this.createButton("goPrevious", () => this.stepBackward());
     let goNextButton = this.createButton("goNext", () => this.stepForward());
-    let uploadFileButton = this.uploadFileButton();
+    // let uploadFileButton = this.uploadFileButton();
 
     buttons.appendChild(pauseStartButton);
     buttons.appendChild(stopButton);
     buttons.appendChild(goPreviousButton);
     buttons.appendChild(goNextButton);
-    buttons.appendChild(uploadFileButton);
+    // buttons.appendChild(uploadFileButton);
     buttons.appendChild(document.createElement("br"));
     buttons.appendChild(this.locationReadout);
 
@@ -116,7 +116,7 @@ export default class Controls {
     stopButton.title = "Stop";
     goPreviousButton.title = "Step back";
     goNextButton.title = "Step forward";
-    uploadFileButton.title = "Upload a .bc20 replay file";
+    // uploadFileButton.title = "Upload a .bc20 replay file";
 
     // create the info string display
     let infoString = document.createElement("td");
@@ -160,25 +160,25 @@ export default class Controls {
     return button;
   }
 
-  private uploadFileButton() {
-    // disguise the default upload file button with a label
-    let uploadLabel = document.createElement("label");
-    uploadLabel.setAttribute("for", "file-upload");
-    uploadLabel.setAttribute("class", "custom-button uploadfilebutton");
-    uploadLabel.appendChild(this.imgs["upload"]);
-    uploadLabel.innerText = 'upload';
+  // private uploadFileButton() {
+  //   // disguise the default upload file button with a label
+  //   let uploadLabel = document.createElement("label");
+  //   uploadLabel.setAttribute("for", "file-upload");
+  //   uploadLabel.setAttribute("class", "custom-button uploadfilebutton");
+  //   uploadLabel.appendChild(this.imgs["upload"]);
+  //   uploadLabel.innerText = 'upload';
 
-    // create the functional button
-    let upload = document.createElement('input');
-    upload.textContent = 'upload';
-    upload.id = "file-upload";
-    upload.setAttribute('type', 'file');
-    upload.accept = '.bc20';
-    upload.onchange = () => this.loadMatch(upload.files as FileList);
-    uploadLabel.appendChild(upload);
+  //   // create the functional button
+  //   let upload = document.createElement('input');
+  //   upload.textContent = 'upload';
+  //   upload.id = "file-upload";
+  //   upload.setAttribute('type', 'file');
+  //   upload.accept = '.bc20';
+  //   upload.onchange = () => this.loadMatch(upload.files as FileList);
+  //   uploadLabel.appendChild(upload);
 
-    return uploadLabel;
-  }
+  //   return uploadLabel;
+  // }
 
   /**
    * Make the controls look good

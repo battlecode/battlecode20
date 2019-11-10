@@ -18,6 +18,7 @@ export default class MatchQueue {
   onNextMatch: () => void;
   onPreviousMatch: () => void;
   gotoMatch: (game: number, match: number) => void;
+  onGameLoaded: (data: ArrayBuffer) => void;
   removeGame: (game: number) => void;
 
   // Images
@@ -82,11 +83,22 @@ export default class MatchQueue {
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
     upload.accept = '.bc20';
-    // upload.onchange = () => this.loadMatch(upload.files as FileList);
+    upload.onchange = () => this.loadMatch(upload.files as FileList);
     uploadLabel.appendChild(upload);
 
     return uploadLabel;
   }
+  loadMatch(files: FileList) {
+    console.log(files);
+    const file = files[0];
+    console.log(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.onGameLoaded(<ArrayBuffer>reader.result);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
 
 
   refreshGameList(gameList: Array<Game>, activeGame: number, activeMatch: number) {

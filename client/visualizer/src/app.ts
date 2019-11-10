@@ -258,6 +258,13 @@ export default class Client {
 
       startGame();
     };
+    this.matchqueue.onGameLoaded = (data: ArrayBuffer) => {
+      let lastGame = this.games.length
+      this.games[lastGame] = new Game();
+      this.games[lastGame].loadFullGameRaw(data);
+
+      startGame();
+    };
 
     if (this.listener != null) {
       this.listener.start(
