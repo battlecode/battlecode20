@@ -232,6 +232,85 @@ export function createStandGame(turns: number) {
   return builder.asUint8Array();
 }
 
+// Game with every units, and picking actions to make drones filled
+export function createPickGame(turns: number) {
+  let builder = new flatbuffers.Builder();
+  let events: flatbuffers.Offset[] = [];
+
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
+
+  const unitCount = bodyVariety * 2 + 2;
+  let robotIDs = new Array(unitCount);
+  let teamIDs = new Array(unitCount);
+  let types = new Array(unitCount);
+  let xs = new Array(unitCount);
+  let ys = new Array(unitCount);
+
+  // carrying drones in unitCount-2, unitCount-1
+  for (let i = 0; i < unitCount; i++) {
+    robotIDs[i] = i;
+    teamIDs[i] = i%2+1; // 1 2 1 2 1 2 ...
+
+    let type = Math.floor(i/2);
+    if(type>=bodyVariety) type = schema.BodyType.DRONE;
+    else type = bodyTypeList[type];
+    types[i] = type;
+
+    // assume map is large enough
+    xs[i] = Math.floor(i/2) * 2 + 5;
+    ys[i] = 5*(i%2)+5;
+  }
+
+  const bb_locs = createVecTable(builder, xs, ys);
+  const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, robotIDs);
+  const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, teamIDs);
+  const bb_types = schema.SpawnedBodyTable.createTypesVector(builder, types);
+  schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
+  schema.SpawnedBodyTable.addLocs(builder, bb_locs);
+  schema.SpawnedBodyTable.addRobotIDs(builder, bb_robotIDs);
+  schema.SpawnedBodyTable.addTeamIDs(builder, bb_teamIDs);
+  schema.SpawnedBodyTable.addTypes(builder, bb_types);
+  const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
+
+  const map = createMap(builder, bodies, "Pick Demo");
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
+
+  for (let i = 1; i < turns+1; i++) {
+    let bb_actionIDs: number, bb_actions: number, bb_actionTargets: number;
+    if(i%5 == 0){ // pick up or drop
+      const nowAction = (i%10 == 5 ? schema.Action.PICK_UNIT : schema.Action.DROP_UNIT);
+      const actionIDs = [unitCount-2, unitCount-1]; // drones pick up
+      const actions = [nowAction, nowAction];
+      const actionTargets = [unitCount-4, unitCount-3]; // picking up none
+
+      bb_actionIDs = schema.Round.createActionIDsVector(builder, actionIDs);
+      bb_actions = schema.Round.createActionsVector(builder, actions);
+      bb_actionTargets = schema.Round.createActionTargetsVector(builder, actionTargets);
+    }
+
+    schema.Round.startRound(builder);
+    schema.Round.addRoundID(builder, i);
+
+    if(i%5 == 0){
+      schema.Round.addActionIDs(builder, bb_actionIDs);
+      schema.Round.addActions(builder, bb_actions);
+      schema.Round.addActionTargets(builder, bb_actionTargets);
+    }
+
+    events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
+  }
+
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
+
+  const wrapper = createGameWrapper(builder, events, turns);
+  builder.finish(wrapper);
+  return builder.asUint8Array();
+}
+
+// Game with spawning and dying random units
+// export function createLifeGame(turns: number) {}
+
 // Game with every units, moving in random constant speed & direction
 export function createWanderGame(unitCount: number, turns: number) {
   let builder = new flatbuffers.Builder();
@@ -411,6 +490,7 @@ function main(){
   const games = [
     { name: "blank", game: createBlankGame(512)},
     { name: "stand", game: createStandGame(1024) },
+    { name: "pick", game: createPickGame(1024) },
     { name: "wander", game: createWanderGame(64, 2048) },
     // { name: "active", game: createActiveGame(128, 128, 128, 4096) },
   ];

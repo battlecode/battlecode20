@@ -25,6 +25,8 @@ class GameWorld {
             x: new Int32Array(0),
             y: new Int32Array(0),
             dirt: new Int32Array(0),
+            carryDirt: new Int32Array(0),
+            isCarry: new Uint8Array(0),
             bytecodesUsed: new Int32Array(0),
         }, 'id');
         // Instantiate teamStats
@@ -190,13 +192,22 @@ class GameWorld {
             for (let i = 0; i < delta.actionsLength(); i++) {
                 const action = delta.actions(i);
                 const robotID = delta.actionIDs(i);
-                const targetID = delta.actionTargets(i);
+                const target = delta.actionTargets(i);
                 switch (action) {
-                    // TODO: implement each actions
-                    case battlecode_schema_1.schema.Action.SHOOT:
+                    // TODO: validate actions?
+                    // List from fbs enum Action
+                    case battlecode_schema_1.schema.Action.MINE_SOUP:
+                        break;
+                    case battlecode_schema_1.schema.Action.PICK_UNIT:
+                        this.bodies.alter({ id: robotID, isCarry: 1 });
+                        // this.bodies.alter({ id: target, iscarry: 1 });
+                        break;
+                    case battlecode_schema_1.schema.Action.DROP_UNIT:
+                        this.bodies.alter({ id: robotID, isCarry: 0 });
+                        // this.bodies.alter({ id: target, iscarry: 0 });
                         break;
                     default:
-                        console.log(`Undefined action: action(${action}), robotID(${robotID}, targetID(${targetID}))`);
+                        console.log(`Undefined action: action(${action}), robotID(${robotID}, targetID(${target}))`);
                         break;
                 }
             }

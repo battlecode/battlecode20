@@ -14,6 +14,8 @@ export declare type BodiesSchema = {
     x: Int32Array;
     y: Int32Array;
     dirt: Int32Array;
+    carryDirt: Int32Array;
+    isCarry: Uint8Array;
     bytecodesUsed: Int32Array;
 };
 export declare type MapStats = {

@@ -20,6 +20,8 @@ export type BodiesSchema = {
   x: Int32Array,
   y: Int32Array,
   dirt: Int32Array,
+  carryDirt: Int32Array,
+  isCarry: Uint8Array, // currently carrying something or being carried
   bytecodesUsed: Int32Array, // Only relevant for non-neutral bodies
 };
 
@@ -41,7 +43,7 @@ export type TeamStats = {
   // TODO: get size of array and auto-scale this array's size?
 
   // An array of numbers corresponding to team stats, which map to RobotTypes
-  // Corresponds to robot type (including NONE; empty drones and carrying drones are counted the same. length 11)
+  // Corresponds to robot type (including NONE; empty drones and iscarry drones are counted the same. length 11)
   soup: number,
   robots: [number, number, number, number, number, number, number, number, number, number, number]
 };
@@ -184,6 +186,8 @@ export default class GameWorld {
       x: new Int32Array(0),
       y: new Int32Array(0),
       dirt: new Int32Array(0),
+      carryDirt: new Int32Array(0),
+      isCarry: new Uint8Array(0),
       bytecodesUsed: new Int32Array(0),
     }, 'id');
 
@@ -375,14 +379,24 @@ export default class GameWorld {
       for(let i=0; i<delta.actionsLength(); i++){
         const action = delta.actions(i);
         const robotID = delta.actionIDs(i);
-        const targetID = delta.actionTargets(i);
+        const target = delta.actionTargets(i);
         switch (action) {
-          // TODO: implement each actions
-          case schema.Action.SHOOT:
+          // TODO: validate actions?
+          // List from fbs enum Action
+          
+          case schema.Action.MINE_SOUP:
+            break;
+          case schema.Action.PICK_UNIT:
+            this.bodies.alter({ id: robotID, isCarry: 1 });
+            // this.bodies.alter({ id: target, iscarry: 1 });
+            break;
+          case schema.Action.DROP_UNIT:
+            this.bodies.alter({ id: robotID, isCarry: 0 });
+            // this.bodies.alter({ id: target, iscarry: 0 });
             break;
         
           default:
-            console.log(`Undefined action: action(${action}), robotID(${robotID}, targetID(${targetID}))`);
+            console.log(`Undefined action: action(${action}), robotID(${robotID}, targetID(${target}))`);
             break;
         }
       }
