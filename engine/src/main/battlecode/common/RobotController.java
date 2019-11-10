@@ -35,8 +35,6 @@ public strictfp interface RobotController {
     int getRoundNum();
 
     /**
-<<<<<<< HEAD
-=======
      * Returns the team's total victory points.
      *
      * @return the team's total victory points.
@@ -46,7 +44,6 @@ public strictfp interface RobotController {
     int getTeamSoup();
 
     /**
->>>>>>> 94d6235d919ebb29c5d57362fa767b0ba6896d11
      * Returns the number of robots on your team, including your archons.
      * If this number ever reaches zero, the opposing team will automatically
      * win by destruction.
