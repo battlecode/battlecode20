@@ -237,10 +237,12 @@ public final strictfp class GameMapIO {
             int[] soupArray = new int[width*height];
             int[] pollutionArray = new int[width*height];
             int[] waterArray = new int[width*height];
+            int[] dirtArray = new int[width*height];
             for (int i = 0; i < width*height; i++) {
                 soupArray[i] = raw.soup(i);
                 pollutionArray[i] = raw.pollution(i);
                 waterArray[i] = raw.water(i);
+                dirtArray[i] = raw.dirt(i);
             }
             ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
@@ -249,7 +251,7 @@ public final strictfp class GameMapIO {
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
-                    width, height, origin, seed, rounds, mapName, initialBodies, soupArray, pollutionArray, waterArray
+                    width, height, origin, seed, rounds, mapName, initialBodies, soupArray, pollutionArray, waterArray, dirtArray
             );
         }
 
@@ -267,6 +269,7 @@ public final strictfp class GameMapIO {
             int[] soupArray = gameMap.getSoupArray();
             int[] pollutionArray = gameMap.getPollutionArray();
             int[] waterArray = gameMap.getWaterArray();
+            int[] dirtArray = gameMap.getDirtArray();
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
@@ -276,12 +279,13 @@ public final strictfp class GameMapIO {
             ArrayList<Integer> soupArrayList = new ArrayList<>();
             ArrayList<Integer> pollutionArrayList = new ArrayList<>();
             ArrayList<Integer> waterArrayList = new ArrayList<>();
+            ArrayList<Integer> dirtArrayList = new ArrayList<>();
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
                 soupArrayList.add(soupArray[i]);
                 pollutionArrayList.add(pollutionArray[i]);
                 waterArrayList.add(waterArray[i]);
-
+                dirtArrayList.add(dirtArray[i]);
             }
 
             for (RobotInfo robot : gameMap.getInitialBodies()) {
@@ -307,7 +311,7 @@ public final strictfp class GameMapIO {
             int soupArrayInt = battlecode.schema.GameMap.createSoupVector(builder, ArrayUtils.toPrimitive(soupArrayList.toArray(new Integer[soupArrayList.size()])));
             int pollutionArrayInt = battlecode.schema.GameMap.createPollutionVector(builder, ArrayUtils.toPrimitive(pollutionArrayList.toArray(new Integer[pollutionArrayList.size()])));
             int waterArrayInt = battlecode.schema.GameMap.createWaterVector(builder, ArrayUtils.toPrimitive(waterArrayList.toArray(new Integer[waterArrayList.size()])));
-  
+            int dirtArrayInt = battlecode.schema.GameMap.createWaterVector(builder, ArrayUtils.toPrimitive(dirtArrayList.toArray(new Integer[dirtArrayList.size()])));
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
@@ -319,9 +323,8 @@ public final strictfp class GameMapIO {
             battlecode.schema.GameMap.addSoup(builder, soupArrayInt);
             battlecode.schema.GameMap.addPollution(builder, pollutionArrayInt);
             battlecode.schema.GameMap.addWater(builder, waterArrayInt);
-
+            battlecode.schema.GameMap.addDirt(builder, dirtArrayInt);
             return battlecode.schema.GameMap.endGameMap(builder);
-
         }
 
         // ****************************

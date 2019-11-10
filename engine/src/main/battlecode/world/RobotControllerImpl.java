@@ -166,7 +166,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseRadius(float radius) {
+    public boolean canSenseRadius(int radius) {
         return this.robot.canSenseRadius(radius);
     }
 
@@ -253,7 +253,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private void assertIsReady() throws GameActionException{
         if(!isReady()){
             throw new GameActionException(NOT_ACTIVE,
-                    "This robot's build cooldown has not expired.");
+                    "This robot's action cooldown has not expired.");
         }
     }
     

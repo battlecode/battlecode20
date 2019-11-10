@@ -51,6 +51,7 @@ public strictfp class LiveMap {
     private int[] soupArray;
     private int[] pollutionArray;
     private int[] waterArray;
+    private int[] dirtArray;
 
     public LiveMap(int width,
                    int height,
@@ -69,11 +70,12 @@ public strictfp class LiveMap {
         this.soupArray = new int[width*height];
         this.pollutionArray = new int[width*height];
         this.waterArray = new int[width*height];
+        this.dirtArray = new int[width*height];
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
-        public LiveMap(int width,
+    public LiveMap(int width,
                    int height,
                    MapLocation origin,
                    int seed,
@@ -82,7 +84,8 @@ public strictfp class LiveMap {
                    RobotInfo[] initialBodies,
                    int[] soupArray,
                    int[] pollutionArray,
-                   int[] waterArray) {
+                   int[] waterArray,
+                   int[] dirtArray) {
         this.width = width;
         this.height = height;
         this.origin = origin;
@@ -93,6 +96,7 @@ public strictfp class LiveMap {
         this.soupArray = soupArray;
         this.pollutionArray = pollutionArray;
         this.waterArray = waterArray;
+        this.dirtArray = dirtArray;
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
@@ -251,8 +255,11 @@ public strictfp class LiveMap {
     public int[] getPollutionArray() {
         return soupArray;
     }
-        public int[] getWaterArray() {
+    public int[] getWaterArray() {
         return soupArray;
+    }
+     public int[] getDirtArray() {
+        return dirtArray;
     }
 
     @Override
@@ -279,6 +286,7 @@ public strictfp class LiveMap {
                     ", soupArray=:)" +  // Arrays.toString(soupArray) +
                     ", pollutionArray=:)" + // Arrays.toString(pollutionArray) +
                     ", waterArray=:)" + // Arrays.toString(waterArray) +
+                    ", dirtArray=:)" + //Arrays.toString(dirtArray) +
                     "}"; 
     }
 }

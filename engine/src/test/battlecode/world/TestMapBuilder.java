@@ -1,12 +1,9 @@
 package battlecode.world;
 
 import battlecode.common.*;
-import org.junit.Ignore;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@Ignore
 /**
  * Lets maps be built easily, for testing purposes.
  */
@@ -20,6 +17,7 @@ public class TestMapBuilder {
     private int[] soupArray;
     private int[] pollutionArray;
     private int[] waterArray;
+    private int[] dirtArray;
 
     private List<RobotInfo> bodies;
 
@@ -68,22 +66,27 @@ public class TestMapBuilder {
         this.waterArray = new int[width*height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.waterArray[i + j * width] = i * i + j * j + j - i;
+                this.waterArray[i - j / 2] = 5;
             }
         }
         return this;
     }
-
+    public TestMapBuilder setDirt() {
+        this.dirtArray = new int[width*height];
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                this.dirtArray[i + j * width] = i * j + j;
+            }
+        }
+        return this;
+    }
     public TestMapBuilder addBody(RobotInfo info) {
         bodies.add(info);
-
         return this;
     }
 
     public LiveMap build() {
-        return new LiveMap(
-                width, height, origin, seed, GameConstants.GAME_DEFAULT_ROUNDS, name,
-                bodies.toArray(new RobotInfo[bodies.size()]), soupArray, pollutionArray, waterArray
-        );
+        System.out.println("henlo");
+        return new LiveMap(width, height, origin, seed, GameConstants.GAME_DEFAULT_ROUNDS, name, bodies.toArray(new RobotInfo[bodies.size()]), soupArray, pollutionArray, waterArray, dirtArray);
     }
 }

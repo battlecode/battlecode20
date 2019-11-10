@@ -145,7 +145,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSenseRadius(float radius);
+    boolean canSenseRadius(int radius);
 
     /**
      * Senses whether there is a robot at the given location.
