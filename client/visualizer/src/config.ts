@@ -83,7 +83,7 @@ export enum Mode {
   GAME,
   HELP,
   MAPEDITOR,
-  CONSOLE,
+  RUNNER,
   QUEUE
 }
 

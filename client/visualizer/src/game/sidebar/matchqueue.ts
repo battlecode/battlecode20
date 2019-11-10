@@ -30,8 +30,13 @@ export default class MatchQueue {
   }
 
   private basediv(): HTMLDivElement {
+
     let div = document.createElement("div");
     div.id = "matchQueue";
+
+    let uploadButton = this.addUploadButton();
+    div.appendChild(uploadButton);
+    div.appendChild(document.createElement('br'));
 
     let title = document.createElement("b");
     title.appendChild(document.createTextNode("Games"));
@@ -63,6 +68,26 @@ export default class MatchQueue {
 
     return div;
   }
+
+  addUploadButton(){
+    // disguise the default upload file button with a label
+    let uploadLabel = document.createElement("label");
+    uploadLabel.setAttribute("for", "file-upload");
+    uploadLabel.setAttribute("class", "custom-button uploadfilebutton");
+    uploadLabel.innerText = 'upload';
+
+    // create the functional button
+    let upload = document.createElement('input');
+    upload.textContent = 'upload';
+    upload.id = "file-upload";
+    upload.setAttribute('type', 'file');
+    upload.accept = '.bc20';
+    // upload.onchange = () => this.loadMatch(upload.files as FileList);
+    uploadLabel.appendChild(upload);
+
+    return uploadLabel;
+  }
+
 
   refreshGameList(gameList: Array<Game>, activeGame: number, activeMatch: number) {
 

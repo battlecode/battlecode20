@@ -178,8 +178,7 @@ export default class MatchRunner {
   private loadDivNoElectron(): HTMLDivElement {
     const div = document.createElement("div");
     div.style.display = "none";
-    div.appendChild(document.createTextNode(`You aren’t running the client as an
-      application, so you can’t load matches directly from your scaffold. :(`));
+    div.appendChild(document.createTextNode(`If you run the client as an app, you can compile and run your bots here!`));
     return div;
   }
 

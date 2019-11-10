@@ -44,8 +44,8 @@ export default class Sidebar {
     this.div = document.createElement("div");
     this.innerDiv = document.createElement("div");
     this.images = images;
-    this.stats = new Stats(conf, images);
     this.console = new Console(conf);
+    this.stats = new Stats(conf, images, this.console);
     this.mapeditor = new MapEditor(conf, images);
     this.matchrunner = new MatchRunner(conf, () => {
       // Set callback for matchrunner in case the scaffold is loaded later
@@ -76,7 +76,7 @@ export default class Sidebar {
     const modePanelRow = document.createElement('tr');
     modePanelRow.appendChild(this.modeButton(Mode.GAME, "Game"));
     modePanelRow.appendChild(this.modeButton(Mode.QUEUE, "Queue"));
-    modePanelRow.appendChild(this.modeButton(Mode.CONSOLE, "Console"));
+    modePanelRow.appendChild(this.modeButton(Mode.RUNNER, "Runner"));
     modePanelRow.appendChild(this.modeButton(Mode.MAPEDITOR, "Map Editor"));
     modePanelRow.appendChild(this.modeButton(Mode.HELP, "Help"));
     modePanel.appendChild(modePanelRow);
@@ -250,11 +250,10 @@ export default class Sidebar {
         // Reset the onkeydown event listener
         document.onkeydown = this.mapeditor.onkeydown();
         break;
-      case Mode.CONSOLE:
-        this.innerDiv.appendChild(this.console.div);
+      case Mode.RUNNER:
+        this.innerDiv.appendChild(this.matchrunner.div);
         break;
       case Mode.QUEUE:
-        this.innerDiv.appendChild(this.matchrunner.div);
         this.innerDiv.appendChild(this.matchqueue.div);
         break;
     }

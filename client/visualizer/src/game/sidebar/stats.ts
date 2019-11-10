@@ -1,6 +1,7 @@
 import {Config} from '../../config';
 import * as cst from '../../constants';
 import {AllImages} from '../../imageloader';
+import Console from './console'
 
 import {schema} from 'battlecode-playback';
 
@@ -40,14 +41,17 @@ export default class Stats {
     cst.MINER, cst.LANDSCAPER, cst.DRONE, cst.NET_GUN, cst.REFINERY, cst.VAPORATOR, cst.HQ, cst.DESIGN_SCHOOL, cst.FULFILLMENT_CENTER
   ];
 
-  constructor(conf: Config, images: AllImages) {
+  constructor(conf: Config, images: AllImages, console: Console) {
     this.images = images;
     this.div = document.createElement("div");
+
 
     let teamNames: Array<string> = ["?????", "?????"];
     let teamIDs: Array<number> = [1, 2];
     this.statsTableElement = document.createElement("table");
     this.initializeGame(teamNames, teamIDs);
+
+    this.div.appendChild(console.div);
   }
 
   /**
