@@ -3,10 +3,8 @@ package battlecode.world.control;
 import battlecode.common.*;
 import battlecode.server.ErrorReporter;
 import battlecode.server.Server;
-import battlecode.world.GameMap;
 import battlecode.world.GameWorld;
 import battlecode.world.InternalRobot;
-import battlecode.common.ZombieSpawnSchedule;
 
 import java.util.*;
 
@@ -92,38 +90,34 @@ public class CowControlProvider implements RobotControlProvider {
     @Override
     public void roundEnded() {}
 
-    /*@Override
+    @Override
     public void robotSpawned(InternalRobot robot) {
-        if (robot.getType() == RobotType.ZOMBIEDEN) {
-            // Create the spawn queue for this robot
-            final Map<RobotType, Integer> spawnQueue = new HashMap<>();
-            // Initialize all zombie types in the queue to 0
-            for (RobotType type : ZOMBIE_TYPES) {
-                spawnQueue.put(type, 0);
-            }
-            // Store it in denQueues
-            denQueues.put(robot.getID(), spawnQueue);
-        }
-    }*/
+        // if (robot.getType() == RobotType.ZOMBIEDEN) {
+        //     // Create the spawn queue for this robot
+        //     final Map<RobotType, Integer> spawnQueue = new HashMap<>();
+        //     // Initialize all zombie types in the queue to 0
+        //     for (RobotType type : ZOMBIE_TYPES) {
+        //         spawnQueue.put(type, 0);
+        //     }
+        //     // Store it in denQueues
+        //     denQueues.put(robot.getID(), spawnQueue);
+        // }
+    }
 
-    /*@Override
+    @Override
     public void robotKilled(InternalRobot robot) {}
 
     @Override
     public void runRobot(InternalRobot robot) {
-        if (robot.getType() == RobotType.ZOMBIEDEN) {
-            if (!disableSpawning) {
-                processZombieDen(robot);
-            }
-        } else if (robot.getType().isZombie) {
-            processZombie(robot);
+        if (robot.getType() == COW_TYPE) {
+            processCow(robot);
         } else {
             // We're somehow controlling a non-zombie robot.
             // ...
             // Kill it.
             robot.getController().disintegrate();
         }
-    }*/
+    }
 
     /**
      * Run the logic for a zombie den.
@@ -217,7 +211,7 @@ public class CowControlProvider implements RobotControlProvider {
         try {
             boolean move = (world.getCurrentRound() % MOVE_FREQUENCY == 0);
             if (move) {
-                int rand = random.next(32);
+                int rand = random.nextInt();
                 for (int i = 0; i < 4; i++) {
                     Direction randomDir = DIRECTIONS[(rand + i) % 4];
                     if (rc.canMove(randomDir)) { //TODO: make cow slightly smarter so it doesn't drown immediately
