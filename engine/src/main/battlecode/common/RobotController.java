@@ -140,16 +140,16 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Senses whether a MapLocation is on the map. Will throw an exception if
+     * Senses whether a MapLocation is on the map. // Will throw an exception if
      * the location is not currently within sensor range.
      *
      * @param loc the location to check
      * @return true if the location is on the map; false otherwise.
-     * @throws GameActionException if the location is not within sensor range.
+     * // @throws GameActionException if the location is not within sensor range.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean onTheMap(MapLocation loc) throws GameActionException;
+    boolean onTheMap(MapLocation loc);
 
     /**
      * Senses whether the given location is within the robot's sensor range.
@@ -271,6 +271,16 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
+
+    /**
+     * Returns the location adjacent to current location in the given direction.
+     *
+     * @param dir the given direction
+     * @return the location adjacent to current location in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation adjacentLocation(Direction dir);
 
     // ***********************************
     // ****** READINESS METHODS **********
@@ -438,132 +448,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void refineSoup(Direction dir, int amount) throws GameActionException;
-
-    /**
-     * Hires a miner in the given direction.
-     * 
-     * @param dir the direction to build in
-     * @throws GameActionException if it is not possible to hire a miner in the given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void hireMiner(Direction dir) throws GameActionException;
-
-    /**
-     * Tests whether the robot can hire a Landscaper in the given direction.
-     * Checks cooldown turns remaining, soup count, whether the robot can
-     * hire, and that the given direction is not blocked.
-     * 
-     * @param dir the direction to build in
-     * @return whether it is possible to hire a landscaper in the given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canHireLandscaper(Direction dir);
-
-    /**
-     * Hires a landscaper in the given direction.
-     * 
-     * @param dir the direction to build in
-     * @throws GameActionException if it is not possible to hire a landscaper in the given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void hireLandscaper(Direction dir) throws GameActionException;
-
-    /**
-     * Tests whether the robot can build a drone in the given direction.
-     * Checks cooldown turns remaining, soup count, whether the robot can
-     * hire, and that the given direction is not blocked.
-     * 
-     * @param dir the direction to build in
-     * @return whether it is possible to build a drone in the given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canBuildDrone(Direction dir);
-
-    /**
-     * Tests whether the robot can build a Delivery Drone in the given direction.
-     * Checks cooldown turns remaining, currency, whether the robot can
-     * hire, and that the given direction is not blocked.
-     *
-     * @param dir the direction to build in
-     * @return whether it is possible to build a delivery drone in the given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canBuildDeliveryDrone(Direction dir);
-
-    /**
-     * Builds a drone in the given direction.
-     * 
-     * @param dir the direction to build in
-     * @throws GameActionException if it is not possible to build a drone in the given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void buildDrone(Direction dir) throws GameActionException;
-
-    // **************************************
-    // ********* DIRT MANIPULATION **********
-    // **************************************
-
-    /**
-     * Tests whether the robot can dig in the given direction.
-     * 
-     * @param dir the direction to dig in
-     * @return whether it is possible to dig in the given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canDig(Direction dir);
-
-    /**
-     * Digs in the given direction.
-     * 
-     * @param dir the direction to dig in
-     * @throws GameActionException if cannot dig
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void dig(Direction dir);
-
-    /**
-     * Tests whether the robot can deposit dirt in the given direction.
-     * 
-     * @param dir the direction to deposit dirt in
-     * @return whether it is possible to deposit dirt in the given direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canDeposit(Direction dir);
-
-    /**
-     * Deposits dirt in the given direction.
-     * 
-     * @param dir the direction to deposit dirt in
-     * @throws GameActionException if cannot deposit dirt
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void deposit(Direction dir);
-
-    // **************************************
-    // ******* DELIVERY DRONE METHODS *******
-    // **************************************
-
-    /**
-     * Builds a delivery drone in the given direction.
-     *
-     * @param dir the direction to spawn the Gardener
-     * @throws GameActionException if you don't have enough currency, if
-     * the robot is still in build cooldown, if the direction is not a good build
-     * direction, or if this robot is not of an appropriate type.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void buildDeliveryDrone(Direction dir) throws GameActionException;
 
     /**
      * Tests whether a robot is able to pick up another unit. Only delivery drones should be able to do this.

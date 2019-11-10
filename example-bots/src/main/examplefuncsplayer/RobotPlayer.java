@@ -55,7 +55,8 @@ public strictfp class RobotPlayer {
     }
 
     static void runMiner() throws GameActionException {
-        tryMove(randomDirection());
+        if (tryMove())
+            System.out.println("I moved!");
         tryBuild(randomSpawnedByMiner(), randomDirection());
         for (Direction dir : directions)
             if (tryRefine(dir))
@@ -105,7 +106,7 @@ public strictfp class RobotPlayer {
 
                 if (!rc.isCurrentlyHoldingUnit()) {
                     // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
-                    RobotInfo[] robots = rc.senseNearbyRobots(RobotType.DELIVERY_DRONE.bodyRadius + GameConstants.DELIVERY_DRONE_PICKUP_RADIUS, enemy);
+                    RobotInfo[] robots = rc.senseNearbyRobots(GameConstants.DELIVERY_DRONE_PICKUP_RADIUS, enemy);
 
                     if (robots.length > 0) {
                         // Pick up a first robot within range
@@ -132,9 +133,7 @@ public strictfp class RobotPlayer {
      * @return a random Direction
      */
     static Direction randomDirection() {
-        int idx = (int) (Math.random() * directions.length);
-        System.out.println("random direction index: " + idx);
-        return directions[idx];
+        return directions[(int) (Math.random() * directions.length)];
     }
 
     /**
@@ -146,6 +145,22 @@ public strictfp class RobotPlayer {
         return spawnedByMiner[(int) (Math.random() * spawnedByMiner.length)];
     }
 
+    static boolean tryMove() throws GameActionException {
+        for (Direction dir : directions)
+            if (tryMove(dir))
+                return true;
+        return false;
+        // MapLocation loc = rc.getLocation();
+        // if (loc.x < 10 && loc.x < loc.y)
+        //     return tryMove(Direction.EAST);
+        // else if (loc.x < 10)
+        //     return tryMove(Direction.SOUTH);
+        // else if (loc.x > loc.y)
+        //     return tryMove(Direction.WEST);
+        // else
+        //     return tryMove(Direction.NORTH);
+    }
+
     /**
      * Attempts to move in a given direction.
      *
@@ -154,7 +169,7 @@ public strictfp class RobotPlayer {
      * @throws GameActionException
      */
     static boolean tryMove(Direction dir) throws GameActionException {
-        System.out.println(rc.isReady() + " " + rc.canMove(dir));
+        // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if (rc.isReady() && rc.canMove(dir)) {
             rc.move(dir);
             return true;

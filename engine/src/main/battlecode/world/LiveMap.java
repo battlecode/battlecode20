@@ -67,14 +67,15 @@ public strictfp class LiveMap {
         this.rounds = rounds;
         this.mapName = mapName;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        this.soupArray = new int[width*height];
-        this.pollutionArray = new int[width*height];
-        this.waterArray = new int[width*height];
-        this.dirtArray = new int[width*height];
+        this.soupArray = new int[width * height];
+        this.pollutionArray = new int[width * height];
+        this.waterArray = new int[width * height];
+        this.dirtArray = new int[width * height];
 
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
+
     public LiveMap(int width,
                    int height,
                    MapLocation origin,

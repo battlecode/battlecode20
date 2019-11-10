@@ -62,7 +62,7 @@ public interface GameConstants {
     float LUMBERJACK_STRIKE_RADIUS = 2;
 
     /** The radius that delivery drones can pick up in */
-    float DELIVERY_DRONE_PICKUP_RADIUS = 2;
+    int DELIVERY_DRONE_PICKUP_RADIUS = 2;
 
     // *********************************
     // ****** MISCELLANEOUS ************
