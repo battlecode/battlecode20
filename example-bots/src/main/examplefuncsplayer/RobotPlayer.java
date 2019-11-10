@@ -98,9 +98,7 @@ public strictfp class RobotPlayer {
      * @return a random Direction
      */
     static Direction randomDirection() {
-        int idx = (int) (Math.random() * directions.length);
-        System.out.println("random direction index: " + idx);
-        return directions[idx];
+        return directions[(int) (Math.random() * directions.length)];
     }
 
     /**
@@ -120,7 +118,6 @@ public strictfp class RobotPlayer {
      * @throws GameActionException
      */
     static boolean tryMove(Direction dir) throws GameActionException {
-        System.out.println(rc.isReady() + " " + rc.canMove(dir));
         if (rc.isReady() && rc.canMove(dir)) {
             rc.move(dir);
             return true;

@@ -31,6 +31,7 @@ public strictfp class GameWorld {
     private int[] pollution;
     private int[] water;
     private int[] dirt;
+    private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
@@ -47,6 +48,7 @@ public strictfp class GameWorld {
         this.pollution = gm.getPollutionArray();
         this.water = gm.getWaterArray();
         this.dirt = gm.getDirtArray();
+        this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
@@ -222,6 +224,23 @@ public strictfp class GameWorld {
             soup[idx] = Math.max(0, soup[idx] - amount);
     }
 
+    public InternalRobot getRobot(MapLocation loc) {
+        return robots[loc.x][loc.y];
+    }
+
+    public void moveRobot(MapLocation start, MapLocation end) {
+        addRobot(end, robots[start.x][start.y]);
+        removeRobot(start);
+    }
+
+    public void addRobot(MapLocation loc, InternalRobot robot) {
+        robots[loc.x][loc.y] = robot;
+    }
+
+    public void removeRobot(MapLocation loc) {
+        robots[loc.x][loc.y] = null;
+    }
+
     // *********************************
     // ****** GAMEPLAY *****************
     // *********************************
@@ -293,6 +312,7 @@ public strictfp class GameWorld {
     public int spawnRobot(int ID, RobotType type, MapLocation location, Team team){
         InternalRobot robot = new InternalRobot(this, ID, type, location, team);
         objectInfo.spawnRobot(robot);
+        addRobot(location, robot);
 
         controlProvider.robotSpawned(robot);
         matchMaker.addSpawnedRobot(robot);
@@ -310,6 +330,7 @@ public strictfp class GameWorld {
 
     public void destroyRobot(int id){
         InternalRobot robot = objectInfo.getRobotByID(id);
+        removeRobot(robot.getLocation());
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);

@@ -294,9 +294,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean canMove(MapLocation center) {
         assertNotNull(center);
-        System.out.println("I'm trying to go to " + center + "; " + getType().canMove() + " " + getLocation().distanceTo(center) + " " + gameWorld.getGameMap().onTheMap(center) + " " + gameWorld.getObjectInfo().isEmpty(center));
         return getType().canMove() && getLocation().distanceTo(center) <= 1 &&
-               gameWorld.getGameMap().onTheMap(center) && gameWorld.getObjectInfo().isEmpty(center);
+               this.gameWorld.getGameMap().onTheMap(center) && this.gameWorld.getRobot(center) == null;
     }
 
     @Override
@@ -306,9 +305,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertIsReady();
         assertCanMove(center);
         this.robot.resetCooldownTurns();
+        this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
-        gameWorld.getMatchMaker().addMoved(getID(), getLocation());
+        this.gameWorld.getMatchMaker().addMoved(getID(), getLocation());
     }
 
     // ***********************************
@@ -337,8 +337,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         boolean hasBuildRequirements = hasRobotBuildRequirements(type);
         MapLocation spawnLoc = getLocation().add(dir);
-        boolean isClear = gameWorld.getGameMap().onTheMap(spawnLoc) &&
-                gameWorld.getObjectInfo().isEmpty(spawnLoc);
+        boolean isClear = this.gameWorld.getGameMap().onTheMap(spawnLoc) &&
+                this.gameWorld.getRobot(getLocation().add(dir)) == null;
         boolean cooldownExpired = isReady();
         return hasBuildRequirements && isClear && cooldownExpired;
     }
@@ -398,7 +398,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean canRefineSoup(Direction dir) {
-        InternalRobot adjacentRobot = gameWorld.getObjectInfo().getRobotAtLocation(getLocation().add(dir));
+        MapLocation center = getLocation().add(dir);
+        if (!this.gameWorld.getGameMap().onTheMap(center))
+            return false;
+        InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
         return getType().canRefine() && isReady() && getSoupCarrying() > 0 &&
                adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
     }
@@ -411,7 +414,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             amount = this.getSoupCarrying();
         this.robot.resetCooldownTurns();
         this.robot.removeSoupCarrying(amount);
-        InternalRobot refinery = this.gameWorld.getObjectInfo().getRobotAtLocation(getLocation().add(dir));
+        InternalRobot refinery = this.gameWorld.getRobot(getLocation().add(dir));
         refinery.addSoupCarrying(amount);
 
         this.gameWorld.getMatchMaker().addAction(getID(), Action.REFINE_SOUP, refinery.getID());

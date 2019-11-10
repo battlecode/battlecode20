@@ -226,8 +226,6 @@ public strictfp class ObjectInfo {
                 GameConstants.MAX_ROBOT_RADIUS  // Furthest distance
         );
 
-        System.out.println("here are the robots! " + returnRobots);
-
         if(returnRobots.size() > 0)
             return returnRobots.get(0);
         else
