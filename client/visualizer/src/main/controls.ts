@@ -43,6 +43,14 @@ export default class Controls {
     goPrevious: HTMLImageElement,
     upload: HTMLImageElement
   };
+  readonly buttonTexts: {
+    playbackStart: string,
+    playbackPause: string,
+    playbackStop: string,
+    goNext: string,
+    goPrevious: string,
+    upload: string 
+  };
 
   constructor(conf: Config, images: imageloader.AllImages) {
     this.div = this.baseDiv();
@@ -59,6 +67,14 @@ export default class Controls {
       goNext: images.controls.goNext,
       goPrevious: images.controls.goPrevious,
       upload: images.controls.upload
+    }
+    this.buttonTexts = {
+      playbackStart: 'Start',
+      playbackPause: 'Pause',
+      playbackStop: 'Stop',
+      goNext: 'Next >',
+      goPrevious: '< Prev',
+      upload: 'Upload'
     }
 
     let table = document.createElement("table");
@@ -132,6 +148,7 @@ export default class Controls {
     button.id = content;
 
     button.appendChild(this.imgs[content]);
+    button.innerText = this.buttonTexts[content];
 
     if (hiddenContent != null) {
       let hiddenImage = this.imgs[hiddenContent];
@@ -147,11 +164,13 @@ export default class Controls {
     // disguise the default upload file button with a label
     let uploadLabel = document.createElement("label");
     uploadLabel.setAttribute("for", "file-upload");
-    uploadLabel.setAttribute("class", "custom-button");
+    uploadLabel.setAttribute("class", "custom-button uploadfilebutton");
     uploadLabel.appendChild(this.imgs["upload"]);
+    uploadLabel.innerText = 'upload';
 
     // create the functional button
     let upload = document.createElement('input');
+    upload.textContent = 'upload';
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
     upload.accept = '.bc20';

@@ -70,13 +70,18 @@ export default class Sidebar {
     // Initialize div structure
     this.loadStyles();
     this.div.appendChild(this.battlecodeLogo());
-    this.div.appendChild(this.modeButton(Mode.GAME, "Game"));
-    this.div.appendChild(this.modeButton(Mode.QUEUE, "Queue"));
-    this.div.appendChild(this.modeButton(Mode.CONSOLE, "Console"));
-    this.div.appendChild(this.modeButton(Mode.MAPEDITOR, "Map Editor"));
-    this.div.appendChild(this.modeButton(Mode.HELP, "Help"));
-    this.div.appendChild(document.createElement("br"));
-    this.div.appendChild(document.createElement("br"));
+    
+    const modePanel = document.createElement('table');
+    modePanel.className = 'modepanel';
+    const modePanelRow = document.createElement('tr');
+    modePanelRow.appendChild(this.modeButton(Mode.GAME, "Game"));
+    modePanelRow.appendChild(this.modeButton(Mode.QUEUE, "Queue"));
+    modePanelRow.appendChild(this.modeButton(Mode.CONSOLE, "Console"));
+    modePanelRow.appendChild(this.modeButton(Mode.MAPEDITOR, "Map Editor"));
+    modePanelRow.appendChild(this.modeButton(Mode.HELP, "Help"));
+    modePanel.appendChild(modePanelRow);
+    this.div.appendChild(modePanel);
+
     this.div.appendChild(this.innerDiv);
     this.innerDiv.appendChild(this.stats.div);
   }
@@ -94,7 +99,7 @@ export default class Sidebar {
    */
   private initializeHelp(): HTMLDivElement {
     const innerHTML: string =
-    `This is the client for Battlecode 2017. If you run into any issues,
+    `This is the client for Battlecode 2020. If you run into any issues,
     make a post in the <a href="http://www.battlecodeforum.org" target="_blank">Battlecode forum</a>.
     Be sure to attach a screenshot of your console output (F12 in the app) and
     any other relevant information.<br>
@@ -173,20 +178,23 @@ export default class Sidebar {
     let logo: HTMLDivElement = document.createElement("div");
     logo.id = "logo";
 
-    let text = document.createTextNode("Battlecode");
+    let text = document.createTextNode("Battlecode 2020");
     logo.appendChild(text);
     return logo;
   }
 
-  private modeButton(mode: Mode, text: string): HTMLButtonElement {
+  private modeButton(mode: Mode, text: string): HTMLTableDataCellElement {
+    const cellButton = document.createElement('td');
     const button = document.createElement("button");
     button.type = "button";
+    button.className = 'modebutton';
     button.innerHTML = text;
     button.onclick = () => {
       this.conf.mode = mode;
       this.setSidebar();
     };
-    return button;
+    cellButton.appendChild(button);
+    return cellButton;
   }
 
   /**

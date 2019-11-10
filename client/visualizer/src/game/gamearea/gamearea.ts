@@ -61,7 +61,7 @@ export default class GameArea {
     
     let splashTitle = document.createElement("h1");
     splashTitle.id = "splashTitle";
-    splashTitle.appendChild(document.createTextNode("Battlecode Client"));
+    splashTitle.appendChild(document.createTextNode("Battlecode 2020 Client"));
     this.splashDiv.appendChild(splashTitle);
     
     let splashSubtitle = document.createElement("h3");
