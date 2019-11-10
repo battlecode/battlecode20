@@ -9,13 +9,8 @@ import battlecode.world.InternalRobot;
 import java.util.*;
 
 /**
- * The control provider for cows.
- *
- * @author james
- */
-/**
- * @author nmccoy
- *
+ * TODO: either have cows increase pollution here, or have something global that increases pollution based on cows
+ * in some other file
  */
 public class CowControlProvider implements RobotControlProvider {
 
