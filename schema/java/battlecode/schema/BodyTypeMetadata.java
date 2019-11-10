@@ -21,81 +21,85 @@ public final class BodyTypeMetadata extends Table {
    */
   public byte type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
   /**
-   * The radius of the type, in distance units.
+   * The spawn source.
    */
-  public float radius() { int o = __offset(6); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public byte spawnSource() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
   /**
-   * The cost of the type, in bullets.
+   * The cost of the type, in soup.
    */
-  public float cost() { int o = __offset(8); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public int cost() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
-   * The maxiumum health of the type, in health units.
+   * The maximum amount of dirt the type can carry.
    */
-  public float maxHealth() { int o = __offset(10); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public int dirtLimit() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
-   * If unset, the same as maxHealth.
-   * Otherwise, the health a body of this type starts with.
+   * The maximum amount of soup the type can carry.
    */
-  public float startHealth() { int o = __offset(12); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public int soupLimit() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
-   * The maximum distance this type can move each turn
+   * The number of cooldowns between every two actions, for pollution 0.
    */
-  public float strideRadius() { int o = __offset(14); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public int actionCooldown() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
-   * The speed that bullets from this unit move.
-   * Note: you don't need to keep track of this, SpawnedBody.vel will always be set.
+   * The maximum distance this type can sense other robots.
    */
-  public float bulletSpeed() { int o = __offset(16); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public int sensorRadius() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
-   * The damage that bullets from this unit inflict.
-   * Note: you don't need to keep track of this.
+   * The distance this type pollutes.
    */
-  public float bulletAttack() { int o = __offset(18); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public int pollutionRadius() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
-   * The maximum distance this type can sense other trees and robots
+   * The amount of pollution this type creates.
    */
-  public float sightRadius() { int o = __offset(20); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public int pollutionAmount() { int o = __offset(20); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   /**
-   * The maximum distance this type can sense bullets
+   * The maximum amount of soup this type processes every turn.
    */
-  public float bulletSightRadius() { int o = __offset(22); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public int maxSoupProduced() { int o = __offset(22); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  /**
+   * The bytecode limit of this type.
+   */
+  public int bytecodeLimit() { int o = __offset(24); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createBodyTypeMetadata(FlatBufferBuilder builder,
       byte type,
-      float radius,
-      float cost,
-      float maxHealth,
-      float startHealth,
-      float strideRadius,
-      float bulletSpeed,
-      float bulletAttack,
-      float sightRadius,
-      float bulletSightRadius) {
-    builder.startObject(10);
-    BodyTypeMetadata.addBulletSightRadius(builder, bulletSightRadius);
-    BodyTypeMetadata.addSightRadius(builder, sightRadius);
-    BodyTypeMetadata.addBulletAttack(builder, bulletAttack);
-    BodyTypeMetadata.addBulletSpeed(builder, bulletSpeed);
-    BodyTypeMetadata.addStrideRadius(builder, strideRadius);
-    BodyTypeMetadata.addStartHealth(builder, startHealth);
-    BodyTypeMetadata.addMaxHealth(builder, maxHealth);
+      byte spawnSource,
+      int cost,
+      int dirtLimit,
+      int soupLimit,
+      int actionCooldown,
+      int sensorRadius,
+      int pollutionRadius,
+      int pollutionAmount,
+      int maxSoupProduced,
+      int bytecodeLimit) {
+    builder.startObject(11);
+    BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
+    BodyTypeMetadata.addMaxSoupProduced(builder, maxSoupProduced);
+    BodyTypeMetadata.addPollutionAmount(builder, pollutionAmount);
+    BodyTypeMetadata.addPollutionRadius(builder, pollutionRadius);
+    BodyTypeMetadata.addSensorRadius(builder, sensorRadius);
+    BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
+    BodyTypeMetadata.addSoupLimit(builder, soupLimit);
+    BodyTypeMetadata.addDirtLimit(builder, dirtLimit);
     BodyTypeMetadata.addCost(builder, cost);
-    BodyTypeMetadata.addRadius(builder, radius);
+    BodyTypeMetadata.addSpawnSource(builder, spawnSource);
     BodyTypeMetadata.addType(builder, type);
     return BodyTypeMetadata.endBodyTypeMetadata(builder);
   }
 
-  public static void startBodyTypeMetadata(FlatBufferBuilder builder) { builder.startObject(10); }
+  public static void startBodyTypeMetadata(FlatBufferBuilder builder) { builder.startObject(11); }
   public static void addType(FlatBufferBuilder builder, byte type) { builder.addByte(0, type, 0); }
-  public static void addRadius(FlatBufferBuilder builder, float radius) { builder.addFloat(1, radius, 0.0f); }
-  public static void addCost(FlatBufferBuilder builder, float cost) { builder.addFloat(2, cost, 0.0f); }
-  public static void addMaxHealth(FlatBufferBuilder builder, float maxHealth) { builder.addFloat(3, maxHealth, 0.0f); }
-  public static void addStartHealth(FlatBufferBuilder builder, float startHealth) { builder.addFloat(4, startHealth, 0.0f); }
-  public static void addStrideRadius(FlatBufferBuilder builder, float strideRadius) { builder.addFloat(5, strideRadius, 0.0f); }
-  public static void addBulletSpeed(FlatBufferBuilder builder, float bulletSpeed) { builder.addFloat(6, bulletSpeed, 0.0f); }
-  public static void addBulletAttack(FlatBufferBuilder builder, float bulletAttack) { builder.addFloat(7, bulletAttack, 0.0f); }
-  public static void addSightRadius(FlatBufferBuilder builder, float sightRadius) { builder.addFloat(8, sightRadius, 0.0f); }
-  public static void addBulletSightRadius(FlatBufferBuilder builder, float bulletSightRadius) { builder.addFloat(9, bulletSightRadius, 0.0f); }
+  public static void addSpawnSource(FlatBufferBuilder builder, byte spawnSource) { builder.addByte(1, spawnSource, 0); }
+  public static void addCost(FlatBufferBuilder builder, int cost) { builder.addInt(2, cost, 0); }
+  public static void addDirtLimit(FlatBufferBuilder builder, int dirtLimit) { builder.addInt(3, dirtLimit, 0); }
+  public static void addSoupLimit(FlatBufferBuilder builder, int soupLimit) { builder.addInt(4, soupLimit, 0); }
+  public static void addActionCooldown(FlatBufferBuilder builder, int actionCooldown) { builder.addInt(5, actionCooldown, 0); }
+  public static void addSensorRadius(FlatBufferBuilder builder, int sensorRadius) { builder.addInt(6, sensorRadius, 0); }
+  public static void addPollutionRadius(FlatBufferBuilder builder, int pollutionRadius) { builder.addInt(7, pollutionRadius, 0); }
+  public static void addPollutionAmount(FlatBufferBuilder builder, int pollutionAmount) { builder.addInt(8, pollutionAmount, 0); }
+  public static void addMaxSoupProduced(FlatBufferBuilder builder, int maxSoupProduced) { builder.addInt(9, maxSoupProduced, 0); }
+  public static void addBytecodeLimit(FlatBufferBuilder builder, int bytecodeLimit) { builder.addInt(10, bytecodeLimit, 0); }
   public static int endBodyTypeMetadata(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

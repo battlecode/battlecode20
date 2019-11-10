@@ -19,9 +19,9 @@ public final class SpawnedBodyTable extends Table {
   /**
    * The numeric ID of the new bodies.
    * Will never be negative.
-   * There will only be one body/bullet with a particular ID at a time.
+   * There will only be one body with a particular ID at a time.
    * So, there will never be two robots with the same ID, or a robot and
-   * a bullet with the same ID.
+   * a building with the same ID.
    */
   public int robotIDs(int j) { int o = __offset(4); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
   public int robotIDsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }

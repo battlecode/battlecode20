@@ -232,8 +232,8 @@ public strictfp class ObjectInfo {
             return null;
     }
 
-    public boolean isEmpty(MapLocation loc, float radius){
-        return getAllRobotsWithinRadius(loc, radius).length == 0;
+    public boolean isEmpty(MapLocation loc){
+        return getRobotAtLocation(loc) == null;
     }
 
     public boolean isEmptyExceptForRobot(MapLocation loc, float radius, InternalRobot robot){

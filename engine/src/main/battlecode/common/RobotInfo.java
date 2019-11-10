@@ -26,16 +26,6 @@ public class RobotInfo {
      * The current location of the robot.
      */
     public final MapLocation location;
-    
-    /**
-     * The number of times this robot has attacked in the current turn.
-     */
-    public final int attackCount;
-    
-    /**
-     * The number of times this robot has moved in the current turn.
-     */
-    public final int moveCount;
 
     public int getID() {
         return this.ID;
@@ -45,14 +35,12 @@ public class RobotInfo {
         return this.location;
     }
 
-    public RobotInfo(int ID, Team team, RobotType type, MapLocation location, int attackCount, int moveCount) {
+    public RobotInfo(int ID, Team team, RobotType type, MapLocation location) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
         this.location = location;
-        this.attackCount = attackCount;
-        this.moveCount = moveCount;
     }
 
     /**
@@ -73,24 +61,6 @@ public class RobotInfo {
         return type;
     }
 
-    /**
-     * Returns the number of times this robot has attacked this turn.
-     *
-     * @return the number of times this robot has attacked this turn.
-     */
-    public int getAttackCount() {
-        return attackCount;
-    }
-
-    /**
-     * Returns the number of times this robot has moved this turn.
-     *
-     * @return the number of times this robot has moved this turn.
-     */
-    public int getMoveCount() {
-        return moveCount;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -99,8 +69,6 @@ public class RobotInfo {
         RobotInfo robotInfo = (RobotInfo) o;
 
         if (ID != robotInfo.ID) return false;
-        if (Float.compare(robotInfo.attackCount, attackCount) != 0) return false;
-        if (Float.compare(robotInfo.moveCount, moveCount) != 0) return false;
         if (team != robotInfo.team) return false;
         if (type != robotInfo.type) return false;
         return location.equals(robotInfo.location);
@@ -115,8 +83,6 @@ public class RobotInfo {
         result = 31 * result + team.hashCode();
         result = 31 * result + type.hashCode();
         result = 31 * result + location.hashCode();
-        result = 31 * result + attackCount;
-        result = 31 * result + moveCount;
         return result;
     }
 
@@ -127,8 +93,6 @@ public class RobotInfo {
                 ", team=" + team +
                 ", type=" + type +
                 ", location=" + location +
-                ", attackCount=" + attackCount +
-                ", moveCount=" + moveCount +
                 '}';
     }
 }

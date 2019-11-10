@@ -194,14 +194,6 @@ public strictfp class GameWorld {
         }
     }
 
-    public void setWinnerIfVictoryPoints() {
-        if(teamInfo.getVictoryPoints(Team.A) >= GameConstants.VICTORY_POINTS_TO_WIN) {
-            setWinner(Team.A, DominationFactor.PHILANTROPIED);
-        } else if(teamInfo.getVictoryPoints(Team.B) >= GameConstants.VICTORY_POINTS_TO_WIN) {
-            setWinner(Team.B, DominationFactor.PHILANTROPIED);
-        }
-    }
-
     public boolean timeLimitReached() {
         return currentRound >= gameMap.getRounds() - 1;
     }
@@ -217,13 +209,8 @@ public strictfp class GameWorld {
         if (timeLimitReached() && gameStats.getWinner() == null) {
             boolean victorDetermined = false;
 
-            // tiebreak by number of victory points
-            if(teamInfo.getVictoryPoints(Team.A) != teamInfo.getVictoryPoints(Team.B)){
-                setWinner(teamInfo.getVictoryPoints(Team.A) > teamInfo.getVictoryPoints(Team.B) ? Team.A : Team.B,
-                        DominationFactor.PWNED);
-                victorDetermined = true;
-            }
-
+            // TODO: tiebreakers
+            
             int bestRobotID = Integer.MIN_VALUE;
             Team bestRobotTeam = Team.A; // null; ARBITRARY
 
@@ -234,8 +221,8 @@ public strictfp class GameWorld {
         }
 
         // update the round statistics
-        matchMaker.addTeamStat(Team.A, teamInfo.getVictoryPoints(Team.A)); // TODO: change to soup
-        matchMaker.addTeamStat(Team.B, teamInfo.getVictoryPoints(Team.B));
+        matchMaker.addTeamStat(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
+        matchMaker.addTeamStat(Team.B, teamInfo.getSoup(Team.B));
 
         if (gameStats.getWinner() != null) {
             running = false;

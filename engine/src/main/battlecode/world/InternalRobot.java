@@ -18,14 +18,10 @@ public strictfp class InternalRobot {
     private long controlBits;
     private int currentBytecodeLimit;
     private int bytecodesUsed;
-    private int prevBytecodesUsed;
 
     private int roundsAlive;
-    private int repairCount;
-    private int attackCount;
-    private int moveCount;
     
-    private int buildCooldownTurns;
+    private int cooldownTurns;
 
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
@@ -50,14 +46,10 @@ public strictfp class InternalRobot {
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
         this.bytecodesUsed = 0;
-        this.prevBytecodesUsed = 0;
 
         this.roundsAlive = 0;
-        this.repairCount = 0;
-        this.attackCount = 0;
-        this.moveCount = 0;
         
-        this.buildCooldownTurns = 0;
+        this.cooldownTurns = 0;
 
         this.gameWorld = gw;
         this.controller = new RobotControllerImpl(gameWorld, this);
@@ -99,28 +91,12 @@ public strictfp class InternalRobot {
         return bytecodesUsed;
     }
 
-    public int getPrevBytecodesUsed() {
-        return prevBytecodesUsed;
-    }
-
     public int getRoundsAlive() {
         return roundsAlive;
     }
-
-    public int getRepairCount() {
-        return repairCount;
-    }
     
-    public int getAttackCount() {
-        return attackCount;
-    }
-    
-    public int getMoveCount() {
-        return moveCount;
-    }
-    
-    public int getBuildCooldownTurns() {
-        return buildCooldownTurns;
+    public int getCooldownTurns() {
+        return cooldownTurns;
     }
 
     public RobotInfo getRobotInfo() {
@@ -128,13 +104,11 @@ public strictfp class InternalRobot {
                 && this.cachedRobotInfo.ID == ID
                 && this.cachedRobotInfo.team == team
                 && this.cachedRobotInfo.type == type
-                && this.cachedRobotInfo.location.equals(location)
-                && this.cachedRobotInfo.attackCount == attackCount
-                && this.cachedRobotInfo.moveCount == moveCount) {
+                && this.cachedRobotInfo.location.equals(location)) {
             return this.cachedRobotInfo;
         }
         return this.cachedRobotInfo = new RobotInfo(
-                ID, team, type, location, attackCount, moveCount);
+                ID, team, type, location);
     }
 
     // **********************************
@@ -157,21 +131,9 @@ public strictfp class InternalRobot {
         this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = loc;
     }
-
-    public void incrementRepairCount() {
-        this.repairCount++;
-    }
     
-    public void incrementAttackCount() {
-        this.attackCount++;
-    }
-    
-    public void incrementMoveCount() {
-        this.moveCount++;
-    }
-    
-    public void setBuildCooldownTurns(int newTurns) {
-        this.buildCooldownTurns = newTurns;
+    public void setCooldownTurns(int newTurns) {
+        this.cooldownTurns = newTurns;
     }
 
     // TODO!!
@@ -193,11 +155,8 @@ public strictfp class InternalRobot {
     }
 
     public void processBeginningOfTurn() {
-        attackCount = 0;
-        moveCount = 0;
-        repairCount = 0;
-        if(buildCooldownTurns > 0) {
-            buildCooldownTurns--;
+        if(cooldownTurns > 0) {
+            cooldownTurns--;
         }
         // if(getRoundsAlive() < 20 && this.type.isBuildable()){
         //     this.repairRobot(.04f * getType().maxHealth);
@@ -207,7 +166,6 @@ public strictfp class InternalRobot {
 
     public void processEndOfTurn() {
         gameWorld.getMatchMaker().addBytecodes(ID, this.bytecodesUsed);
-        this.prevBytecodesUsed = this.bytecodesUsed;
         roundsAlive++;
     }
 

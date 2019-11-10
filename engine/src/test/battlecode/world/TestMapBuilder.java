@@ -41,14 +41,11 @@ public class TestMapBuilder {
                 id,
                 team,
                 type,
-                loc,
-                0,
-                0
+                loc
         ));
-
         return this;
     }
-    
+
     public TestMapBuilder setSoup() {
         this.soupArray = new int[width*height];
         for(int i = 0; i < width; i++) {

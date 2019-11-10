@@ -38,9 +38,7 @@ public class TestMapBuilder {
                 id,
                 team,
                 type,
-                loc,
-                0,
-                0
+                loc
         ));
 
         return this;
