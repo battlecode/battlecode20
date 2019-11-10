@@ -282,8 +282,8 @@ public final strictfp class GameMapIO {
             int teamIDs = SpawnedBodyTable.createTeamIDsVector(builder, ArrayUtils.toPrimitive(bodyTeamIDs.toArray(new Byte[bodyTeamIDs.size()])));
             int types = SpawnedBodyTable.createTypesVector(builder, ArrayUtils.toPrimitive(bodyTypes.toArray(new Byte[bodyTypes.size()])));
             int locs = VecTable.createVecTable(builder,
-                    VecTable.createXsVector(builder, ArrayUtils.toPrimitive(bodyLocsXs.toArray(new Float[bodyLocsXs.size()]))),
-                    VecTable.createYsVector(builder, ArrayUtils.toPrimitive(bodyLocsYs.toArray(new Float[bodyLocsYs.size()]))));
+                    VecTable.createXsVector(builder, ArrayUtils.toPrimitive(bodyLocsXs.toArray(new Integer[bodyLocsXs.size()]))),
+                    VecTable.createYsVector(builder, ArrayUtils.toPrimitive(bodyLocsYs.toArray(new Integer[bodyLocsYs.size()]))));
             SpawnedBodyTable.startSpawnedBodyTable(builder);
             SpawnedBodyTable.addRobotIDs(builder, robotIDs);
             SpawnedBodyTable.addTeamIDs(builder, teamIDs);
@@ -317,7 +317,7 @@ public final strictfp class GameMapIO {
                 float bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
                 if (bodyType != null) {
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation((int) bodyX, (int) bodyY), bodyType.getStartingHealth(), 0, 0));
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation((int) bodyX, (int) bodyY), 0, 0));
                 }
             }
         }

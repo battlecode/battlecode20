@@ -143,11 +143,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public MapLocation getLocation(){
         return this.robot.getLocation();
     }
-
-    @Override
-    public float getHealth(){
-        return this.robot.getHealth();
-    }
     
     @Override
     public int getAttackCount(){
@@ -387,7 +382,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean hasRobotBuildRequirements(RobotType type) {
         assertNotNull(type);
         boolean validBuilder = getType() == type.spawnSource;
-        return validBuilder;
+        return validBuilder; // TODO: check enough soup
     }
 
     @Override
