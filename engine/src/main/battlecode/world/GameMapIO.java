@@ -336,12 +336,11 @@ public final strictfp class GameMapIO {
             for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
                 RobotType bodyType = FlatHelpers.getRobotTypeFromBodyType(bodyTable.types(i));
                 int bodyID = bodyTable.robotIDs(i);
-                float bodyX = locs.xs(i);
-                float bodyY = locs.ys(i);
+                int bodyX = locs.xs(i);
+                int bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
-                if (bodyType != null) {
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation((int) bodyX, (int) bodyY)));
-                }
+                if (bodyType != null)
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation(bodyX, bodyY)));
             }
         }
     }

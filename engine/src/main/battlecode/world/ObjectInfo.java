@@ -27,8 +27,8 @@ import java.util.Map;
  * in the game world.
  */
 public strictfp class ObjectInfo {
-    private final float mapWidth;
-    private final float mapHeight;
+    private final int mapWidth;
+    private final int mapHeight;
     private final MapLocation mapTopLeft;
 
     private final TIntObjectHashMap<InternalRobot> gameRobotsByID;
@@ -184,10 +184,8 @@ public strictfp class ObjectInfo {
     // *** PLAYER METHODS *********
     // ****************************
     
-    public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, float radius){
-
-        float searchRadius = radius + GameConstants.MAX_ROBOT_RADIUS;
-
+    public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius){
+        int searchRadius = radius;
         ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
 
         robotIndex.nearestN(
@@ -238,7 +236,7 @@ public strictfp class ObjectInfo {
         return getRobotAtLocation(loc) == null;
     }
 
-    public boolean isEmptyExceptForRobot(MapLocation loc, float radius, InternalRobot robot){
+    public boolean isEmptyExceptForRobot(MapLocation loc, int radius, InternalRobot robot){
         InternalRobot[] robots = getAllRobotsWithinRadius(loc, radius);
         if (robots.length == 0) {
             return true;
@@ -249,7 +247,7 @@ public strictfp class ObjectInfo {
         }
     }
     
-    public boolean noRobotsExceptForRobot(MapLocation loc, float radius, InternalRobot robot){
+    public boolean noRobotsExceptForRobot(MapLocation loc, int radius, InternalRobot robot){
         InternalRobot[] robots = getAllRobotsWithinRadius(loc, radius);
         if (robots.length == 0) {
             return true;

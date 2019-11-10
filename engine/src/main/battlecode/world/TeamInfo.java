@@ -2,6 +2,7 @@ package battlecode.world;
 
 import battlecode.common.GameConstants;
 import battlecode.common.Team;
+import java.util.*;
 
 /**
  * This class is used to hold information regarding team specific values such as
@@ -17,8 +18,7 @@ public class TeamInfo {
     public TeamInfo(long[][] oldTeamMemory){
         this.teamMemory = new long[2][oldTeamMemory[0].length];
         this.oldTeamMemory = oldTeamMemory;
-        this.teamSoup[0] = 1000;
-        this.teamSoup[1] = 1000;
+        Arrays.fill(teamSoup, GameConstants.INITIAL_SOUP);
     }
 
     // *********************************
