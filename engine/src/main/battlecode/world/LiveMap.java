@@ -48,6 +48,10 @@ public strictfp class LiveMap {
      */
     private final RobotInfo[] initialBodies;
 
+    private int[] soupArray;
+    private int[] pollutionArray;
+    private int[] waterArray;
+
     public LiveMap(int width,
                    int height,
                    MapLocation origin,
@@ -62,7 +66,33 @@ public strictfp class LiveMap {
         this.rounds = rounds;
         this.mapName = mapName;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
+        this.soupArray = new int[width*height];
+        this.pollutionArray = new int[width*height];
+        this.waterArray = new int[width*height];
 
+        // invariant: bodies is sorted by id
+        Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
+    }
+        public LiveMap(int width,
+                   int height,
+                   MapLocation origin,
+                   int seed,
+                   int rounds,
+                   String mapName,
+                   BodyInfo[] initialBodies,
+                   int[] soupArray,
+                   int[] pollutionArray,
+                   int[] waterArray) {
+        this.width = width;
+        this.height = height;
+        this.origin = origin;
+        this.seed = seed;
+        this.rounds = rounds;
+        this.mapName = mapName;
+        this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
+        this.soupArray = soupArray;
+        this.pollutionArray = pollutionArray;
+        this.waterArray = waterArray;
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
@@ -153,6 +183,7 @@ public strictfp class LiveMap {
         return (x >= origin.x && y >= origin.y && x <= origin.x + width && y <= origin.y + height);
     }
 
+
     /**
      * Determines whether or not the specified location is on the map.
      *
@@ -214,16 +245,40 @@ public strictfp class LiveMap {
         return origin;
     }
 
+    public int[] getSoupArray() {
+        return soupArray;
+    }
+    public int[] getPollutionArray() {
+        return soupArray;
+    }
+        public int[] getWaterArray() {
+        return soupArray;
+    }
+
     @Override
     public String toString() {
-        return "LiveMap{" +
-                "width=" + width +
-                ", height=" + height +
-                ", origin=" + origin +
-                ", seed=" + seed +
-                ", rounds=" + rounds +
-                ", mapName='" + mapName + '\'' +
-                ", initialBodies=" + Arrays.toString(initialBodies) +
-                '}';
+        if (soupArray.length == 0)
+            return "LiveMap{" +
+                    "width=" + width +
+                    ", height=" + height +
+                    ", origin=" + origin +
+                    ", seed=" + seed +
+                    ", rounds=" + rounds +
+                    ", mapName='" + mapName + '\'' +
+                    ", initialBodies=" + Arrays.toString(initialBodies) +
+                    ", len=" + Integer.toString(soupArray.length) +
+                    "}";
+        else return "LiveMap{" +
+                    "width=" + width +
+                    ", height=" + height +
+                    ", origin=" + origin +
+                    ", seed=" + seed +
+                    ", rounds=" + rounds +
+                    ", mapName='" + mapName + '\'' +
+                    ", initialBodies=" + Arrays.toString(initialBodies) +
+                    ", soupArray=" + Arrays.toString(soupArray) +
+                    ", pollutionArray=" + Arrays.toString(pollutionArray) +
+                    ", waterArray=" + Arrays.toString(waterArray) +
+                    "}"; 
     }
 }

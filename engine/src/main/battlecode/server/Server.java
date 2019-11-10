@@ -210,11 +210,11 @@ public strictfp class Server implements Runnable {
                           GameMaker gameMaker) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
-
+        GenerateMaps.makeSimple();
         // Load the map for the match
         final LiveMap loadedMap;
         try {
-            loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")));
+            loadedMap = GameMapIO.loadMap("maptest", new File("/Users/mnocito/desktop/"/*options.get("bc.game.map-path")*/));
             debug("running map " + loadedMap);
         } catch (IOException e) {
             warn("Couldn't load map " + mapName + ", skipping");

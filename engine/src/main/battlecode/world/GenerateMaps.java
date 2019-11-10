@@ -3,8 +3,7 @@ package battlecode.world;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
-import org.junit.Ignore;
-import org.junit.Test;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -16,10 +15,8 @@ import java.io.IOException;
  *
  * this exists
  */
-@Ignore
 public class GenerateMaps {
-    @Test
-    public void makeSimple() throws IOException {
+    public static void makeSimple() throws IOException {
         LiveMap map = new TestMapBuilder("maptest", 0, 0, 100, 100,30,3000)
                 .addRobot(
                         0,
