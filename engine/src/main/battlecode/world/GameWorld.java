@@ -25,15 +25,16 @@ public strictfp class GameWorld {
     protected boolean running = true;
 
     protected final IDGenerator idGenerator;
-    protected final IDGenerator bulletIdGenerator;
     protected final GameStats gameStats;
-
+    private final int[] initialSoup;
+    private int[] soup;
+    private int[] pollution;
+    private int[] water;
+    private int[] dirt;
+    private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
-
-    private RobotInfo[] previousBroadcasters;
-    private TIntObjectHashMap<RobotInfo> currentBroadcasters;
 
     private final RobotControlProvider controlProvider;
     private Random rand;
@@ -41,21 +42,20 @@ public strictfp class GameWorld {
     private final GameMaker.MatchMaker matchMaker;
 
     @SuppressWarnings("unchecked")
-    public GameWorld(LiveMap gm, RobotControlProvider cp,
-                     long[][] oldTeamMemory, GameMaker.MatchMaker matchMaker) {
-
+    public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
+        this.initialSoup = gm.getSoupArray();
+        this.soup = gm.getSoupArray();
+        this.pollution = gm.getPollutionArray();
+        this.water = gm.getWaterArray();
+        this.dirt = gm.getDirtArray();
+        this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
-        this.bulletIdGenerator = new IDGenerator(gm.getSeed());
-        this.bulletIdGenerator.setStart(GameConstants.MAX_ROBOT_ID+1);
         this.gameStats = new GameStats();
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
-        this.teamInfo = new TeamInfo(oldTeamMemory);
-
-        this.previousBroadcasters = new RobotInfo[0];
-        this.currentBroadcasters = new TIntObjectHashMap<>();
+        this.teamInfo = new TeamInfo();
 
         this.controlProvider = cp;
 
@@ -65,15 +65,9 @@ public strictfp class GameWorld {
 
         controlProvider.matchStarted(this);
 
-        // Add the robots and trees contained in the LiveMap to this world.
-        for(BodyInfo body : gameMap.getInitialBodies()){
-            if(body.isRobot()){
-                RobotInfo robot = (RobotInfo) body;
-                spawnRobot(robot.ID, robot.type, robot.location, robot.team);
-            }else{
-                TreeInfo tree = (TreeInfo) body;
-                spawnTree(tree.ID, tree.team, tree.radius, tree.location, tree.containedBullets, tree.containedRobot);
-            }
+        // Add the robots contained in the LiveMap to this world.
+        for(RobotInfo robot : gameMap.getInitialBodies()){
+            spawnRobot(robot.ID, robot.type, robot.location, robot.team);
         }
 
         // Write match header at beginning of match
@@ -98,8 +92,6 @@ public strictfp class GameWorld {
 
             updateDynamicBodies();
 
-            updateTrees();
-
             this.controlProvider.roundEnded();
             this.processEndOfRound();
 
@@ -117,23 +109,12 @@ public strictfp class GameWorld {
         return GameState.RUNNING;
     }
 
-    private void updateTrees(){
-        float[] totalTreeSupply = new float[3];
-        objectInfo.eachTree((tree) -> {
-            totalTreeSupply[tree.getTeam().ordinal()] += tree.updateTree();
-            return true;
-        });
-        teamInfo.adjustBulletSupply(Team.A, totalTreeSupply[Team.A.ordinal()]);
-        teamInfo.adjustBulletSupply(Team.B, totalTreeSupply[Team.B.ordinal()]);
-    }
-
     private void updateDynamicBodies(){
         objectInfo.eachDynamicBodyByExecOrder((body) -> {
             if (body instanceof InternalRobot) {
                 return updateRobot((InternalRobot) body);
-            } else if (body instanceof InternalBullet) {
-                return updateBullet((InternalBullet) body);
-            } else {
+            }
+            else {
                 throw new RuntimeException("non-robot non-bullet body registered as dynamic");
             }
         });
@@ -144,20 +125,13 @@ public strictfp class GameWorld {
         this.controlProvider.runRobot(robot);
         robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
 
-        if(robot.getHealth() > 0) { // Only processEndOfTurn if robot is still alive
-            robot.processEndOfTurn();
-        }
+        robot.processEndOfTurn();
 
         // If the robot terminates but the death signal has not yet
         // been visited:
         if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null) {
             destroyRobot(robot.getID());
         }
-        return true;
-    }
-
-    private boolean updateBullet(InternalBullet bullet) {
-        bullet.updateBullet();
         return true;
     }
 
@@ -201,6 +175,85 @@ public strictfp class GameWorld {
         return currentRound;
     }
 
+    /**
+     * Helper method that converts a location into an index.
+     * 
+     * @param loc the MapLocation
+     */
+    public int locationToIndex(MapLocation loc) {
+        return loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y) * gameMap.getWidth();
+    }
+
+    /**
+     * Helper method that converts an index into a location.
+     * 
+     * @param idx the index
+     */
+    public MapLocation indexToLocation(int idx) {
+        return new MapLocation(idx / gameMap.getWidth() + gameMap.getOrigin().x,
+                               idx % gameMap.getWidth() + gameMap.getOrigin().y);
+    }
+
+    public int initialSoupAtLocation(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? initialSoup[locationToIndex(loc)] : 0;
+    }
+
+    public int getSoup(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? soup[locationToIndex(loc)] : 0;
+    }
+
+    public int getPollution(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? pollution[locationToIndex(loc)] : 0;
+    }
+
+    public int getDirt(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? dirt[locationToIndex(loc)] : 0;
+    }
+
+    public int getWater(MapLocation loc) {
+        return gameMap.onTheMap(loc) ? water[locationToIndex(loc)] : 0;
+    }
+
+    public void removeSoup(MapLocation loc) {
+        removeSoup(loc, 1);
+    }
+
+    public void removeSoup(MapLocation loc, int amount) {
+        int idx = locationToIndex(loc);
+        if (gameMap.onTheMap(loc))
+            soup[idx] = Math.max(0, soup[idx] - amount);
+    }
+
+    public InternalRobot getRobot(MapLocation loc) {
+        return robots[loc.x][loc.y];
+    }
+
+    public void moveRobot(MapLocation start, MapLocation end) {
+        addRobot(end, robots[start.x][start.y]);
+        removeRobot(start);
+    }
+
+    public void addRobot(MapLocation loc, InternalRobot robot) {
+        robots[loc.x][loc.y] = robot;
+    }
+
+    public void removeRobot(MapLocation loc) {
+        robots[loc.x][loc.y] = null;
+    }
+
+    public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius) {
+        ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
+        int minX = Math.max(center.x - radius, 0);
+        int minY = Math.max(center.y - radius, 0);
+        int maxX = Math.min(center.x + radius, this.gameMap.getWidth() - 1);
+        int maxY = Math.min(center.y + radius, this.gameMap.getHeight() - 1);
+        for (int x = minX; x <= maxX; x++)
+            for (int y = minY; y <= maxY; y++)
+                if (robots[x][y] != null)
+                    returnRobots.add(robots[x][y]);
+        return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+    }
+
     // *********************************
     // ****** GAMEPLAY *****************
     // *********************************
@@ -209,16 +262,9 @@ public strictfp class GameWorld {
         // Increment round counter
         currentRound++;
 
-        // Update broadcast data
-        updateBroadCastData();
-
         // Process beginning of each robot's round
         objectInfo.eachRobot((robot) -> {
             robot.processBeginningOfRound();
-            return true;
-        });
-        objectInfo.eachTree((tree) -> {
-            tree.processBeginningOfRound();
             return true;
         });
     }
@@ -236,14 +282,6 @@ public strictfp class GameWorld {
         }
     }
 
-    public void setWinnerIfVictoryPoints() {
-        if(teamInfo.getVictoryPoints(Team.A) >= GameConstants.VICTORY_POINTS_TO_WIN) {
-            setWinner(Team.A, DominationFactor.PHILANTROPIED);
-        } else if(teamInfo.getVictoryPoints(Team.B) >= GameConstants.VICTORY_POINTS_TO_WIN) {
-            setWinner(Team.B, DominationFactor.PHILANTROPIED);
-        }
-    }
-
     public boolean timeLimitReached() {
         return currentRound >= gameMap.getRounds() - 1;
     }
@@ -254,62 +292,15 @@ public strictfp class GameWorld {
             robot.processEndOfRound();
             return true;
         });
-        // Process end of each tree's round
-        objectInfo.eachTree((tree) -> {
-            tree.processEndOfRound();
-            return true;
-        });
-
-        // Add the round bullet income
-        teamInfo.adjustBulletSupply(Team.A, Math.max(0, GameConstants.ARCHON_BULLET_INCOME -
-                GameConstants.BULLET_INCOME_UNIT_PENALTY * teamInfo.getBulletSupply(Team.A)));
-        teamInfo.adjustBulletSupply(Team.B, Math.max(0, GameConstants.ARCHON_BULLET_INCOME -
-                GameConstants.BULLET_INCOME_UNIT_PENALTY * teamInfo.getBulletSupply(Team.B)));
 
         // Check for end of match
         if (timeLimitReached() && gameStats.getWinner() == null) {
             boolean victorDetermined = false;
 
-            // tiebreak by number of victory points
-            if(teamInfo.getVictoryPoints(Team.A) != teamInfo.getVictoryPoints(Team.B)){
-                setWinner(teamInfo.getVictoryPoints(Team.A) > teamInfo.getVictoryPoints(Team.B) ? Team.A : Team.B,
-                        DominationFactor.PWNED);
-                victorDetermined = true;
-            }
-
-            // tiebreak by bullet trees
-            if(!victorDetermined){
-                if(objectInfo.getTreeCount(Team.A) != objectInfo.getTreeCount(Team.B)){
-                    setWinner(objectInfo.getTreeCount(Team.A) > objectInfo.getTreeCount(Team.B) ? Team.A : Team.B,
-                            DominationFactor.OWNED);
-                    victorDetermined = true;
-                }
-            }
+            // TODO: tiebreakers
 
             int bestRobotID = Integer.MIN_VALUE;
-            Team bestRobotTeam = null;
-
-            // tiebreak by total bullets
-            if(!victorDetermined){
-                float totalBulletSupplyA = teamInfo.getBulletSupply(Team.A);
-                float totalBulletSupplyB = teamInfo.getBulletSupply(Team.B);
-                for(InternalRobot robot : objectInfo.robots()){
-                    if(robot.getID() > bestRobotID){
-                        bestRobotID = robot.getID();
-                        bestRobotTeam = robot.getTeam();
-                    }
-                    if(robot.getTeam() == Team.A){
-                        totalBulletSupplyA += robot.getType().bulletCost;
-                    }else{
-                        totalBulletSupplyB += robot.getType().bulletCost;
-                    }
-                }
-                if(totalBulletSupplyA != totalBulletSupplyB){
-                    setWinner(totalBulletSupplyA > totalBulletSupplyB ? Team.A : Team.B,
-                            DominationFactor.BARELY_BEAT);
-                    victorDetermined = true;
-                }
-            }
+            Team bestRobotTeam = Team.A; // null; ARBITRARY
 
             // tiebreak by robot id
             if(!victorDetermined){
@@ -318,8 +309,9 @@ public strictfp class GameWorld {
         }
 
         // update the round statistics
-        matchMaker.addTeamStat(Team.A,teamInfo.getBulletSupply(Team.A), teamInfo.getVictoryPoints(Team.A));
-        matchMaker.addTeamStat(Team.B, teamInfo.getBulletSupply(Team.B), teamInfo.getVictoryPoints(Team.B));
+
+        matchMaker.addTeamStat(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
+        matchMaker.addTeamStat(Team.B, teamInfo.getSoup(Team.B));
 
         if (gameStats.getWinner() != null) {
             running = false;
@@ -330,25 +322,10 @@ public strictfp class GameWorld {
     // ****** SPAWNING *****************
     // *********************************
 
-    public int spawnTree(int ID, Team team, float radius, MapLocation center,
-                         int containedBullets, RobotType containedRobot){
-        InternalTree tree = new InternalTree(
-                this, ID, team, radius, center, containedBullets, containedRobot);
-        objectInfo.spawnTree(tree);
-
-        matchMaker.addSpawnedTree(tree);
-        return ID;
-    }
-
-    public int spawnTree(Team team, float radius, MapLocation center,
-                         int containedBullets, RobotType containedRobot){
-        int ID = idGenerator.nextID();
-        return spawnTree(ID, team, radius, center, containedBullets, containedRobot);
-    }
-
     public int spawnRobot(int ID, RobotType type, MapLocation location, Team team){
         InternalRobot robot = new InternalRobot(this, ID, type, location, team);
         objectInfo.spawnRobot(robot);
+        addRobot(location, robot);
 
         controlProvider.robotSpawned(robot);
         matchMaker.addSpawnedRobot(robot);
@@ -360,78 +337,13 @@ public strictfp class GameWorld {
         return spawnRobot(ID, type, location, team);
     }
 
-    public int spawnBullet(int ID, Team team, float speed, float damage, MapLocation location, Direction direction, InternalRobot parent){
-        InternalBullet bullet = new InternalBullet(
-                this, ID, team, speed, damage, location, direction);
-
-        matchMaker.addSpawnedBullet(bullet); // Even if the bullet will die this turn, make sure information about it is saved in the match file
-
-        // Check for collisions in the spot the bullet is being spawned
-        InternalRobot bot = this.objectInfo.getRobotAtLocation(location);
-        InternalTree tree = this.objectInfo.getTreeAtLocation(location);
-
-        if(bot != null) {
-            // If a there is a bot at this location, damage it.
-            bot.damageRobot(damage);
-            matchMaker.addDied(ID,true);
-        } else if (tree != null) {
-            // If a there is a tree at this location, damage it.
-            tree.damageTree(damage,team,false);
-            matchMaker.addDied(ID,true);
-        } else {
-            // Else, nothing else exists where the bullet was spawned. Go ahead and add it to spatial index.
-            objectInfo.spawnBullet(bullet, parent);
-        }
-        return ID;
-    }
-
-    public int spawnBullet(Team team, float speed, float damage, MapLocation location, Direction direction, InternalRobot parent){
-        int ID = bulletIdGenerator.nextID();
-        return spawnBullet(ID, team, speed, damage, location, direction, parent);
-    }
-
     // *********************************
     // ****** DESTROYING ***************
     // *********************************
 
-    public void destroyTree(int id, Team destroyedBy, boolean fromChop){
-        InternalTree tree = objectInfo.getTreeByID(id);
-
-        // Only chopping can release goodies
-        if(fromChop) {
-            RobotType toSpawn = tree.getContainedRobot();
-            float containedBullets = tree.getContainedBullets();
-
-            // Spawn a robot if there was one in the tree
-            if (toSpawn != null && destroyedBy != Team.NEUTRAL && fromChop) {
-
-
-                //First, kill any scouts that would overlap with the new robot
-                InternalRobot[] overlappingBots = objectInfo.getAllRobotsWithinRadius(tree.getLocation(), toSpawn.bodyRadius);
-                for(InternalRobot bot : overlappingBots) {
-                    if(bot.getType() == RobotType.SCOUT) {
-                        this.destroyRobot(bot.getID());
-                    } else {
-                        // TODO: seems like we only hit this on floating point errors
-                        //throw new RuntimeException("The robot within the tree was overlapping with a non-scout robot");
-                    }
-                }
-
-                // Now spawn the new robot
-                this.spawnRobot(toSpawn, tree.getLocation(), destroyedBy);
-            }
-            if (containedBullets > 0 && fromChop) {
-                this.teamInfo.adjustBulletSupply(destroyedBy,containedBullets);
-            }
-        }
-
-        objectInfo.destroyTree(id);
-
-        matchMaker.addDied(id, false);
-    }
-
     public void destroyRobot(int id){
         InternalRobot robot = objectInfo.getRobotByID(id);
+        removeRobot(robot.getLocation());
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
@@ -440,33 +352,4 @@ public strictfp class GameWorld {
 
         matchMaker.addDied(id, false);
     }
-
-    public void destroyBullet(int id){
-        objectInfo.destroyBullet(id);
-
-        matchMaker.addDied(id, true);
-    }
-
-    // *********************************
-    // ****** BROADCASTING *************
-    // *********************************
-
-    private void updateBroadCastData(){
-        this.previousBroadcasters = this.currentBroadcasters.values(
-                new RobotInfo[this.currentBroadcasters.size()]
-        );
-        this.currentBroadcasters.clear();
-    }
-
-    public void addBroadcaster(RobotInfo robot){
-        this.currentBroadcasters.put(robot.ID, robot);
-    }
-
-    /**
-     * Don't mutate this.
-     */
-    public RobotInfo[] getPreviousBroadcasters(){
-        return this.previousBroadcasters;
-    }
-
 }

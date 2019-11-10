@@ -1,4 +1,4 @@
-package spambotbugged;
+package spambot;
 import battlecode.common.*;
 
 public class RobotPlayer {
@@ -24,13 +24,11 @@ public class RobotPlayer {
             RobotInfo[] robots = rc.senseNearbyRobots(rc.getType().sensorRadius, rc.getTeam());
             boolean nearbyGardener = false;
 
-            // Check if there are nearby gardeners
             for (RobotInfo robot : robots) {
                 if (robot.type == RobotType.GARDENER)
                     nearbyGardener = true;
             }
 
-            // Try to build a gardener
             if (!nearbyGardener && rc.hasRobotBuildRequirements(RobotType.GARDENER) && rc.isBuildReady())
                 for (int i = 0; i < 5; i++) {
                     Direction dir = randDir();
@@ -50,36 +48,23 @@ public class RobotPlayer {
         while (true) {
             MapLocation core = getCore(rc);
 
-            TreeInfo[] nearbyTrees = rc.senseNearbyTrees(rc.getType().sensorRadius, rc.getTeam());
-            int nearbyTreeCount = nearbyTrees.length;
             
             RobotInfo[] robots = rc.senseNearbyRobots(rc.getType().sensorRadius, rc.getTeam());
-            boolean nearbySoldier = false;
+            boolean nearbyTank = false;
 
             for (RobotInfo robot : robots) {
                 if (robot.type == RobotType.SOLDIER)
-                    nearbySoldier = true;
+                    nearbyTank = true;
             }
 
-            if (!nearbySoldier && rc.hasRobotBuildRequirements(RobotType.SOLDIER) && rc.isBuildReady())
+            if (!nearbyTank && rc.hasRobotBuildRequirements(RobotType.SOLDIER) && rc.isBuildReady())
                 for (int i = 0; i < 5; i++) {
                     Direction dir = randDir();
                     if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
                         rc.buildRobot(RobotType.SOLDIER, dir);
+                        break;
                     }
                 }
-
-            if (nearbyTreeCount < 2 && rc.hasTreeBuildRequirements() && rc.isBuildReady())
-                for (int i = 0; i < 5; i++) {
-                    Direction dir = randDir();
-                    if (rc.canPlantTree(dir)) {
-                        rc.plantTree(dir);
-                    }
-                }
-
-            for (TreeInfo tree : nearbyTrees) {
-                rc.water(tree.getLocation());
-            }
             
             randMove(rc, core);
 
@@ -89,11 +74,8 @@ public class RobotPlayer {
     
     public static void runSoldier(RobotController rc) throws GameActionException {
         Direction dir = Direction.getEast();
-
-        // Length of time to spend pursuing an enemy
         int cooldown = 0;
 
-        // Don't move for a bit after firing to avoid running into own bullets
         int moveCooldown = 0;
         
         while (true) {
@@ -102,18 +84,11 @@ public class RobotPlayer {
             if (enemies.length > 0) {
                 dir = rc.getLocation().directionTo(enemies[0].getLocation());
                 cooldown = 5;
-
-                if (rc.canFirePentadShot()) {
-                    rc.firePentadShot(dir);
-                    moveCooldown = 2;
-                }
                 
             } else if (cooldown > 0 && moveCooldown <= 0) {
                 moveTowards(rc, dir);
                 cooldown--;
-            } 
-
-            if (moveCooldown <= 0) {
+            } else if (moveCooldown <= 0) {
                 randMove(rc);
             }
 
@@ -127,7 +102,6 @@ public class RobotPlayer {
         return new Direction((float) (Math.random() * 2 * Math.PI));
     }
 
-    // Move randomly
     public static void randMove(RobotController rc) throws GameActionException {
         for (int i = 0; i < 5; i++) {
             Direction dir = randDir();
@@ -138,8 +112,6 @@ public class RobotPlayer {
         }
     }
 
-    // Move randomly, while trying to stay within a given distance
-    // from the core
     public static void randMove(RobotController rc, MapLocation core) throws GameActionException {
         for (int i = 0; i < 5; i++) {
             Direction dir = randDir();
@@ -173,20 +145,19 @@ public class RobotPlayer {
         }
     }
             
-    // Returns the "core", or main focal spot for this team to 
-    // gather archons/gardeners and plant trees
+
     public static MapLocation getCore(RobotController rc) throws GameActionException {
-        int coreY = rc.readBroadcast(0);
-        int coreX = rc.readBroadcast(1);
+        int coreX = rc.readBroadcast(0);
+        int coreY = rc.readBroadcast(1);
 
         if (coreX == 0 && coreY == 0) {
             MapLocation core = rc.getLocation();
-            rc.broadcast(0, (int) core.x);
-            rc.broadcast(1, (int) core.y);
+            rc.broadcast(0, (int) core.x + 100);
+            rc.broadcast(1, (int) core.y + 100);
 
             return core;
         }
 
-        return new MapLocation(coreX, coreY);
+        return new MapLocation(coreX - 100, coreY - 100);
     }
 }

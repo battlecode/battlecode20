@@ -59,8 +59,5 @@ public class Tank extends Bot {
                 choice = i;
             }
         }
-        if (choice >= 0 && rc.getTeamBullets() >= 1) {
-            rc.fireSingleShot(location.directionTo(nearbyRobots[choice].location));
-        }
     }
 }

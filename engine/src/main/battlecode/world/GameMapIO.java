@@ -228,24 +228,30 @@ public final strictfp class GameMapIO {
          * @return a new copy of the map as a LiveMap
          */
         public static LiveMap deserialize(battlecode.schema.GameMap raw) {
-            final float width = raw.maxCorner().x() - raw.minCorner().x();
-            final float height = raw.maxCorner().y() - raw.minCorner().y();
-            final MapLocation origin = new MapLocation(raw.minCorner().x(), raw.minCorner().y());
+            final int width = (int) (raw.maxCorner().x() - raw.minCorner().x());
+            final int height = (int) (raw.maxCorner().y() - raw.minCorner().y());
+            final MapLocation origin = new MapLocation((int) raw.minCorner().x(), (int) raw.minCorner().y());
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_DEFAULT_ROUNDS;
             final String mapName = raw.name();
-
-            ArrayList<BodyInfo> initBodies = new ArrayList<>();
+            int[] soupArray = new int[width*height];
+            int[] pollutionArray = new int[width*height];
+            int[] waterArray = new int[width*height];
+            int[] dirtArray = new int[width*height];
+            for (int i = 0; i < width*height; i++) {
+                soupArray[i] = raw.soup(i);
+                pollutionArray[i] = raw.pollution(i);
+                waterArray[i] = raw.water(i);
+                dirtArray[i] = raw.dirt(i);
+            }
+            ArrayList<RobotInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
             initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies);
 
-            NeutralTreeTable treeTable = raw.trees();
-            initInitialBodiesFromSchemaNeutralTreeTable(treeTable, initBodies);
-
-            BodyInfo[] initialBodies = initBodies.toArray(new BodyInfo[initBodies.size()]);
+            RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
-                    width, height, origin, seed, rounds, mapName, initialBodies
+                    width, height, origin, seed, rounds, mapName, initialBodies, soupArray, pollutionArray, waterArray, dirtArray
             );
         }
 
@@ -260,86 +266,52 @@ public final strictfp class GameMapIO {
         public static int serialize(FlatBufferBuilder builder, LiveMap gameMap) {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
-
+            int[] soupArray = gameMap.getSoupArray();
+            int[] pollutionArray = gameMap.getPollutionArray();
+            int[] waterArray = gameMap.getWaterArray();
+            int[] dirtArray = gameMap.getDirtArray();
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
             ArrayList<Byte> bodyTypes = new ArrayList<>();
-            ArrayList<Float> bodyLocsXs = new ArrayList<>();
-            ArrayList<Float> bodyLocsYs = new ArrayList<>();
+            ArrayList<Integer> bodyLocsXs = new ArrayList<>();
+            ArrayList<Integer> bodyLocsYs = new ArrayList<>();
+            ArrayList<Integer> soupArrayList = new ArrayList<>();
+            ArrayList<Integer> pollutionArrayList = new ArrayList<>();
+            ArrayList<Integer> waterArrayList = new ArrayList<>();
+            ArrayList<Integer> dirtArrayList = new ArrayList<>();
 
-            ArrayList<Integer> treeIDs = new ArrayList<>();
-            ArrayList<Float> treeRadii = new ArrayList<>();
-            ArrayList<Integer> treeContainedBullets = new ArrayList<>();
-            ArrayList<Byte> treeContainedBodies = new ArrayList<>();
-            ArrayList<Float> treeLocsXs = new ArrayList<>();
-            ArrayList<Float> treeLocsYs = new ArrayList<>();
-            ArrayList<Float> treeHealths = new ArrayList<>();
-            ArrayList<Float> treeMaxHealths = new ArrayList<>();
-            for (BodyInfo initBody : gameMap.getInitialBodies()) {
-                if (initBody.isRobot()) {
-                    RobotInfo robot = (RobotInfo) initBody;
-                    bodyIDs.add(robot.ID);
-                    bodyTeamIDs.add(TeamMapping.id(robot.team));
-                    bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
-                    bodyLocsXs.add(robot.location.x);
-                    bodyLocsYs.add(robot.location.y);
-                } else if (initBody.isTree()) {
-                    TreeInfo tree = (TreeInfo) initBody;
-                    if (tree.team == Team.NEUTRAL) {
-                        treeIDs.add(tree.ID);
-                        treeRadii.add(tree.radius);
-                        treeContainedBullets.add(tree.containedBullets);
-                        treeContainedBodies.add(FlatHelpers.getBodyTypeFromRobotType(tree.containedRobot));
-                        treeLocsXs.add(tree.location.x);
-                        treeLocsYs.add(tree.location.y);
-                        treeHealths.add(tree.health);
-                        treeMaxHealths.add(tree.maxHealth);
-                    } else {
-                        bodyIDs.add(tree.ID);
-                        bodyTeamIDs.add(TeamMapping.id(tree.team));
-                        bodyTypes.add(BodyType.TREE_BULLET);
-                        bodyLocsXs.add(tree.location.x);
-                        bodyLocsYs.add(tree.location.y);
-                    }
-                } else {
-                    // bullet; ignore?
-                }
+            for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
+                soupArrayList.add(soupArray[i]);
+                pollutionArrayList.add(pollutionArray[i]);
+                waterArrayList.add(waterArray[i]);
+                dirtArrayList.add(dirtArray[i]);
+            }
+
+            for (RobotInfo robot : gameMap.getInitialBodies()) {
+                bodyIDs.add(robot.ID);
+                bodyTeamIDs.add(TeamMapping.id(robot.team));
+                bodyTypes.add(FlatHelpers.getBodyTypeFromRobotType(robot.type));
+                bodyLocsXs.add(robot.location.x);
+                bodyLocsYs.add(robot.location.y);
             }
 
             int robotIDs = SpawnedBodyTable.createRobotIDsVector(builder, ArrayUtils.toPrimitive(bodyIDs.toArray(new Integer[bodyIDs.size()])));
             int teamIDs = SpawnedBodyTable.createTeamIDsVector(builder, ArrayUtils.toPrimitive(bodyTeamIDs.toArray(new Byte[bodyTeamIDs.size()])));
             int types = SpawnedBodyTable.createTypesVector(builder, ArrayUtils.toPrimitive(bodyTypes.toArray(new Byte[bodyTypes.size()])));
             int locs = VecTable.createVecTable(builder,
-                    VecTable.createXsVector(builder, ArrayUtils.toPrimitive(bodyLocsXs.toArray(new Float[bodyLocsXs.size()]))),
-                    VecTable.createYsVector(builder, ArrayUtils.toPrimitive(bodyLocsYs.toArray(new Float[bodyLocsYs.size()]))));
+                    VecTable.createXsVector(builder, ArrayUtils.toPrimitive(bodyLocsXs.toArray(new Integer[bodyLocsXs.size()]))),
+                    VecTable.createYsVector(builder, ArrayUtils.toPrimitive(bodyLocsYs.toArray(new Integer[bodyLocsYs.size()]))));
             SpawnedBodyTable.startSpawnedBodyTable(builder);
             SpawnedBodyTable.addRobotIDs(builder, robotIDs);
             SpawnedBodyTable.addTeamIDs(builder, teamIDs);
             SpawnedBodyTable.addTypes(builder, types);
             SpawnedBodyTable.addLocs(builder, locs);
             int bodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
-
-            robotIDs = NeutralTreeTable.createRobotIDsVector(builder, ArrayUtils.toPrimitive(treeIDs.toArray(new Integer[treeIDs.size()])));
-            int radii = NeutralTreeTable.createRadiiVector(builder, ArrayUtils.toPrimitive(treeRadii.toArray(new Float[treeRadii.size()])));
-            int containedBullets = NeutralTreeTable.createContainedBulletsVector(builder, ArrayUtils.toPrimitive(treeContainedBullets.toArray(new Integer[treeContainedBullets.size()])));
-            int containedBodies = NeutralTreeTable.createContainedBodiesVector(builder, ArrayUtils.toPrimitive(treeContainedBodies.toArray(new Byte[treeContainedBodies.size()])));
-            int healths = NeutralTreeTable.createHealthsVector(builder, ArrayUtils.toPrimitive(treeHealths.toArray(new Float[treeHealths.size()])));
-            int maxHealths = NeutralTreeTable.createMaxHealthsVector(builder, ArrayUtils.toPrimitive(treeMaxHealths.toArray(new Float[treeMaxHealths.size()])));
-            locs = VecTable.createVecTable(builder,
-                    VecTable.createXsVector(builder, ArrayUtils.toPrimitive(treeLocsXs.toArray(new Float[treeLocsXs.size()]))),
-                    VecTable.createYsVector(builder, ArrayUtils.toPrimitive(treeLocsYs.toArray(new Float[treeLocsYs.size()]))));
-            NeutralTreeTable.startNeutralTreeTable(builder);
-            NeutralTreeTable.addRobotIDs(builder, robotIDs);
-            NeutralTreeTable.addLocs(builder, locs);
-            NeutralTreeTable.addRadii(builder, radii);
-            NeutralTreeTable.addContainedBullets(builder, containedBullets);
-            NeutralTreeTable.addContainedBodies(builder, containedBodies);
-            NeutralTreeTable.addHealths(builder, healths);
-            NeutralTreeTable.addMaxHealths(builder, maxHealths);
-            NeutralTreeTable.addContainedBodies(builder, containedBodies);
-            int trees = NeutralTreeTable.endNeutralTreeTable(builder);
-
+            int soupArrayInt = battlecode.schema.GameMap.createSoupVector(builder, ArrayUtils.toPrimitive(soupArrayList.toArray(new Integer[soupArrayList.size()])));
+            int pollutionArrayInt = battlecode.schema.GameMap.createPollutionVector(builder, ArrayUtils.toPrimitive(pollutionArrayList.toArray(new Integer[pollutionArrayList.size()])));
+            int waterArrayInt = battlecode.schema.GameMap.createWaterVector(builder, ArrayUtils.toPrimitive(waterArrayList.toArray(new Integer[waterArrayList.size()])));
+            int dirtArrayInt = battlecode.schema.GameMap.createWaterVector(builder, ArrayUtils.toPrimitive(dirtArrayList.toArray(new Integer[dirtArrayList.size()])));
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
@@ -347,58 +319,29 @@ public final strictfp class GameMapIO {
             battlecode.schema.GameMap.addMaxCorner(builder, Vec.createVec(builder, gameMap.getOrigin().x + gameMap.getWidth(),
                     gameMap.getOrigin().y + gameMap.getHeight()));
             battlecode.schema.GameMap.addBodies(builder, bodies);
-            battlecode.schema.GameMap.addTrees(builder, trees);
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
-
+            battlecode.schema.GameMap.addSoup(builder, soupArrayInt);
+            battlecode.schema.GameMap.addPollution(builder, pollutionArrayInt);
+            battlecode.schema.GameMap.addWater(builder, waterArrayInt);
+            battlecode.schema.GameMap.addDirt(builder, dirtArrayInt);
             return battlecode.schema.GameMap.endGameMap(builder);
-
         }
 
         // ****************************
         // *** HELPER METHODS *********
         // ****************************
 
-        private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<BodyInfo> initialBodies) {
-            // Assumes no neutral trees
+        private static void initInitialBodiesFromSchemaBodyTable(SpawnedBodyTable bodyTable, ArrayList<RobotInfo> initialBodies) {
             VecTable locs = bodyTable.locs();
             for (int i = 0; i < bodyTable.robotIDsLength(); i++) {
                 RobotType bodyType = FlatHelpers.getRobotTypeFromBodyType(bodyTable.types(i));
                 int bodyID = bodyTable.robotIDs(i);
-                float bodyX = locs.xs(i);
-                float bodyY = locs.ys(i);
+                int bodyX = locs.xs(i);
+                int bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
-                if (bodyType != null) {
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation(bodyX, bodyY), bodyType.getStartingHealth(), 0, 0));
-                } else {
-                    initialBodies.add(new TreeInfo(bodyID, bodyTeam, new MapLocation(bodyX, bodyY), 0, 0, 0, null));
-                }
+                if (bodyType != null)
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation(bodyX, bodyY)));
             }
         }
-
-        private static void initInitialBodiesFromSchemaNeutralTreeTable(NeutralTreeTable treeTable,
-                                                                        ArrayList<BodyInfo> initialBodies) {
-            VecTable locs = treeTable.locs();
-
-            for (int i = 0; i < treeTable.robotIDsLength(); i++) {
-                int bodyID = treeTable.robotIDs(i);
-                float bodyX = locs.xs(i);
-                float bodyY = locs.ys(i);
-                float bodyRadius = treeTable.radii(i);
-                int containedBullets = treeTable.containedBullets(i);
-                RobotType containedType = FlatHelpers.getRobotTypeFromBodyType(treeTable.containedBodies(i));
-                TreeInfo tree = new TreeInfo(
-                        bodyID, Team.NEUTRAL, new MapLocation(bodyX, bodyY),
-                        bodyRadius, bodyRadius * GameConstants.NEUTRAL_TREE_HEALTH_RATE,
-                        containedBullets, containedType
-                );
-                initialBodies.add(tree);
-
-                // we compute these ourselves so that we can enforce our invariants
-                // but we will warn on mismatch
-                float health = treeTable.healths(i);
-                float maxHealth = treeTable.maxHealths(i);
-            }
-        }
-
     }
 }

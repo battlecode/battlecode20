@@ -41,9 +41,10 @@ public class TestMapBuilder {
                 type,
                 loc
         ));
+
         return this;
     }
-
+    
     public TestMapBuilder setSoup() {
         this.soupArray = new int[width*height];
         for(int i = 0; i < width; i++) {
@@ -66,7 +67,7 @@ public class TestMapBuilder {
         this.waterArray = new int[width*height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.waterArray[i - j / 2] = 5;
+                this.waterArray[i + j * width] = 5;
             }
         }
         return this;
@@ -86,7 +87,6 @@ public class TestMapBuilder {
     }
 
     public LiveMap build() {
-        System.out.println("henlo");
         return new LiveMap(width, height, origin, seed, GameConstants.GAME_DEFAULT_ROUNDS, name, bodies.toArray(new RobotInfo[bodies.size()]), soupArray, pollutionArray, waterArray, dirtArray);
     }
 }

@@ -4,64 +4,54 @@ package battlecode.schema;
 
 /**
  * The possible types of things that can exist.
- * Note that neutral trees and bullets are not treated as bodies.
+ * Note that bullets are not treated as bodies.
  */
 public final class BodyType {
   private BodyType() { }
   /**
-   * Archons are the mobile equivalent of a HQ whose sole purpose is to hire
-   * gardeners to maintain the land.
+   * The hq produces miners, is also a net gun and a refinery.
    */
-  public static final byte ARCHON = 0;
+  public static final byte HQ = 0;
   /**
-   * Gardeners are caretakers of the land, planting and watering Bullet Trees
-   * while also cultivating all other player robots.
+   * Miners extract crude soup and bring it to the refineries.
    */
-  public static final byte GARDENER = 1;
+  public static final byte MINER = 1;
   /**
-   * Lumberjacks are melee units equipped for felling trees.
+   * Refineries turn crude soup into refined soup, and produce pollution.
    */
-  public static final byte LUMBERJACK = 2;
+  public static final byte REFINERY = 2;
   /**
-   * Soldiers are all-around units with a tricky shot.
+   * Vaporators reduce pollution.
    */
-  public static final byte SOLDIER = 3;
+  public static final byte VAPORATOR = 3;
   /**
-   * Tanks are large, slow units with powerful bullets.
+   * Design schools create landscapers.
    */
-  public static final byte TANK = 4;
+  public static final byte DESIGN_SCHOOL = 4;
   /**
-   * Scouts are fast units that move around without obstruction.
+   * Fulfillment centers create drones.
    */
-  public static final byte SCOUT = 5;
+  public static final byte FULFILLMENT_CENTER = 5;
   /**
-   * A tree that belongs to a team and produces bullets.
+   * Landscapers take dirt from adjacent (decreasing the elevation)
+   * squares or deposit dirt onto adjacent squares, including
+   * into water (increasing the elevation).
    */
-  public static final byte TREE_BULLET = 6;
+  public static final byte LANDSCAPER = 6;
   /**
-   * A neutral tree.
-   * This is included for convenience; note this value SHALL NOT appear in
-   * a SpawnedBodyTable.
+   * Drones pick up any unit and drop them somewhere else.
    */
-  public static final byte TREE_NEUTRAL = 7;
+  public static final byte DRONE = 7;
   /**
-   * A bullet that moves in a perfectly straight line.
-   * Note: bullet location updates are not sent; a bullet is defined to be
-   * in position loc + dt * vel after dt seconds.
-   * This allows us some significant space savings, since there are lots
-   * of bullets, and we don't need to send position updates.
-   * The event stream will say if a bullet has been destroyed.
-   * This is included for convenience; note this value SHALL NOT appear in
-   * a SpawnedBodyTable.
+   * Net guns shoot down drones.
    */
-  public static final byte BULLET = 8;
+  public static final byte NET_GUN = 8;
   /**
-   * Indicates that there is no body.
-   * May only appear in the containedBodies field of NeutralTreeTable.
+   * Cows produce pollution.
    */
-  public static final byte NONE = 9;
+  public static final byte COW = 9;
 
-  public static final String[] names = { "ARCHON", "GARDENER", "LUMBERJACK", "SOLDIER", "TANK", "SCOUT", "TREE_BULLET", "TREE_NEUTRAL", "BULLET", "NONE", };
+  public static final String[] names = { "HQ", "MINER", "REFINERY", "VAPORATOR", "DESIGN_SCHOOL", "FULFILLMENT_CENTER", "LANDSCAPER", "DRONE", "NET_GUN", "COW", };
 
   public static String name(int e) { return names[e]; }
 }

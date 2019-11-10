@@ -10,6 +10,6 @@ import shared.SharedUtility;
 public class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
-        rc.broadcast(0, SharedUtility.theNumberSeven());
+        // rc.broadcast(0, SharedUtility.theNumberSeven());
     }
 }

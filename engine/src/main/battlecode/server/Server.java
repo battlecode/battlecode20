@@ -154,9 +154,6 @@ public strictfp class Server implements Runnable {
             // Set up our control provider
             final RobotControlProvider prov = createControlProvider(currentGame, gameMaker);
 
-            // We start with zeroed team memories.
-            long[][] teamMemory = new long[2][GameConstants.TEAM_MEMORY_LENGTH];
-
             // Count wins
             int aWins = 0, bWins = 0;
 
@@ -165,7 +162,7 @@ public strictfp class Server implements Runnable {
 
                 Team winner;
                 try {
-                    winner = runMatch(currentGame, matchIndex, prov, teamMemory, gameMaker);
+                    winner = runMatch(currentGame, matchIndex, prov, gameMaker);
                 } catch (Exception e) {
                     ErrorReporter.report(e);
                     this.state = ServerState.ERROR;
@@ -183,7 +180,6 @@ public strictfp class Server implements Runnable {
                         warn("Team "+winner+" won???");
                 }
 
-                teamMemory = currentWorld.getTeamInfo().getTeamMemory();
                 currentWorld = null;
 
                 if (currentGame.isBestOfThree()) {
@@ -206,15 +202,14 @@ public strictfp class Server implements Runnable {
     private Team runMatch(GameInfo currentGame,
                           int matchIndex,
                           RobotControlProvider prov,
-                          long[][] teamMemory,
                           GameMaker gameMaker) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
-
+        GenerateMaps.makeSimple();
         // Load the map for the match
         final LiveMap loadedMap;
         try {
-            loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")));
+            loadedMap = GameMapIO.loadMap("maptest", new File("/Users/ashlin/dev/battlecode20/engine/src/main/battlecode/world/resources"/*options.get("bc.game.map-path")*/));
             debug("running map " + loadedMap);
         } catch (IOException e) {
             warn("Couldn't load map " + mapName + ", skipping");
@@ -222,7 +217,7 @@ public strictfp class Server implements Runnable {
         }
 
         // Create the game world!
-        currentWorld = new GameWorld(loadedMap, prov, teamMemory, gameMaker.getMatchMaker());
+        currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker());
 
         // Get started
         if (interactive) {
@@ -302,7 +297,7 @@ public strictfp class Server implements Runnable {
         );
         teamProvider.registerControlProvider(
                 Team.NEUTRAL,
-                new NullControlProvider()
+                new CowControlProvider()
         );
         return teamProvider;
     }
@@ -359,12 +354,6 @@ public strictfp class Server implements Runnable {
                 break;
             case PWNED:
                 sb.append("The winning team won on tiebreakers (more victory points).");
-                break;
-            case OWNED:
-                sb.append("The winning team won on tiebreakers (more bullet trees).");
-                break;
-            case BARELY_BEAT:
-                sb.append("The winning team won on tiebreakers (more bullet supply, includings cost of active robots)");
                 break;
             case WON_BY_DUBIOUS_REASONS:
                 sb.append("The winning team won arbitrarily (highest robot ID).");

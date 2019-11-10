@@ -13,67 +13,72 @@ package battlecode.schema;
 public final class Action {
   private Action() { }
   /**
-   * Fire a bullet.
-   * Target: spawned bullet.
+   * Mines a unit of soup (miners).
+   * Target: none.
    */
-  public static final byte FIRE = 0;
+  public static final byte MINE_SOUP = 0;
   /**
-   * Fire three bullets.
-   * Target: spawned bullets.
+   * Refines a unit of soup (miners).
+   * Target: refinery.
    */
-  public static final byte FIRE_TRIAD = 1;
+  public static final byte REFINE_SOUP = 1;
   /**
-   * Fire five bullets.
-   * Target: spawned bullets.
+   * Digs a unit of dirt (landscapers).
+   * Target: tile.
    */
-  public static final byte FIRE_PENTAD = 2;
+  public static final byte DIG_DIRT = 2;
   /**
-   * Perform a lumberjack-chop.
-   * Target: none
+   * Deposits a unit of dirt (landscapers).
+   * Target: tile.
    */
-  public static final byte CHOP = 3;
+  public static final byte DEPOSIT_DIRT = 3;
   /**
-   * Shake a tree.
-   * Target: tree
+   * Picks up a unit (drones).
+   * Target: unit picked up.
    */
-  public static final byte SHAKE_TREE = 4;
+  public static final byte PICK_UNIT = 4;
   /**
-   * Plant a tree.
-   * Target: tree
+   * Drops off a unit (drones).
+   * Target: unit dropped off.
    */
-  public static final byte PLANT_TREE = 5;
+  public static final byte DROP_UNIT = 5;
   /**
-   * Water a tree.
-   * Target: tree
+   * Builds a unit.
+   * Target: spawned unit.
    */
-  public static final byte WATER_TREE = 6;
+  public static final byte SPAWN_UNIT = 6;
   /**
-   * Build a unit.
-   * Target: spawned unit
+   * Shoots a drone.
+   * Target: drone shot.
    */
-  public static final byte SPAWN_UNIT = 7;
+  public static final byte SHOOT = 7;
   /**
-   * Die due to an uncaught exception
-   * Target: none
+   * Dies from drowning.
+   * Target: none.
    */
-  public static final byte DIE_EXCEPTION = 8;
+  public static final byte DIE_DROWN = 8;
   /**
-   * Die due to suicide.
-   * Target: none
+   * Dies from being shot (drones).
+   * Target: drone.
    */
-  public static final byte DIE_SUICIDE = 9;
+  public static final byte DIE_SHOT = 9;
   /**
-   * Die due to being killed.
-   * Target: killer (bullet or lumberjack or tank)
+   * Dies due to having too much dirt on top (buildings).
+   * Target: landscaper
    */
-  public static final byte DIE_KILLED = 10;
+  public static final byte DIE_TOO_MUCH_DIRT = 10;
   /**
-   * Perform a lumberjack strike.
-   * Target: none
+   * Dies from suicide.
+   * Target: none.
    */
-  public static final byte LUMBERJACK_STRIKE = 11;
+  public static final byte DIE_SUICIDE = 11;
+  /**
+   * Dies due to an uncaught exception
+   * Target: none.
+   */
+  public static final byte DIE_EXCEPTION = 12;
 
-  public static final String[] names = { "FIRE", "FIRE_TRIAD", "FIRE_PENTAD", "CHOP", "SHAKE_TREE", "PLANT_TREE", "WATER_TREE", "SPAWN_UNIT", "DIE_EXCEPTION", "DIE_SUICIDE", "DIE_KILLED", "LUMBERJACK_STRIKE", };
+  public static final String[] names = { "MINE_SOUP", "REFINE_SOUP", "DIG_DIRT", "DEPOSIT_DIRT", "PICK_UNIT", "DROP_UNIT", "SPAWN_UNIT", "SHOOT", "DIE_DROWN", "DIE_SHOT", "DIE_TOO_MUCH_DIRT", "DIE_SUICIDE", "DIE_EXCEPTION", };
 
   public static String name(int e) { return names[e]; }
 }
