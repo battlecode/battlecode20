@@ -35,8 +35,6 @@ public strictfp interface RobotController {
     int getRoundNum();
 
     /**
-<<<<<<< HEAD
-=======
      * Returns the team's total victory points.
      *
      * @return the team's total victory points.
@@ -46,7 +44,6 @@ public strictfp interface RobotController {
     int getTeamSoup();
 
     /**
->>>>>>> 94d6235d919ebb29c5d57362fa767b0ba6896d11
      * Returns the number of robots on your team, including your archons.
      * If this number ever reaches zero, the opposing team will automatically
      * win by destruction.
@@ -110,6 +107,24 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     MapLocation getLocation();
+
+    /**
+     * Returns the amount of soup this robot is carrying.
+     *
+     * @return the amount of soup this robot is carrying.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getSoupCarrying();
+
+    /**
+     * Returns the amount of dirt this robot is carrying.
+     *
+     * @return the amount of dirt this robot is carrying.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getDirtCarrying();
 
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
@@ -248,9 +263,8 @@ public strictfp interface RobotController {
      */
     RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
 
-
     // ***********************************
-    // ****** MOVEMENT METHODS ***********
+    // ****** READINESS METHODS **********
     // ***********************************
     
     /**
@@ -271,6 +285,10 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int getCooldownTurns();
+
+    // ***********************************
+    // ****** MOVEMENT METHODS ***********
+    // ***********************************
 
     /**
      * Tells whether this robot can move one stride in the given direction,
@@ -360,17 +378,57 @@ public strictfp interface RobotController {
      */
     void buildRobot(RobotType type, Direction dir) throws GameActionException;
 
+    // ***********************************
+    // ****** MINER METHODS **************
+    // ***********************************
+
     /**
-     * Tests whether the robot can hire a Miner in the given direction.
-     * Checks cooldown turns remaining, soup count, whether the robot can
-     * hire, and that the given direction is not blocked.
-     * 
-     * @param dir the direction to build in
-     * @return whether it is possible to hire a miner in the given direction.
+     * Tests whether the robot can mine soup in the given direction.
+     * Checks cooldown turns remaining, whether the robot can mine,
+     * and that the given direction has soup.
+     *
+     * @param dir the direction to mine
+     * @return whether it is possible to mine soup in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canHireMiner(Direction dir);
+    boolean canMineSoup(Direction dir);
+
+    /**
+     * Mines soup in the given direction.
+     *
+     * @param dir the direction to mine
+     * @throws GameActionException if this robot is not a miner, if
+     * the robot is still in cooldown, or if there is no soup to mine.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void mineSoup(Direction dir) throws GameActionException;
+
+    /**
+     * Tests whether the robot can refine soup in the given direction.
+     * Checks cooldown turns remaining, whether the robot can refine, whether
+     * the robot has crude soup, and that the given direction has a refinery.
+     *
+     * @param dir the direction to refine
+     * @return whether it is possible to refine soup in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canRefineSoup(Direction dir);
+
+    /**
+     * Refines soup in the given direction (max up to specified amount).
+     *
+     * @param dir the direction to refine
+     * @param amount the amount of soup to refine
+     * @throws GameActionException if this robot is not a miner, if
+     * the robot is still in cooldown, if there is no soup to refine,
+     * or if there is no refinery.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void refineSoup(Direction dir, int amount) throws GameActionException;
 
     /**
      * Hires a miner in the given direction.
@@ -518,61 +576,6 @@ public strictfp interface RobotController {
     void setIndicatorLine(MapLocation startLoc, MapLocation endLoc, int red, int green, int blue);
 
     // ***********************************
-    // ******** TEAM MEMORY **************
-    // ***********************************
-
-    /**
-     * Sets the team's "memory", which is saved for the next game in the match.
-     * The memory is an array of {@link GameConstants#TEAM_MEMORY_LENGTH} longs.
-     * If this method is called more than once with the same index in the same
-     * game, the last call is what is saved for the next game.
-     *
-     * @param index the index of the array to set
-     * @param value the data that the team should remember for the next game
-     * @throws java.lang.ArrayIndexOutOfBoundsException if {@code index} is less
-     * than zero or greater than or equal to
-     * {@link GameConstants#TEAM_MEMORY_LENGTH}.
-     * @see #getTeamMemory
-     * @see #setTeamMemory(int, long, long)
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void setTeamMemory(int index, long value);
-
-    /**
-     * Sets this team's "memory". This function allows for finer control than
-     * {@link #setTeamMemory(int, long)} provides. For example, if
-     * {@code mask == 0xFF} then only the eight least significant bits of the
-     * memory will be set.
-     *
-     * @param index the index of the array to set
-     * @param value the data that the team should remember for the next game
-     * @param mask indicates which bits should be set
-     * @throws java.lang.ArrayIndexOutOfBoundsException if {@code index} is less
-     * than zero or greater than or equal to
-     * {@link GameConstants#TEAM_MEMORY_LENGTH}.
-     * @see #getTeamMemory
-     * @see #setTeamMemory(int, long)
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void setTeamMemory(int index, long value, long mask);
-
-    /**
-     * Returns the team memory from the last game of the match. The return value
-     * is an array of length {@link GameConstants#TEAM_MEMORY_LENGTH}. If
-     * setTeamMemory was not called in the last game, or there was no last game,
-     * the corresponding long defaults to 0.
-     *
-     * @return the team memory from the the last game of the match.
-     * @see #setTeamMemory(int, long)
-     * @see #setTeamMemory(int, long, long)
-     *
-     * @battlecode.doc.costlymethod
-     */
-    long[] getTeamMemory();
-
-    // ***********************************
     // ******** DEBUG METHODS ************
     // ***********************************
 
@@ -587,5 +590,4 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     long getControlBits();
-
 }

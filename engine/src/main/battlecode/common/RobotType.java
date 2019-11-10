@@ -67,7 +67,7 @@ public enum RobotType {
      * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    COW                     (null,  0,  0,  0,  6,  0,  0,  0,  0,  0),
+    COW                     (null,  0,  0,  0,  0,  0,  0,  0,  0,  0),
     //                       SS     C   DL  SL  AC  SR  PR  PA  MS  BL
     ;
     
@@ -156,6 +156,15 @@ public enum RobotType {
      * @return whether the robot can mine.
      */
     public boolean canMine() {
+        return this == MINER;
+    }
+
+    /**
+     * Returns whether the robot can refine.
+     *
+     * @return whether the robot can refine.
+     */
+    public boolean canRefine() {
         return this == MINER;
     }
 

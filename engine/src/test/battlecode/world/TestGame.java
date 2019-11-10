@@ -34,19 +34,8 @@ public class TestGame {
      * @param map the game map
      */
     public TestGame(LiveMap map) {
-        this(map, new long[2][GameConstants.TEAM_MEMORY_LENGTH]);
-    }
-
-    /**
-     * Creates a test game with the given map and team memory.
-     *
-     * @param map the game map
-     * @param memory the previous round's team memory
-     */
-    public TestGame(LiveMap map, long[][] memory) {
         world = new GameWorld(map,
                 new TestControlProvider(),
-                memory,
                 // this is a hack.
                 // there should be a cleaner way to do this?
                 Mockito.mock(GameMaker.MatchMaker.class));

@@ -154,9 +154,6 @@ public strictfp class Server implements Runnable {
             // Set up our control provider
             final RobotControlProvider prov = createControlProvider(currentGame, gameMaker);
 
-            // We start with zeroed team memories.
-            long[][] teamMemory = new long[2][GameConstants.TEAM_MEMORY_LENGTH];
-
             // Count wins
             int aWins = 0, bWins = 0;
 
@@ -165,7 +162,7 @@ public strictfp class Server implements Runnable {
 
                 Team winner;
                 try {
-                    winner = runMatch(currentGame, matchIndex, prov, teamMemory, gameMaker);
+                    winner = runMatch(currentGame, matchIndex, prov, gameMaker);
                 } catch (Exception e) {
                     ErrorReporter.report(e);
                     this.state = ServerState.ERROR;
@@ -183,7 +180,6 @@ public strictfp class Server implements Runnable {
                         warn("Team "+winner+" won???");
                 }
 
-                teamMemory = currentWorld.getTeamInfo().getTeamMemory();
                 currentWorld = null;
 
                 if (currentGame.isBestOfThree()) {
@@ -206,7 +202,6 @@ public strictfp class Server implements Runnable {
     private Team runMatch(GameInfo currentGame,
                           int matchIndex,
                           RobotControlProvider prov,
-                          long[][] teamMemory,
                           GameMaker gameMaker) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
@@ -222,7 +217,7 @@ public strictfp class Server implements Runnable {
         }
 
         // Create the game world!
-        currentWorld = new GameWorld(loadedMap, prov, teamMemory, gameMaker.getMatchMaker());
+        currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker());
 
         // Get started
         if (interactive) {

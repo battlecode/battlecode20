@@ -14,8 +14,6 @@ import java.util.*;
  */
 public class CowControlProvider implements RobotControlProvider {
 
-    private static final int MOVE_FREQUENCY = 3;
-
     /**
      * The directions a cow cares about.
      */
@@ -199,36 +197,25 @@ public class CowControlProvider implements RobotControlProvider {
         final RobotController rc = cow.getController();
 
         try {
-            boolean move = (world.getCurrentRound() % MOVE_FREQUENCY == 0);
-            if (move) {
-                // int rand = random.nextInt();
-                // for (int i = 0; i < 4; i++) {
-                //     Direction randomDir = DIRECTIONS[(rand + i) % 4];
-                //     if (rc.canMove(randomDir)) { //TODO: make cow slightly smarter so it doesn't drown immediately
-                //         rc.move(randomDir);
-                //         System.out.println("This cow is moving!");
-                //         return;
-                //     }
-                // } i feel like this is a better way to generate a random dir but for now lets just quit :)
-                double rand = random.nextDouble();
-                Direction randomDir;
-                if (rand < .25) randomDir = Direction.SOUTH;
-                else if (rand < .50) randomDir = Direction.WEST;
-                else if (rand < .75) randomDir = Direction.EAST;
-                else randomDir = Direction.NORTH;
-                while (!rc.canMove(randomDir)) { //TODO: make cow slightly smarter so it doesn't drown immediately
-                    if (rand < .25) randomDir = Direction.SOUTH;
-                    else if (rand < .50) randomDir = Direction.WEST;
-                    else if (rand < .75) randomDir = Direction.EAST;
-                    else randomDir = Direction.NORTH;
+            if (rc.isReady()) {
+                int i = 4;
+                while (i-->0) { // TODO: make cow slightly smarter so it doesn't drown immediately
+                    Direction dir = randomDirection();
+                    if (rc.canMove(dir)) {
+                        rc.move(dir);
+                        break;
+                    }
                 }
-                rc.move(randomDir);
-                // System.out.println(rc.getLocation());
+                System.out.println("I'm a cow! at " + rc.getLocation());
                 return;
             }
         } catch (Exception e) {
             ErrorReporter.report(e, true);
         }
+    }
+
+    static Direction randomDirection() {
+        return DIRECTIONS[(int) (Math.random() * DIRECTIONS.length)];
     }
 
     @Override

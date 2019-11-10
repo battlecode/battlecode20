@@ -175,6 +175,22 @@ public strictfp class InternalRobot {
         this.cooldownTurns = newTurns;
     }
 
+    public void addSoupCarrying(int amount) {
+        this.soupCarrying += amount;
+    }
+
+    public void removeSoupCarrying(int amount) {
+        this.soupCarrying = amount > this.soupCarrying ? 0 : this.soupCarrying - amount;
+    }
+
+    public void addDirtCarrying(int amount) {
+        this.dirtCarrying += amount;
+    }
+
+    public void removeDirtCarrying(int amount) {
+        this.dirtCarrying -= amount > this.dirtCarrying ? 0 : this.dirtCarrying - amount;
+    }
+
     // TODO!!
     // public boolean killRobotIfDead(){
     //     if(this.health == 0){
@@ -194,12 +210,14 @@ public strictfp class InternalRobot {
     }
 
     public void processBeginningOfTurn() {
-        if (this.cooldownTurns > 0) {
+        if (this.cooldownTurns > 0)
             this.cooldownTurns--;
+        // If refinery, produces refined soup
+        if (this.type == RobotType.REFINERY && this.soupCarrying > 0) {
+            int soupProduced = Math.min(this.soupCarrying, this.type.maxSoupProduced);
+            this.soupCarrying -= soupProduced;
+            this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
         }
-        // if(getRoundsAlive() < 20 && this.type.isBuildable()){
-        //     this.repairRobot(.04f * getType().maxHealth);
-        // }
         this.currentBytecodeLimit = getType().bytecodeLimit;
     }
 

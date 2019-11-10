@@ -41,8 +41,7 @@ public strictfp class GameWorld {
     private final GameMaker.MatchMaker matchMaker;
 
     @SuppressWarnings("unchecked")
-    public GameWorld(LiveMap gm, RobotControlProvider cp,
-                     long[][] oldTeamMemory, GameMaker.MatchMaker matchMaker) {
+    public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.initialSoup = gm.getSoupArray();
         this.soup = gm.getSoupArray();
         this.pollution = gm.getPollutionArray();
@@ -54,7 +53,7 @@ public strictfp class GameWorld {
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
-        this.teamInfo = new TeamInfo(oldTeamMemory);
+        this.teamInfo = new TeamInfo();
 
         this.controlProvider = cp;
 
@@ -211,6 +210,10 @@ public strictfp class GameWorld {
 
     public int getWater(MapLocation loc) {
         return gameMap.onTheMap(loc) ? water[locationToIndex(loc)] : 0;
+    }
+
+    public void removeSoup(MapLocation loc) {
+        removeSoup(loc, 1);
     }
 
     public void removeSoup(MapLocation loc, int amount) {
