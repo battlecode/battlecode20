@@ -234,7 +234,14 @@ public final strictfp class GameMapIO {
             final int seed = raw.randomSeed();
             final int rounds = GameConstants.GAME_DEFAULT_ROUNDS;
             final String mapName = raw.name();
-
+            int[] soupArray = new int[width*height];
+            int[] pollutionArray = new int[width*height];
+            int[] waterArray = new int[width*height];
+            for (int i = 0; i < width*height; i++) {
+                soupArray[i] = raw.soup(i);
+                pollutionArray[i] = raw.pollution(i);
+                waterArray[i] = raw.water(i);
+            }
             ArrayList<BodyInfo> initBodies = new ArrayList<>();
             SpawnedBodyTable bodyTable = raw.bodies();
             initInitialBodiesFromSchemaBodyTable(bodyTable, initBodies);
@@ -242,7 +249,7 @@ public final strictfp class GameMapIO {
             BodyInfo[] initialBodies = initBodies.toArray(new BodyInfo[initBodies.size()]);
 
             return new LiveMap(
-                    width, height, origin, seed, rounds, mapName, initialBodies
+                    width, height, origin, seed, rounds, mapName, initialBodies, soupArray, pollutionArray, waterArray
             );
         }
 
@@ -257,13 +264,25 @@ public final strictfp class GameMapIO {
         public static int serialize(FlatBufferBuilder builder, LiveMap gameMap) {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
-
+            int[] soupArray = gameMap.getSoupArray();
+            int[] pollutionArray = gameMap.getPollutionArray();
+            int[] waterArray = gameMap.getWaterArray();
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
             ArrayList<Byte> bodyTeamIDs = new ArrayList<>();
             ArrayList<Byte> bodyTypes = new ArrayList<>();
             ArrayList<Integer> bodyLocsXs = new ArrayList<>();
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
+            ArrayList<Integer> soupArrayList = new ArrayList<>();
+            ArrayList<Integer> pollutionArrayList = new ArrayList<>();
+            ArrayList<Integer> waterArrayList = new ArrayList<>();
+
+            for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
+                soupArrayList.add(soupArray[i]);
+                pollutionArrayList.add(pollutionArray[i]);
+                waterArrayList.add(waterArray[i]);
+
+            }
 
             for (BodyInfo initBody : gameMap.getInitialBodies()) {
                 if (initBody.isRobot()) {
@@ -290,7 +309,10 @@ public final strictfp class GameMapIO {
             SpawnedBodyTable.addTypes(builder, types);
             SpawnedBodyTable.addLocs(builder, locs);
             int bodies = SpawnedBodyTable.endSpawnedBodyTable(builder);
-
+            int soupArrayInt = battlecode.schema.GameMap.createSoupVector(builder, ArrayUtils.toPrimitive(soupArrayList.toArray(new Integer[soupArrayList.size()])));
+            int pollutionArrayInt = battlecode.schema.GameMap.createPollutionVector(builder, ArrayUtils.toPrimitive(pollutionArrayList.toArray(new Integer[pollutionArrayList.size()])));
+            int waterArrayInt = battlecode.schema.GameMap.createWaterVector(builder, ArrayUtils.toPrimitive(waterArrayList.toArray(new Integer[waterArrayList.size()])));
+  
             // Build LiveMap for flatbuffer
             battlecode.schema.GameMap.startGameMap(builder);
             battlecode.schema.GameMap.addName(builder, name);
@@ -299,6 +321,9 @@ public final strictfp class GameMapIO {
                     gameMap.getOrigin().y + gameMap.getHeight()));
             battlecode.schema.GameMap.addBodies(builder, bodies);
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
+            battlecode.schema.GameMap.addSoup(builder, soupArrayInt);
+            battlecode.schema.GameMap.addPollution(builder, pollutionArrayInt);
+            battlecode.schema.GameMap.addWater(builder, waterArrayInt);
 
             return battlecode.schema.GameMap.endGameMap(builder);
 
