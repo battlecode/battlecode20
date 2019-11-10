@@ -131,16 +131,16 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Senses whether a MapLocation is on the map. Will throw an exception if
+     * Senses whether a MapLocation is on the map. // Will throw an exception if
      * the location is not currently within sensor range.
      *
      * @param loc the location to check
      * @return true if the location is on the map; false otherwise.
-     * @throws GameActionException if the location is not within sensor range.
+     * // @throws GameActionException if the location is not within sensor range.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean onTheMap(MapLocation loc) throws GameActionException;
+    boolean onTheMap(MapLocation loc);
 
     /**
      * Senses whether the given location is within the robot's sensor range.
@@ -262,6 +262,16 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
+
+    /**
+     * Returns the location adjacent to current location in the given direction.
+     *
+     * @param dir the given direction
+     * @return the location adjacent to current location in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation adjacentLocation(Direction dir);
 
     // ***********************************
     // ****** READINESS METHODS **********
