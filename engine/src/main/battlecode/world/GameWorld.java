@@ -212,6 +212,10 @@ public strictfp class GameWorld {
         return gameMap.onTheMap(loc) ? water[locationToIndex(loc)] : 0;
     }
 
+    public void removeSoup(MapLocation loc) {
+        removeSoup(loc, 1);
+    }
+
     public void removeSoup(MapLocation loc, int amount) {
         int idx = locationToIndex(loc);
         if (gameMap.onTheMap(loc))

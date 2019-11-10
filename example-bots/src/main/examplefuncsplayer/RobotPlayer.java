@@ -19,12 +19,13 @@ public strictfp class RobotPlayer {
         // and to get information on its current status.
         RobotPlayer.rc = rc;
 
-        System.out.println("I'm a " + rc.getType() + "!");
+        System.out.println("I'm a " + rc.getType() + " and I just got created!");
         while (true) {
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
                 // Here, we've separated the controls into a different method for each RobotType.
                 // You can add the missing ones or rewrite this into your own control structure.
+                System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
                 switch (rc.getType()) {
                     case HQ:                 runHQ();                break;
                     case MINER:              runMiner();             break;
@@ -55,6 +56,12 @@ public strictfp class RobotPlayer {
     static void runMiner() throws GameActionException {
         tryMove(randomDirection());
         tryBuild(randomSpawnedByMiner(), randomDirection());
+        for (Direction dir : directions)
+            if (tryRefine(dir))
+                System.out.println("I refined soup! " + rc.getTeamSoup());
+        for (Direction dir : directions)
+            if (tryMine(dir))
+                System.out.println("I mined soup! " + rc.getSoupCarrying());
     }
 
     static void runRefinery() throws GameActionException {
@@ -85,147 +92,15 @@ public strictfp class RobotPlayer {
         
     }
 
-    // static void runArchon() throws GameActionException {
-    //     System.out.println("I'm an archon!");
-
-    //     // The code you want your robot to perform every round should be in this loop
-    //     while (true) {
-
-    //         // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
-    //         try {
-
-    //             // Generate a random direction
-    //             Direction dir = randomDirection();
-
-    //             // Randomly attempt to build a gardener in this direction
-    //             if (rc.canHireGardener(dir) && Math.random() < .01) {
-    //                 rc.hireGardener(dir);
-    //             }
-
-    //             // Move randomly
-    //             tryMove(randomDirection());
-
-    //             // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-    //             Clock.yield();
-
-    //         } catch (Exception e) {
-    //             System.out.println("Archon Exception");
-    //             e.printStackTrace();
-    //         }
-    //     }
-    // }
-
-	// static void runGardener() throws GameActionException {
- //        System.out.println("I'm a gardener!");
-
- //        // The code you want your robot to perform every round should be in this loop
- //        while (true) {
-
- //            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
- //            try {
- //                // Listen for home archon's location
- //                // archonLoc = rc.getLocation();
-
- //                // Generate a random direction
- //                Direction dir = randomDirection();
-
- //                // Randomly attempt to build a soldier or lumberjack in this direction
- //                if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .01) {
- //                    rc.buildRobot(RobotType.SOLDIER, dir);
- //                } else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .01 && rc.isBuildReady()) {
- //                    rc.buildRobot(RobotType.LUMBERJACK, dir);
- //                }
-
- //                // Move randomly
- //                tryMove(randomDirection());
-
- //                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
- //                Clock.yield();
-
- //            } catch (Exception e) {
- //                System.out.println("Gardener Exception");
- //                e.printStackTrace();
- //            }
- //        }
- //    }
-
-    // static void runSoldier() throws GameActionException {
-    //     System.out.println("I'm an soldier!");
-    //     Team enemy = rc.getTeam().opponent();
-
-    //     // The code you want your robot to perform every round should be in this loop
-    //     while (true) {
-
-    //         // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
-    //         try {
-    //             MapLocation myLocation = rc.getLocation();
-
-    //             // See if there are any nearby enemy robots
-    //             RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
-
-    //             // Move randomly
-    //             tryMove(randomDirection());
-
-    //             // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-    //             Clock.yield();
-
-    //         } catch (Exception e) {
-    //             System.out.println("Soldier Exception");
-    //             e.printStackTrace();
-    //         }
-    //     }
-    // }
-
-    // static void runLumberjack() throws GameActionException {
-    //     System.out.println("I'm a lumberjack!");
-    //     Team enemy = rc.getTeam().opponent();
-
-    //     // The code you want your robot to perform every round should be in this loop
-    //     while (true) {
-
-    //         // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
-    //         try {
-
-    //             // See if there are any enemy robots within striking range (distance 1 from lumberjack's radius)
-    //             RobotInfo[] robots = rc.senseNearbyRobots(RobotType.LUMBERJACK.bodyRadius+GameConstants.LUMBERJACK_STRIKE_RADIUS, enemy);
-
-    //             if(robots.length > 0 && !rc.hasAttacked()) {
-    //                 // Use strike() to hit all nearby robots!
-    //                 rc.strike();
-    //             } else {
-    //                 // No close robots, so search for robots within sight radius
-    //                 robots = rc.senseNearbyRobots(-1,enemy);
-
-    //                 // If there is a robot, move towards it
-    //                 if(robots.length > 0) {
-    //                     MapLocation myLocation = rc.getLocation();
-    //                     MapLocation enemyLocation = robots[0].getLocation();
-    //                     Direction toEnemy = myLocation.directionTo(enemyLocation);
-
-    //                     tryMove(toEnemy);
-    //                 } else {
-    //                     // Move Randomly
-    //                     tryMove(randomDirection());
-    //                 }
-    //             }
-
-    //             // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-    //             Clock.yield();
-
-    //         } catch (Exception e) {
-    //             System.out.println("Lumberjack Exception");
-    //             e.printStackTrace();
-    //         }
-    //     }
-    // }
-
     /**
      * Returns a random Direction.
      *
      * @return a random Direction
      */
     static Direction randomDirection() {
-        return directions[(int) (Math.random() * directions.length)];
+        int idx = (int) (Math.random() * directions.length);
+        System.out.println("random direction index: " + idx);
+        return directions[idx];
     }
 
     /**
@@ -245,6 +120,7 @@ public strictfp class RobotPlayer {
      * @throws GameActionException
      */
     static boolean tryMove(Direction dir) throws GameActionException {
+        System.out.println(rc.isReady() + " " + rc.canMove(dir));
         if (rc.isReady() && rc.canMove(dir)) {
             rc.move(dir);
             return true;
@@ -262,6 +138,34 @@ public strictfp class RobotPlayer {
     static boolean tryBuild(RobotType type, Direction dir) throws GameActionException {
         if (rc.isReady() && rc.canBuildRobot(type, dir)) {
             rc.buildRobot(type, dir);
+            return true;
+        } else return false;
+    }
+
+    /**
+     * Attempts to mine soup in a given direction.
+     *
+     * @param dir The intended direction of mining
+     * @return true if a move was performed
+     * @throws GameActionException
+     */
+    static boolean tryMine(Direction dir) throws GameActionException {
+        if (rc.isReady() && rc.canMineSoup(dir)) {
+            rc.mineSoup(dir);
+            return true;
+        } else return false;
+    }
+
+    /**
+     * Attempts to refine soup in a given direction.
+     *
+     * @param dir The intended direction of refining
+     * @return true if a move was performed
+     * @throws GameActionException
+     */
+    static boolean tryRefine(Direction dir) throws GameActionException {
+        if (rc.isReady() && rc.canRefineSoup(dir)) {
+            rc.refineSoup(dir, rc.getSoupCarrying());
             return true;
         } else return false;
     }
