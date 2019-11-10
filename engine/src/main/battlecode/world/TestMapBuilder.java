@@ -1,12 +1,9 @@
 package battlecode.world;
 
 import battlecode.common.*;
-import org.junit.Ignore;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@Ignore
 /**
  * Lets maps be built easily, for testing purposes.
  */

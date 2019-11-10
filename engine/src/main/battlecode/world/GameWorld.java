@@ -57,11 +57,8 @@ public strictfp class GameWorld {
         controlProvider.matchStarted(this);
 
         // Add the robots contained in the LiveMap to this world.
-        for(BodyInfo body : gameMap.getInitialBodies()){
-            if(body.isRobot()){
-                RobotInfo robot = (RobotInfo) body;
-                spawnRobot(robot.ID, robot.type, robot.location, robot.team);
-            }
+        for(RobotInfo robot : gameMap.getInitialBodies()){
+            spawnRobot(robot.ID, robot.type, robot.location, robot.team);
         }
 
         // Write match header at beginning of match

@@ -35,20 +35,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
-     * Creates a new MapLocation representing the location
-     * with the given coordinates.
-     *
-     * @param x the x-coordinate of the location
-     * @param y the y-coordinate of the location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public MapLocation(float x, float y) {
-        this.x = (int) x;
-        this.y = (int) y;
-    }
-
-    /**
      * A comparison function for MapLocations. Smaller x values go first, with ties broken by smaller y values.
      *
      * @param other the MapLocation to compare to.
@@ -83,7 +69,7 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      */
     @Override
     public int hashCode() {
-        return Float.floatToIntBits(this.x) * 13 + Float.floatToIntBits(this.y) * 23;
+        return this.x * 13 + this.y * 23;
     }
 
     public static MapLocation valueOf(String s) {
@@ -127,7 +113,7 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      *
      * @battlecode.doc.costlymethod
      */
-    public final float distanceSquaredTo(MapLocation location) {
+    public final int distanceSquaredTo(MapLocation location) {
         int dx = this.x - location.x;
         int dy = this.y - location.y;
         return dx * dx + dy * dy;
@@ -203,24 +189,7 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     public final MapLocation add(Direction direction) {
         if(direction == null)
             return new MapLocation(x, y);
-        return this.add(direction, 1);
-    }
-
-    /**
-     * Returns a new MapLocation object representing a location
-     * {@code dist} units in distance from this one in the given direction.
-     *
-     * @param direction the direction to add to this location
-     * @param dist  the distance the locations should be apart
-     * @return a MapLocation for the location one unit in distance in the given
-     *         direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public final MapLocation add(Direction direction, float dist) {
-        if(direction == null)
-            return new MapLocation(x, y);
-        return new MapLocation(x + (int) dist * direction.dx, y + (int) dist * direction.dy);
+        return new MapLocation(x + direction.dx, y + direction.dy);
     }
 
     /**
@@ -238,24 +207,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
         if(direction == null)
             return new MapLocation(x, y);
         return this.add(direction.opposite());
-    }
-
-
-    /**
-     * Returns a new MapLocation object representing a location
-     * {@code dist} units in distance from this one in the given direction.
-     *
-     * @param direction the direction to subtract to this location
-     * @param dist  the distance the locations should be apart
-     * @return a MapLocation for the location one unit in distance in the given
-     *         direction.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public final MapLocation subtract(Direction direction, float dist) {
-        if(direction == null)
-            return new MapLocation(x, y);
-        return this.add(direction.opposite(), 1);
     }
 
     /**

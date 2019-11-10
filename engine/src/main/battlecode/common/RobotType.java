@@ -17,28 +17,24 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-
     MINER                   (HQ,  10,  0,  40,  2,  8,  0,  0,  0,  15000), // chef?
     //                       SS   C    DL  SL   AC  SR  PR  PA  MS  BL
     /**
      * Refineries turn crude soup into refined soup, and produce pollution.
      * @battlecode.doc.robottype
      */
-
     REFINERY                (MINER,  20,  0,  0,  0,  0,  4,  1,  10,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  MS   BL
     /**
      * Vaporators reduce pollution.
      * @battlecode.doc.robottype
      */
-
     VAPORATOR               (MINER,  20,  0,  0,  0,  0,  4,  -1,  5,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA   MS  BL
     /**
      * Design schools create landscapers.
      * @battlecode.doc.robottype
      */
-
     DESIGN_SCHOOL           (MINER,  20,  0,  0,  0,  0,  0,  0,  0,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  MS  BL
     /**
@@ -65,7 +61,6 @@ public enum RobotType {
      * Net guns shoot down drones.
      * @battlecode.doc.robottype
      */
-
     NET_GUN                 (MINER,  7,  0,  0,  5,  6,  0,  0,  0,  15000),
     //                       SS      C   DL  SL  AC  SR  PR  PA  MS  BL
     /**

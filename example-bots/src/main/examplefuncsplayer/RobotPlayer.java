@@ -23,19 +23,9 @@ public strictfp class RobotPlayer {
             case HQ:
                 runHQ();
                 break;
-            // case MINER:
-            // case ARCHON:
-            //     runArchon();
-            //     break;
-            // case GARDENER:
-            //     runGardener();
-            //     break;
-            // case SOLDIER:
-            //     runSoldier();
-            //     break;
-            // case LUMBERJACK:
-            //     runLumberjack();
-            //     break;
+            case MINER:
+                runMiner();
+                break;
         }
 	}
 
@@ -53,6 +43,25 @@ public strictfp class RobotPlayer {
 
             } catch (Exception e) {
                 System.out.println("HQ Exception");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static void runMiner() throws GameActionException {
+        System.out.println("I'm a Miner!");
+        while (true) {
+            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
+            try {
+                for (Direction dir : directions)
+                    if (rc.canBuildRobot(RobotType.MINER, dir))
+                        rc.buildRobot(RobotType.MINER, dir);
+
+                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
+                Clock.yield();
+
+            } catch (Exception e) {
+                System.out.println("Miner Exception");
                 e.printStackTrace();
             }
         }
@@ -96,7 +105,6 @@ public strictfp class RobotPlayer {
 
  //            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
  //            try {
-
  //                // Listen for home archon's location
  //                // archonLoc = rc.getLocation();
 
@@ -129,7 +137,6 @@ public strictfp class RobotPlayer {
 
     //     // The code you want your robot to perform every round should be in this loop
     //     while (true) {
-
 
     //         // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
     //         try {

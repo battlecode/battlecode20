@@ -380,7 +380,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(type);
         assertNotNull(dir);
         boolean hasBuildRequirements = hasRobotBuildRequirements(type);
-        MapLocation spawnLoc = getLocation().add(dir, 1);
+        MapLocation spawnLoc = getLocation().add(dir);
         boolean isClear = gameWorld.getGameMap().onTheMap(spawnLoc) &&
                 gameWorld.getObjectInfo().isEmpty(spawnLoc, 0.5f); // TODO check empty cell
         boolean cooldownExpired = isBuildReady();
@@ -403,7 +403,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         this.robot.setBuildCooldownTurns(type.actionCooldown); // TODO changed buildCooldownTurns to actionCooldown
         
-        MapLocation spawnLoc = getLocation().add(dir, 1); // TODO fix spawn dist
+        MapLocation spawnLoc = getLocation().add(dir); // TODO fix spawn dist
 
         int robotID = gameWorld.spawnRobot(type, spawnLoc, getTeam());
 
