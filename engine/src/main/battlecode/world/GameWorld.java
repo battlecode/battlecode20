@@ -30,6 +30,7 @@ public strictfp class GameWorld {
     private int[] soup;
     private int[] pollution;
     private int[] water;
+    private int[] dirt;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
@@ -46,6 +47,7 @@ public strictfp class GameWorld {
         this.soup = gm.getSoupArray();
         this.pollution = gm.getPollutionArray();
         this.water = gm.getWaterArray();
+        this.dirt = gm.getDirtArray();
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
@@ -184,8 +186,28 @@ public strictfp class GameWorld {
         }
         return soup[loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()];
     }
-
+    public int getPollution(MapLocation loc) {
+        if (!gameMap.onTheMap(loc)) {
+            return 0;
+        }
+        return pollution[loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()];
+    }
+    public int getDirt(MapLocation loc) {
+        if (!gameMap.onTheMap(loc)) {
+            return 0;
+        }
+        return dirt[loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()];
+    }
+    public int getWater(MapLocation loc) {
+        if (!gameMap.onTheMap(loc)) {
+            return 0;
+        }
+        return water[loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()];
+    }
     public void removeSoup(MapLocation loc, int amount) {
+        if (!gameMap.onTheMap(loc)) {
+            return;
+        }
         soup[(loc.x - gameMap.getOrigin().x) + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()] = (int) Math.max(0.0, soup[(loc.x - gameMap.getOrigin().x) + (loc.y - gameMap.getOrigin().y)*gameMap.getWidth()] - amount);
     }
     // *********************************

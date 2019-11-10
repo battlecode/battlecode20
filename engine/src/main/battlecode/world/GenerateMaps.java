@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class GenerateMaps {
     public static void makeSimple() throws IOException {
-        LiveMap map = new TestMapBuilder("maptest", 0, 0, 100, 100,30,3000)
+        LiveMap map = new TestMapBuilder("maptest", 0, 0, 100, 100, 30, 3000)
                 .addRobot(
                         0,
                         Team.A,
@@ -48,10 +48,10 @@ public class GenerateMaps {
                 .setSoup()
                 .setWater()
                 .setPollution()
+                .setDirt()
                 .build();
-        GameMapIO.writeMap(map, new File("/Users/ashlin/Documents/Battlecode/battlecode20/engine/src/main/battlecode/world/resources/"));
-        LiveMap test = GameMapIO.loadMap("maptest", new File("/Users/ashlin/Documents/Battlecode/battlecode20/engine/src/main/battlecode/world/resources"));
-
+        GameMapIO.writeMap(map, new File("/Users/mnocito/Desktop/battlecode20/engine/src/main/battlecode/world/resources/"));
+        LiveMap test = GameMapIO.loadMap("maptest", new File("/Users/mnocito/Desktop/battlecode20/engine/src/main/battlecode/world/resources"));
         System.out.println(test.toString());
 
     }
