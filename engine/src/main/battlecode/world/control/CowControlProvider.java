@@ -216,11 +216,15 @@ public class CowControlProvider implements RobotControlProvider {
                 else if (rand < .50) randomDir = Direction.WEST;
                 else if (rand < .75) randomDir = Direction.EAST;
                 else randomDir = Direction.NORTH;
-                if (rc.canMove(randomDir)) { //TODO: make cow slightly smarter so it doesn't drown immediately
-                    rc.move(randomDir);
-                    System.out.println("This cow is moving!");
-                    return;
+                while (!rc.canMove(randomDir)) { //TODO: make cow slightly smarter so it doesn't drown immediately
+                    if (rand < .25) randomDir = Direction.SOUTH;
+                    else if (rand < .50) randomDir = Direction.WEST;
+                    else if (rand < .75) randomDir = Direction.EAST;
+                    else randomDir = Direction.NORTH;
                 }
+                rc.move(randomDir);
+                System.out.println(rc.getLocation());
+                return;
             }
         } catch (Exception e) {
             ErrorReporter.report(e, true);
