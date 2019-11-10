@@ -5,6 +5,8 @@ public strictfp class RobotPlayer {
     static RobotController rc;
 
     static Direction[] directions = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+    static RobotType[] spawnedByMiner = {RobotType.REFINERY, RobotType.VAPORATOR, RobotType.DESIGN_SCHOOL,
+                                         RobotType.FULFILLMENT_CENTER, RobotType.NET_GUN};
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -17,54 +19,70 @@ public strictfp class RobotPlayer {
         // and to get information on its current status.
         RobotPlayer.rc = rc;
 
-        // Here, we've separated the controls into a different method for each RobotType.
-        // You can add the missing ones or rewrite this into your own control structure.
-        switch (rc.getType()) {
-            case HQ:
-                runHQ();
-                break;
-            case MINER:
-                runMiner();
-                break;
+        System.out.println("I'm a " + rc.getType() + "!");
+        while (true) {
+            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
+            try {
+                // Here, we've separated the controls into a different method for each RobotType.
+                // You can add the missing ones or rewrite this into your own control structure.
+                switch (rc.getType()) {
+                    case HQ:                 runHQ();                break;
+                    case MINER:              runMiner();             break;
+                    case REFINERY:           runRefinery();          break;
+                    case VAPORATOR:          runVaporator();         break;
+                    case DESIGN_SCHOOL:      runDesignSchool();      break;
+                    case FULFILLMENT_CENTER: runFulfillmentCenter(); break;
+                    case LANDSCAPER:         runLandscaper();        break;
+                    case DRONE:              runDrone();             break;
+                    case NET_GUN:            runNetGun();            break;
+                }
+
+                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
+                Clock.yield();
+
+            } catch (Exception e) {
+                System.out.println(rc.getType() + " Exception");
+                e.printStackTrace();
+            }
         }
 	}
 
     static void runHQ() throws GameActionException {
-        System.out.println("I'm an HQ!");
-        while (true) {
-            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
-            try {
-                for (Direction dir : directions)
-                    if (rc.canBuildRobot(RobotType.MINER, dir))
-                        rc.buildRobot(RobotType.MINER, dir);
-
-                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-                Clock.yield();
-
-            } catch (Exception e) {
-                System.out.println("HQ Exception");
-                e.printStackTrace();
-            }
-        }
+        for (Direction dir : directions)
+            tryBuild(RobotType.MINER, dir);
     }
 
     static void runMiner() throws GameActionException {
-        System.out.println("I'm a Miner!");
-        while (true) {
-            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
-            try {
-                for (Direction dir : directions)
-                    if (rc.canBuildRobot(RobotType.MINER, dir))
-                        rc.buildRobot(RobotType.MINER, dir);
+        tryMove(randomDirection());
+        tryBuild(randomSpawnedByMiner(), randomDirection());
+    }
 
-                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-                Clock.yield();
+    static void runRefinery() throws GameActionException {
 
-            } catch (Exception e) {
-                System.out.println("Miner Exception");
-                e.printStackTrace();
-            }
-        }
+    }
+
+    static void runVaporator() throws GameActionException {
+        
+    }
+
+    static void runDesignSchool() throws GameActionException {
+        
+    }
+
+    static void runFulfillmentCenter() throws GameActionException {
+        
+    }
+
+    static void runLandscaper() throws GameActionException {
+        
+    }
+
+    static void runDrone() throws GameActionException {
+        
+    }
+
+    static void runNetGun() throws GameActionException {
+        
     }
 
     // static void runArchon() throws GameActionException {
@@ -202,42 +220,49 @@ public strictfp class RobotPlayer {
     // }
 
     /**
-     * Returns a random Direction
+     * Returns a random Direction.
+     *
      * @return a random Direction
      */
     static Direction randomDirection() {
-        double dir = Math.random();
-        if (dir < .25) return Direction.NORTH;
-        if (dir < .5) return Direction.SOUTH;
-        if (dir < .75) return Direction.EAST;
-        if (dir < 1) return Direction.WEST;
-        return Direction.NONE;
-
-        //return directions[(int) (Math.random() * 4)];
+        return directions[(int) (Math.random() * directions.length)];
     }
 
     /**
-     * Attempts to move in a given direction, while avoiding small obstacles directly in the path.
+     * Returns a random RobotType spawned by miners.
+     *
+     * @return a random RobotType
+     */
+    static RobotType randomSpawnedByMiner() {
+        return spawnedByMiner[(int) (Math.random() * spawnedByMiner.length)];
+    }
+
+    /**
+     * Attempts to move in a given direction.
      *
      * @param dir The intended direction of movement
      * @return true if a move was performed
      * @throws GameActionException
      */
     static boolean tryMove(Direction dir) throws GameActionException {
-        if (rc.canMove(dir)) {
+        if (rc.isReady() && rc.canMove(dir)) {
             rc.move(dir);
             return true;
         } else return false;
     }
 
     /**
-     * Attempts to move in a given direction, while avoiding small obstacles direction in the path.
+     * Attempts to build a given robot in a given direction.
      *
+     * @param type The type of the robot to build
      * @param dir The intended direction of movement
-     * @param degreeOffset Spacing between checked directions (degrees)
-     * @param checksPerSide Number of extra directions checked on each side, if intended direction was unavailable
      * @return true if a move was performed
      * @throws GameActionException
      */
-   
+    static boolean tryBuild(RobotType type, Direction dir) throws GameActionException {
+        if (rc.isReady() && rc.canBuildRobot(type, dir)) {
+            rc.buildRobot(type, dir);
+            return true;
+        } else return false;
+    }
 }
