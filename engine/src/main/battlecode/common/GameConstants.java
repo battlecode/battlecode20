@@ -85,6 +85,12 @@ public interface GameConstants {
 
     /** The maximum radius a robot can have. */
     float MAX_ROBOT_RADIUS = 2;
+
+    /** The maximum number of integers that can be sent in one message. */
+    int MAX_BLOCKCHAIN_MESSAGE_LENGTH = 10;
+
+    /** The number of messages that get broadcasted every turn. */
+    int NUMBER_OF_BROADCASTED_MESSAGES = 10;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******

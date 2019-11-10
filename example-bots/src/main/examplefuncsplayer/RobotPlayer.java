@@ -8,6 +8,8 @@ public strictfp class RobotPlayer {
     static RobotType[] spawnedByMiner = {RobotType.REFINERY, RobotType.VAPORATOR, RobotType.DESIGN_SCHOOL,
                                          RobotType.FULFILLMENT_CENTER, RobotType.NET_GUN};
 
+    static int turnCount;
+
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -19,8 +21,11 @@ public strictfp class RobotPlayer {
         // and to get information on its current status.
         RobotPlayer.rc = rc;
 
+        turnCount = 0;
+
         System.out.println("I'm a " + rc.getType() + " and I just got created!");
         while (true) {
+            turnCount += 1;
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
                 // Here, we've separated the controls into a different method for each RobotType.
@@ -55,6 +60,8 @@ public strictfp class RobotPlayer {
     }
 
     static void runMiner() throws GameActionException {
+        tryBlockchain();
+        tryMove(randomDirection());
         if (tryMove())
             System.out.println("I moved!");
         tryBuild(randomSpawnedByMiner(), randomDirection());
@@ -64,6 +71,17 @@ public strictfp class RobotPlayer {
         for (Direction dir : directions)
             if (tryMine(dir))
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
+    }
+
+    static void tryBlockchain() throws GameActionException {
+        if (turnCount < 3) {
+            int[] message = new int[10];
+            for (int i = 0; i < 10; i++) {
+                message[i] = 123;
+            }
+            rc.sendMessage(message, 10);
+        }
+        System.out.println(rc.getRoundMessages(turnCount-1));
     }
 
     static void runRefinery() throws GameActionException {

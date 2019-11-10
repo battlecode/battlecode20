@@ -1,4 +1,5 @@
 package battlecode.common;
+import java.util.ArrayList;
 
 /**
  * A RobotController allows contestants to make their robot sense and interact
@@ -480,6 +481,31 @@ public strictfp interface RobotController {
      * holding a unit that it can drop.
      */
     void dropUnit() throws GameActionException;
+
+    // ***********************************
+    // ****** BLOCKCHAINNNNNNNNNNN *******
+    // ***********************************
+
+    /**
+     * Sends a message to the blockchain at the indicated cost.
+     * 
+     * @param messageArray the list of ints to send. if more than K messages, 
+     * @param proofOfStake the price that the unit is willing to pay for the message
+     * 
+     */
+    public void sendMessage(int[] messageArray, int cost) throws GameActionException;
+
+
+    /**
+     * Gets all messages that were sent at a given round.
+     * 
+     * Because one of me and java is stupid, this is returned as a string where a space
+     * separates messages and an underscore separates the numbers in messages.
+     * 
+     * @param roundNumber the round index.
+     * @throws GameActionException
+     */
+    public String getRoundMessages(int roundNumber) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

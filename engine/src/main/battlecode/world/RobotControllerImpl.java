@@ -441,6 +441,66 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
 
+
+    // ***********************************
+    // ****** BLOCKCHAINNNNNNNNNNN *******
+    // ***********************************
+
+    /**
+     * Sends a message to the blockchain at the indicated cost.
+     * 
+     * @param message the message to send.
+     * @param proofOfStake the price that the unit is willing to pay for the message. If
+     * the team does not have that much soup, the message will not be sent.
+     * 
+     */
+    @Override
+    public void sendMessage(int[] messageArray, int cost) throws GameActionException {
+        if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
+            throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
+                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
+        }
+        int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost) {
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, 
+                    "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+        }
+        // pay!
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
+        // create a block chain entry
+        BlockchainEntry bcentry = new BlockchainEntry(cost, messageArray);
+        // add
+        gameWorld.addNewMessage(bcentry);
+    }
+
+    /**
+     * Gets all messages that were sent at a given round.
+     * @param roundNumber the round index.
+     * @throws GameActionException
+     */
+    @Override
+    public String getRoundMessages(int roundNumber) throws GameActionException {
+        if (roundNumber < 0) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; in fact, no negative round numbers are allowed at all.");
+        }
+        if (roundNumber >= gameWorld.currentRound) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
+        }
+        // just get it!
+        ArrayList<BlockchainEntry> d = gameWorld.blockchain.get(roundNumber);
+        System.out.println(d);
+        BlockchainEntry[] d2 = d.toArray(new BlockchainEntry[d.size()]);
+        String[] stringMessageArray = new String[d2.length];
+        for (int i = 0; i < d2.length; i++) {
+            stringMessageArray[i] = d2[i].serializedMessage;
+        }
+        String serializedMessage = String.join(" ", stringMessageArray);
+        return serializedMessage;
+    }
+
+
     // ***********************************
     // ****** MINER METHODS **************
     // ***********************************
