@@ -387,10 +387,14 @@ public strictfp interface RobotController {
 
     /**
      * Gets all messages that were sent at a given round.
+     * 
+     * Because one of me and java is stupid, this is returned as a string where a space
+     * separates messages and an underscore separates the numbers in messages.
+     * 
      * @param roundNumber the round index.
      * @throws GameActionException
      */
-    public ArrayList<BlockchainEntry> getRoundMessages(int roundNumber) throws GameActionException;
+    public String getRoundMessages(int roundNumber) throws GameActionException;
 
 
     // ***********************************

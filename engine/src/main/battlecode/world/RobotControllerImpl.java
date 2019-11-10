@@ -389,7 +389,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * @param roundNumber the round index.
      * @throws GameActionException
      */
-    public ArrayList<BlockchainEntry> getRoundMessages(int roundNumber) throws GameActionException {
+    @Override
+    public String getRoundMessages(int roundNumber) throws GameActionException {
         if (roundNumber < 0) {
             throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
                 + "; in fact, no negative round numbers are allowed at all.");
@@ -399,7 +400,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
         }
         // just get it!
-        return gameWorld.blockchain.get(roundNumber);
+        ArrayList<BlockchainEntry> d = gameWorld.blockchain.get(roundNumber);
+        System.out.println(d);
+        BlockchainEntry[] d2 = d.toArray(new BlockchainEntry[d.size()]);
+        String[] stringMessageArray = new String[d2.length];
+        for (int i = 0; i < d2.length; i++) {
+            stringMessageArray[i] = d2[i].serializedMessage;
+        }
+        String serializedMessage = String.join(" ", stringMessageArray);
+        return serializedMessage;
     }
 
 

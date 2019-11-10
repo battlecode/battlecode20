@@ -71,6 +71,7 @@ public strictfp class RobotPlayer {
             }
             rc.sendMessage(message, 10);
         }
+        System.out.println(rc.getRoundMessages(turnCount-1));
     }
 
     static void runRefinery() throws GameActionException {
