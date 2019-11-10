@@ -41,16 +41,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    int getTeamVictoryPoints();
-
-    /**
-     * Returns your opponent's total victory points.
-     *
-     * @return your opponent's total victory points.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getOpponentVictoryPoints();
+    int getTeamSoup();
 
     /**
      * Returns the number of robots on your team, including your archons.
@@ -116,24 +107,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     MapLocation getLocation();
-    
-    /**
-     * Returns the number of times the robot has attacked this turn.
-     * 
-     * @return the number of times the robot has attacked this turn.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getAttackCount();
-    
-    /**
-     * Returns the number of times the robot has moved this turn.
-     * 
-     * @return the number of times the robot has moved this turn.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getMoveCount();
 
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
@@ -150,19 +123,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     boolean onTheMap(MapLocation loc) throws GameActionException;
-
-    /**
-     * Senses whether a given circle is completely on the map. Will throw an exception if
-     * the circle is not completely within sensor range.
-     *
-     * @param center the center of the circle to check
-     * @param radius the radius of the circle to check
-     * @return true if the circle is completely on the map; false otherwise.
-     * @throws GameActionException if any portion of the given circle is not within sensor range.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean onTheMap(MapLocation center, float radius) throws GameActionException;
 
     /**
      * Senses whether the given location is within the robot's sensor range.
@@ -194,17 +154,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     boolean isLocationOccupied(MapLocation loc) throws GameActionException;
-
-    /**
-     * Senses whether there is a robot at the given location.
-     *
-     * @param loc the location to check
-     * @return true if there is a robot at the given location; false otherwise.
-     * @throws GameActionException if the location is not within sensor range.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isLocationOccupiedByRobot(MapLocation loc) throws GameActionException;
 
     /**
      * Senses the robot at the given location, or null if there is no robot
@@ -263,7 +212,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(float radius);
+    RobotInfo[] senseNearbyRobots(int radius);
 
     /**
      * Returns all robots of a given team that can be sensed within a certain
@@ -278,7 +227,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(float radius, Team team);
+    RobotInfo[] senseNearbyRobots(int radius, Team team);
 
     /**
      * Returns all robots of a given team that can be sensed within a certain
@@ -294,7 +243,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(MapLocation center, float radius, Team team);
+    RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
 
 
     // ***********************************
@@ -302,41 +251,23 @@ public strictfp interface RobotController {
     // ***********************************
     
     /**
-     * Returns whether the robot has moved this turn.
+     * Returns whether the robot's action cooldown has expired.
      * 
-     * @return true if the robot has moved this turn; false otherwise.
+     * @return true if the robot's action cooldown has expired; false otherwise.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean hasMoved();
-    
-    /**
-     * Returns whether the robot has attacked this turn.
-     * 
-     * @return true if the robot has attacked this turn; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean hasAttacked();
-    
-    /**
-     * Returns whether the robot's build cooldown has expired.
-     * 
-     * @return true if the robot's build cooldown has expired; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean isBuildReady();
+    boolean isReady();
 
     /**
-     * Returns the number of cooldown turns remaining before this unit can build() again.
-     * When this number is 0, isBuildReady() is true.
+     * Returns the number of cooldown turns remaining before this unit can act again.
+     * When this number is 0, isReady() is true.
      *
-     * @return the number of cooldown turns remaining before this unit can build() again.
+     * @return the number of cooldown turns remaining before this unit can act again.
      *
      * @battlecode.doc.costlymethod
      */
-    int getBuildCooldownTurns();
+    int getCooldownTurns();
 
     /**
      * Tells whether this robot can move one stride in the given direction,
@@ -382,32 +313,6 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void move(Direction dir) throws GameActionException;
-
-    // ***********************************
-    // ****** ATTACK METHODS *************
-    // ***********************************
-
-    /**
-     * Tests whether a robot is able to strike this turn. This takes into accout
-     * the robot's type, and if the robot has attacked this turn.
-     *
-     * @return true if the robot is able to strike this turn; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    // boolean canStrike();
-
-    /**
-     * Strikes and deals damage to all other robots within
-     * {@link GameConstants#LUMBERJACK_STRIKE_RADIUS} of this robot. Note that only Lumberjacks
-     * can perform this function.
-     *
-     * @throws GameActionException if the robot is not of type LUMBERJACK or
-     * cannot attack due to having already attacked that turn.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    // void strike() throws GameActionException;
 
     // ***********************************
     // ****** BUILDING/SPAWNING **********
@@ -467,17 +372,6 @@ public strictfp interface RobotController {
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
-    /**
-     * Returns the current cost of a victory point in currency. This varies based
-     * on the round number, and is equal to {@link GameConstants#VP_BASE_COST} +
-     * NumRounds * {@link GameConstants#VP_INCREASE_PER_ROUND}.
-     *
-     * @return the current cost of a victory point in currency
-     *
-     * @battlecode.doc.costlymethod
-     */
-    float getVictoryPointCost();
 
     /**
      * Kills your robot and ends the current round. Never fails.

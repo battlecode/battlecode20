@@ -12,7 +12,7 @@ public class TeamInfo {
     private final long[][] teamMemory;
     private final long[][] oldTeamMemory;
 
-    private int[] teamVictoryPoints = new int[3];
+    private int[] teamSoup = new int[2];
 
     public TeamInfo(long[][] oldTeamMemory){
         this.teamMemory = new long[2][oldTeamMemory[0].length];
@@ -31,16 +31,17 @@ public class TeamInfo {
         return oldTeamMemory;
     }
 
-    public int getVictoryPoints(Team t) {
-        return teamVictoryPoints[t.ordinal()];
+    // Breaks if t.ordinal() > 1 (Team NEUTRAL)
+    public int getSoup(Team t) {
+        return teamSoup[t.ordinal()];
     }
 
     // *********************************
     // ***** UPDATE METHODS ************
     // *********************************
 
-    public void adjustVictoryPoints(Team t, int amount) {
-        teamVictoryPoints[t.ordinal()] += amount;
+    public void adjustSoup(Team t, int amount) {
+        teamSoup[t.ordinal()] += amount;
     }
 
     public void setTeamMemory(Team t, int index, long state) {
