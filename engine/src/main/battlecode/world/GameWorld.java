@@ -138,6 +138,11 @@ public strictfp class GameWorld {
         return gameMap;
     }
 
+    // TODO!
+    public int getPollution(MapLocation loc) {
+        return 0;
+    }
+
     public TeamInfo getTeamInfo() {
         return teamInfo;
     }
@@ -210,7 +215,7 @@ public strictfp class GameWorld {
             boolean victorDetermined = false;
 
             // TODO: tiebreakers
-            
+
             int bestRobotID = Integer.MIN_VALUE;
             Team bestRobotTeam = Team.A; // null; ARBITRARY
 

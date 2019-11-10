@@ -164,7 +164,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseRadius(float radius) {
+    public boolean canSenseRadius(int radius) {
         return this.robot.canSenseRadius(radius);
     }
 
