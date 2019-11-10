@@ -105,7 +105,6 @@ public strictfp class RobotPlayer {
 
  //            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
  //            try {
-
  //                // Listen for home archon's location
  //                // archonLoc = rc.getLocation();
 
@@ -207,7 +206,14 @@ public strictfp class RobotPlayer {
      * @return a random Direction
      */
     static Direction randomDirection() {
-        return directions[(int) (Math.random() * 4)];
+        double dir = Math.random();
+        if (dir < .25) return Direction.NORTH;
+        if (dir < .5) return Direction.SOUTH;
+        if (dir < .75) return Direction.EAST;
+        if (dir < 1) return Direction.WEST;
+        return Direction.NONE;
+
+        //return directions[(int) (Math.random() * 4)];
     }
 
     /**
@@ -218,7 +224,10 @@ public strictfp class RobotPlayer {
      * @throws GameActionException
      */
     static boolean tryMove(Direction dir) throws GameActionException {
-        return tryMove(dir,20,3);
+        if (rc.canMove(dir)) {
+            rc.move(dir);
+            return true;
+        } else return false;
     }
 
     /**
@@ -230,34 +239,5 @@ public strictfp class RobotPlayer {
      * @return true if a move was performed
      * @throws GameActionException
      */
-    static boolean tryMove(Direction dir, float degreeOffset, int checksPerSide) throws GameActionException {
-
-        // First, try intended direction
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-            return true;
-        }
-
-        // Now try a bunch of similar angles
-        boolean moved = false;
-        int currentCheck = 1;
-
-        while(currentCheck<=checksPerSide) {
-            // Try the offset of the left side
-            if(rc.canMove(dir.rotateLeft())) {
-                rc.move(dir.rotateLeft());
-                return true;
-            }
-            // Try the offset on the right side
-            if(rc.canMove(dir.rotateRight())) {
-                rc.move(dir.rotateRight());
-                return true;
-            }
-            // No move performed, try slightly further
-            currentCheck++;
-        }
-
-        // A move never happened, so return false.
-        return false;
-    }
+   
 }

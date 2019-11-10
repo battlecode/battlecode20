@@ -207,7 +207,6 @@ public class RobotControllerTest {
 
     //     game.waitRounds(50);
 
-
     //     // Soldier can see tank
     //     game.round((id, rc) -> {
     //         if (id == soldierB) {
