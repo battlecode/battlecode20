@@ -33,6 +33,8 @@ export default class Stats {
   // private statBars: Map<number, { bullets: StatBar, vps: StatBar }>;q
   private statsTableElement: HTMLTableElement;
 
+  private robotConsole: HTMLDivElement;
+
   // Note: robot types and number of teams are currently fixed regardless of
   // match info. Keep in mind if we ever change these, or implement this less
   // statically.
@@ -41,17 +43,15 @@ export default class Stats {
     cst.MINER, cst.LANDSCAPER, cst.DRONE, cst.NET_GUN, cst.REFINERY, cst.VAPORATOR, cst.HQ, cst.DESIGN_SCHOOL, cst.FULFILLMENT_CENTER
   ];
 
-  constructor(conf: Config, images: AllImages, console: Console) {
+  constructor(conf: Config, images: AllImages, robotConsole: Console) {
     this.images = images;
     this.div = document.createElement("div");
-
 
     let teamNames: Array<string> = ["?????", "?????"];
     let teamIDs: Array<number> = [1, 2];
     this.statsTableElement = document.createElement("table");
+    this.robotConsole = robotConsole.div;
     this.initializeGame(teamNames, teamIDs);
-
-    this.div.appendChild(console.div);
   }
 
   /**
@@ -233,9 +233,15 @@ export default class Stats {
       this.div.appendChild(teamDiv);
     }
 
+    // Add stats table
     this.statsTableElement.remove();
     this.statsTableElement = this.statsTable(teamIDs);
     this.div.appendChild(this.statsTableElement);
+    
+    // Add log console
+    let consoleDiv = document.createElement("div");
+    consoleDiv.append(this.robotConsole);
+    this.div.appendChild(consoleDiv);
   }
 
   /**
