@@ -1,5 +1,21 @@
 /* Global stylings here */
 
+/* Scrollbar styling */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+background: #000;
+}
+
 .gameWrapper {
     background: #e0e0e0;
     color: white;
