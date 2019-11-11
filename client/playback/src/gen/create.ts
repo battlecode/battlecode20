@@ -32,7 +32,7 @@ function trimEdge(x: number, l: number, r: number): number{
   return Math.min(Math.max(l, x), r);
 }
 
-export type BodiesType = {
+type BodiesType = {
   robotIDs: number[],
   teamIDs: number[],
   types: number[],
@@ -40,8 +40,15 @@ export type BodiesType = {
   ys: number[],
 };
 
+type MapType = {
+  dirt: number[],
+  water: number[],
+  pollution: number[],
+  soup: number[]
+};
+
 // Class to manage IDs of units
-export class IDsManager {
+class IDsManager {
   private maxID: number;
   private used: Uint8Array;
   private dead: Uint8Array;
@@ -104,7 +111,7 @@ export class IDsManager {
   }
 };
 
-export function createRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
+function createRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
   const bodies: BodiesType = {
     robotIDs: Array(unitCount),
     teamIDs: Array(unitCount),
@@ -124,14 +131,14 @@ export function createRandomBodies(manager: IDsManager, unitCount: number): Bodi
   return bodies;
 }
 
-export function createEventWrapper(builder: flatbuffers.Builder, event: flatbuffers.Offset, type: schema.Event): flatbuffers.Offset {
+function createEventWrapper(builder: flatbuffers.Builder, event: flatbuffers.Offset, type: schema.Event): flatbuffers.Offset {
   schema.EventWrapper.startEventWrapper(builder);
   schema.EventWrapper.addEType(builder, type);
   schema.EventWrapper.addE(builder, event);
   return schema.EventWrapper.endEventWrapper(builder);
 }
 
-export function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: number[]) {
+function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: number[]) {
   const xsP = schema.VecTable.createXsVector(builder, xs);
   const ysP = schema.VecTable.createYsVector(builder, ys);
   schema.VecTable.startVecTable(builder);
@@ -140,7 +147,7 @@ export function createVecTable(builder: flatbuffers.Builder, xs: number[], ys: n
   return schema.VecTable.endVecTable(builder);
 }
 
-export function createSBTable(builder: flatbuffers.Builder, bodies: BodiesType): flatbuffers.Offset {
+function createSBTable(builder: flatbuffers.Builder, bodies: BodiesType): flatbuffers.Offset {
   const bb_locs = createVecTable(builder, bodies.xs, bodies.ys);
   const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, bodies.robotIDs);
   const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, bodies.teamIDs);
@@ -154,15 +161,21 @@ export function createSBTable(builder: flatbuffers.Builder, bodies: BodiesType):
   return schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
 }
 
-export function createMap(builder: flatbuffers.Builder, bodies: number, name: string): flatbuffers.Offset {
+function createMap(builder: flatbuffers.Builder, bodies: number, name: string, map?: MapType): flatbuffers.Offset {
   const bb_name = builder.createString(name);
+  // exact sizes?
+
+  const dirt: number[] = (map ? map.dirt : new Array(SIZE*SIZE));
+  const water: number[] = (map ? map.water : new Array(SIZE*SIZE));
+  const poll: number[] = (map ? map.pollution : new Array(SIZE*SIZE));
+  const soup: number[] = (map ? map.soup : new Array(SIZE*SIZE));
 
   // all values default to zero
   // TODO: test with nonzero values?
-  const bb_dirt = schema.GameMap.createDirtVector(builder, new Array(SIZE*SIZE));
-  const bb_water = schema.GameMap.createWaterVector(builder, new Array(SIZE*SIZE));
-  const bb_poll = schema.GameMap.createPollutionVector(builder, new Array(SIZE*SIZE));
-  const bb_soup = schema.GameMap.createSoupVector(builder, new Array(SIZE*SIZE));
+  const bb_dirt = schema.GameMap.createDirtVector(builder, dirt);
+  const bb_water = schema.GameMap.createWaterVector(builder, water);
+  const bb_poll = schema.GameMap.createPollutionVector(builder, poll);
+  const bb_soup = schema.GameMap.createSoupVector(builder, soup);
 
   schema.GameMap.startGameMap(builder);
   schema.GameMap.addName(builder, bb_name);
@@ -181,7 +194,7 @@ export function createMap(builder: flatbuffers.Builder, bodies: number, name: st
   return schema.GameMap.endGameMap(builder);
 }
 
-export function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
+function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
   const bodies: flatbuffers.Offset[] = [];
   // what's the default value?
   // Is there any way to automate this?
@@ -224,13 +237,13 @@ export function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offs
   return schema.GameHeader.endGameHeader(builder);
 }
 
-export function createGameFooter(builder: flatbuffers.Builder, winner: number): flatbuffers.Offset {
+function createGameFooter(builder: flatbuffers.Builder, winner: number): flatbuffers.Offset {
   schema.GameFooter.startGameFooter(builder);
   schema.GameFooter.addWinner(builder, winner);
   return schema.GameFooter.endGameFooter(builder);
 }
 
-export function createMatchHeader(builder: flatbuffers.Builder, turns: number, map: number): flatbuffers.Offset {
+function createMatchHeader(builder: flatbuffers.Builder, turns: number, map: number): flatbuffers.Offset {
   schema.MatchHeader.startMatchHeader(builder);
   schema.MatchHeader.addMaxRounds(builder, turns);
   schema.MatchHeader.addMap(builder, map);
@@ -238,7 +251,7 @@ export function createMatchHeader(builder: flatbuffers.Builder, turns: number, m
   return schema.MatchHeader.endMatchHeader(builder);
 }
 
-export function createMatchFooter(builder: flatbuffers.Builder, turns: number, winner: number): flatbuffers.Offset {
+function createMatchFooter(builder: flatbuffers.Builder, turns: number, winner: number): flatbuffers.Offset {
   schema.MatchFooter.startMatchFooter(builder);
   schema.MatchFooter.addWinner(builder, winner);
   schema.MatchFooter.addTotalRounds(builder, turns);
@@ -246,7 +259,7 @@ export function createMatchFooter(builder: flatbuffers.Builder, turns: number, w
   return schema.MatchFooter.endMatchFooter(builder);
 }
 
-export function createGameWrapper(builder: flatbuffers.Builder, events: flatbuffers.Offset[], turns: number): flatbuffers.Offset {
+function createGameWrapper(builder: flatbuffers.Builder, events: flatbuffers.Offset[], turns: number): flatbuffers.Offset {
   const eventsPacked = schema.GameWrapper.createEventsVector(builder, events);
   const matchHeaders = schema.GameWrapper.createMatchHeadersVector(builder, [1]);
   const matchFooters = schema.GameWrapper.createMatchFootersVector(builder, [turns+2]);
@@ -258,7 +271,7 @@ export function createGameWrapper(builder: flatbuffers.Builder, events: flatbuff
 }
 
 // Game without any unit & changes
-export function createBlankGame(turns: number){
+function createBlankGame(turns: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
@@ -283,7 +296,7 @@ export function createBlankGame(turns: number){
 }
 
 // Game with every units, without any changes
-export function createStandGame(turns: number) {
+function createStandGame(turns: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
@@ -337,7 +350,7 @@ export function createStandGame(turns: number) {
 }
 
 // Game with every units, and picking actions to make drones filled
-export function createPickGame(turns: number) {
+function createPickGame(turns: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
@@ -413,7 +426,7 @@ export function createPickGame(turns: number) {
 }
 
 // Game with spawning and dying random units
-export function createLifeGame(turns: number) {
+function createLifeGame(turns: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
   const maxID = 2048;
@@ -461,7 +474,7 @@ export function createLifeGame(turns: number) {
 }
 
 // Game with every units, moving in random constant speed & direction
-export function createWanderGame(turns: number, unitCount: number) {
+function createWanderGame(turns: number, unitCount: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
@@ -530,8 +543,44 @@ export function createWanderGame(turns: number, unitCount: number) {
   return builder.asUint8Array();
 }
 
+function createWaterGame(turns: number) {
+
+  let builder = new flatbuffers.Builder();
+  let events: flatbuffers.Offset[] = [];
+
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
+
+  const map: MapType = {
+    dirt: new Array(SIZE*SIZE),
+    water: new Array(SIZE*SIZE),
+    pollution: new Array(SIZE*SIZE),
+    soup: new Array(SIZE*SIZE)
+  };
+  for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
+    map.dirt[i*SIZE+j] = random(1,5);
+    map.water[i*SIZE+j] = Math.max(random(-10,1), 0);
+  }
+
+  const bb_map = createMap(builder, null, 'Water Demo', map);
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, bb_map), schema.Event.MatchHeader));
+
+  for (let i = 1; i < turns+1; i++) {
+    schema.Round.startRound(builder);
+    schema.Round.addRoundID(builder, i);
+
+    events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
+  }
+
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
+
+  const wrapper = createGameWrapper(builder, events, turns);
+  builder.finish(wrapper);
+  return builder.asUint8Array();
+}
+
 // Game with every units, dies and borns randomly, and moving in random direction
-export function createActiveGame(aliveCount: number, churnCount: number, moveCount: number, turns: number) {
+function createActiveGame(aliveCount: number, churnCount: number, moveCount: number, turns: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
@@ -642,6 +691,7 @@ function main(){
     { name: "pick", game: createPickGame(1024) },
     { name: "wander", game: createWanderGame(2048, 64) },
     { name: "life", game: createLifeGame(512) },
+    { name: "water", game: createWaterGame(512) }
     // { name: "active", game: createActiveGame(128, 128, 128, 4096) },
   ];
   const prefix = "out/files/";

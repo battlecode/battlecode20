@@ -103,6 +103,15 @@ export default class Renderer {
 
     // scale the background pattern
     this.ctx.fillRect(minX*scale, minY*scale, width*scale, height*scale);
+
+    const map = world.mapStats;
+    this.ctx.fillStyle = 'blue';
+    for(let i=0; i<width; i++) for(let j=0; j<height; j++){
+      if(map.water[map.getIdx(i,j)] > 0){
+        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, (minX+i+1)*scale, (minY+j+1)*scale);
+      }
+    }
+
     this.ctx.restore();
   }
 
