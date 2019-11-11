@@ -187,7 +187,7 @@ input[type='file'] {
 #timelineCanvas {
     height: 32px;
     width: 400px;
-    background-color: #777;
+    background-color: #999;
     display: inline-block;
 }
 
@@ -270,7 +270,7 @@ input[type='file'] {
 #splashSubtitle {
     font-size: 24px;
     font-family: sans-serif;
-    color: black;
+    color: white;
     margin: 8px;
 }
 
@@ -278,7 +278,7 @@ input[type='file'] {
     font-size: 56px;
     font-family: sans-serif;
     font-weight: bold;
-    color: black;
+    color: white;
     margin: 0px;
 }
 
