@@ -44,6 +44,7 @@
     "typescript": "^2.1.4",
     "url-loader": "^0.5.7",
     "webpack": "^2.2.0-rc.2",
+    "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^2.2.0-rc.0",
     "webpack-merge": "^2.0.0"
   },
