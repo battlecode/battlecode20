@@ -81,6 +81,7 @@ export default class Sidebar {
     modePanelRow.appendChild(this.modeButton(Mode.HELP, "Help"));
     modePanel.appendChild(modePanelRow);
     this.div.appendChild(modePanel);
+    this.div.appendChild(document.createElement('hr'));
 
     this.div.appendChild(this.innerDiv);
     this.innerDiv.appendChild(this.stats.div);
@@ -178,9 +179,10 @@ export default class Sidebar {
   private battlecodeLogo(): HTMLDivElement {
     let logo: HTMLDivElement = document.createElement("div");
     logo.id = "logo";
-
-    let text = document.createTextNode("Battlecode 2020");
-    logo.appendChild(text);
+    
+    let boldText = document.createElement("b");
+    boldText.innerHTML = "Battlecode 2020";
+    logo.appendChild(boldText);
     return logo;
   }
 
