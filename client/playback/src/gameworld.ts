@@ -577,9 +577,10 @@ export default class GameWorld {
     var teams = bodies.teamIDsArray();
     var types = bodies.typesArray();
     for(let i = 0; i < bodies.robotIDsLength(); i++) {
-        var statObj = this.teamStats.get(teams[i]);
-        statObj.robots[types[i]] += 1;
-        this.teamStats.set(teams[i], statObj);
+      if(teams[i] == 0) continue;
+      var statObj = this.teamStats.get(teams[i]);
+      statObj.robots[types[i]] += 1;
+      this.teamStats.set(teams[i], statObj);
     }
 
     const locs = bodies.locs(this._vecTableSlot1);

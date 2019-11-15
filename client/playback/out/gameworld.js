@@ -357,6 +357,8 @@ class GameWorld {
         var teams = bodies.teamIDsArray();
         var types = bodies.typesArray();
         for (let i = 0; i < bodies.robotIDsLength(); i++) {
+            if (teams[i] == 0)
+                continue;
             var statObj = this.teamStats.get(teams[i]);
             statObj.robots[types[i]] += 1;
             this.teamStats.set(teams[i], statObj);
