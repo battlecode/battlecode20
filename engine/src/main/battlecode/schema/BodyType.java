@@ -41,7 +41,7 @@ public final class BodyType {
   /**
    * Drones pick up any unit and drop them somewhere else.
    */
-  public static final byte DRONE = 7;
+  public static final byte DELIVERY_DRONE = 7;
   /**
    * Net guns shoot down drones.
    */
@@ -51,7 +51,7 @@ public final class BodyType {
    */
   public static final byte COW = 9;
 
-  public static final String[] names = { "HQ", "MINER", "REFINERY", "VAPORATOR", "DESIGN_SCHOOL", "FULFILLMENT_CENTER", "LANDSCAPER", "DRONE", "NET_GUN", "COW", };
+  public static final String[] names = { "HQ", "MINER", "REFINERY", "VAPORATOR", "DESIGN_SCHOOL", "FULFILLMENT_CENTER", "LANDSCAPER", "DELIVERY_DRONE", "NET_GUN", "COW"};
 
   public static String name(int e) { return names[e]; }
 }

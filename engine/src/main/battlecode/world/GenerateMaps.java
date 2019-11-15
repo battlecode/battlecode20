@@ -50,8 +50,10 @@ public class GenerateMaps {
                 .setPollution()
                 .setDirt()
                 .build();
-        GameMapIO.writeMap(map, new File("/Users/elizabethzou/dev/battlecode20/engine/src/main/battlecode/world/resources/"));
-        LiveMap test = GameMapIO.loadMap("maptest", new File("/Users/elizabethzou/dev/battlecode20/engine/src/main/battlecode/world/resources"));
+
+        GameMapIO.writeMap(map, new File("engine/src/main/battlecode/world/resources/"));
+        LiveMap test = GameMapIO.loadMap("maptest", new File("engine/src/main/battlecode/world/resources/"));
+
         System.out.println(test.toString());
     }
 }
