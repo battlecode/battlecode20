@@ -12,7 +12,7 @@
     "build": "tsc -p src",
     "lint": "tslint 'src/**/*.ts'",
     "gen": "mkdir -p out/files/ && ts-node src/gen/create.ts",
-    "watch": "onchange -i 'src/**/*.ts' -- npm run build",
+    "watch": "tsc -w -p src",
     "test": "npm run gen && blue-tape \"out/gen/test/**/*.js\" | tap-dot"
   },
   "repository": {
@@ -34,7 +34,6 @@
     "@types/victor": "^1.1.0",
     "blue-tape": "^1.0.0",
     "npm-force-resolutions": "0.0.3",
-    "onchange": "^6.1.0",
     "stream": "0.0.2",
     "tap-dot": "^2.0.0",
     "ts-node": "^8.4.1",

@@ -1,5 +1,5 @@
 import {readFileSync} from 'fs';
-import {crunch} from '../../simulator';
+import {crunch} from '../simulator';
 import {schema, flatbuffers} from 'battlecode-schema';
 import Game from '../../game';
 

@@ -1,12 +1,12 @@
 import {schema, flatbuffers} from 'battlecode-schema';
-import {createHeader, createEventWrapper} from '../../gen/bench/create';
+import {createGameHeader, createEventWrapper} from '../../gen/create';
 
 function createMatch(matches: number, turnsPerMatch: number): flatbuffers.Offset {
   let builder = new flatbuffers.Builder();
-  const header = createHeader(builder);
+  const header = createGameHeader(builder);
   let events: flatbuffers.Offset[] = [];
 
-  events.push(createEventWrapper(builder, createHeader(builder), schema.Event.GameHeader));
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
   for (let i = 0; i < matches; i++) {
     schema.GameMap.startGameMap(builder);

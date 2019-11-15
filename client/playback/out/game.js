@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const metadata_1 = require("./metadata");
-// import { schema } from 'battlecode-schema';
-// import { flatbuffers } from 'flatbuffers';
 const battlecode_schema_1 = require("battlecode-schema");
 const match_1 = require("./match");
 const pako_1 = require("pako");

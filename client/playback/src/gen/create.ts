@@ -715,3 +715,5 @@ function main(){
 }
 
 main();
+
+export {createGameHeader, createEventWrapper};
