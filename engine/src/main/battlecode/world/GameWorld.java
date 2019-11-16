@@ -240,6 +240,36 @@ public strictfp class GameWorld {
         }
     }
 
+    public void removeDirt(MapLocation loc) {
+        removeDirt(loc, 1);
+    }
+
+    public void removeDirt(MapLocation loc, int amount) {
+        int idx = locationToIndex(loc);
+        if (gameMap.onTheMap(loc)) {
+            InternalRobot robot = (getRobot(loc));
+            if (robot == null)
+                dirt[idx] -= amount;
+            else if (robot.getType() != RobotType.LANDSCAPER)
+                robot.addDirtCarrying(amount);
+        }
+    }
+
+    public void addDirt(MapLocation loc) {
+        addDirt(loc, 1);
+    }
+
+    public void addDirt(MapLocation loc, int amount) {
+        int idx = locationToIndex(loc);
+        if (gameMap.onTheMap(loc)) {
+            InternalRobot robot = (getRobot(loc));
+            if (robot == null)
+                dirt[idx] += amount;
+            else if (robot.getType() != RobotType.LANDSCAPER)
+                robot.removeDirtCarrying(amount);
+        }
+    }
+
     public InternalRobot getRobot(MapLocation loc) {
         return robots[loc.x][loc.y];
     }
