@@ -26,6 +26,7 @@ public strictfp class InternalRobot {
     
     private int cooldownTurns;
 
+    private boolean producedSoup;
     private boolean currentlyHoldingUnit;
     private int idOfUnitCurrentlyHeld;
 
@@ -61,6 +62,7 @@ public strictfp class InternalRobot {
         
         this.cooldownTurns = 0;
 
+        this.producedSoup = false;
         this.currentlyHoldingUnit = false;
         this.idOfUnitCurrentlyHeld = -1;
 
@@ -253,30 +255,35 @@ public strictfp class InternalRobot {
     public void processBeginningOfTurn() {
         if (this.cooldownTurns > 0)
             this.cooldownTurns--;
+        this.producedSoup = false;
         // If refinery/vaporator/hq, produces refined soup
         if (this.type.canProduceSoupAndPollution() && this.soupCarrying > 0) {
             int soupProduced = Math.min(this.soupCarrying, this.type.maxSoupProduced);
             this.soupCarrying -= soupProduced;
             this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
+            this.producedSoup = true;
         }
         this.currentBytecodeLimit = getType().bytecodeLimit;
     }
 
     public void processEndOfTurn() {
-        this.gameWorld.getMatchMaker().addBytecodes(ID, this.bytecodesUsed);
-        this.roundsAlive++;
-    }
-
-    public void processEndOfRound() {
         // If refinery/vaporator/hq, produces pollution
-        if (this.type.canProduceSoupAndPollution()) {
+        if (this.type.canProduceSoupAndPollution() && this.producedSoup) {
             ArrayList<MapLocation> withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadius(
                                                                 this.location, 
                                                                 this.type.pollutionRadius);
             int pollutionAmount = this.type.pollutionAmount;
             for (MapLocation pollutionLocation : withinPollutionRadius)
                 this.gameWorld.adjustPollution(pollutionLocation, pollutionAmount);
+            this.gameWorld.globalPollution(this.type.globalPollutionAmount);
         }
+        
+        this.gameWorld.getMatchMaker().addBytecodes(ID, this.bytecodesUsed);
+        this.roundsAlive++;
+    }
+
+    public void processEndOfRound() {
+        // OOOOOF
     }
 
     // *********************************
