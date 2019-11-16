@@ -1641,12 +1641,22 @@ battlecode.schema.BodyTypeMetadata.prototype.pollutionAmount = function() {
 };
 
 /**
+ * The amount of global pollution this type creates.
+ *
+ * @returns {number}
+ */
+battlecode.schema.BodyTypeMetadata.prototype.globalPollutionAmount = function() {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
  * The maximum amount of soup this type processes every turn.
  *
  * @returns {number}
  */
 battlecode.schema.BodyTypeMetadata.prototype.maxSoupProduced = function() {
-  var offset = this.bb.__offset(this.bb_pos, 22);
+  var offset = this.bb.__offset(this.bb_pos, 24);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -1656,7 +1666,7 @@ battlecode.schema.BodyTypeMetadata.prototype.maxSoupProduced = function() {
  * @returns {number}
  */
 battlecode.schema.BodyTypeMetadata.prototype.bytecodeLimit = function() {
-  var offset = this.bb.__offset(this.bb_pos, 24);
+  var offset = this.bb.__offset(this.bb_pos, 26);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -1664,7 +1674,7 @@ battlecode.schema.BodyTypeMetadata.prototype.bytecodeLimit = function() {
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.BodyTypeMetadata.startBodyTypeMetadata = function(builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 };
 
 /**
@@ -1741,10 +1751,18 @@ battlecode.schema.BodyTypeMetadata.addPollutionAmount = function(builder, pollut
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {number} globalPollutionAmount
+ */
+battlecode.schema.BodyTypeMetadata.addGlobalPollutionAmount = function(builder, globalPollutionAmount) {
+  builder.addFieldInt32(9, globalPollutionAmount, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {number} maxSoupProduced
  */
 battlecode.schema.BodyTypeMetadata.addMaxSoupProduced = function(builder, maxSoupProduced) {
-  builder.addFieldInt32(9, maxSoupProduced, 0);
+  builder.addFieldInt32(10, maxSoupProduced, 0);
 };
 
 /**
@@ -1752,7 +1770,7 @@ battlecode.schema.BodyTypeMetadata.addMaxSoupProduced = function(builder, maxSou
  * @param {number} bytecodeLimit
  */
 battlecode.schema.BodyTypeMetadata.addBytecodeLimit = function(builder, bytecodeLimit) {
-  builder.addFieldInt32(10, bytecodeLimit, 0);
+  builder.addFieldInt32(11, bytecodeLimit, 0);
 };
 
 /**
@@ -1775,11 +1793,12 @@ battlecode.schema.BodyTypeMetadata.endBodyTypeMetadata = function(builder) {
  * @param {number} sensorRadius
  * @param {number} pollutionRadius
  * @param {number} pollutionAmount
+ * @param {number} globalPollutionAmount
  * @param {number} maxSoupProduced
  * @param {number} bytecodeLimit
  * @returns {flatbuffers.Offset}
  */
-battlecode.schema.BodyTypeMetadata.createBodyTypeMetadata = function(builder, type, spawnSource, cost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, maxSoupProduced, bytecodeLimit) {
+battlecode.schema.BodyTypeMetadata.createBodyTypeMetadata = function(builder, type, spawnSource, cost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, globalPollutionAmount, maxSoupProduced, bytecodeLimit) {
   battlecode.schema.BodyTypeMetadata.startBodyTypeMetadata(builder);
   battlecode.schema.BodyTypeMetadata.addType(builder, type);
   battlecode.schema.BodyTypeMetadata.addSpawnSource(builder, spawnSource);
@@ -1790,6 +1809,7 @@ battlecode.schema.BodyTypeMetadata.createBodyTypeMetadata = function(builder, ty
   battlecode.schema.BodyTypeMetadata.addSensorRadius(builder, sensorRadius);
   battlecode.schema.BodyTypeMetadata.addPollutionRadius(builder, pollutionRadius);
   battlecode.schema.BodyTypeMetadata.addPollutionAmount(builder, pollutionAmount);
+  battlecode.schema.BodyTypeMetadata.addGlobalPollutionAmount(builder, globalPollutionAmount);
   battlecode.schema.BodyTypeMetadata.addMaxSoupProduced(builder, maxSoupProduced);
   battlecode.schema.BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
   return battlecode.schema.BodyTypeMetadata.endBodyTypeMetadata(builder);
@@ -3005,8 +3025,8 @@ battlecode.schema.Round.prototype.indicatorLineRGBs = function(obj) {
  * have a header:
  * '[' $TEAM ':' $ROBOTTYPE '#' $ID '@' $ROUND '] '
  * $TEAM = 'A' | 'B'
- * $ROBOTTYPE = 'ARCHON' | 'GARDENER' | 'LUMBERJACK' 
- *            | 'SOLDIER' | 'TANK' | 'SCOUT' | other names...
+ * $ROBOTTYPE = 'HQ' | 'VAPORATOR' | 'LANDSCAPER' 
+ *            | 'DELIVERY_DRONE' | 'REFINERY' | 'MINER' | other names...
  * $ID = a number
  * $ROUND = a number
  * The header is not necessarily followed by a newline.

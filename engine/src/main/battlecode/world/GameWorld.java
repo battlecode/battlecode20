@@ -217,12 +217,18 @@ public strictfp class GameWorld {
     public void adjustPollution(MapLocation loc, int amount) {
         if (gameMap.onTheMap(loc)) {
             int idx = locationToIndex(loc);
-            pollution[idx] = Math.max(pollution[idx] + amount, 0);
+            int newPollution = Math.max(pollution[idx] + amount, 0);
+            getMatchMaker().addPollutionChanged(loc, newPollution - pollution[idx]);
+            pollution[idx] = newPollution;
         }
     }
 
     public int getDirt(MapLocation loc) {
         return gameMap.onTheMap(loc) ? dirt[locationToIndex(loc)] : 0;
+    }
+
+    public int getDirtDifference(MapLocation loc1, MapLocation loc2) {
+        return Math.abs(getDirt(loc1) - getDirt(loc2));
     }
 
     public int getWater(MapLocation loc) {
