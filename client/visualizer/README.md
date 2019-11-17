@@ -21,6 +21,8 @@ To watch using a standalone app (Electron):
 $ npm run electron
 ```
 
+When you `npm run electron`, you can set the default file to run when it is launched, by placing `default.bc20` in `/client` folder. So, it's loading `/client/default.bc20` file when it is launched.
+
 To run the tests:
 ```sh
 $ npm test

@@ -1,3 +1,5 @@
+import * as _fs from 'fs';
+
 import {Game, GameWorld, Match, Metadata, schema, flatbuffers} from 'battlecode-playback';
 import * as cst from './constants';
 import * as config from './config';
@@ -12,8 +14,9 @@ import {MapEditor} from './mapeditor/index';
 import WebSocketListener from './websocket';
 import ScaffoldCommunicator from './scaffold';
 
-import {electron} from './electron-modules';
+import { electron } from './electron-modules';
 import { TeamStats } from 'battlecode-playback/out/gameworld';
+
 // import TeamStats = gameworld.TeamStats;
 
 // webpack magic
@@ -248,7 +251,27 @@ export default class Client {
       req.send();
     }
     else {
-      console.log('Starting without match file');
+      console.log('Starting with a default match file (/client/default.bc20)');
+      _fs.readFile('../default.bc20', (err, data: ArrayBuffer) => {
+        if(err){
+          console.log('Error while loading default local file!');
+          console.log(err);
+          console.log('Starting without any match files. Please upload via upload button in queue tab of sidebar');
+          return;
+        }
+
+        let lastGame = this.games.length
+        this.games[lastGame] = new Game();
+        // lastGame should be 0?
+        try {
+          this.games[lastGame].loadFullGameRaw(data);
+        } catch (error) {
+          console.log(`Error occurred! ${error}`);
+        }
+
+        console.log('Running game!');
+        startGame();
+      });
     }
     
     this.controls.onGameLoaded = (data: ArrayBuffer) => {
