@@ -55,7 +55,7 @@ def release(release_version, codesign=True):
     if os.path.isdir('temp-dist'):
         raise click.ClickException('Need to clean first.')
 
-    os.command('mkdir temp-dist')
+    os.system('mkdir temp-dist')
 
     build_engine(release_version=release_version)
 
