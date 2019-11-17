@@ -62,15 +62,21 @@ export default class HeaderForm {
     form.appendChild(height);
 
     // Map name
-    name.appendChild(document.createTextNode("Map name:"));
+    let nameLabel = document.createElement("label");
+    nameLabel.innerHTML = "Map name: ";
+    name.appendChild(nameLabel);
     name.appendChild(this.name);
 
     // Map width
-    width.appendChild(document.createTextNode("Width:"));
+    let widthLabel = document.createElement("label");
+    widthLabel.innerHTML = "Width: ";
+    width.appendChild(widthLabel);
     width.appendChild(this.width);
 
     // Map height
-    height.appendChild(document.createTextNode("Height:"));
+    let heightLabel = document.createElement("label");
+    heightLabel.innerHTML = "Height: ";
+    height.appendChild(heightLabel);
     height.appendChild(this.height);
 
     form.appendChild(document.createElement("br"));

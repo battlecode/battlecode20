@@ -104,6 +104,7 @@ export default class MapEditor {
   private validateButton(): HTMLButtonElement {
     const button = document.createElement("button");
     button.type = "button";
+    button.className = 'form-button';
     button.appendChild(document.createTextNode("Validate"));
     button.onclick = () => {
       if (this.isValid()) {
@@ -123,6 +124,7 @@ export default class MapEditor {
   private removeInvalidButton(): HTMLButtonElement {
     const button = document.createElement("button");
     button.type = "button";
+    button.className = 'form-button';
     button.appendChild(document.createTextNode("Remove invalid units"));
     button.onclick = () => {
       let youAreSure = confirm(
@@ -137,6 +139,7 @@ export default class MapEditor {
   private resetButton(): HTMLButtonElement {
     const button = document.createElement("button");
     button.type = "button";
+    button.className = 'form-button';
     button.appendChild(document.createTextNode("RESET"));
     button.onclick = () => {
       let youAreSure = confirm(

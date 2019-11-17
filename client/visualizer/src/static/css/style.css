@@ -1,5 +1,21 @@
 /* Global stylings here */
 
+/* Scrollbar styling */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+background: rgb(252, 252, 252);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+background: rgb(39, 39, 39);
+}
+
 .gameWrapper {
     background: #e0e0e0;
     color: white;
@@ -133,7 +149,7 @@ input[type='file'] {
     position: fixed;
     top: 75px;
     left: 320px;
-    background: white;
+    background: rgb(39, 39, 39);
 }
 
 .teamHeader {
@@ -154,6 +170,27 @@ input[type='file'] {
     text-align: left;
 }
 
+.form-button {
+    margin-left: 2px;
+    margin-right: 2px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+label{
+    display: inline-block;
+    clear: left;
+    width: 70px;
+    text-align: right;
+}
+
+input {
+    border: 2px solid rgb(0,123,255);
+    padding: 5px;
+    margin: 5px;
+    display: inline-block;
+}
+
 #baseDiv {
     width: 100%;
     height: 55px;
@@ -163,15 +200,15 @@ input[type='file'] {
     top: 0;
     overflow-x: hidden;
     overflow-y: hidden;
-    color: black;
-    background-color: white;
+    color: rgb(39, 39, 39);
+    background-color: rgb(252, 252, 252);
     padding: 10px;
 }
 
 #timelineCanvas {
     height: 32px;
     width: 400px;
-    background-color: #777;
+    background-color: #999;
     display: inline-block;
 }
 
@@ -193,8 +230,8 @@ input[type='file'] {
     overflow-x: hidden;
 
     /* Inner style */
-    background-color: white;
-    color: black;
+    background-color: rgb(252, 252, 252);
+    color: rgb(39, 39, 39);
     text-align: center;
     font-size: 16px;
     font-family: sans-serif;
@@ -204,13 +241,12 @@ input[type='file'] {
 }
 
 #sidebar button {
-    background-color: black;
+    background-color: rgb(39, 39, 39);
     border: none;
     color: white;
     border-radius: 5px;
     padding: 10px 10px;
     text-align: center;
-    text-decoration: underline;
     display: inline-block;
     font-size: 14px;
     cursor: grab;
@@ -221,7 +257,7 @@ input[type='file'] {
 
 #sidebar button.modebutton {
     background-color: white;
-    color: black;
+    color: rgb(39, 39, 39);
     padding: 5px 0;
 }
 
@@ -248,13 +284,12 @@ input[type='file'] {
 
 .modepanel {
     width: 100%;
-    padding-bottom: 10px;
 }
 
 #splashSubtitle {
     font-size: 24px;
     font-family: sans-serif;
-    color: black;
+    color: rgb(252, 252, 252);
     margin: 8px;
 }
 
@@ -262,7 +297,7 @@ input[type='file'] {
     font-size: 56px;
     font-family: sans-serif;
     font-weight: bold;
-    color: black;
+    color: rgb(252, 252, 252);
     margin: 0px;
 }
 
@@ -325,7 +360,7 @@ input[type='file'] {
 .slide-control {
     width: 200px;
     height: 8px;
-    background-color: #222;
+    background-color: rgb(39, 39, 39);;
     overflow: visible;
     display:block;
     position: relative;
@@ -335,14 +370,14 @@ input[type='file'] {
 .slide-control-button {
     position:absolute;
     z-index:2;
-    width:24px;
+    width:12px;
     height:32px;
     left:150px;
     margin-left: -12px;
     top: -10px;
     bottom:-32px;
     border-radius: 8px;
-    background: #eee;
+    background: #777;
 }
 
 .slide-control-button:hover {
@@ -363,7 +398,7 @@ input[type='file'] {
 }
 
 .map-label.selected {
-    color: black;
+    color: rgb(39, 39, 39);
     background-color: #46ff00;
 }
 

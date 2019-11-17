@@ -150,8 +150,10 @@ export default class MapEditorForm {
 
     // Delete and Add/Update buttons
     this.buttonDelete.type = "button";
+    this.buttonDelete.className = "form-button";
     this.buttonDelete.appendChild(document.createTextNode("Delete"));
     this.buttonAdd.type = "button";
+    this.buttonAdd.className = "form-button";
     this.buttonAdd.appendChild(document.createTextNode("Add/Update"));
 
     return buttons;
