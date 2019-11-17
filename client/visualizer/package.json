@@ -73,7 +73,8 @@
       "target": [
         "dir"
       ],
-      "category": "public.app-category.games"
+      "category": "public.app-category.games",
+      "hardenedRuntime": "true"
     },
     "win": {
       "target": [
