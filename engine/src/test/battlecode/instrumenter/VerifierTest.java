@@ -34,12 +34,12 @@ public class VerifierTest {
         assertFalse("Should fail to verify", Verifier.verify("testplayeractions", jar));
     }
 
-    @Test
+    /*@Test
     public void verifyGoodFolder() throws Exception {
         String jar = URLUtils.toTempFolder("testplayeractions/RobotPlayer.class");
 
         assertTrue("Should verify successfully", Verifier.verify("testplayeractions", jar));
-    }
+    }*/
 
     @Test
     public void verifyBadFolder() throws Exception {
