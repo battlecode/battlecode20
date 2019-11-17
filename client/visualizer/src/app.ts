@@ -524,7 +524,6 @@ export default class Client {
       // jump to a frame when clicking the controls timeline
       let width: number = (<HTMLCanvasElement>this).width;
       let turn: number = event.offsetX / width * match['_farthest'].turn;
-      // !!
       turn = Math.round(Math.min(match['_farthest'].turn, turn));
       externalSeek = true;
       match.seek(turn);
