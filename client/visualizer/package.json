@@ -10,7 +10,8 @@
     "prod": "webpack",
     "watch": "echo '--- open localhost:8080 in your browser ---' && webpack-dev-server --env.dev",
     "electron": "webpack --env.electron --env.dev && electron .",
-    "prod-electron": "webpack --env.electron && build -mwl --dir --ia32 --x64"
+    "prod-electron": "webpack --env.electron && electron-builder -mwl --dir --ia32 --x64",
+    "wis": "electron-builder --help"
   },
   "repository": {
     "type": "git",
@@ -51,11 +52,8 @@
   },
   "main": "electron-main.js",
   "build": {
-    "//": "Build options for electron, not relevant for running in-browser",
     "appId": "org.battlecode.client",
     "productName": "Battlecode Client",
-    "homepage": "https://battlecode.org",
-    "license": "GPL-3.0",
     "compression": "maximum",
     "files": [
       "bc20/*",
