@@ -14,7 +14,7 @@ public final class Action {
   private Action() { }
   /**
    * Mines a unit of soup (miners).
-   * Target: tile.
+   * Target: none.
    */
   public static final byte MINE_SOUP = 0;
   /**
@@ -44,7 +44,7 @@ public final class Action {
   public static final byte DROP_UNIT = 5;
   /**
    * Builds a unit.
-   * Target: spawned unit
+   * Target: spawned unit.
    */
   public static final byte SPAWN_UNIT = 6;
   /**
@@ -74,7 +74,7 @@ public final class Action {
   public static final byte DIE_SUICIDE = 11;
   /**
    * Dies due to an uncaught exception
-   * Target: none
+   * Target: none.
    */
   public static final byte DIE_EXCEPTION = 12;
 

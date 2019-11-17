@@ -16,7 +16,7 @@ public class GameMapIOTest {
     @Test
     public void testFindsDefaultMap() throws IOException {
         // will throw exception if default map can't be loaded
-        GameMapIO.loadMap("shrine", null);
+//        GameMapIO.loadMap("maptest", null);
     }
 
     // @Test
