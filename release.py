@@ -84,7 +84,7 @@ def build_engine(release_version):
     os.system("./gradlew release -Prelease_version=" + release_version)
 
     os.system("mv battlecode-" + release_version + '.jar temp-dist/engine.jar')
-    os.system("mv battlecode-javadoc-" + release_version + '.jar temp-dist/engine.jar')
+    os.system("mv battlecode-javadoc-" + release_version + '-javadoc.jar temp-dist/javadoc.jar')
 
 def build_client(codesign=True):
     """
