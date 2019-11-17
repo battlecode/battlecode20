@@ -72,23 +72,10 @@ public enum RobotType {
     ;
     
     /**
-     * Vaporators reduce pollution.
-     * @battlecode.doc.robottype
+     * For units, this is the structure that spawns it. For non-spawnable robots, this is null.
      */
-    VAPORATOR               (MINER,  20,  0,  0,  0,  0,  4,  -1,  5,  15000),
-    //                       SS      SC   DL  SL  AC  SR  PR  PA   MS  BL
-    /**
-     * The base produces miners, is also a net gun and a refinery.
-     * @battlecode.doc.robottype
-     */
-    HQ                      (null,  0,  0,  0,  0,  7,  4,  1,  10,  15000),
-    //                       SS     SC  DL  SL  AC  SR  PR  PA  MS   BL
-    /**
-     * Design schools create landscapers.
-     * @battlecode.doc.robottype
-     */
-    DESIGN_SCHOOL           (MINER,  20,  0,  0,  0,  0,  0,  0,  0,  15000),
-    //                       SS      SC   DL  SL  AC  SR  PR  PA  MS  BL
+    public final RobotType spawnSource;
+
     /**
      * Cost for creating the robot.
      */
