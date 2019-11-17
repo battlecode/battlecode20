@@ -39,7 +39,13 @@ def install():
     """
     install everything.
     """
-    pass
+    os.chdir('schema')
+    os.system('npm install')
+    os.chdir('../client/playback')
+    os.system('npm install')
+    os.chdir('../visualizer')
+    os.system('npm install')
+    os.chdir('../../')
 
 
 @cli.command()
@@ -50,7 +56,7 @@ def clean():
 @cli.command()
 @click.option('--codesign',default=True,help='whether to codesign.')
 @click.option('-v','--release-version',required=True,help='needs to start with 2020.')
-def release(release_version, codesign=True):
+def release(release_version, codesign):
 
     if os.path.isdir('temp-dist'):
         raise click.ClickException('Need to clean first.')
@@ -90,10 +96,11 @@ def build_client(codesign=True):
     """
     builds client
     """
-    os.system('cd client/visualizer')
+    os.chdir('client/visualizer')
     if not codesign:
-        os.system('export CSC_IDENTITY_AUTO_DISCOVERY=false')
+        os.system('npm run prod-electron-no-sign')
     os.system('npm run prod-electron')
+    os.chdir('../../')
     os.system('mv client/visualizer/dist temp-dist/client')
 
 

@@ -11,6 +11,7 @@
     "watch": "echo '--- open localhost:8080 in your browser ---' && webpack-dev-server --env.dev",
     "electron": "webpack --env.electron --env.dev && electron .",
     "prod-electron": "webpack --env.electron && electron-builder -mwl --dir --ia32 --x64",
+    "prod-electron-no-sign": "CSC_IDENTITY_AUTO_DISCOVERY=false webpack --env.electron && electron-builder -mwl --dir --ia32 --x64",
     "wis": "electron-builder --help"
   },
   "repository": {
