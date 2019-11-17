@@ -1,4 +1,5 @@
 package battlecode.common;
+import java.util.ArrayList;
 
 /**
  * A RobotController allows contestants to make their robot sense and interact
@@ -21,7 +22,8 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    int getRoundLimit();
+    // int getRoundLimit();
+    // seems like we're not doing this this year?
 
     /**
      * Returns the current round number, where round 0 is the first round of the
@@ -44,11 +46,9 @@ public strictfp interface RobotController {
     int getTeamSoup();
 
     /**
-     * Returns the number of robots on your team, including your archons.
-     * If this number ever reaches zero, the opposing team will automatically
-     * win by destruction.
+     * Returns the location of the querying team's HQ.
      *
-     * @return the number of robots on your team, including your archons.
+     * @return the location of the querying team's HQ.
      *
      * @battlecode.doc.costlymethod
      */
@@ -125,6 +125,15 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int getDirtCarrying();
+
+    /**
+     * Returns whether the robot is currently holding a unit
+     *
+     * @return true if the robot is currently holding another unit, false otherwise
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public boolean isCurrentlyHoldingUnit();
 
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
@@ -264,6 +273,18 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
 
     /**
+     * Returns the pollution level at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @param loc the given location
+     * @return the pollution level at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int sensePollution(MapLocation loc) throws GameActionException;
+
+    /**
      * Returns the location adjacent to current location in the given direction.
      *
      * @param dir the given direction
@@ -277,6 +298,9 @@ public strictfp interface RobotController {
     // ****** READINESS METHODS **********
     // ***********************************
     
+
+    //TODO: COME BACK TO THIS AFTER WE DETERMINE HOW COOLDOWNS ARE CODED.
+
     /**
      * Returns whether the robot's action cooldown has expired.
      * 
@@ -307,9 +331,8 @@ public strictfp interface RobotController {
      * game map. Does not take into account whether this robot is currently
      * active. Note that one stride is equivalent to this robot's {@code strideRadius}.
      *
-     * @param dir the direction to move in
-     * @return true if there is no external obstruction to prevent this robot
-     * from moving one stride in the given direction; false otherwise.
+     * @param loc the location to move to
+     * @return true if the robot can move to the given location; false otherwise.
      *
      * @battlecode.doc.costlymethod
      */
@@ -332,8 +355,7 @@ public strictfp interface RobotController {
     boolean canMove(MapLocation center);
     
     /**
-     * Moves one stride in the given direction. Note that one stride is equivalent
-     * to this robot's {@code strideRadius}.
+     * Moves to the given location.
      *
      * @param dir the direction to move in
      * @throws GameActionException if the robot cannot move one stride in this
@@ -441,102 +463,113 @@ public strictfp interface RobotController {
     void refineSoup(Direction dir, int amount) throws GameActionException;
 
     /**
-     * Hires a miner in the given direction.
-     * 
-     * @param dir the direction to build in
-     * @throws GameActionException if it is not possible to hire a miner in the given direction.
+     * Tests whether a robot is able to pick up a specific unit.
      *
-     * @battlecode.doc.costlymethod
+     * @param id the id of the robot to pick up
+     * @return true if id can be picked up by the robot, false otherwise
      */
-    void hireMiner(Direction dir) throws GameActionException;
+    boolean canPickUpUnit(int id);
 
     /**
-     * Tests whether the robot can hire a Landscaper in the given direction.
-     * Checks cooldown turns remaining, soup count, whether the robot can
-     * hire, and that the given direction is not blocked.
-     * 
-     * @param dir the direction to build in
-     * @return whether it is possible to hire a landscaper in the given direction.
+     * Picks up another unit.
      *
-     * @battlecode.doc.costlymethod
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
+     * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
+     * of this robot.
      */
-    boolean canHireLandscaper(Direction dir);
+    void pickUpUnit(int id) throws GameActionException;
 
     /**
-     * Hires a landscaper in the given direction.
-     * 
-     * @param dir the direction to build in
-     * @throws GameActionException if it is not possible to hire a landscaper in the given direction.
+     * Tests whether a robot is able to drop a unit in a specified direction.
      *
-     * @battlecode.doc.costlymethod
+     * @param dir the specified direction
+     * @return true if a robot can be dropped off, false otherwise
      */
-    void hireLandscaper(Direction dir) throws GameActionException;
+    boolean canDropUnit(Direction dir);
 
     /**
-     * Tests whether the robot can build a drone in the given direction.
-     * Checks cooldown turns remaining, soup count, whether the robot can
-     * hire, and that the given direction is not blocked.
-     * 
-     * @param dir the direction to build in
-     * @return whether it is possible to build a drone in the given direction.
+     * Drops the unit that is currently picked up.
      *
-     * @battlecode.doc.costlymethod
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
+     * holding a unit that it can drop.
      */
-    boolean canBuildDrone(Direction dir);
+    void dropUnit(Direction dir) throws GameActionException;
+
+    // ***************************************
+    // ********* LANDSCAPER METHODS **********
+    // ***************************************
 
     /**
-     * Builds a drone in the given direction.
-     * 
-     * @param dir the direction to build in
-     * @throws GameActionException if it is not possible to build a drone in the given direction.
+     * Tests whether the robot can dig dirt in the given direction.
+     * Checks cooldown turns remaining, whether the robot can dig,
+     * that the robot can carry more dirt, and that the location is valid.
      *
-     * @battlecode.doc.costlymethod
-     */
-    void buildDrone(Direction dir) throws GameActionException;
-
-    // **************************************
-    // ********* DIRT MANIPULATION **********
-    // **************************************
-
-    /**
-     * Tests whether the robot can dig in the given direction.
-     * 
      * @param dir the direction to dig in
-     * @return whether it is possible to dig in the given direction.
+     * @return whether it is possible to dig dirt from the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canDig(Direction dir);
+    boolean canDigDirt(Direction dir);
 
     /**
-     * Digs in the given direction.
-     * 
+     * Digs dirt in the given direction.
+     *
      * @param dir the direction to dig in
-     * @throws GameActionException if cannot dig
+     * @throws GameActionException if this robot is not a landscaper, if
+     * the robot is still in cooldown, the robot cannot carry more dirt,
+     * or the location is not valid (there is a robot/building).
      *
      * @battlecode.doc.costlymethod
      */
-    void dig(Direction dir);
+    void digDirt(Direction dir) throws GameActionException;
 
     /**
      * Tests whether the robot can deposit dirt in the given direction.
-     * 
-     * @param dir the direction to deposit dirt in
+     * Checks cooldown turns remaining, whether the robot can deposit dirt,
+     * and whether the robot has dirt.
+     *
+     * @param dir the direction to deposit
      * @return whether it is possible to deposit dirt in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canDeposit(Direction dir);
+    boolean canDepositDirt(Direction dir);
 
     /**
-     * Deposits dirt in the given direction.
-     * 
-     * @param dir the direction to deposit dirt in
-     * @throws GameActionException if cannot deposit dirt
+     * Deposits dirt in the given direction (max up to specified amount).
+     *
+     * @param dir the direction to deposit
+     * @throws GameActionException if this robot is not a landscaper, if
+     * the robot is still in cooldown, if there is no dirt to deposit,
      *
      * @battlecode.doc.costlymethod
      */
-    void deposit(Direction dir);
+    void depositDirt(Direction dir) throws GameActionException;
+
+    // ***********************************
+    // ****** BLOCKCHAINNNNNNNNNNN *******
+    // ***********************************
+
+    /**
+     * Sends a message to the blockchain at the indicated cost.
+     * 
+     * @param messageArray the list of ints to send. if more than K messages, 
+     * @param proofOfStake the price that the unit is willing to pay for the message
+     * 
+     */
+    public void sendMessage(int[] messageArray, int cost) throws GameActionException;
+
+
+    /**
+     * Gets all messages that were sent at a given round.
+     * 
+     * Because one of me and java is stupid, this is returned as a string where a space
+     * separates messages and an underscore separates the numbers in messages.
+     * 
+     * @param roundNumber the round index.
+     * @throws GameActionException
+     */
+    public String getRoundMessages(int roundNumber) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

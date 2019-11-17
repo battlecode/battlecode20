@@ -39,6 +39,11 @@ public strictfp class GameWorld {
     private final RobotControlProvider controlProvider;
     private Random rand;
 
+    // the pool of messages not yet sent
+    private PriorityQueue<BlockchainEntry> blockchainQueue;
+    // the messages that have been broadcasted already
+    public ArrayList<ArrayList<BlockchainEntry>> blockchain;
+
     private final GameMaker.MatchMaker matchMaker;
 
     @SuppressWarnings("unchecked")
@@ -60,6 +65,9 @@ public strictfp class GameWorld {
         this.controlProvider = cp;
 
         this.rand = new Random(gameMap.getSeed());
+
+        this.blockchainQueue = new PriorityQueue<BlockchainEntry>();
+        this.blockchain = new ArrayList<ArrayList<BlockchainEntry>>();
 
         this.matchMaker = matchMaker;
 
@@ -206,6 +214,13 @@ public strictfp class GameWorld {
         return gameMap.onTheMap(loc) ? pollution[locationToIndex(loc)] : 0;
     }
 
+    public void adjustPollution(MapLocation loc, int amount) {
+        if (gameMap.onTheMap(loc)) {
+            int idx = locationToIndex(loc);
+            pollution[idx] = Math.max(pollution[idx] + amount, 0);
+        }
+    }
+
     public int getDirt(MapLocation loc) {
         return gameMap.onTheMap(loc) ? dirt[locationToIndex(loc)] : 0;
     }
@@ -219,9 +234,40 @@ public strictfp class GameWorld {
     }
 
     public void removeSoup(MapLocation loc, int amount) {
-        int idx = locationToIndex(loc);
-        if (gameMap.onTheMap(loc))
+        if (gameMap.onTheMap(loc)) {
+            int idx = locationToIndex(loc);
             soup[idx] = Math.max(0, soup[idx] - amount);
+        }
+    }
+
+    public void removeDirt(MapLocation loc) {
+        removeDirt(loc, 1);
+    }
+
+    public void removeDirt(MapLocation loc, int amount) {
+        int idx = locationToIndex(loc);
+        if (gameMap.onTheMap(loc)) {
+            InternalRobot robot = (getRobot(loc));
+            if (robot == null)
+                dirt[idx] -= amount;
+            else if (robot.getType() != RobotType.LANDSCAPER)
+                robot.addDirtCarrying(amount);
+        }
+    }
+
+    public void addDirt(MapLocation loc) {
+        addDirt(loc, 1);
+    }
+
+    public void addDirt(MapLocation loc, int amount) {
+        int idx = locationToIndex(loc);
+        if (gameMap.onTheMap(loc)) {
+            InternalRobot robot = (getRobot(loc));
+            if (robot == null)
+                dirt[idx] += amount;
+            else if (robot.getType() != RobotType.LANDSCAPER)
+                robot.removeDirtCarrying(amount);
+        }
     }
 
     public InternalRobot getRobot(MapLocation loc) {
@@ -243,15 +289,26 @@ public strictfp class GameWorld {
 
     public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius) {
         ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
+        for (MapLocation newLocation : getAllLocationsWithinRadius(center, radius))
+            if (robots[newLocation.x][newLocation.y] != null)
+                returnRobots.add(robots[newLocation.x][newLocation.y]);
+        return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+    }
+
+    public ArrayList<MapLocation> getAllLocationsWithinRadius(MapLocation center, int radius) {
+        ArrayList<MapLocation> returnLocations = new ArrayList<MapLocation>();
         int minX = Math.max(center.x - radius, 0);
         int minY = Math.max(center.y - radius, 0);
         int maxX = Math.min(center.x + radius, this.gameMap.getWidth() - 1);
         int maxY = Math.min(center.y + radius, this.gameMap.getHeight() - 1);
-        for (int x = minX; x <= maxX; x++)
-            for (int y = minY; y <= maxY; y++)
-                if (robots[x][y] != null)
-                    returnRobots.add(robots[x][y]);
-        return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                MapLocation newLocation = new MapLocation(x, y);
+                if (center.isWithinDistance(newLocation, radius))
+                    returnLocations.add(newLocation);
+            }
+        }
+        return returnLocations;
     }
 
     // *********************************
@@ -286,12 +343,16 @@ public strictfp class GameWorld {
         return currentRound >= gameMap.getRounds() - 1;
     }
 
+
     public void processEndOfRound() {
         // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
             robot.processEndOfRound();
             return true;
         });
+
+        // process blockchain messages
+        processBlockchain();
 
         // Check for end of match
         if (timeLimitReached() && gameStats.getWinner() == null) {
@@ -338,6 +399,39 @@ public strictfp class GameWorld {
     }
 
     // *********************************
+    // ****** BLOCKCHAIN *************** 
+    // *********************************
+
+    /**
+     * Add new message to the priority queue of messages, and also add them
+     * to the matchmaker.
+     * @param cost
+     * @param message
+     */
+    public void addNewMessage(BlockchainEntry block) {
+        getMatchMaker().addNewMessage(block.cost, block.serializedMessage);
+
+        // add it to the priority queue 
+        blockchainQueue.add(block);
+    }
+
+    public void processBlockchain() {
+        // process messages, take the K first ones!
+        ArrayList<BlockchainEntry> thisRoundMessages = new ArrayList<BlockchainEntry>();
+        for (int i = 0; i < GameConstants.NUMBER_OF_BROADCASTED_MESSAGES; i++) {
+            if (blockchainQueue.size() > 0) {
+                BlockchainEntry block = blockchainQueue.poll();
+                // send this to match maker!
+                matchMaker.addBroadcastedMessage(block.cost, block.serializedMessage);
+                // also add it to this round's list of messages!
+                thisRoundMessages.add(block);
+            }
+        }
+        // add this to the blockchain!
+        blockchain.add(thisRoundMessages);
+    }
+   
+    // *********************************
     // ****** DESTROYING ***************
     // *********************************
 
@@ -353,3 +447,5 @@ public strictfp class GameWorld {
         matchMaker.addDied(id, false);
     }
 }
+
+

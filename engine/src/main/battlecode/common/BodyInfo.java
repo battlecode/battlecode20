@@ -13,9 +13,9 @@ public interface BodyInfo {
     int getID();
 
     /**
-     * Returns the center location of this body.
+     * Returns the location of this body.
      *
-     * @return the center location of this body.
+     * @return the location of this body.
      */
     MapLocation getLocation();
 

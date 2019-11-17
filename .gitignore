@@ -24,4 +24,4 @@ frontend/public/bc20
 bin/
 
 ### Client
-client/bc20
+client/visualizer/bc20

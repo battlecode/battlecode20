@@ -2,6 +2,7 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.schema.Action;
+import java.util.*;
 
 /**
  * The representation of a robot used by the server.
@@ -24,6 +25,11 @@ public strictfp class InternalRobot {
     private int dirtCarrying; // amount of dirt the robot is carrying (landscapers and buildings)
     
     private int cooldownTurns;
+
+    private boolean currentlyHoldingUnit;
+    private int idOfUnitCurrentlyHeld;
+
+    private boolean blocked;  // when picked up by a delivery drone
 
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
@@ -54,6 +60,11 @@ public strictfp class InternalRobot {
         this.dirtCarrying = 0;
         
         this.cooldownTurns = 0;
+
+        this.currentlyHoldingUnit = false;
+        this.idOfUnitCurrentlyHeld = -1;
+
+        this.blocked = false;
 
         this.gameWorld = gw;
         this.controller = new RobotControllerImpl(gameWorld, this);
@@ -111,6 +122,18 @@ public strictfp class InternalRobot {
         return cooldownTurns;
     }
 
+    public boolean isCurrentlyHoldingUnit() {
+        return currentlyHoldingUnit;
+    }
+
+    public int getIdOfUnitCurrentlyHeld() {
+        return idOfUnitCurrentlyHeld;
+    }
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
     public RobotInfo getRobotInfo() {
         if (this.cachedRobotInfo != null
                 && this.cachedRobotInfo.ID == ID
@@ -121,6 +144,24 @@ public strictfp class InternalRobot {
         }
         return this.cachedRobotInfo = new RobotInfo(
                 ID, team, type, location);
+    }
+
+    public void pickUpUnit(int id) {
+        this.currentlyHoldingUnit = true;
+        this.idOfUnitCurrentlyHeld = id;
+    }
+
+    public void dropUnit() {
+        this.currentlyHoldingUnit = false;
+        this.idOfUnitCurrentlyHeld = -1;
+    }
+
+    public void blockUnit() {
+        this.blocked = true;
+    }
+
+    public void unblockUnit() {
+        this.blocked = false;
     }
 
     // **********************************
@@ -212,8 +253,9 @@ public strictfp class InternalRobot {
     public void processBeginningOfTurn() {
         if (this.cooldownTurns > 0)
             this.cooldownTurns--;
-        // If refinery, produces refined soup
-        if (this.type == RobotType.REFINERY && this.soupCarrying > 0) {
+        // If refinery/vaporator/hq, produces refined soup
+        if ((this.type == RobotType.REFINERY || this.type == RobotType.VAPORATOR || this.type == RobotType.HQ)
+             && this.soupCarrying > 0) {
             int soupProduced = Math.min(this.soupCarrying, this.type.maxSoupProduced);
             this.soupCarrying -= soupProduced;
             this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
@@ -227,9 +269,17 @@ public strictfp class InternalRobot {
     }
 
     public void processEndOfRound() {
-        // if(this.healthChanged){
-        //     gameWorld.getMatchMaker().addHealthChanged(getID(), getHealth());
-        // }
+        // If refinery/vaporator/hq, produces pollution
+        if (this.type == RobotType.REFINERY || this.type == RobotType.VAPORATOR || this.type == RobotType.HQ) {
+            ArrayList<MapLocation> withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadius(
+                                                                this.location, 
+                                                                this.type.pollutionRadius);
+            int pollutionAmount = this.type.pollutionAmount;
+            for (MapLocation pollutionLocation : withinPollutionRadius) {
+                this.gameWorld.adjustPollution(pollutionLocation, pollutionAmount);
+                this.gameWorld.getMatchMaker().addPollutionChanged(pollutionLocation, pollutionAmount);
+            }
+        }
     }
 
     // *********************************
@@ -238,6 +288,8 @@ public strictfp class InternalRobot {
 
     // TODO
     public boolean canExecuteCode() {
+        if (isBlocked())  // for delivery drones
+            return false;
         // if (getHealth() <= 0.0)
         //     return false;
         // if(type.isBuildable())

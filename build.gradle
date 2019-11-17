@@ -153,12 +153,12 @@ task runClient {
   doLast {
     exec {
       commandLine 'npm', 'install'
-      workingDir 'client'
+      workingDir 'client/visualizer'
     }
 
     exec {
       commandLine 'npm', 'run', 'watch'
-      workingDir 'client'
+      workingDir 'client/visualizer'
     }
   }
 }

@@ -44,7 +44,9 @@ enum BodyType : byte {
     /// Net guns shoot down drones.
     NET_GUN,
     /// Cows produce pollution.
-    COW
+    COW,
+    
+    NONE
 }
 
 /// A list of new bodies to be placed on the map.
@@ -307,8 +309,7 @@ table Round {
     /// have a header:
     /// '[' $TEAM ':' $ROBOTTYPE '#' $ID '@' $ROUND '] '
     /// $TEAM = 'A' | 'B'
-    /// $ROBOTTYPE = 'ARCHON' | 'GARDENER' | 'LUMBERJACK' 
-    ///            | 'SOLDIER' | 'TANK' | 'SCOUT' | other names...
+    /// $ROBOTTYPE = 'MINER' | 'LANDSCAPER' | other names...
     /// $ID = a number
     /// $ROUND = a number
     /// The header is not necessarily followed by a newline.

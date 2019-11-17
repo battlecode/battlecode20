@@ -297,7 +297,7 @@ public strictfp class GameMaker {
         if (type == RobotType.DESIGN_SCHOOL) return BodyType.DESIGN_SCHOOL;
         if (type == RobotType.FULFILLMENT_CENTER) return BodyType.FULFILLMENT_CENTER;
         if (type == RobotType.LANDSCAPER) return BodyType.LANDSCAPER;
-        if (type == RobotType.DRONE) return BodyType.DRONE;
+        if (type == RobotType.DELIVERY_DRONE) return BodyType.DELIVERY_DRONE;
         if (type == RobotType.NET_GUN) return BodyType.NET_GUN;
         if (type == RobotType.COW) return BodyType.COW;
         return Byte.MIN_VALUE;

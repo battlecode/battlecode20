@@ -36,8 +36,8 @@ public class FlatHelpers {
                 return RobotType.FULFILLMENT_CENTER;
             case BodyType.LANDSCAPER:
                 return RobotType.LANDSCAPER;
-            case BodyType.DRONE:
-                return RobotType.DRONE;
+            case BodyType.DELIVERY_DRONE:
+                return RobotType.DELIVERY_DRONE;
             case BodyType.NET_GUN:
                 return RobotType.NET_GUN;
             case BodyType.COW:
@@ -63,8 +63,8 @@ public class FlatHelpers {
                 return BodyType.FULFILLMENT_CENTER;
             case LANDSCAPER:
                 return BodyType.LANDSCAPER;
-            case DRONE:
-                return BodyType.DRONE;
+            case DELIVERY_DRONE:
+                return BodyType.DELIVERY_DRONE;
             case NET_GUN:
                 return BodyType.NET_GUN;
             case COW:
