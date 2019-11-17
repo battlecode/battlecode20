@@ -177,10 +177,11 @@ public class RobotTypeTaglet implements Taglet {
 
         StringBuilder builder = new StringBuilder();
         try {
-            appendField(builder, rt, "maxHealth");
-            appendField(builder, rt, "bodyRadius");
-            appendField(builder, rt, "strideRadius");
-            builder.append("<br />");
+            // TODO: edit this. i honestly don't know what this should be but it should be something else
+            // appendField(builder, rt, "maxHealth");
+            // appendField(builder, rt, "bodyRadius");
+            // appendField(builder, rt, "strideRadius");
+            // builder.append("<br />");
 
             // TODO: edit this
             // appendMethod(builder, rt, "canAttack");
@@ -189,13 +190,13 @@ public class RobotTypeTaglet implements Taglet {
             // }
             // builder.append("<br />");
 
-            if (rt.spawnSource != null) {
-                appendField(builder, rt, "spawnSource");
-                appendField(builder, rt, "buildCooldownTurns");
-                builder.append("<br />");
-            }
+            // if (rt.spawnSource != null) {
+            //     appendField(builder, rt, "spawnSource");
+            //     appendField(builder, rt, "buildCooldownTurns");
+            //     builder.append("<br />");
+            // }
 
-            appendField(builder, rt, "sensorRadius");
+            // appendField(builder, rt, "sensorRadius");
 
             if (rt.bytecodeLimit != 0) {
                 appendField(builder, rt, "bytecodeLimit");
