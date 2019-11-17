@@ -252,26 +252,28 @@ export default class Client {
     }
     else {
       console.log('Starting with a default match file (/client/default.bc20)');
-      _fs.readFile('../default.bc20', (err, data: ArrayBuffer) => {
-        if(err){
-          console.log('Error while loading default local file!');
-          console.log(err);
-          console.log('Starting without any match files. Please upload via upload button in queue tab of sidebar');
-          return;
-        }
+      if(_fs.readFile){
+        _fs.readFile('../default.bc20', (err, data: ArrayBuffer) => {
+          if(err){
+            console.log('Error while loading default local file!');
+            console.log(err);
+            console.log('Starting without any match files. Please upload via upload button in queue tab of sidebar');
+            return;
+          }
 
-        let lastGame = this.games.length
-        this.games[lastGame] = new Game();
-        // lastGame should be 0?
-        try {
-          this.games[lastGame].loadFullGameRaw(data);
-        } catch (error) {
-          console.log(`Error occurred! ${error}`);
-        }
+          let lastGame = this.games.length
+          this.games[lastGame] = new Game();
+          // lastGame should be 0?
+          try {
+            this.games[lastGame].loadFullGameRaw(data);
+          } catch (error) {
+            console.log(`Error occurred! ${error}`);
+          }
 
-        console.log('Running game!');
-        startGame();
-      });
+          console.log('Running game!');
+          startGame();
+        });
+      }
     }
     
     this.controls.onGameLoaded = (data: ArrayBuffer) => {
@@ -620,8 +622,10 @@ export default class Client {
           let id = bodies.id[index];
           let x = bodies.x[index];
           let y = bodies.y[index];
-          let health = bodies.health[index];
-          let maxHealth = bodies.maxHealth[index];
+          // let health = bodies.health[index];
+          // let maxHealth = bodies.maxHealth[index];
+          let health = 0;
+          let maxHealth = 0;
           let type = bodies.type[index];
           let bytecodes = bodies.bytecodesUsed[index];
           if (type === cst.COW) {
