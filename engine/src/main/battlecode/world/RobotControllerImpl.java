@@ -319,7 +319,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         try {
             assertNotNull(center);
             return getType().canMove() && getLocation().distanceTo(center) <= 1 &&
-                onTheMap(center) && !isLocationOccupied(center);
+                onTheMap(center) && !isLocationOccupied(center) &&
+                gameWorld.getDirtDifference(getLocation(), center)
+                 <= GameConstants.MAX_DIRT_DIFFERENCE;
         } catch (GameActionException e) { return false; }
     }
 

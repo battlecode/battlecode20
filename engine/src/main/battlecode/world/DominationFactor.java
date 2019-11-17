@@ -15,9 +15,9 @@ public enum DominationFactor {
     /**
      * Win by destroying all enemy robots.
      */
-    DESTROYED,
+    DESTROYED
     /**
      * Won by donating enough currency to reach VICTORY_POINTS_TO_WIN.
      */
-    PHILANTROPIED
+    // PHILANTROPIED
 }
