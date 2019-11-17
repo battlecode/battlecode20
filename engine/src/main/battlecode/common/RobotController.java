@@ -22,8 +22,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    // int getRoundLimit();
-    // seems like we're not doing this this year?
+    int getRoundLimit();
 
     /**
      * Returns the current round number, where round 0 is the first round of the
@@ -46,9 +45,11 @@ public strictfp interface RobotController {
     int getTeamSoup();
 
     /**
-     * Returns the location of the querying team's HQ.
+     * Returns the number of robots on your team, including your archons.
+     * If this number ever reaches zero, the opposing team will automatically
+     * win by destruction.
      *
-     * @return the location of the querying team's HQ.
+     * @return the number of robots on your team, including your archons.
      *
      * @battlecode.doc.costlymethod
      */
@@ -298,9 +299,6 @@ public strictfp interface RobotController {
     // ****** READINESS METHODS **********
     // ***********************************
     
-
-    //TODO: COME BACK TO THIS AFTER WE DETERMINE HOW COOLDOWNS ARE CODED.
-
     /**
      * Returns whether the robot's action cooldown has expired.
      * 
@@ -331,8 +329,9 @@ public strictfp interface RobotController {
      * game map. Does not take into account whether this robot is currently
      * active. Note that one stride is equivalent to this robot's {@code strideRadius}.
      *
-     * @param loc the location to move to
-     * @return true if the robot can move to the given location; false otherwise.
+     * @param dir the direction to move in
+     * @return true if there is no external obstruction to prevent this robot
+     * from moving one stride in the given direction; false otherwise.
      *
      * @battlecode.doc.costlymethod
      */
@@ -355,7 +354,8 @@ public strictfp interface RobotController {
     boolean canMove(MapLocation center);
     
     /**
-     * Moves to the given location.
+     * Moves one stride in the given direction. Note that one stride is equivalent
+     * to this robot's {@code strideRadius}.
      *
      * @param dir the direction to move in
      * @throws GameActionException if the robot cannot move one stride in this
