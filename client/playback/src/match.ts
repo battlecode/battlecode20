@@ -132,17 +132,18 @@ export default class Match {
     }
     this.deltas.push(delta);
 
-    // TODO: make logs work
-    // this.parseLogs(delta.roundID(), <string> delta.logs(flatbuffers.Encoding.UTF16_STRING));
+    if(delta.logs()){
+      this.parseLogs(delta.roundID(), <string> delta.logs(flatbuffers.Encoding.UTF16_STRING));
+    }
   }
 
   /**
    * Parse logs for a round.
    */
   parseLogs(round: number, logs: string) {
+    // TODO regex this properly
 
     // Regex
-    console.log(logs);
     let lines = logs.split(/\r?\n/);
     let header = /^\[(A|B):(MINER|LANDSCAPER|DRONE|NET_GUN|REFINERY|VAPORATOR|HQ|DESIGN_SCHOOL|FULFILLMENT_CENTER)#(\d+)@(\d+)\] (.*)/;
 

@@ -319,7 +319,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         try {
             assertNotNull(center);
             return getType().canMove() && getLocation().distanceTo(center) <= 1 &&
-                onTheMap(center) && !isLocationOccupied(center);
+                onTheMap(center) && !isLocationOccupied(center) &&
+                gameWorld.getDirtDifference(getLocation(), center)
+                 <= GameConstants.MAX_DIRT_DIFFERENCE;
         } catch (GameActionException e) { return false; }
     }
 
@@ -539,7 +541,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean canMineSoup(Direction dir) {
         MapLocation center = adjacentLocation(dir);
-        return getType().canMine() && isReady() && onTheMap(center) && gameWorld.getSoup(center) > 0;
+        return getType().canMine() && getSoupCarrying() < getType().soupLimit &&
+                isReady() && onTheMap(center) && gameWorld.getSoup(center) > 0;
     }
 
     @Override
@@ -585,6 +588,63 @@ public final strictfp class RobotControllerImpl implements RobotController {
         refinery.addSoupCarrying(amount);
 
         this.gameWorld.getMatchMaker().addAction(getID(), Action.REFINE_SOUP, refinery.getID());
+    }
+
+    // ***************************************
+    // ********* LANDSCAPER METHODS **********
+    // ***************************************
+
+    private void assertCanDigDirt(Direction dir) throws GameActionException{
+        if(!canDigDirt(dir)){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can't dig dirt in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't dig, " +
+                            "or the robot cannot carry more dirt.");
+        }
+    }
+
+    @Override
+    public boolean canDigDirt(Direction dir) {
+        MapLocation center = adjacentLocation(dir);
+        if (!getType().canDig() && getDirtCarrying() < getType().dirtLimit && isReady() && onTheMap(center)) return false;
+        InternalRobot robot = this.gameWorld.getRobot(center);
+        return (robot == null || !robot.getType().isBuilding() || robot.getDirtCarrying() > 0);
+    }
+
+    @Override
+    public void digDirt(Direction dir) throws GameActionException {
+        assertNotNull(dir);
+        assertCanDigDirt(dir);
+        this.robot.resetCooldownTurns();
+        this.gameWorld.removeDirt(adjacentLocation(dir));
+        this.robot.addDirtCarrying(1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG_DIRT, -1);
+    }
+
+    private void assertCanDepositDirt(Direction dir) throws GameActionException{
+        if(!canDepositDirt(dir)){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can't deposit dirt in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't deposit, " +
+                            "or this robot doesn't have dirt.");
+        }
+    }
+
+    @Override
+    public boolean canDepositDirt(Direction dir) {
+        MapLocation center = adjacentLocation(dir);
+        return (getType().canDeposit() && isReady() &&
+                onTheMap(center) && getDirtCarrying() > 0);
+    }
+
+    @Override
+    public void depositDirt(Direction dir) throws GameActionException {
+        assertNotNull(dir);
+        assertCanDepositDirt(dir);
+        this.robot.resetCooldownTurns();
+        this.robot.removeDirtCarrying(1);
+        this.gameWorld.addDirt(adjacentLocation(dir));
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG_DIRT, -1);
     }
 
     // ***********************************

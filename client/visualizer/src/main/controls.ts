@@ -346,7 +346,8 @@ export default class Controls {
    */
   setTime(time: number, loadedTime: number, ups: number, fps: number) {
     // Redraw the timeline
-    const scale = this.canvas.width / cst.MAX_ROUND_NUM;
+    const scale = this.canvas.width / loadedTime;
+    // const scale = this.canvas.width / cst.MAX_ROUND_NUM;
     this.ctx.fillStyle = "rgb(39, 39, 39)";
     this.ctx.fillRect(0, 0, time * scale, this.canvas.height)
     this.ctx.fillStyle = "#777";

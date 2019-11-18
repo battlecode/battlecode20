@@ -17,14 +17,14 @@ import java.io.IOException;
  */
 public class GenerateMaps {
     public static void makeSimple() throws IOException {
-        LiveMap map = new TestMapBuilder("maptest", 0, 0, 100, 100, 30, 3000)
+        LiveMap map = new TestMapBuilder("maptestsmall", 0, 0, 32, 32, 30, 3000)
                 .addRobot(
                         0,
                         Team.A,
                         RobotType.HQ,
                         new MapLocation(
-                                1,
-                                1
+                                5,
+                                5
                         )
                 )
                 .addRobot(
@@ -32,8 +32,8 @@ public class GenerateMaps {
                         Team.B,
                         RobotType.HQ,
                         new MapLocation(
-                                99,
-                                99
+                                26,
+                                26
                         )
                 )
                 .addRobot(
@@ -41,8 +41,17 @@ public class GenerateMaps {
                     Team.NEUTRAL,
                     RobotType.COW,
                     new MapLocation(
-                        50,
-                        50
+                        10,
+                        10
+                    )
+                )
+                .addRobot(
+                    2,
+                    Team.NEUTRAL,
+                    RobotType.COW,
+                    new MapLocation(
+                        4,
+                        18
                     )
                 )
                 .setSoup()
@@ -52,7 +61,7 @@ public class GenerateMaps {
                 .build();
 
         GameMapIO.writeMap(map, new File("engine/src/main/battlecode/world/resources/"));
-        LiveMap test = GameMapIO.loadMap("maptest", new File("engine/src/main/battlecode/world/resources/"));
+        LiveMap test = GameMapIO.loadMap("maptestsmall", new File("engine/src/main/battlecode/world/resources/"));
 
         System.out.println(test.toString());
     }

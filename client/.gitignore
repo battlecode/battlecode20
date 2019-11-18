@@ -6,6 +6,8 @@
 
 # bundled visualizer
 visualizer/bc20/
+# built client
+visualizer/dist/
 
 # Generated test bc20 files
 playback/out/files/

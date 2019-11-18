@@ -157,6 +157,8 @@ table BodyTypeMetadata {
     pollutionRadius: int;
     /// The amount of pollution this type creates.
     pollutionAmount: int;
+    /// The amount of global pollution this type creates.
+    globalPollutionAmount: int;
     /// The maximum amount of soup this type processes every turn.
     maxSoupProduced: int;
     /// The bytecode limit of this type.
@@ -309,7 +311,8 @@ table Round {
     /// have a header:
     /// '[' $TEAM ':' $ROBOTTYPE '#' $ID '@' $ROUND '] '
     /// $TEAM = 'A' | 'B'
-    /// $ROBOTTYPE = 'MINER' | 'LANDSCAPER' | other names...
+    /// $ROBOTTYPE = 'HQ' | 'VAPORATOR' | 'LANDSCAPER' 
+    ///            | 'DELIVERY_DRONE' | 'REFINERY' | 'MINER' | other names...
     /// $ID = a number
     /// $ROUND = a number
     /// The header is not necessarily followed by a newline.

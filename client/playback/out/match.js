@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const gameworld_1 = require("./gameworld");
+const battlecode_schema_1 = require("battlecode-schema");
 // Return a timestamp representing the _current time in ms, not necessarily from
 // any particular epoch.
 const timeMS = typeof window !== 'undefined' && window.performance && window.performance.now ?
@@ -19,25 +20,6 @@ const timeMS = typeof window !== 'undefined' && window.performance && window.per
  * This is awkward, but less so than callbacks.
  */
 class Match {
-    /**
-     * Create a Timeline.
-     */
-    constructor(header, meta) {
-        this._current = new gameworld_1.default(meta);
-        this._current.loadFromMatchHeader(header);
-        this._farthest = this._current;
-        this.snapshots = new Array();
-        this.snapshotEvery = 50;
-        this.snapshots.push(this._current.copy());
-        // leave [0] undefined
-        this.deltas = new Array(1);
-        // leave [0] undefined
-        this.logs = new Array(1);
-        this.maxTurn = header.maxRounds();
-        this._lastTurn = null;
-        this._seekTo = 0;
-        this._winner = null;
-    }
     /**
      * The current game world.
      * DO NOT CACHE this reference between calls to seek() and compute(), it may
@@ -67,6 +49,25 @@ class Match {
      */
     get finished() { return this._winner !== null; }
     /**
+     * Create a Timeline.
+     */
+    constructor(header, meta) {
+        this._current = new gameworld_1.default(meta);
+        this._current.loadFromMatchHeader(header);
+        this._farthest = this._current;
+        this.snapshots = new Array();
+        this.snapshotEvery = 50;
+        this.snapshots.push(this._current.copy());
+        // leave [0] undefined
+        this.deltas = new Array(1);
+        // leave [0] undefined
+        this.logs = new Array(1);
+        this.maxTurn = header.maxRounds();
+        this._lastTurn = null;
+        this._seekTo = 0;
+        this._winner = null;
+    }
+    /**
      * Store a schema.Round and the logs contained in it.
      */
     applyDelta(delta) {
@@ -74,15 +75,16 @@ class Match {
             throw new Error(`Can't store delta ${delta.roundID()}, only have rounds up to ${this.deltas.length - 1}`);
         }
         this.deltas.push(delta);
-        // TODO: make logs work
-        // this.parseLogs(delta.roundID(), <string> delta.logs(flatbuffers.Encoding.UTF16_STRING));
+        if (delta.logs()) {
+            this.parseLogs(delta.roundID(), delta.logs(battlecode_schema_1.flatbuffers.Encoding.UTF16_STRING));
+        }
     }
     /**
      * Parse logs for a round.
      */
     parseLogs(round, logs) {
+        // TODO regex this properly
         // Regex
-        console.log(logs);
         let lines = logs.split(/\r?\n/);
         let header = /^\[(A|B):(MINER|LANDSCAPER|DRONE|NET_GUN|REFINERY|VAPORATOR|HQ|DESIGN_SCHOOL|FULFILLMENT_CENTER)#(\d+)@(\d+)\] (.*)/;
         let roundLogs = new Array();

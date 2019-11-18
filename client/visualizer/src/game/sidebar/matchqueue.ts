@@ -93,7 +93,6 @@ export default class MatchQueue {
   }
 
   loadMatch(files: FileList) {
-    console.log(files);
     const file = files[0];
     console.log(file);
     const reader = new FileReader();

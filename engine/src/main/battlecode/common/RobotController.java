@@ -22,8 +22,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    // int getRoundLimit();
-    // seems like we're not doing this this year?
+    int getRoundLimit();
 
     /**
      * Returns the current round number, where round 0 is the first round of the
@@ -46,9 +45,11 @@ public strictfp interface RobotController {
     int getTeamSoup();
 
     /**
-     * Returns the location of the querying team's HQ.
+     * Returns the number of robots on your team, including your archons.
+     * If this number ever reaches zero, the opposing team will automatically
+     * win by destruction.
      *
-     * @return the location of the querying team's HQ.
+     * @return the number of robots on your team, including your archons.
      *
      * @battlecode.doc.costlymethod
      */
@@ -298,9 +299,6 @@ public strictfp interface RobotController {
     // ****** READINESS METHODS **********
     // ***********************************
     
-
-    //TODO: COME BACK TO THIS AFTER WE DETERMINE HOW COOLDOWNS ARE CODED.
-
     /**
      * Returns whether the robot's action cooldown has expired.
      * 
@@ -331,8 +329,9 @@ public strictfp interface RobotController {
      * game map. Does not take into account whether this robot is currently
      * active. Note that one stride is equivalent to this robot's {@code strideRadius}.
      *
-     * @param loc the location to move to
-     * @return true if the robot can move to the given location; false otherwise.
+     * @param dir the direction to move in
+     * @return true if there is no external obstruction to prevent this robot
+     * from moving one stride in the given direction; false otherwise.
      *
      * @battlecode.doc.costlymethod
      */
@@ -355,7 +354,8 @@ public strictfp interface RobotController {
     boolean canMove(MapLocation center);
     
     /**
-     * Moves to the given location.
+     * Moves one stride in the given direction. Note that one stride is equivalent
+     * to this robot's {@code strideRadius}.
      *
      * @param dir the direction to move in
      * @throws GameActionException if the robot cannot move one stride in this
@@ -495,6 +495,57 @@ public strictfp interface RobotController {
      */
     void dropUnit(Direction dir) throws GameActionException;
 
+    // ***************************************
+    // ********* LANDSCAPER METHODS **********
+    // ***************************************
+
+    /**
+     * Tests whether the robot can dig dirt in the given direction.
+     * Checks cooldown turns remaining, whether the robot can dig,
+     * that the robot can carry more dirt, and that the location is valid.
+     *
+     * @param dir the direction to dig in
+     * @return whether it is possible to dig dirt from the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canDigDirt(Direction dir);
+
+    /**
+     * Digs dirt in the given direction.
+     *
+     * @param dir the direction to dig in
+     * @throws GameActionException if this robot is not a landscaper, if
+     * the robot is still in cooldown, the robot cannot carry more dirt,
+     * or the location is not valid (there is a robot/building).
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void digDirt(Direction dir) throws GameActionException;
+
+    /**
+     * Tests whether the robot can deposit dirt in the given direction.
+     * Checks cooldown turns remaining, whether the robot can deposit dirt,
+     * and whether the robot has dirt.
+     *
+     * @param dir the direction to deposit
+     * @return whether it is possible to deposit dirt in the given direction.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canDepositDirt(Direction dir);
+
+    /**
+     * Deposits dirt in the given direction (max up to specified amount).
+     *
+     * @param dir the direction to deposit
+     * @throws GameActionException if this robot is not a landscaper, if
+     * the robot is still in cooldown, if there is no dirt to deposit,
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void depositDirt(Direction dir) throws GameActionException;
+
     // ***********************************
     // ****** BLOCKCHAINNNNNNNNNNN *******
     // ***********************************
@@ -503,7 +554,7 @@ public strictfp interface RobotController {
      * Sends a message to the blockchain at the indicated cost.
      * 
      * @param messageArray the list of ints to send. if more than K messages, 
-     * @param proofOfStake the price that the unit is willing to pay for the message
+     * @param cost the price that the unit is willing to pay for the message
      * 
      */
     public void sendMessage(int[] messageArray, int cost) throws GameActionException;

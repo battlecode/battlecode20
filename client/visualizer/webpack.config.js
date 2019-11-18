@@ -26,6 +26,9 @@ var conf = {
       { test: /\.(png|jpg)$/, loader: 'url-loader?limit=10000&name=[name]-[hash:base64:7].[ext]' },
       { test: /\.css$/, loader: "style-loader!css-loader" }
     ]
+  },
+  node: {
+    fs: "empty"
   }
 };
 
@@ -77,13 +80,13 @@ module.exports = function(env) {
           'process.env.ELECTRON': false
         })
       ],
-      externals: {
-        'electron': 'electron',
-        'os': 'os',
-        'fs': 'fs',
-        'child_process': 'child_process',
-        'http': 'http'
-      }
+      // externals: {
+      //   'electron': 'electron',
+      //   'os': 'os',
+      //   'fs': 'fs',
+      //   'child_process': 'child_process',
+      //   'http': 'http'
+      // }
     });
   }
 

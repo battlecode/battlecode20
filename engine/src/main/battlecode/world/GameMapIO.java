@@ -32,7 +32,7 @@ public final strictfp class GameMapIO {
     /**
      * The file extension for battlecode 2017 match files.
      */
-    public static final String MAP_EXTENSION = ".map17";
+    public static final String MAP_EXTENSION = ".map20";
 
     /**
      * The package we check for maps in if they can't be found in the file system.

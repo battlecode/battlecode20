@@ -215,14 +215,27 @@ public strictfp class GameWorld {
     }
 
     public void adjustPollution(MapLocation loc, int amount) {
-        if (gameMap.onTheMap(loc)) {
-            int idx = locationToIndex(loc);
-            pollution[idx] = Math.max(pollution[idx] + amount, 0);
-        }
+        if (gameMap.onTheMap(loc))
+            adjustPollution(locationToIndex(loc), amount);
+    }
+
+    public void adjustPollution(int idx, int amount) {
+        int newPollution = Math.max(pollution[idx] + amount, 0);
+        getMatchMaker().addPollutionChanged(indexToLocation(idx), newPollution - pollution[idx]);
+        pollution[idx] = newPollution;
+    }
+
+    public void globalPollution(int amount) {
+        for (int i = 0; i < pollution.length; i++)
+            adjustPollution(i, amount);
     }
 
     public int getDirt(MapLocation loc) {
         return gameMap.onTheMap(loc) ? dirt[locationToIndex(loc)] : 0;
+    }
+
+    public int getDirtDifference(MapLocation loc1, MapLocation loc2) {
+        return Math.abs(getDirt(loc1) - getDirt(loc2));
     }
 
     public int getWater(MapLocation loc) {
@@ -237,6 +250,36 @@ public strictfp class GameWorld {
         if (gameMap.onTheMap(loc)) {
             int idx = locationToIndex(loc);
             soup[idx] = Math.max(0, soup[idx] - amount);
+        }
+    }
+
+    public void removeDirt(MapLocation loc) {
+        removeDirt(loc, 1);
+    }
+
+    public void removeDirt(MapLocation loc, int amount) {
+        int idx = locationToIndex(loc);
+        if (gameMap.onTheMap(loc)) {
+            InternalRobot robot = (getRobot(loc));
+            if (robot == null)
+                dirt[idx] -= amount;
+            else if (robot.getType() != RobotType.LANDSCAPER)
+                robot.addDirtCarrying(amount);
+        }
+    }
+
+    public void addDirt(MapLocation loc) {
+        addDirt(loc, 1);
+    }
+
+    public void addDirt(MapLocation loc, int amount) {
+        int idx = locationToIndex(loc);
+        if (gameMap.onTheMap(loc)) {
+            InternalRobot robot = (getRobot(loc));
+            if (robot == null)
+                dirt[idx] += amount;
+            else if (robot.getType() != RobotType.LANDSCAPER)
+                robot.removeDirtCarrying(amount);
         }
     }
 

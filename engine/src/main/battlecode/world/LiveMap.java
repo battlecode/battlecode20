@@ -286,7 +286,7 @@ public strictfp class LiveMap {
                     ", soupArray=:)" +  // Arrays.toString(soupArray) +
                     ", pollutionArray=:)" + // Arrays.toString(pollutionArray) +
                     ", waterArray=:)" + // Arrays.toString(waterArray) +
-                    ", dirtArray=:)" + //Arrays.toString(dirtArray) +
+                    ", dirtArray=" + Arrays.toString(dirtArray) +
                     "}"; 
     }
 }

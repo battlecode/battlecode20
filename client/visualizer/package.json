@@ -10,7 +10,9 @@
     "prod": "webpack",
     "watch": "echo '--- open localhost:8080 in your browser ---' && webpack-dev-server --env.dev",
     "electron": "webpack --env.electron --env.dev && electron .",
-    "prod-electron": "webpack --env.electron && build -mwl --dir --ia32 --x64"
+    "prod-electron": "webpack --env.electron && electron-builder -mwl --dir --ia32 --x64",
+    "prod-electron-no-sign": "webpack --env.electron && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -mwl --dir --ia32 --x64",
+    "wis": "electron-builder --help"
   },
   "repository": {
     "type": "git",
@@ -29,6 +31,7 @@
   "devDependencies": {
     "@types/blue-tape": "^0.1.33",
     "@types/electron": "^1.6.10",
+    "@types/node": "^12.12.8",
     "@types/victor": "^1.1.0",
     "awesome-typescript-loader": "^5.2.1",
     "copy-webpack-plugin": "^5.0.5",
@@ -37,6 +40,7 @@
     "electron-builder": "^22.1.0",
     "file-loader": "^4.2.0",
     "json-loader": "^0.5.7",
+    "node": "^13.1.0",
     "style-loader": "^1.0.0",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
@@ -49,11 +53,8 @@
   },
   "main": "electron-main.js",
   "build": {
-    "//": "Build options for electron, not relevant for running in-browser",
     "appId": "org.battlecode.client",
     "productName": "Battlecode Client",
-    "homepage": "https://battlecode.org",
-    "license": "GPL-3.0",
     "compression": "maximum",
     "files": [
       "bc20/*",
@@ -73,7 +74,8 @@
       "target": [
         "dir"
       ],
-      "category": "public.app-category.games"
+      "category": "public.app-category.games",
+      "hardenedRuntime": "true"
     },
     "win": {
       "target": [
