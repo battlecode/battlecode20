@@ -89,6 +89,9 @@ export default class Renderer {
   }
 
   private renderBackground(world: GameWorld) {
+    // Array of checked views
+    let checkedView = this.getCheckedView();
+
     this.ctx.save();
     this.ctx.fillStyle = this.bgPattern;
 
@@ -113,6 +116,25 @@ export default class Renderer {
     }
 
     this.ctx.restore();
+  }
+
+  private getCheckedView() {
+    let checkboxes = document.getElementsByName("view");
+
+    if (checkboxes.length === 0) {
+      return ["water", "dirt", "pollution"];
+    }
+
+    let selectedItems : string[] = [];
+    
+		for(let i=0; i<checkboxes.length; i++){
+      let checkboxInput = <HTMLInputElement> checkboxes[i];
+			if(checkboxInput.type =='checkbox' && checkboxInput.checked == true) {
+        selectedItems.push(checkboxInput.value);
+      }
+    }
+    
+    return selectedItems;
   }
 
   private renderBodies(world: GameWorld, nextStep?: NextStep, lerpAmount?: number) {

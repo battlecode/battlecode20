@@ -177,6 +177,9 @@ export default class Stats {
     this.robotTds = {};
     // this.statBars = new Map<number, { bullets: StatBar, vps: StatBar }>();
 
+    // Add view toggles
+    this.div.append(this.addViewOptions());
+    
     // Populate with new info
     // Add a section to the stats bar for each team in the match
     for (var index = 0; index < teamIDs.length; index++) {
@@ -242,6 +245,49 @@ export default class Stats {
     let consoleDiv = document.createElement("div");
     consoleDiv.append(this.robotConsole);
     this.div.appendChild(consoleDiv);
+  }
+
+  addViewOptions(){
+    let viewOptionForm = document.createElement("form");
+    viewOptionForm.setAttribute("id", "viewoptionformid");
+
+    let waterInp = document.createElement("input");
+    let waterLabel = document.createElement("label");
+    waterInp.checked = true;
+    waterInp.setAttribute("type", "checkbox");
+    waterInp.setAttribute("name", "view");
+    waterInp.setAttribute("value", "water");
+    waterInp.setAttribute("id", "waterid");
+    waterLabel.setAttribute("for", "waterid");
+    waterLabel.innerHTML = "water";
+    viewOptionForm.appendChild(waterInp);
+    viewOptionForm.appendChild(waterLabel);
+
+    let dirtInp = document.createElement("input");
+    let dirtLabel = document.createElement("label");
+    dirtInp.checked = true;
+    dirtInp.setAttribute("type", "checkbox");
+    dirtInp.setAttribute("name", "view");
+    dirtInp.setAttribute("value", "dirt");
+    dirtInp.setAttribute("id", "dirtid");
+    dirtLabel.setAttribute("for", "dirtid");
+    dirtLabel.innerHTML = "dirt";
+    viewOptionForm.appendChild(dirtInp);
+    viewOptionForm.appendChild(dirtLabel);
+
+    let pollutionInp = document.createElement("input");
+    let pollutionLabel = document.createElement("label");
+    pollutionInp.checked = true;
+    pollutionInp.setAttribute("type", "checkbox");
+    pollutionInp.setAttribute("name", "view");
+    pollutionInp.setAttribute("value", "pollution");
+    pollutionInp.setAttribute("id", "pollutionid");
+    pollutionLabel.setAttribute("for", "pollutionid");
+    pollutionLabel.innerHTML = "pollution";
+    viewOptionForm.appendChild(pollutionInp);
+    viewOptionForm.appendChild(pollutionLabel);
+
+    return viewOptionForm;
   }
 
   /**
