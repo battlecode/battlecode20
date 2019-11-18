@@ -250,42 +250,54 @@ export default class Stats {
   addViewOptions(){
     let viewOptionForm = document.createElement("form");
     viewOptionForm.setAttribute("id", "viewoptionformid");
-
-    let waterInp = document.createElement("input");
-    let waterLabel = document.createElement("label");
-    waterInp.checked = true;
-    waterInp.setAttribute("type", "checkbox");
-    waterInp.setAttribute("name", "view");
-    waterInp.setAttribute("value", "water");
-    waterInp.setAttribute("id", "waterid");
-    waterLabel.setAttribute("for", "waterid");
-    waterLabel.innerHTML = "water";
-    viewOptionForm.appendChild(waterInp);
-    viewOptionForm.appendChild(waterLabel);
-
-    let dirtInp = document.createElement("input");
-    let dirtLabel = document.createElement("label");
-    dirtInp.checked = true;
-    dirtInp.setAttribute("type", "checkbox");
-    dirtInp.setAttribute("name", "view");
-    dirtInp.setAttribute("value", "dirt");
-    dirtInp.setAttribute("id", "dirtid");
-    dirtLabel.setAttribute("for", "dirtid");
-    dirtLabel.innerHTML = "dirt";
-    viewOptionForm.appendChild(dirtInp);
-    viewOptionForm.appendChild(dirtLabel);
-
+    
     let pollutionInp = document.createElement("input");
     let pollutionLabel = document.createElement("label");
+    let pollutionSpan = document.createElement("span");
+    pollutionSpan.setAttribute("class", "viewspan");
     pollutionInp.checked = true;
     pollutionInp.setAttribute("type", "checkbox");
     pollutionInp.setAttribute("name", "view");
     pollutionInp.setAttribute("value", "pollution");
     pollutionInp.setAttribute("id", "pollutionid");
     pollutionLabel.setAttribute("for", "pollutionid");
-    pollutionLabel.innerHTML = "pollution";
-    viewOptionForm.appendChild(pollutionInp);
+    pollutionInp.setAttribute("class", "checkbox");
+    pollutionSpan.innerHTML = "pollution";
+    pollutionLabel.appendChild(pollutionInp);
+    pollutionLabel.appendChild(pollutionSpan);
     viewOptionForm.appendChild(pollutionLabel);
+
+    let waterInp = document.createElement("input");
+    let waterLabel = document.createElement("label");
+    let waterSpan = document.createElement("span");
+    waterSpan.setAttribute("class", "viewspan");
+    waterInp.checked = true;
+    waterInp.setAttribute("type", "checkbox");
+    waterInp.setAttribute("name", "view");
+    waterInp.setAttribute("value", "water");
+    waterInp.setAttribute("id", "waterid");
+    waterLabel.setAttribute("for", "waterid");
+    waterInp.setAttribute("class", "checkbox");
+    waterSpan.innerHTML = "water";
+    waterLabel.appendChild(waterInp);
+    waterLabel.appendChild(waterSpan);
+    viewOptionForm.appendChild(waterLabel);
+
+    let dirtInp = document.createElement("input");
+    let dirtLabel = document.createElement("label");
+    let dirtSpan = document.createElement("span");
+    dirtSpan.setAttribute("class", "viewspan");
+    dirtInp.checked = true;
+    dirtInp.setAttribute("type", "checkbox");
+    dirtInp.setAttribute("name", "view");
+    dirtInp.setAttribute("value", "dirt");
+    dirtInp.setAttribute("id", "dirtid");
+    dirtLabel.setAttribute("for", "dirtid");
+    dirtInp.setAttribute("class", "checkbox");
+    dirtSpan.innerHTML = "dirt";
+    dirtLabel.appendChild(dirtInp);
+    dirtLabel.appendChild(dirtSpan);
+    viewOptionForm.appendChild(dirtLabel);
 
     return viewOptionForm;
   }
