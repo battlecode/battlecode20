@@ -58,8 +58,10 @@ def clean():
 @cli.command()
 @click.option('--codesign',default=True,type=bool,help='whether to codesign.')
 @click.option('-v','--release-version',required=True,help='needs to start with 2020.')
-@click.option('--no-rebuild',default=False,help='dont rebuild. only for testing!!!')
+@click.option('--no-rebuild',default=False,type=bool,help='dont rebuild. only for testing!!!')
 def release(release_version, codesign, no_rebuild):
+
+    verify_changelog(release_version=release_version)
 
     if not no_rebuild:
 
@@ -71,7 +73,7 @@ def release(release_version, codesign, no_rebuild):
         build_engine(release_version=release_version)
 
         build_client(codesign=codesign)
-
+    
     push_to_dist(release_version=release_version)
 
     # build_website()
@@ -84,15 +86,36 @@ def release(release_version, codesign, no_rebuild):
 
     # profit()
 
+def verify_changelog(release_version):
+    pass
 
 def clone_dist():
     os.system('git clone https://github.com/battlecode/battlecode20-dist temp-dist')
 
 def push_to_dist(release_version):
+    os.system('cp changelog.json temp-dist/changelog.json')
     os.chdir('temp-dist')
-    os.system('git add .')
+    os.system('git add changelog.json')
     os.system(f"git commit -am 'version {release_version}'")
     os.system('git push')
+    # zip up the client
+    client_versions = {"linux-ia32-unpacked": "Client (Linux, 32-bit)", 
+                       "linux-unpacked": "Client (Linux, 64-bit)",
+                       "mac": "Client (Mac)",
+                       "win-ia32-unpacked": "Client (Windows, 32-bit)",
+                       "win-unpacked": "Client (Windows, 64-bit)"}
+    attached_files = []
+    for cv in client_versions:
+        os.system(f'zip -r {cv}.zip client/{cv}')
+        attached_files.append(f'-a "{cv}.zip#{client_versions[cv]}"')
+    a = " ".join(attached_files)
+    a += ' -a "engine.jar#Engine"'
+    a += ' -a "javadoc.jar#Javadoc"'
+    # create a draft first, since attaching assets takes some time
+    message = f'--message="BC20 Version {release_version}"'
+    os.system(f'hub release create {message} {a} --draft=true {release_version}')
+    # publish the draft
+    os.system(f'hub release edit {message} --draft=false {release_version}')
 
 
 
