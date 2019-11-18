@@ -205,11 +205,11 @@ public strictfp class Server implements Runnable {
                           GameMaker gameMaker) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
-        GenerateMaps.makeSimple();
+        // GenerateMaps.makeSimple(); // uncomment this to create a map! (the build will fail but still create the map)
         // Load the map for the match
         final LiveMap loadedMap;
         try {
-            loadedMap = GameMapIO.loadMap("maptest", new File("/Users/ashlin/dev/battlecode20/engine/src/main/battlecode/world/resources"/*options.get("bc.game.map-path")*/));
+            loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")));
             debug("running map " + loadedMap);
         } catch (IOException e) {
             warn("Couldn't load map " + mapName + ", skipping");
@@ -346,9 +346,9 @@ public strictfp class Server implements Runnable {
         DominationFactor dom = stats.getDominationFactor();
 
         switch (dom) {
-            case PHILANTROPIED:
-                sb.append("The winning team won by reaching "+GameConstants.VICTORY_POINTS_TO_WIN+" victory points.");
-                break;
+            // case PHILANTROPIED:
+            //     sb.append("The winning team won by reaching "+GameConstants.VICTORY_POINTS_TO_WIN+" victory points.");
+            //     break;
             case DESTROYED:
                 sb.append("The winning team won by destruction.");
                 break;

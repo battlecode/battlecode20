@@ -78,6 +78,7 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
             throw new IllegalArgumentException("Invalid map location string");
         int x = Integer.valueOf(coord[0].trim());
         int y = Integer.valueOf(coord[1].trim());
+
         return new MapLocation(x, y);
     }
 

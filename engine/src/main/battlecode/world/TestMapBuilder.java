@@ -58,7 +58,7 @@ public class TestMapBuilder {
         this.pollutionArray = new int[width*height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.pollutionArray[i + j * width] = i * j + j;
+                this.pollutionArray[i + j * width] = 0;
             }
         }
         return this;
@@ -67,7 +67,7 @@ public class TestMapBuilder {
         this.waterArray = new int[width*height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.waterArray[i + j * width] = 5;
+                this.waterArray[i + j * width] = 1;
             }
         }
         return this;
@@ -76,7 +76,7 @@ public class TestMapBuilder {
         this.dirtArray = new int[width*height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.dirtArray[i + j * width] = i * j + j;
+                this.dirtArray[i + j * width] = 0;
             }
         }
         return this;

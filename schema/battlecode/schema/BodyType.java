@@ -41,7 +41,7 @@ public final class BodyType {
   /**
    * The hq produces miners, is also a net gun and a refinery.
    */
-  public static final byte HQ = 7;
+  public static final byte DELIVERY_DRONE = 7;
   /**
    * Design schools create landscapers.
    */
@@ -51,7 +51,7 @@ public final class BodyType {
    */
   public static final byte FULFILLMENT_CENTER = 9;
 
-  public static final String[] names = { "MINER", "LANDSCAPER", "DRONE", "NET_GUN", "COW", "REFINERY", "VAPORATOR", "HQ", "DESIGN_SCHOOL", "FULFILLMENT_CENTER", };
+  public static final String[] names = { "HQ", "MINER", "REFINERY", "VAPORATOR", "DESIGN_SCHOOL", "FULFILLMENT_CENTER", "LANDSCAPER", "DELIVERY_DRONE", "NET_GUN", "COW"};
 
   public static String name(int e) { return names[e]; }
 }

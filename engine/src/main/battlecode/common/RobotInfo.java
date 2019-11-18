@@ -26,6 +26,7 @@ public class RobotInfo {
      * The current location of the robot.
      */
     public final MapLocation location;
+
     public int getID() {
         return this.ID;
     }
@@ -64,14 +65,16 @@ public class RobotInfo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         RobotInfo robotInfo = (RobotInfo) o;
+
         if (ID != robotInfo.ID) return false;
         if (team != robotInfo.team) return false;
         if (type != robotInfo.type) return false;
-        if (moveCount != robotInfo.moveCount) return false;
         return location.equals(robotInfo.location);
+
     }
-    /*
+
     @Override
     public int hashCode() {
         int result;
@@ -82,7 +85,7 @@ public class RobotInfo {
         result = 31 * result + location.hashCode();
         return result;
     }
-    */
+
     @Override
     public String toString() {
         return "RobotInfo{" +
