@@ -1,0 +1,8 @@
+{
+    "versions": [
+        {
+            "release_version": "2020.0.0.0.0",
+            "changes": "first working version!"
+        }
+    ]
+}
