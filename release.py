@@ -13,7 +13,9 @@ The script assumes that you have gradle set up and everything.
 Before running this script, you NEED to modify the releases.json file,
 by adding a new version number with a changelog description.
 
-Requires click: `pip3 install click`
+Requirements:
+- `pip3 install click`
+- `brew install hub`
 
 1. Build the engine jar.
 2. Build the client.
@@ -56,18 +58,21 @@ def clean():
 @cli.command()
 @click.option('--codesign',default=True,type=bool,help='whether to codesign.')
 @click.option('-v','--release-version',required=True,help='needs to start with 2020.')
-def release(release_version, codesign):
+@click.option('--no-rebuild',default=False,help='dont rebuild. only for testing!!!')
+def release(release_version, codesign, no_rebuild):
 
-    if os.path.isdir('temp-dist'):
-        raise click.ClickException('Need to clean first.')
+    if not no_rebuild:
 
-    clone_dist()
+        if os.path.isdir('temp-dist'):
+            raise click.ClickException('Need to clean first.')
 
-    build_engine(release_version=release_version)
+        clone_dist()
 
-    build_client(codesign=codesign)
+        build_engine(release_version=release_version)
 
-    push_to_dist()
+        build_client(codesign=codesign)
+
+    push_to_dist(release_version=release_version)
 
     # build_website()
 
@@ -85,6 +90,7 @@ def clone_dist():
 
 def push_to_dist(release_version):
     os.chdir('temp-dist')
+    os.system('git add .')
     os.system(f"git commit -am 'version {release_version}'")
     os.system('git push')
 
