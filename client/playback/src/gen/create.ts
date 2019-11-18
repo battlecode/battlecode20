@@ -579,6 +579,42 @@ function createWaterGame(turns: number) {
   return builder.asUint8Array();
 }
 
+function createViewOptionGame(turns: number) {
+  let builder = new flatbuffers.Builder();
+  let events: flatbuffers.Offset[] = [];
+
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
+
+  const map: MapType = {
+    dirt: new Array(SIZE*SIZE),
+    water: new Array(SIZE*SIZE),
+    pollution: new Array(SIZE*SIZE),
+    soup: new Array(SIZE*SIZE)
+  };
+  for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
+    map.dirt[i*SIZE+j] = random(0,5);
+    map.water[i*SIZE+j] = Math.max(random(-6,1), 0);
+    map.pollution[i*SIZE+j] = Math.max(random(-200, 500), 0);
+  }
+
+  const bb_map = createMap(builder, null, 'ViewOptions Demo', map);
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, bb_map), schema.Event.MatchHeader));
+
+  for (let i = 1; i < turns+1; i++) {
+    schema.Round.startRound(builder);
+    schema.Round.addRoundID(builder, i);
+
+    events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
+  }
+
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
+
+  const wrapper = createGameWrapper(builder, events, turns);
+  builder.finish(wrapper);
+  return builder.asUint8Array();
+}
+
 // Game with every units, dies and borns randomly, and moving in random direction
 function createActiveGame(aliveCount: number, churnCount: number, moveCount: number, turns: number) {
   let builder = new flatbuffers.Builder();
@@ -691,7 +727,8 @@ function main(){
     { name: "pick", game: createPickGame(1024) },
     { name: "wander", game: createWanderGame(2048, 64) },
     { name: "life", game: createLifeGame(512) },
-    { name: "water", game: createWaterGame(512) }
+    { name: "water", game: createWaterGame(512) }, 
+    { name: "viewOptions", game: createViewOptionGame(512) }
     // { name: "active", game: createActiveGame(128, 128, 128, 4096) },
   ];
   const prefix = "out/files/";

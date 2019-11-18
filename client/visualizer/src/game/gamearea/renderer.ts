@@ -91,9 +91,13 @@ export default class Renderer {
   private renderBackground(world: GameWorld) {
     // Array of checked views
     let checkedView = this.getCheckedView();
+    let waterLayer = checkedView.includes('water');
+    let dirtLayer = checkedView.includes('dirt');
+    let pollutionLayer = checkedView.includes('pollution');
 
     this.ctx.save();
-    this.ctx.fillStyle = this.bgPattern;
+    this.ctx.fillStyle = "white";
+    this.ctx.globalAlpha = 1;
 
     const minX = world.minCorner.x;
     const minY = world.minCorner.y;
@@ -108,11 +112,28 @@ export default class Renderer {
     this.ctx.fillRect(minX*scale, minY*scale, width*scale, height*scale);
 
     const map = world.mapStats;
-    this.ctx.fillStyle = 'blue';
-    for(let i=0; i<width; i++) for(let j=0; j<height; j++){
-      if(map.water[map.getIdx(i,j)] > 0){
-        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, (minX+i+1)*scale, (minY+j+1)*scale);
+
+    for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
+      let idxVal = map.getIdx(i,j);
+
+      if (pollutionLayer && (map.pollution[idxVal] > 0)) {
+        this.ctx.fillStyle = 'black';
+        this.ctx.globalAlpha = map.pollution[idxVal] / 1000.0;
+        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
       }
+      else if (waterLayer && (map.water[idxVal] > 0)){
+        this.ctx.fillStyle = 'blue';
+        this.ctx.globalAlpha = 0.5;
+        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
+      }
+      else if (dirtLayer && (map.dirt[idxVal] > 0)) {
+        this.ctx.fillStyle = this.bgPattern;
+        this.ctx.globalAlpha = Math.min(map.dirt[idxVal] / 5.0, 1);
+        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
+      }
+
+      
+
     }
 
     this.ctx.restore();
