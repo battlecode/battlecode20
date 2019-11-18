@@ -205,7 +205,7 @@ public strictfp class Server implements Runnable {
                           GameMaker gameMaker) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
-        //GenerateMaps.makeSimple();
+        // GenerateMaps.makeSimple(); // uncomment this to create a map! (the build will fail but still create the map)
         // Load the map for the match
         final LiveMap loadedMap;
         try {
