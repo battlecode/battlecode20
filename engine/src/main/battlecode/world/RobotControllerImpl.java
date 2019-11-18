@@ -514,7 +514,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
         // just get it!
         ArrayList<BlockchainEntry> d = gameWorld.blockchain.get(roundNumber);
-        System.out.println(d);
+        // System.out.println(d);
         BlockchainEntry[] d2 = d.toArray(new BlockchainEntry[d.size()]);
         String[] stringMessageArray = new String[d2.length];
         for (int i = 0; i < d2.length; i++) {

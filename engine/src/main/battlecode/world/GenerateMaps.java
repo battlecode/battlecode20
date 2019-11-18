@@ -63,6 +63,6 @@ public class GenerateMaps {
         GameMapIO.writeMap(map, new File("engine/src/main/battlecode/world/resources/"));
         LiveMap test = GameMapIO.loadMap("maptestsmall", new File("engine/src/main/battlecode/world/resources/"));
 
-        System.out.println(test.toString());
+        // System.out.println(test.toString());
     }
 }

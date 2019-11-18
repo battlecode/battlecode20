@@ -86,7 +86,7 @@ public class TestMapBuilder {
     }
 
     public LiveMap build() {
-        System.out.println("henlo");
+        // System.out.println("henlo");
         return new LiveMap(width, height, origin, seed, GameConstants.GAME_DEFAULT_ROUNDS, name, bodies.toArray(new RobotInfo[bodies.size()]), soupArray, pollutionArray, waterArray, dirtArray);
     }
 }
