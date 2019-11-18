@@ -54,20 +54,20 @@ def clean():
 
 
 @cli.command()
-@click.option('--codesign',default=True,help='whether to codesign.')
+@click.option('--codesign',default=True,type=bool,help='whether to codesign.')
 @click.option('-v','--release-version',required=True,help='needs to start with 2020.')
 def release(release_version, codesign):
 
     if os.path.isdir('temp-dist'):
         raise click.ClickException('Need to clean first.')
 
-    os.system('mkdir temp-dist')
+    clone_dist()
 
     build_engine(release_version=release_version)
 
     build_client(codesign=codesign)
 
-    # push_to_dist()
+    push_to_dist()
 
     # build_website()
 
@@ -79,8 +79,15 @@ def release(release_version, codesign):
 
     # profit()
 
-def push_to_dist():
-    os.system('cd temp-dist')
+
+def clone_dist():
+    os.system('git clone https://github.com/battlecode/battlecode20-dist temp-dist')
+
+def push_to_dist(release_version):
+    os.chdir('temp-dist')
+    os.system(f"git commit -am 'version {release_version}'")
+    os.system('git push')
+
 
 
 def build_engine(release_version):
@@ -99,7 +106,8 @@ def build_client(codesign=True):
     os.chdir('client/visualizer')
     if not codesign:
         os.system('npm run prod-electron-no-sign')
-    os.system('npm run prod-electron')
+    else:
+        os.system('npm run prod-electron')
     os.chdir('../../')
     os.system('mv client/visualizer/dist temp-dist/client')
 
