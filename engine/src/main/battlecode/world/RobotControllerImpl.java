@@ -74,139 +74,108 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // *********************************
 
     @Override
-    public int getRoundLimit(){
+    public int getRoundLimit() {
         return gameWorld.getGameMap().getRounds();
     }
 
     @Override
-    public int getRoundNum(){
+    public int getRoundNum() {
         return gameWorld.getCurrentRound();
     }
 
     @Override
-    public float getTeamBullets(){
-        return gameWorld.getTeamInfo().getBulletSupply(getTeam());
+    public int getTeamSoup() {
+        return gameWorld.getTeamInfo().getSoup(getTeam());
     }
 
     @Override
-    public int getTeamVictoryPoints(){
-        return gameWorld.getTeamInfo().getVictoryPoints(getTeam());
-    }
-
-    @Override
-    public int getOpponentVictoryPoints() {
-        return gameWorld.getTeamInfo().getVictoryPoints(getTeam().opponent());
-    }
-
-    @Override
-    public int getRobotCount(){
+    public int getRobotCount() {
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
-    @Override
-    public int getTreeCount(){
-        return gameWorld.getObjectInfo().getTreeCount(getTeam());
-    }
-
-    @Override
-    public MapLocation[] getInitialArchonLocations(Team t){
-        assertNotNull(t);
-        if (t == Team.NEUTRAL) {
-            return new MapLocation[0];
-        } else {
-            BodyInfo[] initialRobots = gameWorld.getGameMap().getInitialBodies();
-            ArrayList<MapLocation> archonLocs = new ArrayList<>();
-            for (BodyInfo initial : initialRobots) {
-                if(initial.isRobot()){
-                    RobotInfo robot = (RobotInfo) initial;
-                    if (robot.type == RobotType.ARCHON && robot.team == t) {
-                        archonLocs.add(robot.getLocation());
-                    }
-                }
-            }
-            MapLocation[] array = archonLocs.toArray(new MapLocation[archonLocs.size()]);
-            Arrays.sort(array);
-            return array;
-        }
-    }
+    // @Override
+    // public MapLocation[] getInitialArchonLocations(Team t){
+    //     assertNotNull(t);
+    //     if (t == Team.NEUTRAL) {
+    //         return new MapLocation[0];
+    //     } else {
+    //         BodyInfo[] initialRobots = gameWorld.getGameMap().getInitialBodies();
+    //         ArrayList<MapLocation> archonLocs = new ArrayList<>();
+    //         for (BodyInfo initial : initialRobots) {
+    //             if(initial.isRobot()){
+    //                 RobotInfo robot = (RobotInfo) initial;
+    //                 if (robot.type == RobotType.ARCHON && robot.team == t) {
+    //                     archonLocs.add(robot.getLocation());
+    //                 }
+    //             }
+    //         }
+    //         MapLocation[] array = archonLocs.toArray(new MapLocation[archonLocs.size()]);
+    //         Arrays.sort(array);
+    //         return array;
+    //     }
+    // }
 
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
 
     @Override
-    public int getID(){
+    public int getID() {
         return this.robot.getID();
     }
 
     @Override
-    public Team getTeam(){
+    public Team getTeam() {
         return this.robot.getTeam();
     }
 
     @Override
-    public RobotType getType(){
+    public RobotType getType() {
         return this.robot.getType();
     }
 
     @Override
-    public MapLocation getLocation(){
+    public MapLocation getLocation() {
         return this.robot.getLocation();
     }
 
     @Override
-    public float getHealth(){
-        return this.robot.getHealth();
+    public int getSoupCarrying() {
+        return this.robot.getSoupCarrying();
     }
-    
+
     @Override
-    public int getAttackCount(){
-        return this.robot.getAttackCount();
+    public int getDirtCarrying() {
+        return this.robot.getDirtCarrying();
     }
-    
+
     @Override
-    public int getMoveCount(){
-        return this.robot.getMoveCount();
+    public boolean isCurrentlyHoldingUnit() {
+        return this.robot.isCurrentlyHoldingUnit();
     }
-    
+
+    private InternalRobot getRobotByID(int id) {
+        if (!gameWorld.getObjectInfo().existsRobot(id))
+            return null;
+        return this.gameWorld.getObjectInfo().getRobotByID(id);
+    }
 
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************
 
-    private void assertCanSenseLocation(MapLocation loc) throws GameActionException{
+    private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
         if(!canSenseLocation(loc)){
             throw new GameActionException(CANT_SENSE_THAT,
                     "Target location not within sensor range");
         }
     }
 
-    private void assertCanSensePartOfCircle(MapLocation center, float radius) throws GameActionException{
-        if(!canSensePartOfCircle(center, radius)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target circle not within sensor range");
-        }
-    }
-
-    private void assertCanSenseAllOfCircle(MapLocation center, float radius) throws GameActionException{
-        if(!canSenseAllOfCircle(center, radius)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target circle not completely within sensor range");
-        }
-    }
-
     @Override
-    public boolean onTheMap(MapLocation loc) throws GameActionException {
+    public boolean onTheMap(MapLocation loc) {
         assertNotNull(loc);
-        assertCanSenseLocation(loc);
+        // assertCanSenseLocation(loc);
         return gameWorld.getGameMap().onTheMap(loc);
-    }
-
-    @Override
-    public boolean onTheMap(MapLocation center, float radius) throws GameActionException{
-        assertNotNull(center);
-        assertCanSenseAllOfCircle(center, radius);
-        return gameWorld.getGameMap().onTheMap(center, radius);
     }
 
     @Override
@@ -216,79 +185,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseBulletLocation(MapLocation loc) {
-        assertNotNull(loc);
-        return this.robot.canSenseBulletLocation(loc);
-    }
-
-    @Override
-    public boolean canSenseRadius(float radius) {
+    public boolean canSenseRadius(int radius) {
         return this.robot.canSenseRadius(radius);
-    }
-
-    @Override
-    public boolean canSensePartOfCircle(MapLocation center, float radius){
-        assertNotNull(center);
-        return canSenseRadius(getLocation().distanceTo(center)-radius);
-    }
-
-    @Override
-    public boolean canSenseAllOfCircle(MapLocation center, float radius){
-        assertNotNull(center);
-        return canSenseRadius(getLocation().distanceTo(center)+radius);
     }
 
     @Override
     public boolean isLocationOccupied(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
-        return !gameWorld.getObjectInfo().isEmpty(loc, 0);
-    }
-
-    @Override
-    public boolean isLocationOccupiedByTree(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanSenseLocation(loc);
-        return gameWorld.getObjectInfo().getTreeAtLocation(loc) != null;
-    }
-
-    @Override
-    public boolean isLocationOccupiedByRobot(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanSenseLocation(loc);
-        return gameWorld.getObjectInfo().getRobotAtLocation(loc) != null;
-    }
-
-    @Override
-    public boolean isCircleOccupied(MapLocation center, float radius) throws GameActionException{
-        assertNotNull(center);
-        assertCanSenseAllOfCircle(center, radius);
-        return !gameWorld.getObjectInfo().isEmpty(center, radius);
-    }
-
-    @Override
-    public boolean isCircleOccupiedExceptByThisRobot(MapLocation center, float radius) throws GameActionException{
-        assertNotNull(center);
-        assertCanSenseAllOfCircle(center, radius);
-        return !gameWorld.getObjectInfo().isEmptyExceptForRobot(center, radius, robot);
-    }
-
-    @Override
-    public TreeInfo senseTreeAtLocation(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanSenseLocation(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        if(tree != null) {
-            return tree.getTreeInfo();
-        }
-        return null;
+        return this.gameWorld.getRobot(loc) != null;
     }
 
     @Override
     public RobotInfo senseRobotAtLocation(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
-        InternalRobot bot = gameWorld.getObjectInfo().getRobotAtLocation(loc);
+        InternalRobot bot = gameWorld.getRobot(loc);
         if(bot != null) {
             return bot.getRobotInfo();
         }
@@ -296,36 +208,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseTree(int id) {
-        if(!gameWorld.getObjectInfo().existsTree(id)){
-            return false;
-        }
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        return canSensePartOfCircle(tree.getLocation(), tree.getRadius());
-    }
-
-    @Override
     public boolean canSenseRobot(int id) {
-        if(!gameWorld.getObjectInfo().existsRobot(id)){
-            return false;
-        }
-        InternalRobot robot = gameWorld.getObjectInfo().getRobotByID(id);
-        return canSensePartOfCircle(robot.getLocation(), robot.getType().bodyRadius);
-    }
-
-    @Override
-    public boolean canSenseBullet(int id) {
-        return gameWorld.getObjectInfo().existsBullet(id) &&
-                canSenseBulletLocation(gameWorld.getObjectInfo().getBulletByID(id).getLocation());
-    }
-
-    @Override
-    public TreeInfo senseTree(int id) throws GameActionException {
-        if(!canSenseTree(id)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Can't sense given tree; It may not exist anymore");
-        }
-        return gameWorld.getObjectInfo().getTreeByID(id).getTreeInfo();
+        InternalRobot sensedRobot = getRobotByID(id);
+        return sensedRobot == null ? false : canSenseLocation(sensedRobot.getLocation());
     }
 
     @Override
@@ -334,16 +219,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_SENSE_THAT,
                     "Can't sense given robot; It may not exist anymore");
         }
-        return gameWorld.getObjectInfo().getRobotByID(id).getRobotInfo();
-    }
-
-    @Override
-    public BulletInfo senseBullet(int id) throws GameActionException {
-        if(!canSenseBullet(id)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Can't sense given bullet; It may not exist anymore");
-        }
-        return gameWorld.getObjectInfo().getBulletByID(id).getBulletInfo();
+        return getRobotByID(id).getRobotInfo();
     }
 
     @Override
@@ -352,19 +228,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(float radius) {
+    public RobotInfo[] senseNearbyRobots(int radius) {
         return senseNearbyRobots(radius, null);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(float radius, Team team) {
+    public RobotInfo[] senseNearbyRobots(int radius, Team team) {
         return senseNearbyRobots(getLocation(), radius, team);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(MapLocation center, float radius, Team team) {
+    public RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team) {
         assertNotNull(center);
-        InternalRobot[] allSensedRobots = gameWorld.getObjectInfo().getAllRobotsWithinRadius(center,
+        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadius(center,
                 radius == -1 ? getType().sensorRadius : radius);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
@@ -373,7 +249,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 continue;
             }
             // check if can sense
-            if(!canSensePartOfCircle(sensedRobot.getLocation(), sensedRobot.getType().bodyRadius)){
+            if(!canSenseLocation(sensedRobot.getLocation())){
                 continue;
             }
             // check if right team
@@ -387,133 +263,45 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public TreeInfo[] senseNearbyTrees() {
-        return senseNearbyTrees(-1);
-    }
-
-    @Override
-    public TreeInfo[] senseNearbyTrees(float radius) {
-        return senseNearbyTrees(radius, null);
-    }
-
-    @Override
-    public TreeInfo[] senseNearbyTrees(float radius, Team team) {
-        return senseNearbyTrees(getLocation(), radius, team);
-    }
-
-    @Override
-    public TreeInfo[] senseNearbyTrees(MapLocation center, float radius, Team team) {
-        assertNotNull(center);
-        InternalTree[] allSensedTrees = gameWorld.getObjectInfo().getAllTreesWithinRadius(center,
-                radius == -1 ? getType().sensorRadius : radius);
-        List<TreeInfo> validSensedTrees = new ArrayList<>();
-        for(InternalTree sensedTree : allSensedTrees){
-            // check if can sense
-            if(!canSensePartOfCircle(sensedTree.getLocation(), sensedTree.getRadius())){
-                continue;
-            }
-            // check if right team
-            if(team != null && sensedTree.getTeam() != team){
-                continue;
-            }
-
-            validSensedTrees.add(sensedTree.getTreeInfo());
+    public int sensePollution(MapLocation loc) throws GameActionException {
+        if(!canSenseLocation(loc)){
+            throw new GameActionException(CANT_SENSE_THAT,
+                    "Can't sense the pollution level of the specified location " +
+                            "(outside of sensor radius).");
         }
-        return validSensedTrees.toArray(new TreeInfo[validSensedTrees.size()]);
+        return this.gameWorld.getPollution(loc);
     }
 
     @Override
-    public BulletInfo[] senseNearbyBullets() {
-        return senseNearbyBullets(-1);
-    }
-
-    @Override
-    public BulletInfo[] senseNearbyBullets(float radius) {
-        return senseNearbyBullets(getLocation(), radius);
-    }
-
-    @Override
-    public BulletInfo[] senseNearbyBullets(MapLocation center, float radius) {
-        assertNotNull(center);
-        InternalBullet[] allSensedBullets = gameWorld.getObjectInfo().getAllBulletsWithinRadius(center,
-                radius == -1 ? getType().bulletSightRadius : radius);
-        List<BulletInfo> validSensedBullets = new ArrayList<>();
-        for(InternalBullet sensedBullet : allSensedBullets){
-            // check if can sense
-            if(!canSenseBulletLocation(sensedBullet.getLocation())){
-                continue;
-            }
-
-            validSensedBullets.add(sensedBullet.getBulletInfo());
-        }
-        return validSensedBullets.toArray(new BulletInfo[validSensedBullets.size()]);
-    }
-
-    @Override
-    public MapLocation[] senseBroadcastingRobotLocations() {
-        List<MapLocation> validLocs = new ArrayList<>();
-        for(RobotInfo robot : gameWorld.getPreviousBroadcasters()){
-            validLocs.add(robot.location);
-        }
-        return validLocs.toArray(new MapLocation[validLocs.size()]);
+    public MapLocation adjacentLocation(Direction dir) {
+        return getLocation().add(dir);
     }
 
     // ***********************************
     // ****** READINESS METHODS **********
     // ***********************************
 
-    private void assertMoveReady() throws GameActionException{
-        if(hasMoved()){
+    private void assertIsReady() throws GameActionException{
+        if(!isReady()){
             throw new GameActionException(NOT_ACTIVE,
-                    "This robot has already moved this turn.");
-        }
-    }
-
-    private void assertIsWeaponReady() throws GameActionException{
-        if(hasAttacked()){
-            throw new GameActionException(NOT_ACTIVE,
-                    "This robot has already attacked this turn.");
-        }
-    }
-    
-    private void assertIsBuildReady() throws GameActionException{
-        if(!isBuildReady()){
-            throw new GameActionException(NOT_ACTIVE,
-                    "This robot's build cooldown has not expired.");
+                    "This robot's action cooldown has not expired.");
         }
     }
 
     @Override
-    public boolean hasMoved() {
-        return getMoveCount() > 0;
+    public boolean isReady() {
+        return this.robot.getCooldownTurns() == 0;
     }
 
     @Override
-    public boolean hasAttacked() {
-        return getAttackCount() > 0;
-    }
-    
-    @Override
-    public boolean isBuildReady() {
-        return this.robot.getBuildCooldownTurns() == 0;
-    }
-
-    @Override
-    public int getBuildCooldownTurns() {
-        return this.robot.getBuildCooldownTurns();
+    public int getCooldownTurns() {
+        return this.robot.getCooldownTurns();
     }
 
     // ***********************************
     // ****** MOVEMENT METHODS ***********
     // ***********************************
 
-  /*  private void assertIsPathable(MapLocation loc) throws GameActionException{
-        if(!onTheMap(loc, getType().bodyRadius) ||
-                isCircleOccupiedExceptByThisRobot(loc, getType().bodyRadius)){
-            throw new GameActionException(CANT_MOVE_THERE,
-                    "Cannot move to target location " + loc + ".");
-        }
-    }*/
     private void assertCanMove(MapLocation loc) throws GameActionException{
         if(!canMove(loc))
             throw new GameActionException(CANT_MOVE_THERE,
@@ -522,515 +310,114 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean canMove(Direction dir) {
-        return canMove(dir, getType().strideRadius);
+        assertNotNull(dir);
+        return canMove(adjacentLocation(dir));
     }
 
     @Override
-    public boolean canMove(Direction dir, float dist) {
-        assertNotNull(dir);
-        dist = Math.max(0, Math.min(dist, getType().strideRadius));
-        MapLocation center = getLocation().add(dir, dist);
-        return canMove(center);
-    }
-    
-    @Override
     public boolean canMove(MapLocation center) {
-        assertNotNull(center);
-        float dist = getLocation().distanceTo(center);
-        if(dist > getType().strideRadius) {
-            Direction dir = getLocation().directionTo(center);
-            center = getLocation().add(dir, getType().strideRadius);
-        }
-        boolean newLocationIsEmpty;
-        if(getType() != RobotType.TANK && getType() != RobotType.SCOUT) {
-            newLocationIsEmpty = gameWorld.getObjectInfo().isEmptyExceptForRobot(center, getType().bodyRadius, robot);
-        } else { // Tanks have special condition due to body attack, Scouts can just go over trees
-            newLocationIsEmpty = gameWorld.getObjectInfo().noRobotsExceptForRobot(center, getType().bodyRadius, robot);
-        }
-        return gameWorld.getGameMap().onTheMap(center, getType().bodyRadius) &&
-                newLocationIsEmpty;
+        try {
+            assertNotNull(center);
+            return getType().canMove() && getLocation().distanceTo(center) <= 1 &&
+                onTheMap(center) && !isLocationOccupied(center) &&
+                gameWorld.getDirtDifference(getLocation(), center)
+                 <= GameConstants.MAX_DIRT_DIFFERENCE;
+        } catch (GameActionException e) { return false; }
     }
 
     @Override
     public void move(Direction dir) throws GameActionException {
-        move(dir, getType().strideRadius);
-    }
-
-    @Override
-    public void move(Direction dir, float dist) throws GameActionException {
-        assertNotNull(dir);
-        assertMoveReady();
-        dist = Math.max(0, Math.min(dist, getType().strideRadius));
-        MapLocation center = getLocation().add(dir, dist);
-        move(center);
-    }
-    
-    @Override
-    public void move(MapLocation center) throws GameActionException {
+        MapLocation center = adjacentLocation(dir);
         assertNotNull(center);
-        assertMoveReady();
-        float dist = getLocation().distanceTo(center);
-        if(dist > getType().strideRadius) {
-            Direction dir = getLocation().directionTo(center);
-            center = getLocation().add(dir, getType().strideRadius);
-        }
+        assertIsReady();
         assertCanMove(center);
-        
-        this.robot.incrementMoveCount();
-        if(getType() == RobotType.TANK) { // If Tank, see if can actually move, as opposed to just body attack
-            InternalTree[] trees = gameWorld.getObjectInfo().getAllTreesWithinRadius(center, RobotType.TANK.bodyRadius);
-            if(trees.length > 0) { // Body attack will happen
-                
-                // Find closest Tree
-                InternalTree closestTree = null;
-                float closestDist = Float.MAX_VALUE;
-                for(InternalTree tree : trees) {
-                    float treeDist = tree.getLocation().distanceTo(robot.getLocation());
-                    if(treeDist < closestDist) {
-                        closestDist = treeDist;
-                        closestTree = tree;
-                    }
-                }
-                
-                // Damage the closest tree
-                closestTree.damageTree(GameConstants.TANK_BODY_DAMAGE, getTeam(), false);
-            
-                // Now that damage has been done, refresh list of trees to see if it is still there
-                trees = gameWorld.getObjectInfo().getAllTreesWithinRadius(center, RobotType.TANK.bodyRadius);
-                if(trees.length > 0) // If something still obstructs the movement, don't actually move
-                    return;
-            }
-        }
+        this.robot.resetCooldownTurns();
+        this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
         gameWorld.getMatchMaker().addMoved(getID(), getLocation());
-    }
 
-    // ***********************************
-    // ****** ATTACK METHODS *************
-    // ***********************************
-
-    // TODO: Make this a player method
-    private boolean haveBulletCosts(float cost){
-        return gameWorld.getTeamInfo().getBulletSupply(getTeam()) >= cost;
-    }
-
-    private void assertHaveBulletCosts(float cost) throws GameActionException{
-        if(!haveBulletCosts(cost)){
-            throw new GameActionException(NOT_ENOUGH_RESOURCE,
-                    "Not sufficient funds in bullet supply");
+        // also move the robot currently being picked up
+        if (this.robot.isCurrentlyHoldingUnit()) {
+            movePickedUpUnit(center);
         }
     }
 
-    private void assertNonNegative(float cost) throws GameActionException{
-        if(cost < 0) {
+    private void movePickedUpUnit(MapLocation center) throws GameActionException {
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        getRobotByID(id).setLocation(center);
+
+        gameWorld.getMatchMaker().addMoved(id, getLocation());
+    }
+
+    private void assertCanPickUpUnit(int id) throws GameActionException {
+        if(!canPickUpUnit(id))
             throw new GameActionException(CANT_DO_THAT,
-                    "Can't purchase negative victory points");
-        }
+                    "Cannot pick up the specified unit, possibly due to not being a delivery drone, " +
+                    "is already holding a unit, the unit not within pickup distance, or unit can't be picked up.");
+    }
+
+    @Override
+    public boolean canPickUpUnit(int id) {
+        return this.getType().canPickUpUnits() && !this.robot.isCurrentlyHoldingUnit() &&
+               unitWithinPickupDistance(id) && getRobotByID(id).getType().canBePickedUp();
+    }
+
+    @Override
+    public void pickUpUnit(int id) throws GameActionException {
+        assertCanPickUpUnit(id);
+        InternalRobot pickedUpRobot = getRobotByID(id);
+        pickedUpRobot.blockUnit();
+        gameWorld.removeRobot(pickedUpRobot.getLocation());
+        this.robot.pickUpUnit(id);
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UNIT, id);
     }
 
     /**
-     * Fires specified bullet spread.  Assumes odd number of bullets to fire.
+     * Check whether the specified unit is within the pickup radius of the robot
      *
-     * @param centerDir direction the center bullet should travel
-     * @param toFire number of bullets to fire.
-     * @param spreadDegrees the spread in degrees at which the bullets should fire.
+     * @param id the id of the robot to pick up
      */
-    private void fireBulletSpread(Direction centerDir, int toFire, float spreadDegrees){
-        byte actionType;
-        switch (toFire){
-            case 5:
-                actionType = Action.FIRE_PENTAD;
-                break;
-            case 3:
-                actionType = Action.FIRE_TRIAD;
-                break;
-            default:
-                actionType = Action.FIRE;
+    private boolean unitWithinPickupDistance(int id) {
+        for (InternalRobot adjacentRobot :
+                gameWorld.getAllRobotsWithinRadius(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS)) {
+            if (adjacentRobot.getID() == id)
+                return true;
         }
-
-        int bulletsPerSide = (toFire - 1) / 2;
-
-        // Fire center bullet
-        int bulletID = gameWorld.spawnBullet(getTeam(), getType().bulletSpeed, getType().attackPower,
-                getLocation().add(centerDir, getType().bodyRadius + GameConstants.BULLET_SPAWN_OFFSET), centerDir, this.robot);
-        gameWorld.getMatchMaker().addAction(getID(), actionType, bulletID);
-
-        // Fire side bullets
-        for(int i = 1; i <= bulletsPerSide; i++){
-            // Fire left bullet
-            Direction dirLeft = centerDir.rotateLeftDegrees(i * spreadDegrees);
-            bulletID = gameWorld.spawnBullet(getTeam(), getType().bulletSpeed, getType().attackPower,
-                    getLocation().add(dirLeft, getType().bodyRadius + GameConstants.BULLET_SPAWN_OFFSET), dirLeft, this.robot);
-            gameWorld.getMatchMaker().addAction(getID(), actionType, bulletID);
-
-            // Fire right bullet
-            Direction dirRight = centerDir.rotateRightDegrees(i * spreadDegrees);
-            bulletID = gameWorld.spawnBullet(getTeam(), getType().bulletSpeed, getType().attackPower,
-                    getLocation().add(dirRight, getType().bodyRadius + GameConstants.BULLET_SPAWN_OFFSET), dirRight, this.robot);
-            gameWorld.getMatchMaker().addAction(getID(), actionType, bulletID);
-        }
+        return false;
     }
 
-    @Override
-    public boolean canStrike() {
-        boolean correctType = getType() == RobotType.LUMBERJACK;
-
-        return correctType && !hasAttacked();
-    }
-
-    @Override
-    public void strike() throws GameActionException {
-        if(getType() != RobotType.LUMBERJACK){
+    private void assertCanDropUnit(Direction dir) throws GameActionException {
+        if(!canDropUnit(dir))
             throw new GameActionException(CANT_DO_THAT,
-                    "Only lumberjacks can strike");
+                    "Cannot drop a unit, possibly due to not being a delivery drone, " +
+                    "or not currently holding a unit.");
+    }
+
+    @Override
+    public boolean canDropUnit(Direction dir) {
+        try {
+            MapLocation loc = adjacentLocation(dir);
+            return this.getType().canPickUpUnits() && this.robot.isCurrentlyHoldingUnit() &&
+               onTheMap(loc) && !isLocationOccupied(loc);
+        } catch (GameActionException e) { return false; }
+    }
+
+    @Override
+    public void dropUnit(Direction dir) throws GameActionException {
+        assertCanDropUnit(dir);
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        InternalRobot droppedRobot = getRobotByID(id);
+        droppedRobot.unblockUnit();
+
+        this.robot.dropUnit();
+        gameWorld.addRobot(adjacentLocation(dir), droppedRobot);
+
+        // TODO: need to process killing
+        if (false) {
+            gameWorld.destroyRobot(id);
         }
-        assertIsWeaponReady();
-
-        this.robot.incrementAttackCount(); // Striking counts as attack.
-
-        // Hit adjacent robots
-        for(InternalRobot hitRobot :
-                gameWorld.getObjectInfo().getAllRobotsWithinRadius(getLocation(), GameConstants.LUMBERJACK_STRIKE_RADIUS)){
-            if(hitRobot.equals(this.robot)){
-                continue;
-            }
-            hitRobot.damageRobot(getType().attackPower);
-        }
-        // Hit adjacent trees
-        for(InternalTree hitTree :
-                gameWorld.getObjectInfo().getAllTreesWithinRadius(getLocation(), GameConstants.LUMBERJACK_STRIKE_RADIUS)){
-            hitTree.damageTree(getType().attackPower, getTeam(), false);
-        }
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.LUMBERJACK_STRIKE, -1);
-    }
-
-    @Override
-    public boolean canFireSingleShot() {
-        boolean correctType = getType() != RobotType.ARCHON && getType() != RobotType.GARDENER &&
-                getType() != RobotType.LUMBERJACK;
-        return correctType && haveBulletCosts(GameConstants.SINGLE_SHOT_COST) && !hasAttacked();
-    }
-
-    @Override
-    public boolean canFireTriadShot() {
-        boolean correctType = getType() != RobotType.ARCHON && getType() != RobotType.GARDENER &&
-                getType() != RobotType.LUMBERJACK && getType() != RobotType.SCOUT;
-        return correctType && haveBulletCosts(GameConstants.TRIAD_SHOT_COST) && !hasAttacked();
-    }
-
-    @Override
-    public boolean canFirePentadShot() {
-        boolean correctType = getType() != RobotType.ARCHON && getType() != RobotType.GARDENER &&
-                getType() != RobotType.LUMBERJACK && getType() != RobotType.SCOUT;
-        return correctType && haveBulletCosts(GameConstants.PENTAD_SHOT_COST) && !hasAttacked();
-    }
-
-    @Override
-    public void fireSingleShot(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertIsWeaponReady();
-        if(!canFireSingleShot()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "This robot cannot fire a single shot possibly due to wrong type or " +
-                            "insufficient funds");
-        }
-
-        this.robot.incrementAttackCount();
-
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.SINGLE_SHOT_COST);
-        fireBulletSpread(dir, 1, 0);
-    }
-
-    @Override
-    public void fireTriadShot(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertIsWeaponReady();
-        if(!canFireTriadShot()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "This robot cannot fire a triad shot possibly due to wrong type or " +
-                            "insufficient funds");
-        }
-
-        this.robot.incrementAttackCount();
-
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.TRIAD_SHOT_COST);
-        fireBulletSpread(dir, 3, GameConstants.TRIAD_SPREAD_DEGREES);
-    }
-
-    @Override
-    public void firePentadShot(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertIsWeaponReady();
-        if(!canFirePentadShot()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "This robot cannot fire a pentad shot possibly due to wrong type or " +
-                            "insufficient funds");
-        }
-
-        this.robot.incrementAttackCount();
-
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.PENTAD_SHOT_COST);
-        fireBulletSpread(dir, 5, GameConstants.PENTAD_SPREAD_DEGREES);
-    }
-
-    // ***********************************
-    // ****** TREE METHODS ***************
-    // ***********************************
-
-    private boolean canInteractWithLocation(MapLocation loc){
-        assertNotNull(loc);
-        return this.robot.canInteractWithLocation(loc);
-    }
-
-    private boolean canInteractWithCircle(MapLocation center, float radius){
-        assertNotNull(center);
-        return this.robot.canInteractWithCircle(center,radius);
-    }
-
-    private void assertCanWater() throws GameActionException{
-        if(!canWater()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Gardeners can only water once per turn");
-        }
-    }
-
-    private void assertCanShake() throws GameActionException{
-        if(!canShake()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robots can only shake one tree per turn");
-        }
-    }
-
-    private void assertCanInteractWithTree(MapLocation treeLoc) throws GameActionException{
-        if(!canInteractWithTree(treeLoc)){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't interact with a tree that doesn't exist or is outside" +
-                            " this robot's stride.");
-        }
-    }
-
-    private void assertCanInteractWithTree(int treeID) throws GameActionException{
-        if(!canInteractWithTree(treeID)){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't interact with a tree that doesn't exist or is outside" +
-                            " this robot's stride.");
-        }
-    }
-    
-    private void assertOwnedTree(InternalTree tree) throws GameActionException {
-        if(tree.getTeam().equals(Team.NEUTRAL)) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't water a neutral tree.");
-        }
-    }
-
-    @Override
-    public boolean canChop(MapLocation loc) {
-        boolean correctType = (getType() == RobotType.LUMBERJACK);
-        boolean canInteract = canInteractWithTree(loc);
-
-        return correctType && canInteract && !hasAttacked();
-    }
-
-    @Override
-    public boolean canChop(int id) {
-        boolean correctType = (getType() == RobotType.LUMBERJACK);
-        boolean canInteract = canInteractWithTree(id);
-
-        return correctType && canInteract && !hasAttacked();
-    }
-
-    @Override
-    public void chop(MapLocation loc) throws GameActionException {
-        if(getType() != RobotType.LUMBERJACK){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Only lumberjacks can chop");
-        }
-        assertNotNull(loc);
-        assertIsWeaponReady(); // Chop counts as attack
-        assertCanInteractWithTree(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        chopTree(tree);
-    }
-
-    @Override
-    public void chop(int id) throws GameActionException {
-        if(getType() != RobotType.LUMBERJACK){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Only lumberjacks can chop");
-        }
-        assertIsWeaponReady();  // Chop counts as attack
-        assertCanInteractWithTree(id);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        chopTree(tree);
-    }
-
-    private void chopTree(InternalTree tree){
-        this.robot.incrementAttackCount(); // Chopping counts as attack
-
-        float chopDamage = GameConstants.LUMBERJACK_CHOP_DAMAGE;
-
-        tree.damageTree(chopDamage, getTeam(), true);
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.CHOP, -1);
-    }
-
-    @Override
-    public boolean canShake(MapLocation loc) {
-        return canInteractWithTree(loc) && canShake();
-    }
-
-    @Override
-    public boolean canShake(int id) {
-        return canInteractWithTree(id) && canShake();
-    }
-
-    @Override
-    public void shake(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanShake();
-        assertCanInteractWithTree(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        shakeTree(tree);
-    }
-
-    @Override
-    public void shake(int id) throws GameActionException {
-        assertCanShake();
-        assertCanInteractWithTree(id);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        shakeTree(tree);
-    }
-
-    private void shakeTree(InternalTree tree){
-        this.robot.incrementShakeCount();
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), tree.getContainedBullets());
-        tree.resetContainedBullets();
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.SHAKE_TREE, tree.getID());
-    }
-
-    @Override
-    public boolean canWater(MapLocation loc) {
-        assertNotNull(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        boolean notNeutralTree = (tree != null && tree.getTeam() != Team.NEUTRAL);
-        return canWater() && canInteractWithTree(loc) && notNeutralTree;
-    }
-
-    @Override
-    public boolean canWater(int id) {
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        boolean notNeutralTree = (tree != null && tree.getTeam() != Team.NEUTRAL);
-        return canWater() && canInteractWithTree(id) && notNeutralTree;
-    }
-
-    @Override
-    public void water(MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertCanWater();
-        assertCanInteractWithTree(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        assertOwnedTree(tree);
-        waterTree(tree);
-    }
-
-    @Override
-    public void water(int id) throws GameActionException {
-        assertCanWater();
-        assertCanInteractWithTree(id);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        assertOwnedTree(tree);
-        waterTree(tree);
-    }
-
-    private void waterTree(InternalTree tree){
-        this.robot.incrementWaterCount();
-        tree.waterTree();
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.WATER_TREE, tree.getID());
-    }
-
-    @Override
-    public boolean canWater(){
-        boolean correctType = getType() == RobotType.GARDENER;
-        return correctType && this.robot.getWaterCount() < 1;
-    }
-
-    @Override
-    public boolean canShake(){
-        return this.robot.getShakeCount() < 1;
-    }
-
-    @Override
-    public boolean canInteractWithTree(MapLocation loc){
-        assertNotNull(loc);
-        InternalTree tree = gameWorld.getObjectInfo().getTreeAtLocation(loc);
-        return tree != null &&
-                canInteractWithCircle(tree.getLocation(), tree.getRadius());
-    }
-
-    @Override
-    public boolean canInteractWithTree(int id){
-        InternalTree tree = gameWorld.getObjectInfo().getTreeByID(id);
-        return tree != null &&
-                canInteractWithCircle(tree.getLocation(), tree.getRadius());
-    }
-
-    // ***********************************
-    // ****** SIGNALING METHODS **********
-    // ***********************************
-
-    private void assertValidChannel(int channel) throws GameActionException{
-        if(channel < 0 || channel >= GameConstants.BROADCAST_MAX_CHANNELS){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Broadcasting channel invalid");
-        }
-    }
-
-    @Override
-    public void broadcast(int channel, int data) throws GameActionException {
-        assertValidChannel(channel);
-        gameWorld.addBroadcaster(this.robot.getRobotInfo());
-        gameWorld.getTeamInfo().broadcast(getTeam(), channel, data);
-    }
-
-    @Override
-    public int readBroadcast(int channel) throws GameActionException {
-        assertValidChannel(channel);
-        return gameWorld.getTeamInfo().readBroadcast(getTeam(), channel);
-    }
-
-    @Override
-    public void broadcastBoolean(int channel, boolean data) throws GameActionException {
-        broadcast(channel, data ? 1 : 0);
-    }
-
-    @Override
-    public boolean readBroadcastBoolean(int channel) throws GameActionException {
-        return readBroadcast(channel) != 0;
-    }
-
-    @Override
-    public void broadcastInt(int channel, int data) throws GameActionException {
-        broadcast(channel, data);
-    }
-
-    @Override
-    public int readBroadcastInt(int channel) throws GameActionException {
-        return readBroadcast(channel);
-    }
-
-    @Override
-    public void broadcastFloat(int channel, float data) throws GameActionException {
-        broadcast(channel, Float.floatToRawIntBits(data));
-    }
-
-    @Override
-    public float readBroadcastFloat(int channel) throws GameActionException {
-        return Float.intBitsToFloat(readBroadcast(channel));
     }
 
     // ***********************************
@@ -1041,87 +428,29 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if(!canBuildRobot(type, dir)){
             throw new GameActionException(CANT_DO_THAT,
                     "Can't build desired robot in given direction, possibly due to " +
-                            "insufficient bullet supply, this robot can't build, " +
-                            "cooldown not expired, or the spawn location is occupied");
-        }
-    }
-
-    private void assertCanBuildTree(Direction dir) throws GameActionException{
-        if(!canPlantTree(dir)){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't build a bullet tree in given direction, possibly due to " +
-                            "insufficient bullet supply, this robot can't build, " +
-                            "cooldown not expired, or the spawn location is occupied");
+                            "insufficient currency, this robot can't build, " +
+                            "cooldown not expired, or the spawn location is occupied.");
         }
     }
 
     @Override
     public boolean hasRobotBuildRequirements(RobotType type) {
         assertNotNull(type);
-        boolean hasBulletCosts = haveBulletCosts(type.bulletCost);
-        boolean validBuilder = getType() == type.spawnSource;
-        return hasBulletCosts && validBuilder;
-    }
-
-    @Override
-    public boolean hasTreeBuildRequirements() {
-        boolean hasBulletCosts = haveBulletCosts(GameConstants.BULLET_TREE_COST);
-        boolean validBuilder = getType() == RobotType.GARDENER;
-        return hasBulletCosts && validBuilder;
+        return getType().canBuild(type) &&
+               gameWorld.getTeamInfo().getSoup(getTeam()) >= type.cost;
     }
 
     @Override
     public boolean canBuildRobot(RobotType type, Direction dir) {
-        assertNotNull(type);
-        assertNotNull(dir);
-        boolean hasBuildRequirements = hasRobotBuildRequirements(type);
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                type.bodyRadius;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-        boolean isClear = gameWorld.getGameMap().onTheMap(spawnLoc, type.bodyRadius) &&
-                gameWorld.getObjectInfo().isEmpty(spawnLoc, type.bodyRadius);
-        boolean cooldownExpired = isBuildReady();
-        return hasBuildRequirements && isClear && cooldownExpired;
-    }
-
-    @Override
-    public boolean canPlantTree(Direction dir) {
-        assertNotNull(dir);
-        boolean hasBuildRequirements = hasTreeBuildRequirements();
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                GameConstants.BULLET_TREE_RADIUS;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-        boolean isClear =
-                gameWorld.getGameMap().onTheMap(spawnLoc, GameConstants.BULLET_TREE_RADIUS) &&
-                gameWorld.getObjectInfo().isEmpty(spawnLoc, GameConstants.BULLET_TREE_RADIUS);
-        boolean cooldownExpired = isBuildReady();
-        return hasBuildRequirements && isClear && cooldownExpired;
-    }
-    
-    @Override
-    public boolean canHireGardener(Direction dir) {
-        return canBuildRobot(RobotType.GARDENER,dir);
-    }
-
-    @Override
-    public void hireGardener(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertCanBuildRobot(RobotType.GARDENER, dir);
-
-        this.robot.setBuildCooldownTurns(RobotType.GARDENER.buildCooldownTurns);
-        
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -RobotType.GARDENER.bulletCost);
-
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                RobotType.GARDENER.bodyRadius;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-
-        int robotID = gameWorld.spawnRobot(RobotType.GARDENER, spawnLoc, getTeam());
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
+        try {
+            assertNotNull(type);
+            assertNotNull(dir);
+            boolean hasBuildRequirements = hasRobotBuildRequirements(type);
+            MapLocation spawnLoc = adjacentLocation(dir);
+            boolean isClear = onTheMap(spawnLoc) && !isLocationOccupied(spawnLoc);
+            boolean cooldownExpired = isReady();
+            return hasBuildRequirements && isClear && cooldownExpired;
+        } catch (GameActionException e) { return false; }
     }
 
     @Override
@@ -1129,59 +458,198 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanBuildRobot(type, dir);
 
-        this.robot.setBuildCooldownTurns(type.buildCooldownTurns);
-        
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -type.bulletCost);
+        this.robot.resetCooldownTurns();
 
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                type.bodyRadius;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
-
-        int robotID = gameWorld.spawnRobot(type, spawnLoc, getTeam());
+        int robotID = gameWorld.spawnRobot(type, adjacentLocation(dir), getTeam());
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
 
+
+    // ***********************************
+    // ****** BLOCKCHAINNNNNNNNNNN *******
+    // ***********************************
+
+    /**
+     * Sends a message to the blockchain at the indicated cost.
+     * 
+     * @param message the message to send.
+     * @param proofOfStake the price that the unit is willing to pay for the message. If
+     * the team does not have that much soup, the message will not be sent.
+     * 
+     */
     @Override
-    public void plantTree(Direction dir) throws GameActionException {
+    public void sendMessage(int[] messageArray, int cost) throws GameActionException {
+        if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
+            throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
+                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
+        }
+        int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost) {
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, 
+                    "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+        }
+        // pay!
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
+        // create a block chain entry
+        BlockchainEntry bcentry = new BlockchainEntry(cost, messageArray);
+        // add
+        gameWorld.addNewMessage(bcentry);
+    }
+
+    /**
+     * Gets all messages that were sent at a given round.
+     * @param roundNumber the round index.
+     * @throws GameActionException
+     */
+    @Override
+    public String getRoundMessages(int roundNumber) throws GameActionException {
+        if (roundNumber < 0) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; in fact, no negative round numbers are allowed at all.");
+        }
+        if (roundNumber >= gameWorld.currentRound) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
+        }
+        // just get it!
+        ArrayList<BlockchainEntry> d = gameWorld.blockchain.get(roundNumber);
+        System.out.println(d);
+        BlockchainEntry[] d2 = d.toArray(new BlockchainEntry[d.size()]);
+        String[] stringMessageArray = new String[d2.length];
+        for (int i = 0; i < d2.length; i++) {
+            stringMessageArray[i] = d2[i].serializedMessage;
+        }
+        String serializedMessage = String.join(" ", stringMessageArray);
+        return serializedMessage;
+    }
+
+
+    // ***********************************
+    // ****** MINER METHODS **************
+    // ***********************************
+
+    private void assertCanMineSoup(Direction dir) throws GameActionException{
+        if(!canMineSoup(dir)){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can't mine soup in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't mine, " +
+                            "or the mine location doesn't contain soup.");
+        }
+    }
+
+    @Override
+    public boolean canMineSoup(Direction dir) {
+        MapLocation center = adjacentLocation(dir);
+        return getType().canMine() && getSoupCarrying() < getType().soupLimit &&
+                isReady() && onTheMap(center) && gameWorld.getSoup(center) > 0;
+    }
+
+    @Override
+    public void mineSoup(Direction dir) throws GameActionException {
         assertNotNull(dir);
-        assertIsBuildReady();
-        assertCanBuildTree(dir);
+        assertCanMineSoup(dir);
+        this.robot.resetCooldownTurns();
+        this.gameWorld.removeSoup(adjacentLocation(dir));
+        this.robot.addSoupCarrying(1);
 
-        this.robot.setBuildCooldownTurns(GameConstants.BULLET_TREE_CONSTRUCTION_COOLDOWN);
-        
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -GameConstants.BULLET_TREE_COST);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_SOUP, -1);
+    }
 
-        float spawnDist = getType().bodyRadius +
-                GameConstants.GENERAL_SPAWN_OFFSET +
-                GameConstants.BULLET_TREE_RADIUS;
-        MapLocation spawnLoc = getLocation().add(dir, spawnDist);
+    private void assertCanRefineSoup(Direction dir) throws GameActionException{
+        if(!canRefineSoup(dir)){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can't refine soup in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't refine, " +
+                            "this robot doesn't have crude soup, " +
+                            "or the location doesn't have a refinery.");
+        }
+    }
 
-        int treeID = gameWorld.spawnTree(getTeam(), GameConstants.BULLET_TREE_RADIUS, spawnLoc,
-                0, null);
+    @Override
+    public boolean canRefineSoup(Direction dir) {
+        MapLocation center = adjacentLocation(dir);
+        if (!onTheMap(center))
+            return false;
+        InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
+        return getType().canRefine() && isReady() && getSoupCarrying() > 0 &&
+               adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
+    }
 
-        gameWorld.getMatchMaker().addAction(getID(), Action.PLANT_TREE, treeID);
+    @Override
+    public void refineSoup(Direction dir, int amount) throws GameActionException {
+        assertNotNull(dir);
+        assertCanRefineSoup(dir);
+        if (amount > this.getSoupCarrying())
+            amount = this.getSoupCarrying();
+        this.robot.resetCooldownTurns();
+        this.robot.removeSoupCarrying(amount);
+        InternalRobot refinery = this.gameWorld.getRobot(adjacentLocation(dir));
+        refinery.addSoupCarrying(amount);
+
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.REFINE_SOUP, refinery.getID());
+    }
+
+    // ***************************************
+    // ********* LANDSCAPER METHODS **********
+    // ***************************************
+
+    private void assertCanDigDirt(Direction dir) throws GameActionException{
+        if(!canDigDirt(dir)){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can't dig dirt in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't dig, " +
+                            "or the robot cannot carry more dirt.");
+        }
+    }
+
+    @Override
+    public boolean canDigDirt(Direction dir) {
+        MapLocation center = adjacentLocation(dir);
+        if (!getType().canDig() && getDirtCarrying() < getType().dirtLimit && isReady() && onTheMap(center)) return false;
+        InternalRobot robot = this.gameWorld.getRobot(center);
+        return (robot == null || !robot.getType().isBuilding() || robot.getDirtCarrying() > 0);
+    }
+
+    @Override
+    public void digDirt(Direction dir) throws GameActionException {
+        assertNotNull(dir);
+        assertCanDigDirt(dir);
+        this.robot.resetCooldownTurns();
+        this.gameWorld.removeDirt(adjacentLocation(dir));
+        this.robot.addDirtCarrying(1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG_DIRT, -1);
+    }
+
+    private void assertCanDepositDirt(Direction dir) throws GameActionException{
+        if(!canDepositDirt(dir)){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can't deposit dirt in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't deposit, " +
+                            "or this robot doesn't have dirt.");
+        }
+    }
+
+    @Override
+    public boolean canDepositDirt(Direction dir) {
+        MapLocation center = adjacentLocation(dir);
+        return (getType().canDeposit() && isReady() &&
+                onTheMap(center) && getDirtCarrying() > 0);
+    }
+
+    @Override
+    public void depositDirt(Direction dir) throws GameActionException {
+        assertNotNull(dir);
+        assertCanDepositDirt(dir);
+        this.robot.resetCooldownTurns();
+        this.robot.removeDirtCarrying(1);
+        this.gameWorld.addDirt(adjacentLocation(dir));
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG_DIRT, -1);
     }
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
-
-    @Override
-    public float getVictoryPointCost() {
-        return GameConstants.VP_BASE_COST + GameConstants.VP_INCREASE_PER_ROUND * getRoundNum();
-    }
-
-    @Override
-    public void donate(float bullets) throws GameActionException{
-        assertNonNegative(bullets);
-        assertHaveBulletCosts(bullets);
-        int gainedVictorPoints = (int)Math.floor(bullets / getVictoryPointCost());
-        gameWorld.getTeamInfo().adjustBulletSupply(getTeam(), -bullets);
-        gameWorld.getTeamInfo().adjustVictoryPoints(getTeam(), gainedVictorPoints);
-        gameWorld.setWinnerIfVictoryPoints();
-    }
 
     @Override
     public void disintegrate(){
@@ -1213,26 +681,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(startLoc);
         assertNotNull(endLoc);
         gameWorld.getMatchMaker().addIndicatorLine(getID(), startLoc, endLoc, red, green, blue);
-    }
-
-    // ***********************************
-    // ******** TEAM MEMORY **************
-    // ***********************************
-
-    @Override
-    public void setTeamMemory(int index, long value) {
-        gameWorld.getTeamInfo().setTeamMemory(robot.getTeam(), index, value);
-    }
-
-    @Override
-    public void setTeamMemory(int index, long value, long mask) {
-        gameWorld.getTeamInfo().setTeamMemory(robot.getTeam(), index, value, mask);
-    }
-
-    @Override
-    public long[] getTeamMemory() {
-        long[] arr = gameWorld.getTeamInfo().getOldTeamMemory()[robot.getTeam().ordinal()];
-        return Arrays.copyOf(arr, arr.length);
     }
 
     // ***********************************

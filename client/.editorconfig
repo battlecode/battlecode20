@@ -1,20 +1,26 @@
-# Configure editors!
+# Configuring editor styles - https://editorconfig.org/
+
+# Basically keeping the legacy settings
+
+# this is top-most .editorconfig file
 root = true
 
-# Unix-style newlines with a newline ending every file
+# Default config
+#  2 space indent
+#  Unix style endline
+#  UTF-8 encoding
+#  final newline
 [*]
+indent_style = space
+indent_size = 2
 end_of_line = lf
+charset = utf-8
 insert_final_newline = true
 
-# Matches multiple files with brace expansion notation
-# Set default charset
+# For .js or .ts files
 [*.{js,ts}]
-charset = utf-8
-indent_style = space
-indent_size = 2
+trim_trailing_whitespace = true
 
-# Matches the exact files either package.json or .travis.yml
-[{*.json,.travis.yml}]
-indent_style = space
-indent_size = 2
-
+# For *.json files (packages.json, tsconfig.json, webpack.json, ...)
+[*.json]
+trim_trailing_whitespace = false

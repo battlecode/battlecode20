@@ -1,30 +1,31 @@
 package battlecode.world;
 
 import battlecode.common.*;
-import org.junit.Ignore;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@Ignore
 /**
  * Lets maps be built easily, for testing purposes.
  */
 public class TestMapBuilder {
     private String name;
     private MapLocation origin;
-    private float width;
-    private float height;
+    private int width;
+    private int height;
     private int seed;
     private int rounds;
+    private int[] soupArray;
+    private int[] pollutionArray;
+    private int[] waterArray;
+    private int[] dirtArray;
 
-    private List<BodyInfo> bodies;
+    private List<RobotInfo> bodies;
 
-    public TestMapBuilder(String name, float oX, float oY, float width, float height, int seed, int rounds) {
+    public TestMapBuilder(String name, int oX, int oY, int width, int height, int seed, int rounds) {
         this(name, new MapLocation(oX, oY), width, height, seed, rounds);
     }
 
-    public TestMapBuilder(String name, MapLocation origin, float width, float height, int seed, int rounds) {
+    public TestMapBuilder(String name, MapLocation origin, int width, int height, int seed, int rounds) {
         this.name = name;
         this.origin = origin;
         this.width = width;
@@ -38,34 +39,54 @@ public class TestMapBuilder {
                 id,
                 team,
                 type,
-                loc,
-                type.getStartingHealth(),
-                0,
-                0
+                loc
         ));
-
         return this;
     }
 
-    public TestMapBuilder addNeutralTree(int id, MapLocation loc, float radius, int containedBullets, RobotType containedBody){
-        bodies.add(new TreeInfo(
-                id, Team.NEUTRAL, loc, radius, radius * GameConstants.NEUTRAL_TREE_HEALTH_RATE,
-                containedBullets, containedBody
-        ));
-
+    public TestMapBuilder setSoup() {
+        this.soupArray = new int[width*height];
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                this.soupArray[i + j * width] = i * j + i + j;
+            }
+        }
         return this;
     }
-
-    public TestMapBuilder addBody(BodyInfo info) {
+    public TestMapBuilder setPollution() {
+        this.pollutionArray = new int[width*height];
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                this.pollutionArray[i + j * width] = i * j + j;
+            }
+        }
+        return this;
+    }
+    public TestMapBuilder setWater() {
+        this.waterArray = new int[width*height];
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                this.waterArray[i - j / 2] = 5;
+            }
+        }
+        return this;
+    }
+    public TestMapBuilder setDirt() {
+        this.dirtArray = new int[width*height];
+        for(int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                this.dirtArray[i + j * width] = i * j + j;
+            }
+        }
+        return this;
+    }
+    public TestMapBuilder addBody(RobotInfo info) {
         bodies.add(info);
-
         return this;
     }
 
     public LiveMap build() {
-        return new LiveMap(
-                width, height, origin, seed, GameConstants.GAME_DEFAULT_ROUNDS, name,
-                bodies.toArray(new BodyInfo[bodies.size()])
-        );
+        System.out.println("henlo");
+        return new LiveMap(width, height, origin, seed, GameConstants.GAME_DEFAULT_ROUNDS, name, bodies.toArray(new RobotInfo[bodies.size()]), soupArray, pollutionArray, waterArray, dirtArray);
     }
 }

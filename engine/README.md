@@ -13,6 +13,8 @@ Java 1.8 is required. Make sure you have the `JAVA_HOME` environment variable se
 2. `./gradlew javadoc` - to make javadocs
 3. `./gradlew test` - to run tests
 
+For Mac, `JAVA_HOME` is probably something similar to `/Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home`.
+
 Basic Guide to the Codebase
 ---------------------------
 

@@ -2,11 +2,12 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.schema.Action;
+import java.util.*;
 
 /**
  * The representation of a robot used by the server.
  */
-public strictfp class InternalRobot implements InternalBody {
+public strictfp class InternalRobot {
     private final RobotControllerImpl controller;
     private final GameWorld gameWorld;
 
@@ -14,23 +15,22 @@ public strictfp class InternalRobot implements InternalBody {
     private Team team;
     private RobotType type;
     private MapLocation location;
-    private float health;
 
     private long controlBits;
     private int currentBytecodeLimit;
     private int bytecodesUsed;
-    private int prevBytecodesUsed;
 
     private int roundsAlive;
-    private int repairCount;
-    private int shakeCount;
-    private int waterCount;
-    private int attackCount;
-    private int moveCount;
+    private int soupCarrying; // amount of soup the robot is carrying (miners)
+    private int dirtCarrying; // amount of dirt the robot is carrying (landscapers and buildings)
     
-    private int buildCooldownTurns;
+    private int cooldownTurns;
 
-    private boolean healthChanged = false;
+    private boolean producedSoup;
+    private boolean currentlyHoldingUnit;
+    private int idOfUnitCurrentlyHeld;
+
+    private boolean blocked;  // when picked up by a delivery drone
 
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
@@ -52,21 +52,21 @@ public strictfp class InternalRobot implements InternalBody {
         this.type = type;
         this.location = loc;
 
-        this.health = type.getStartingHealth();
-
         this.controlBits = 0;
         this.currentBytecodeLimit = type.bytecodeLimit;
         this.bytecodesUsed = 0;
-        this.prevBytecodesUsed = 0;
 
         this.roundsAlive = 0;
-        this.repairCount = 0;
-        this.shakeCount = 0;
-        this.waterCount = 0;
-        this.attackCount = 0;
-        this.moveCount = 0;
+        this.soupCarrying = 0;
+        this.dirtCarrying = 0;
         
-        this.buildCooldownTurns = 0;
+        this.cooldownTurns = 0;
+
+        this.producedSoup = false;
+        this.currentlyHoldingUnit = false;
+        this.idOfUnitCurrentlyHeld = -1;
+
+        this.blocked = false;
 
         this.gameWorld = gw;
         this.controller = new RobotControllerImpl(gameWorld, this);
@@ -100,10 +100,6 @@ public strictfp class InternalRobot implements InternalBody {
         return location;
     }
 
-    public float getHealth() {
-        return health;
-    }
-
     public long getControlBits() {
         return controlBits;
     }
@@ -112,36 +108,32 @@ public strictfp class InternalRobot implements InternalBody {
         return bytecodesUsed;
     }
 
-    public int getPrevBytecodesUsed() {
-        return prevBytecodesUsed;
-    }
-
     public int getRoundsAlive() {
         return roundsAlive;
     }
 
-    public int getRepairCount() {
-        return repairCount;
+    public int getSoupCarrying() {
+        return soupCarrying;
     }
 
-    public int getShakeCount() {
-        return shakeCount;
+    public int getDirtCarrying() {
+        return dirtCarrying;
+    }
+    
+    public int getCooldownTurns() {
+        return cooldownTurns;
     }
 
-    public int getWaterCount() {
-        return waterCount;
+    public boolean isCurrentlyHoldingUnit() {
+        return currentlyHoldingUnit;
     }
-    
-    public int getAttackCount() {
-        return attackCount;
+
+    public int getIdOfUnitCurrentlyHeld() {
+        return idOfUnitCurrentlyHeld;
     }
-    
-    public int getMoveCount() {
-        return moveCount;
-    }
-    
-    public int getBuildCooldownTurns() {
-        return buildCooldownTurns;
+
+    public boolean isBlocked() {
+        return blocked;
     }
 
     public RobotInfo getRobotInfo() {
@@ -149,94 +141,107 @@ public strictfp class InternalRobot implements InternalBody {
                 && this.cachedRobotInfo.ID == ID
                 && this.cachedRobotInfo.team == team
                 && this.cachedRobotInfo.type == type
-                && this.cachedRobotInfo.location.equals(location)
-                && this.cachedRobotInfo.health == health
-                && this.cachedRobotInfo.attackCount == attackCount
-                && this.cachedRobotInfo.moveCount == moveCount) {
+                && this.cachedRobotInfo.location.equals(location)) {
             return this.cachedRobotInfo;
         }
         return this.cachedRobotInfo = new RobotInfo(
-                ID, team, type, location, health, attackCount, moveCount);
+                ID, team, type, location);
+    }
+
+    public void pickUpUnit(int id) {
+        this.currentlyHoldingUnit = true;
+        this.idOfUnitCurrentlyHeld = id;
+    }
+
+    public void dropUnit() {
+        this.currentlyHoldingUnit = false;
+        this.idOfUnitCurrentlyHeld = -1;
+    }
+
+    public void blockUnit() {
+        this.blocked = true;
+    }
+
+    public void unblockUnit() {
+        this.blocked = false;
     }
 
     // **********************************
     // ****** CHECK METHODS *************
     // **********************************
 
-    public boolean canSenseBulletLocation(MapLocation toSense) {
-        return this.location.distanceTo(toSense) <= this.type.bulletSightRadius;
-    }
-
+    /**
+     * Returns whether this robot can sense the given location.
+     * 
+     * @param toSense the MapLocation to sense
+     */
     public boolean canSenseLocation(MapLocation toSense){
         return this.location.distanceTo(toSense) <= this.type.sensorRadius;
     }
 
-    public boolean canSenseRadius(float radius) {
+    /**
+     * Returns whether this robot can sense something a given radius away.
+     * 
+     * @param radius the distance to sense
+     */
+    public boolean canSenseRadius(int radius) {
         return radius <= this.type.sensorRadius;
-    }
-
-    public boolean canInteractWithLocation(MapLocation toInteract){
-        return this.location.distanceTo(toInteract) <= (this.type.bodyRadius + GameConstants.INTERACTION_DIST_FROM_EDGE);
-    }
-
-    public boolean canInteractWithCircle(MapLocation center, float radius) {
-        return this.location.distanceTo(center) <= (this.type.bodyRadius + radius + GameConstants.INTERACTION_DIST_FROM_EDGE);
     }
 
     // ******************************************
     // ****** UPDATE METHODS ********************
     // ******************************************
 
-    public void setLocation(MapLocation loc){
+    /**
+     * Sets the location of the robot.
+     * 
+     * @param loc the new location of the robot
+     */
+    public void setLocation(MapLocation loc) {
         this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = loc;
     }
 
-    public void incrementWaterCount(){
-        this.waterCount++;
-    }
-
-    public void incrementShakeCount(){
-        this.shakeCount++;
-    }
-
-    public void incrementRepairCount() {
-        this.repairCount++;
+    /**
+     * Resets the action cooldown using the formula cooldown = type_cooldown + pollution_at_location.
+     */
+    public void resetCooldownTurns() {
+        setCooldownTurns(this.type.actionCooldown + this.gameWorld.getPollution(this.location));
     }
     
-    public void incrementAttackCount() {
-        this.attackCount++;
-    }
-    
-    public void incrementMoveCount() {
-        this.moveCount++;
-    }
-    
-    public void setBuildCooldownTurns(int newTurns) {
-        this.buildCooldownTurns = newTurns;
+    /**
+     * Sets the action cooldown given the number of turns.
+     * 
+     * @param newTurns the number of cooldown turns
+     */
+    public void setCooldownTurns(int newTurns) {
+        this.cooldownTurns = newTurns;
     }
 
-    public void repairRobot(float healAmount){
-        this.health = Math.min(this.health + healAmount, this.type.maxHealth);
-        if(health > this.type.maxHealth){
-            this.health = this.type.maxHealth;
-        }
-        this.healthChanged = true;
+    public void addSoupCarrying(int amount) {
+        this.soupCarrying += amount;
     }
 
-    public void damageRobot(float damage){
-        this.health = Math.max(this.health - damage, 0);
-        this.healthChanged = true;
-        killRobotIfDead();
+    public void removeSoupCarrying(int amount) {
+        this.soupCarrying = amount > this.soupCarrying ? 0 : this.soupCarrying - amount;
     }
 
-    public boolean killRobotIfDead(){
-        if(this.health == 0){
-            gameWorld.destroyRobot(this.ID);
-            return true;
-        }
-        return false;
+    public void addDirtCarrying(int amount) {
+        this.dirtCarrying += amount;
     }
+
+    public void removeDirtCarrying(int amount) {
+        this.dirtCarrying -= amount > this.dirtCarrying ? 0 : this.dirtCarrying - amount;
+    }
+
+    // TODO!!
+    // public boolean killRobotIfDead(){
+    //     if(this.health == 0){
+    //         gameWorld.destroyRobot(this.ID);
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     // *********************************
     // ****** GAMEPLAY METHODS *********
@@ -244,50 +249,60 @@ public strictfp class InternalRobot implements InternalBody {
 
     // should be called at the beginning of every round
     public void processBeginningOfRound() {
-        this.healthChanged = false;
+        // this.healthChanged = false;
     }
 
     public void processBeginningOfTurn() {
-        attackCount = 0;
-        moveCount = 0;
-        repairCount = 0;
-        waterCount = 0;
-        shakeCount = 0;
-        if(buildCooldownTurns > 0) {
-            buildCooldownTurns--;
-        }
-        if(getRoundsAlive() < 20 && this.type.isBuildable()){
-            this.repairRobot(.04f * getType().maxHealth);
+        if (this.cooldownTurns > 0)
+            this.cooldownTurns--;
+        this.producedSoup = false;
+        // If refinery/vaporator/hq, produces refined soup
+        if (this.type.canProduceSoupAndPollution() && this.soupCarrying > 0) {
+            int soupProduced = Math.min(this.soupCarrying, this.type.maxSoupProduced);
+            this.soupCarrying -= soupProduced;
+            this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
+            this.producedSoup = true;
         }
         this.currentBytecodeLimit = getType().bytecodeLimit;
     }
 
     public void processEndOfTurn() {
-        gameWorld.getMatchMaker().addBytecodes(ID, this.bytecodesUsed);
-        this.prevBytecodesUsed = this.bytecodesUsed;
-        roundsAlive++;
+        // If refinery/vaporator/hq, produces pollution
+        if (this.type.canProduceSoupAndPollution() && this.producedSoup) {
+            ArrayList<MapLocation> withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadius(
+                                                                this.location, 
+                                                                this.type.pollutionRadius);
+            int pollutionAmount = this.type.pollutionAmount;
+            for (MapLocation pollutionLocation : withinPollutionRadius)
+                this.gameWorld.adjustPollution(pollutionLocation, pollutionAmount);
+            this.gameWorld.globalPollution(this.type.globalPollutionAmount);
+        }
+        
+        this.gameWorld.getMatchMaker().addBytecodes(ID, this.bytecodesUsed);
+        this.roundsAlive++;
     }
 
     public void processEndOfRound() {
-        if(this.healthChanged){
-            gameWorld.getMatchMaker().addHealthChanged(getID(), getHealth());
-        }
+        // OOOOOF
     }
 
     // *********************************
     // ****** BYTECODE METHODS *********
     // *********************************
 
+    // TODO
     public boolean canExecuteCode() {
-        if (getHealth() <= 0.0)
+        if (isBlocked())  // for delivery drones
             return false;
-        if(type.isBuildable())
-            return roundsAlive >= 20;
+        // if (getHealth() <= 0.0)
+        //     return false;
+        // if(type.isBuildable())
+        //     return roundsAlive >= 20;
         return true;
     }
 
     public void setBytecodesUsed(int numBytecodes) {
-        bytecodesUsed = numBytecodes;
+        this.bytecodesUsed = numBytecodes;
     }
 
     public int getBytecodeLimit() {
@@ -299,9 +314,9 @@ public strictfp class InternalRobot implements InternalBody {
     // *********************************
 
     public void suicide(){
-        gameWorld.destroyRobot(getID());
+        this.gameWorld.destroyRobot(getID());
 
-        gameWorld.getMatchMaker().addAction(getID(), Action.DIE_SUICIDE, -1);
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIE_SUICIDE, -1);
     }
 
     // *****************************************
