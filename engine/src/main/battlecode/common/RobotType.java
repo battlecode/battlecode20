@@ -10,38 +10,38 @@ public enum RobotType {
      * The base produces miners, is also a net gun and a refinery.
      * @battlecode.doc.robottype
      */
-    HQ                      (null,  0,  0,  0,  0,  7,  4,  1,  1,  10,  15000),
+    HQ                      (null,  0,  0,  0,  1,  7,  4,  1,  1,  10,  15000),
     //                       SS     C   DL  SL  AC  SR  PR  PA  GP  MS   BL
     /**
      * Miners extract crude soup and bring it to the refineries.
      *
      * @battlecode.doc.robottype
      */
-    MINER                   (HQ,  10,  0,  40,  2,  8,  0,  0,  0,  0,  15000), // chef?
+    MINER                   (HQ,  10,  0,  40,  1,  8,  0,  0,  0,  0,  15000), // chef?
     //                       SS   C    DL  SL   AC  SR  PR  PA  GP  MS  BL
     /**
      * Refineries turn crude soup into refined soup, and produce pollution.
      * @battlecode.doc.robottype
      */
-    REFINERY                (MINER,  20,  0,  0,  0,  5,  4,  1,  1,  10,  15000),
+    REFINERY                (MINER,  20,  0,  0,  1,  5,  4,  1,  1,  10,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS   BL
     /**
      * Vaporators reduce pollution.
      * @battlecode.doc.robottype
      */
-    VAPORATOR               (MINER,  20,  0,  0,  0,  5,  4,  -1,  -1,  5,  15000),
+    VAPORATOR               (MINER,  20,  0,  0,  1,  5,  4,  -1,  -1,  5,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA   GP   MS  BL
     /**
      * Design schools create landscapers.
      * @battlecode.doc.robottype
      */
-    DESIGN_SCHOOL           (MINER,  20,  0,  0,  0,  5,  0,  0,  0,  0,  15000),
+    DESIGN_SCHOOL           (MINER,  20,  0,  0,  1,  5,  0,  0,  0,  0,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Fulfillment centers create drones.
      * @battlecode.doc.robottype
      */
-    FULFILLMENT_CENTER      (MINER,  20,  0,  0,  0,  5,  0,  0,  0,  0,  15000),
+    FULFILLMENT_CENTER      (MINER,  20,  0,  0,  1,  5,  0,  0,  0,  0,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Landscapers take dirt from adjacent (decreasing the elevation)
@@ -49,25 +49,25 @@ public enum RobotType {
      * into water (increasing the elevation).
      * @battlecode.doc.robottype
      */
-    LANDSCAPER              (DESIGN_SCHOOL,  10,  40,  0,  4,  4,  0,  0,  0,  0,  15000),
+    LANDSCAPER              (DESIGN_SCHOOL,  10,  40,  0,  1,  4,  0,  0,  0,  0,  15000),
     //                       SS              C    DL   SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Drones pick up any unit and drop them somewhere else.
      * @battlecode.doc.robottype
      */
-    DELIVERY_DRONE          (FULFILLMENT_CENTER,  10,  0,  0,  8,  4,  0,  0,  0,  0,  15000),
+    DELIVERY_DRONE          (FULFILLMENT_CENTER,  10,  0,  0,  1,  4,  0,  0,  0,  0,  15000),
     //                       SS                   C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Net guns shoot down drones.
      * @battlecode.doc.robottype
      */
-    NET_GUN                 (MINER,  7,  0,  0,  5,  6,  0,  0,  0,  0,  15000),
+    NET_GUN                 (MINER,  7,  0,  0,  1,  6,  0,  0,  0,  0,  15000),
     //                       SS      C   DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    COW                     (null,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0),
+    COW                     (null,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0),
     //                       SS     C   DL  SL  AC  SR  PR  PA  GP  MS  BL
     ;
     

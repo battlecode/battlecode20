@@ -64,7 +64,7 @@ public strictfp class GameWorld {
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
-        this.teamInfo = new TeamInfo();
+        this.teamInfo = new TeamInfo(this);
 
         this.controlProvider = cp;
 
@@ -408,6 +408,7 @@ public strictfp class GameWorld {
     public void processBeginningOfRound() {
         // Increment round counter
         currentRound++;
+        this.teamInfo.addSoupIncome(GameConstants.BASE_INCOME_PER_ROUND);
 
         // Process beginning of each robot's round
         objectInfo.eachRobot((robot) -> {

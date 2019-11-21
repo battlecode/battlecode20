@@ -10,9 +10,12 @@ import java.util.*;
  */
 public class TeamInfo {
 
-    private int[] teamSoup = new int[2];
+    private GameWorld gameWorld;
+    private int[] teamSoup;
 
-    public TeamInfo() {
+    public TeamInfo(GameWorld gameWorld) {
+        this.gameWorld = gameWorld;
+        this.teamSoup = new int[2];
         Arrays.fill(teamSoup, GameConstants.INITIAL_SOUP);
     }
 
@@ -29,7 +32,13 @@ public class TeamInfo {
     // ***** UPDATE METHODS ************
     // *********************************
 
+    public void addSoupIncome(int amount) {
+        adjustSoup(Team.A, amount);
+        adjustSoup(Team.B, amount);
+    }
+
     public void adjustSoup(Team t, int amount) {
-        teamSoup[t.ordinal()] += amount;
+        this.teamSoup[t.ordinal()] += amount;
+        this.gameWorld.getMatchMaker().addTeamStat(t, amount);
     }
 }

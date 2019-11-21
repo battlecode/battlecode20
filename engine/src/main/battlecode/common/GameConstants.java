@@ -31,8 +31,11 @@ public interface GameConstants {
     // ****** GAME PARAMETERS **********
     // *********************************
 
-    /** The initial amount of soup each team gets. */
-    int INITIAL_SOUP = 1000;
+    /** The initial amount of soup each team starts off with. */
+    int INITIAL_SOUP = 100;
+
+    /** The amount of soup each team receives per turn. */
+    int BASE_INCOME_PER_ROUND = 1;
 
     /** The number of indicator strings that a player can associate with a robot. */
     int NUMBER_OF_INDICATOR_STRINGS = 3;
