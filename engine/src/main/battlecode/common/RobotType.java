@@ -95,7 +95,7 @@ public enum RobotType {
      * Cooldown turns for how long before a robot can take 
      * action (build, move, dig, drop, mine, shoot) again.
      */
-    public final int actionCooldown;
+    public final float actionCooldown;
 
     /**
      * Range for sensing robots and trees.
@@ -230,7 +230,7 @@ public enum RobotType {
     }
 
     RobotType(RobotType spawnSource, int cost, int dirtLimit, int soupLimit,
-              int actionCooldown, int sensorRadius, int pollutionRadius, int pollutionAmount,
+              float actionCooldown, int sensorRadius, int pollutionRadius, int pollutionAmount,
               int globalPollutionAmount, int maxSoupProduced, int bytecodeLimit) {
         this.spawnSource           = spawnSource;
         this.cost                  = cost;

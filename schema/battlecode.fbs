@@ -150,7 +150,7 @@ table BodyTypeMetadata {
     /// The maximum amount of soup the type can carry.
     soupLimit: int;
     /// The number of cooldowns between every two actions, for pollution 0.
-    actionCooldown: int;
+    actionCooldown: float;
     /// The maximum distance this type can sense other robots.
     sensorRadius: int;
     /// The distance this type pollutes.

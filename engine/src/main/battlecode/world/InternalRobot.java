@@ -24,7 +24,7 @@ public strictfp class InternalRobot {
     private int soupCarrying; // amount of soup the robot is carrying (miners)
     private int dirtCarrying; // amount of dirt the robot is carrying (landscapers and buildings)
     
-    private int cooldownTurns;
+    private float cooldownTurns;
 
     private boolean producedSoup;
     private boolean currentlyHoldingUnit;
@@ -120,7 +120,7 @@ public strictfp class InternalRobot {
         return dirtCarrying;
     }
     
-    public int getCooldownTurns() {
+    public float getCooldownTurns() {
         return cooldownTurns;
     }
 
@@ -214,7 +214,7 @@ public strictfp class InternalRobot {
      * 
      * @param newTurns the number of cooldown turns
      */
-    public void setCooldownTurns(int newTurns) {
+    public void setCooldownTurns(float newTurns) {
         this.cooldownTurns = newTurns;
     }
 

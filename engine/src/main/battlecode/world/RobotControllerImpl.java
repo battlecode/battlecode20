@@ -290,11 +290,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean isReady() {
-        return this.robot.getCooldownTurns() == 0;
+        return getCooldownTurns() < 1;
     }
 
     @Override
-    public int getCooldownTurns() {
+    public float getCooldownTurns() {
         return this.robot.getCooldownTurns();
     }
 

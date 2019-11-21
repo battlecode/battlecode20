@@ -310,13 +310,13 @@ public strictfp interface RobotController {
 
     /**
      * Returns the number of cooldown turns remaining before this unit can act again.
-     * When this number is 0, isReady() is true.
+     * When this number is less than 1, isReady() is true.
      *
      * @return the number of cooldown turns remaining before this unit can act again.
      *
      * @battlecode.doc.costlymethod
      */
-    int getCooldownTurns();
+    float getCooldownTurns();
 
     // ***********************************
     // ****** MOVEMENT METHODS ***********
