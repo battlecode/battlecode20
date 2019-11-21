@@ -1,6 +1,7 @@
 package battlecode.world;
 
 import battlecode.common.*;
+import battlecode.schema.Action;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
@@ -29,8 +30,9 @@ public strictfp class GameWorld {
     private final int[] initialSoup;
     private int[] soup;
     private int[] pollution;
-    private int[] water;
     private int[] dirt;
+    private int waterLevel;
+    private boolean[] flooded;
     private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
@@ -51,8 +53,10 @@ public strictfp class GameWorld {
         this.initialSoup = gm.getSoupArray();
         this.soup = gm.getSoupArray();
         this.pollution = gm.getPollutionArray();
-        this.water = gm.getWaterArray();
+        // this.water = gm.getWaterArray();
         this.dirt = gm.getDirtArray();
+        this.waterLevel = 0; // TODO!!
+        this.flooded = new boolean[this.soup.length]; // TODO, need some kind if initialization that is not all false
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
@@ -64,7 +68,7 @@ public strictfp class GameWorld {
 
         this.controlProvider = cp;
 
-        this.rand = new Random(gameMap.getSeed());
+        this.rand = new Random(this.gameMap.getSeed());
 
         this.blockchainQueue = new PriorityQueue<BlockchainEntry>();
         this.blockchain = new ArrayList<ArrayList<BlockchainEntry>>();
@@ -74,12 +78,12 @@ public strictfp class GameWorld {
         controlProvider.matchStarted(this);
 
         // Add the robots contained in the LiveMap to this world.
-        for(RobotInfo robot : gameMap.getInitialBodies()){
+        for(RobotInfo robot : this.gameMap.getInitialBodies()){
             spawnRobot(robot.ID, robot.type, robot.location, robot.team);
         }
 
         // Write match header at beginning of match
-        matchMaker.makeMatchHeader(gameMap);
+        this.matchMaker.makeMatchHeader(this.gameMap);
     }
 
     /**
@@ -148,39 +152,39 @@ public strictfp class GameWorld {
     // *********************************
 
     public int getMapSeed() {
-        return gameMap.getSeed();
+        return this.gameMap.getSeed();
     }
 
     public LiveMap getGameMap() {
-        return gameMap;
+        return this.gameMap;
     }
 
     public TeamInfo getTeamInfo() {
-        return teamInfo;
+        return this.teamInfo;
     }
 
     public GameStats getGameStats() {
-        return gameStats;
+        return this.gameStats;
     }
 
     public ObjectInfo getObjectInfo() {
-        return objectInfo;
+        return this.objectInfo;
     }
 
     public GameMaker.MatchMaker getMatchMaker() {
-        return matchMaker;
+        return this.matchMaker;
     }
 
     public Team getWinner() {
-        return gameStats.getWinner();
+        return this.gameStats.getWinner();
     }
 
     public boolean isRunning() {
-        return running;
+        return this.running;
     }
 
     public int getCurrentRound() {
-        return currentRound;
+        return this.currentRound;
     }
 
     /**
@@ -189,7 +193,7 @@ public strictfp class GameWorld {
      * @param loc the MapLocation
      */
     public int locationToIndex(MapLocation loc) {
-        return loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y) * gameMap.getWidth();
+        return loc.x - this.gameMap.getOrigin().x + (loc.y - this.gameMap.getOrigin().y) * this.gameMap.getWidth();
     }
 
     /**
@@ -198,48 +202,20 @@ public strictfp class GameWorld {
      * @param idx the index
      */
     public MapLocation indexToLocation(int idx) {
-        return new MapLocation(idx / gameMap.getWidth() + gameMap.getOrigin().x,
-                               idx % gameMap.getWidth() + gameMap.getOrigin().y);
+        return new MapLocation(idx / this.gameMap.getWidth() + this.gameMap.getOrigin().x,
+                               idx % this.gameMap.getWidth() + this.gameMap.getOrigin().y);
     }
 
+    // ***********************************
+    // ****** SOUP METHODS ***************
+    // ***********************************
+
     public int initialSoupAtLocation(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? initialSoup[locationToIndex(loc)] : 0;
+        return this.gameMap.onTheMap(loc) ? this.initialSoup[locationToIndex(loc)] : 0;
     }
 
     public int getSoup(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? soup[locationToIndex(loc)] : 0;
-    }
-
-    public int getPollution(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? pollution[locationToIndex(loc)] : 0;
-    }
-
-    public void adjustPollution(MapLocation loc, int amount) {
-        if (gameMap.onTheMap(loc))
-            adjustPollution(locationToIndex(loc), amount);
-    }
-
-    public void adjustPollution(int idx, int amount) {
-        int newPollution = Math.max(pollution[idx] + amount, 0);
-        getMatchMaker().addPollutionChanged(indexToLocation(idx), newPollution - pollution[idx]);
-        pollution[idx] = newPollution;
-    }
-
-    public void globalPollution(int amount) {
-        for (int i = 0; i < pollution.length; i++)
-            adjustPollution(i, amount);
-    }
-
-    public int getDirt(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? dirt[locationToIndex(loc)] : 0;
-    }
-
-    public int getDirtDifference(MapLocation loc1, MapLocation loc2) {
-        return Math.abs(getDirt(loc1) - getDirt(loc2));
-    }
-
-    public int getWater(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? water[locationToIndex(loc)] : 0;
+        return this.gameMap.onTheMap(loc) ? this.soup[locationToIndex(loc)] : 0;
     }
 
     public void removeSoup(MapLocation loc) {
@@ -247,64 +223,165 @@ public strictfp class GameWorld {
     }
 
     public void removeSoup(MapLocation loc, int amount) {
-        if (gameMap.onTheMap(loc)) {
+        if (this.gameMap.onTheMap(loc)) {
             int idx = locationToIndex(loc);
-            soup[idx] = Math.max(0, soup[idx] - amount);
+            int newSoup = Math.max(0, this.soup[idx] - amount);
+            getMatchMaker().addSoupChanged(loc, newSoup - this.soup[idx]);
+            this.soup[idx] = newSoup;
         }
     }
 
-    public void removeDirt(MapLocation loc) {
-        removeDirt(loc, 1);
+    // ***********************************
+    // ****** POLLUTION METHODS **********
+    // ***********************************
+
+    public int getPollution(MapLocation loc) {
+        return this.gameMap.onTheMap(loc) ? this.pollution[locationToIndex(loc)] : 0;
     }
 
-    public void removeDirt(MapLocation loc, int amount) {
+    public void adjustPollution(MapLocation loc, int amount) {
+        if (this.gameMap.onTheMap(loc))
+            adjustPollution(locationToIndex(loc), amount);
+    }
+
+    public void adjustPollution(int idx, int amount) {
+        int newPollution = Math.max(this.pollution[idx] + amount, 0);
+        getMatchMaker().addPollutionChanged(indexToLocation(idx), newPollution - this.pollution[idx]);
+        this.pollution[idx] = newPollution;
+    }
+
+    public void globalPollution(int amount) {
+        for (int i = 0; i < this.pollution.length; i++)
+            adjustPollution(i, amount);
+    }
+
+    // ***********************************
+    // ****** DIRT METHODS ***************
+    // ***********************************
+
+    /**
+     * Returns the amount of dirt at a location, or 0 if the location is invalid.
+     * 
+     * @param loc the location
+     * @return the amount of dirt at a location, or 0 if the location is invalid
+     */
+    public int getDirt(MapLocation loc) {
+        return this.gameMap.onTheMap(loc) ? this.dirt[locationToIndex(loc)] : 0;
+    }
+
+    /**
+     * Returns the difference between the dirt levels of two locations.
+     * 
+     * @param loc1 the first location
+     * @param loc2 the second location
+     * @return the difference between the dirt levels of two locations
+     */
+    public int getDirtDifference(MapLocation loc1, MapLocation loc2) {
+        return Math.abs(getDirt(loc1) - getDirt(loc2));
+    }
+
+    /**
+     * Removes one unit of dirt from a location. If there is dirt on a building,
+     *  remove dirt from the building; otherwise remove dirt from the ground.
+     * ALSO ADDS THE ACTION TO MATCHMAKER.
+     * 
+     * @param robotID the id of the robot that initiated the action
+     * @param loc the location
+     */
+    public void removeDirt(int robotID, MapLocation loc) {
+        if (this.gameMap.onTheMap(loc)) {
+            InternalRobot targetRobot = getRobot(loc);
+            int targetID = -1;
+            if (targetRobot != null && targetRobot.getType().isBuilding() && targetRobot.getDirtCarrying() > 0) {
+                targetRobot.removeDirtCarrying(1);
+                targetID = targetRobot.getID();
+            }
+            else {
+                this.dirt[locationToIndex(loc)] -= 1;
+                getMatchMaker().addDirtChanged(loc, -1);
+            }
+            getMatchMaker().addAction(robotID, Action.DIG_DIRT, targetID);
+        }
+    }
+
+    /**
+     * Deposits dirt to a location. If there is a building, the dirt is deposited
+     *  onto the building; otherwise the dirt is deposited onto the ground. Potentially
+     *  resurfaces a tile that has increased in elevation.
+     * ALSO ADDS THE ACTION TO MATCHMAKER.
+     * 
+     * @param robotID the id of the robot that initiated the action
+     * @param loc the location
+     * @param amount the amount of dirt to deposit
+     */
+    public void addDirt(int robotID, MapLocation loc, int amount) {
+        if (this.gameMap.onTheMap(loc)) {
+            InternalRobot targetRobot = getRobot(loc);
+            int targetID = -1;
+            if (targetRobot != null && targetRobot.getType().isBuilding()) {
+                targetRobot.addDirtCarrying(amount);
+                targetID = targetRobot.getID();
+            }
+            else{
+                this.dirt[locationToIndex(loc)] += amount;
+                getMatchMaker().addDirtChanged(loc, amount);
+                tryResurface(loc);
+            }
+            getMatchMaker().addAction(robotID, Action.DEPOSIT_DIRT, targetID);
+        }
+    }
+
+    // ***********************************
+    // ****** WATER METHODS **************
+    // ***********************************
+
+    /**
+     * Returns whether or not a location is flooded, or false if the location is invalid.
+     * 
+     * @param loc the location
+     * @return whether or not a location is flooded, or false if the location is invalid
+     */
+    public boolean isFlooded(MapLocation loc) {
+        return this.gameMap.onTheMap(loc) ? this.flooded[locationToIndex(loc)] : false;
+    }
+
+    /**
+     * Resurfaces a location if the elevation >= water level (set flooded to false).
+     * 
+     * @param loc the location
+     */
+    public void tryResurface(MapLocation loc) {
         int idx = locationToIndex(loc);
-        if (gameMap.onTheMap(loc)) {
-            InternalRobot robot = (getRobot(loc));
-            if (robot == null)
-                dirt[idx] -= amount;
-            else if (robot.getType() != RobotType.LANDSCAPER)
-                robot.addDirtCarrying(amount);
-        }
+        if (this.dirt[idx] >= this.waterLevel)
+            this.flooded[idx] = false;
     }
 
-    public void addDirt(MapLocation loc) {
-        addDirt(loc, 1);
-    }
-
-    public void addDirt(MapLocation loc, int amount) {
-        int idx = locationToIndex(loc);
-        if (gameMap.onTheMap(loc)) {
-            InternalRobot robot = (getRobot(loc));
-            if (robot == null)
-                dirt[idx] += amount;
-            else if (robot.getType() != RobotType.LANDSCAPER)
-                robot.removeDirtCarrying(amount);
-        }
-    }
+    // ***********************************
+    // ****** ROBOT METHODS **************
+    // ***********************************
 
     public InternalRobot getRobot(MapLocation loc) {
-        return robots[loc.x][loc.y];
+        return this.robots[loc.x][loc.y];
     }
 
     public void moveRobot(MapLocation start, MapLocation end) {
-        addRobot(end, robots[start.x][start.y]);
+        addRobot(end, this.robots[start.x][start.y]);
         removeRobot(start);
     }
 
     public void addRobot(MapLocation loc, InternalRobot robot) {
-        robots[loc.x][loc.y] = robot;
+        this.robots[loc.x][loc.y] = robot;
     }
 
     public void removeRobot(MapLocation loc) {
-        robots[loc.x][loc.y] = null;
+        this.robots[loc.x][loc.y] = null;
     }
 
     public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius) {
         ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
         for (MapLocation newLocation : getAllLocationsWithinRadius(center, radius))
-            if (robots[newLocation.x][newLocation.y] != null)
-                returnRobots.add(robots[newLocation.x][newLocation.y]);
+            if (this.robots[newLocation.x][newLocation.y] != null)
+                returnRobots.add(this.robots[newLocation.x][newLocation.y]);
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
     }
 
@@ -353,7 +430,7 @@ public strictfp class GameWorld {
     }
 
     public boolean timeLimitReached() {
-        return currentRound >= gameMap.getRounds() - 1;
+        return currentRound >= this.gameMap.getRounds() - 1;
     }
 
 
@@ -457,7 +534,7 @@ public strictfp class GameWorld {
 
         setWinnerIfDestruction();
 
-        matchMaker.addDied(id, false);
+        matchMaker.addDied(id);
     }
 }
 

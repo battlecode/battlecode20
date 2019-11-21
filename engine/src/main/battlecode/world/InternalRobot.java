@@ -218,6 +218,10 @@ public strictfp class InternalRobot {
         this.cooldownTurns = newTurns;
     }
 
+    // ******************************************
+    // ****** SOUP METHODS **********************
+    // ******************************************
+
     public void addSoupCarrying(int amount) {
         this.soupCarrying += amount;
     }
@@ -226,22 +230,34 @@ public strictfp class InternalRobot {
         this.soupCarrying = amount > this.soupCarrying ? 0 : this.soupCarrying - amount;
     }
 
+    // ******************************************
+    // ****** DIRT METHODS **********************
+    // ******************************************
+
+    /**
+     * Adds dirt that the robot is carrying. If the robot is a building
+     *  and adding the amount makes the amount of dirt carried exceed the
+     *  building's dirt limit, then the building is destroyed.
+     * 
+     * @param amount the amount of dirt to add
+     */
     public void addDirtCarrying(int amount) {
         this.dirtCarrying += amount;
+        if (getType().isBuilding() && this.dirtCarrying > getType().dirtLimit)
+            this.gameWorld.destroyRobot(getID());
     }
 
-    public void removeDirtCarrying(int amount) {
-        this.dirtCarrying -= amount > this.dirtCarrying ? 0 : this.dirtCarrying - amount;
+    /**
+     * Removes dirt that the robot is carrying.
+     * 
+     * @param amount the amount of dirt to remove
+     * @return the amount of dirt removed
+     */
+    public int removeDirtCarrying(int amount) {
+        int oldDirtCarrying = this.dirtCarrying;
+        this.dirtCarrying = amount > this.dirtCarrying ? 0 : this.dirtCarrying - amount;
+        return oldDirtCarrying - this.dirtCarrying;
     }
-
-    // TODO!!
-    // public boolean killRobotIfDead(){
-    //     if(this.health == 0){
-    //         gameWorld.destroyRobot(this.ID);
-    //         return true;
-    //     }
-    //     return false;
-    // }
 
     // *********************************
     // ****** GAMEPLAY METHODS *********

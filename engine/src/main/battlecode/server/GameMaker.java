@@ -596,7 +596,7 @@ public strictfp class GameMaker {
             movedLocsYs.add(newLocation.y);
         }
 
-        public void addDied(int id, boolean currency) {
+        public void addDied(int id) {
             diedIDs.add(id);
         }
 

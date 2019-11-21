@@ -499,6 +499,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     /**
      * Gets all messages that were sent at a given round.
+     *
      * @param roundNumber the round index.
      * @throws GameActionException
      */
@@ -594,6 +595,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ********* LANDSCAPER METHODS **********
     // ***************************************
 
+    /**
+     * Asserts that the robot can dig dirt in the specified direction.
+     *
+     * @throws GameActionException
+     */
     private void assertCanDigDirt(Direction dir) throws GameActionException{
         if(!canDigDirt(dir)){
             throw new GameActionException(CANT_DO_THAT,
@@ -603,26 +609,44 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
+    /**
+     * Returns whether or not the robot can dig dirt in a specified direction.
+     * Checks if the robot can dig, whether they can carry more dirt, whether
+     *  the action cooldown is ready, and whether the location is on the map.
+     *
+     * @param dir the direction to dig in
+     */
     @Override
     public boolean canDigDirt(Direction dir) {
         MapLocation center = adjacentLocation(dir);
-        if (!getType().canDig() && getDirtCarrying() < getType().dirtLimit && isReady() && onTheMap(center)) return false;
-        InternalRobot robot = this.gameWorld.getRobot(center);
-        return (robot == null || !robot.getType().isBuilding() || robot.getDirtCarrying() > 0);
+        return getType().canDig() && getDirtCarrying() < getType().dirtLimit &&
+                isReady() && onTheMap(center);
     }
 
+    /**
+     * Digs dirt in a certain direction. THIS METHOD DOES NOT ADD ACTIONS TO
+     *  MATCHMAKER BECAUSE THE TARGET CAN BE EITHER A BUILDING OR THE LOCATION,
+     *  WE DON'T KNOW YET.
+     *
+     * @param dir the direction to dig in
+     * @throws GameActionException
+     */
     @Override
     public void digDirt(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertCanDigDirt(dir);
         this.robot.resetCooldownTurns();
-        this.gameWorld.removeDirt(adjacentLocation(dir));
+        this.gameWorld.removeDirt(getID(), adjacentLocation(dir));
         this.robot.addDirtCarrying(1);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG_DIRT, -1);
     }
 
-    private void assertCanDepositDirt(Direction dir) throws GameActionException{
-        if(!canDepositDirt(dir)){
+    /**
+     * Asserts that the robot can deposit dirt in the specified direction.
+     *
+     * @throws GameActionException
+     */
+    private void assertCanDepositDirt(Direction dir, int amount) throws GameActionException{
+        if(!canDepositDirt(dir, amount)){
             throw new GameActionException(CANT_DO_THAT,
                     "Can't deposit dirt in given direction, possibly due to " +
                             "cooldown not expired, this robot can't deposit, " +
@@ -630,21 +654,37 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
+    /**
+     * Returns whether or not the robot can deposit dirt in a specified direction.
+     * Checks if the robot can deposit, whether they are carrying enough dirt, whether
+     *  the action cooldown is ready, and whether the location is on the map.
+     *
+     * @param dir the direction to deposit in
+     * @param amount the amount of dirt to deposit
+     */
     @Override
-    public boolean canDepositDirt(Direction dir) {
+    public boolean canDepositDirt(Direction dir, int amount) {
         MapLocation center = adjacentLocation(dir);
         return (getType().canDeposit() && isReady() &&
-                onTheMap(center) && getDirtCarrying() > 0);
+                onTheMap(center) && getDirtCarrying() >= amount);
     }
 
+    /**
+     * Deposits dirt in a certain direction. THIS METHOD DOES NOT ADD ACTIONS TO
+     *  MATCHMAKER BECAUSE THE TARGET CAN BE EITHER A BUILDING OR THE LOCATION,
+     *  WE DON'T KNOW YET.
+     *
+     * @param dir the direction to deposit in
+     * @param amount the amount of dirt to deposit
+     * @throws GameActionException
+     */
     @Override
-    public void depositDirt(Direction dir) throws GameActionException {
+    public void depositDirt(Direction dir, int amount) throws GameActionException {
         assertNotNull(dir);
-        assertCanDepositDirt(dir);
+        assertCanDepositDirt(dir, amount);
         this.robot.resetCooldownTurns();
-        this.robot.removeDirtCarrying(1);
-        this.gameWorld.addDirt(adjacentLocation(dir));
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG_DIRT, -1);
+        this.robot.removeDirtCarrying(amount);
+        this.gameWorld.addDirt(getID(), adjacentLocation(dir), amount);
     }
 
     // ***********************************
