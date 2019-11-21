@@ -530,6 +530,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** MINER METHODS **************
     // ***********************************
 
+    /**
+     * Asserts that the robot can mine soup in the specified direction.
+     *
+     * @throws GameActionException
+     */
     private void assertCanMineSoup(Direction dir) throws GameActionException{
         if(!canMineSoup(dir)){
             throw new GameActionException(CANT_DO_THAT,
@@ -539,6 +544,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
+    /**
+     * Returns whether or not the robot can mine soup in a specified direction.
+     * Checks if the robot can mine, whether they can carry more soup, whether
+     *  the action cooldown is ready, whether the location is on the map,
+     *  and whether there is soup to be mined in the target location.
+     *
+     * @param dir the direction to mine in
+     */
     @Override
     public boolean canMineSoup(Direction dir) {
         MapLocation center = adjacentLocation(dir);
@@ -546,6 +559,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 isReady() && onTheMap(center) && gameWorld.getSoup(center) > 0;
     }
 
+    /**
+     * Mines soup in a certain direction.
+     *
+     * @param dir the direction to mine in
+     * @throws GameActionException
+     */
     @Override
     public void mineSoup(Direction dir) throws GameActionException {
         assertNotNull(dir);
@@ -557,6 +576,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_SOUP, -1);
     }
 
+    /**
+     * Asserts that the robot can refine soup in the specified direction.
+     *
+     * @throws GameActionException
+     */
     private void assertCanRefineSoup(Direction dir) throws GameActionException{
         if(!canRefineSoup(dir)){
             throw new GameActionException(CANT_DO_THAT,
@@ -567,6 +591,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
+    /**
+     * Returns whether or not the robot can refine soup in a specified direction.
+     * Checks if the robot can refine, whether they are carring crude soup, whether
+     *  the action cooldown is ready, whether the location is on the map,
+     *  and whether there is a refinery at the target location.
+     *
+     * @param dir the direction to refine in
+     */
     @Override
     public boolean canRefineSoup(Direction dir) {
         MapLocation center = adjacentLocation(dir);
@@ -577,12 +609,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
                adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
     }
 
+    /**
+     * Refines soup in a certain direction; refines up to the amount of crude soup
+     *  that the robot is carrying.
+     *
+     * @param dir the direction to mine in
+     * @param amount the amount of soup to refine
+     * @throws GameActionException
+     */
     @Override
     public void refineSoup(Direction dir, int amount) throws GameActionException {
         assertNotNull(dir);
         assertCanRefineSoup(dir);
-        if (amount > this.getSoupCarrying())
-            amount = this.getSoupCarrying();
+        amount = Math.min(amount, this.getSoupCarrying());
         this.robot.resetCooldownTurns();
         this.robot.removeSoupCarrying(amount);
         InternalRobot refinery = this.gameWorld.getRobot(adjacentLocation(dir));
