@@ -31,6 +31,7 @@ public strictfp class GameWorld {
     private int[] soup;
     private int[] pollution;
     private int[] dirt;
+    private int initialWaterLevel;
     private int waterLevel;
     private boolean[] flooded;
     private InternalRobot[][] robots;
@@ -53,10 +54,10 @@ public strictfp class GameWorld {
         this.initialSoup = gm.getSoupArray();
         this.soup = gm.getSoupArray();
         this.pollution = gm.getPollutionArray();
-        // this.water = gm.getWaterArray();
         this.dirt = gm.getDirtArray();
-        this.waterLevel = 0; // TODO!!
-        this.flooded = new boolean[this.soup.length]; // TODO, need some kind if initialization that is not all false
+        this.initialWaterLevel = gm.getWaterLevel();
+        this.waterLevel = this.initialWaterLevel;
+        this.flooded = gm.getWaterArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
@@ -367,7 +368,18 @@ public strictfp class GameWorld {
         if (this.flooded[idx] != newStatus) {
             this.flooded[idx] = newStatus;
             getMatchMaker().addWaterChanged(indexToLocation(idx));
+            // a robot potentially drowns
+            InternalRobot floodedRobot = getRobot(indexToLocation(idx));
+            if (newStatus && floodedRobot != null && !floodedRobot.getType().canFly())
+                destroyRobot(floodedRobot.getID());
         }
+    }
+
+    /**
+     * Updates the global water level according to an arbitrary function.
+     */
+    public void updateWaterLevel() {
+        this.waterLevel = (int) Math.floor(Math.pow(this.currentRound / 200.0, 2));
     }
 
     // ***********************************
@@ -461,6 +473,10 @@ public strictfp class GameWorld {
         // process blockchain messages
         processBlockchain();
 
+        // flooding
+        updateWaterLevel();
+        floodfill();
+
         // Check for end of match
         if (timeLimitReached() && gameStats.getWinner() == null) {
             boolean victorDetermined = false;
@@ -483,6 +499,28 @@ public strictfp class GameWorld {
 
         if (gameStats.getWinner() != null) {
             running = false;
+        }
+    }
+
+    /**
+     * Flood expands from currently flooded locations to immediately
+     *  adjacent locations that are beneath the current water level.
+     */
+    public void floodfill() {
+        ArrayList<MapLocation> floodOrigins = new ArrayList<MapLocation>();
+        for (int idx = 0; idx < this.flooded.length; idx++)
+            if (this.flooded[idx])
+                floodOrigins.add(indexToLocation(idx));
+        for (MapLocation center : floodOrigins) {
+            for (Direction dir : Direction.values()) {
+                MapLocation targetLoc = center.add(dir);
+                if (!this.gameMap.onTheMap(targetLoc))
+                    continue;
+                int idx = locationToIndex(targetLoc);
+                if (flooded[idx] || dirt[idx] >= waterLevel)
+                    continue;
+                setFloodStatus(idx, true);
+            }
         }
     }
 
