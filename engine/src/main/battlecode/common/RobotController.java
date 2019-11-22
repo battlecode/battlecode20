@@ -462,39 +462,6 @@ public strictfp interface RobotController {
      */
     void refineSoup(Direction dir, int amount) throws GameActionException;
 
-    /**
-     * Tests whether a robot is able to pick up a specific unit.
-     *
-     * @param id the id of the robot to pick up
-     * @return true if id can be picked up by the robot, false otherwise
-     */
-    boolean canPickUpUnit(int id);
-
-    /**
-     * Picks up another unit.
-     *
-     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
-     * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
-     * of this robot.
-     */
-    void pickUpUnit(int id) throws GameActionException;
-
-    /**
-     * Tests whether a robot is able to drop a unit in a specified direction.
-     *
-     * @param dir the specified direction
-     * @return true if a robot can be dropped off, false otherwise
-     */
-    boolean canDropUnit(Direction dir);
-
-    /**
-     * Drops the unit that is currently picked up.
-     *
-     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
-     * holding a unit that it can drop.
-     */
-    void dropUnit(Direction dir) throws GameActionException;
-
     // ***************************************
     // ********* LANDSCAPER METHODS **********
     // ***************************************
@@ -548,6 +515,61 @@ public strictfp interface RobotController {
      */
     void depositDirt(Direction dir, int amount) throws GameActionException;
 
+    // ***************************************
+    // ******* DELIVERY DRONE METHODS ********
+    // ***************************************
+
+    /**
+     * Tests whether a robot is able to pick up a specific unit.
+     *
+     * @param id the id of the robot to pick up
+     * @return true if id can be picked up by the robot, false otherwise
+     */
+    boolean canPickUpUnit(int id);
+
+    /**
+     * Picks up another unit.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
+     * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
+     * of this robot.
+     */
+    void pickUpUnit(int id) throws GameActionException;
+
+    /**
+     * Tests whether a robot is able to drop a unit in a specified direction.
+     *
+     * @param dir the specified direction
+     * @return true if a robot can be dropped off, false otherwise
+     */
+    boolean canDropUnit(Direction dir);
+
+    /**
+     * Drops the unit that is currently picked up.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
+     * holding a unit that it can drop.
+     */
+    void dropUnit(Direction dir) throws GameActionException;
+
+    // ***********************************
+    // ****** OTHER ACTION METHODS *******
+    // ***********************************
+
+    /**
+     * Kills your robot and ends the current round. Never fails.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void disintegrate();
+
+    /**
+     * Causes your team to lose the game. It's like typing "gg."
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void resign();
+
     // ***********************************
     // ****** BLOCKCHAINNNNNNNNNNN *******
     // ***********************************
@@ -572,24 +594,6 @@ public strictfp interface RobotController {
      * @throws GameActionException
      */
     public String getRoundMessages(int roundNumber) throws GameActionException;
-
-    // ***********************************
-    // ****** OTHER ACTION METHODS *******
-    // ***********************************
-
-    /**
-     * Kills your robot and ends the current round. Never fails.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void disintegrate();
-
-    /**
-     * Causes your team to lose the game. It's like typing "gg."
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void resign();
 
     // ***********************************
     // **** INDICATOR STRING METHODS *****

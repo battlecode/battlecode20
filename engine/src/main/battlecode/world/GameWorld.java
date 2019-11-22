@@ -425,7 +425,7 @@ public strictfp class GameWorld {
     public void setWinnerIfDestruction(){
         if(objectInfo.getRobotCount(Team.A) == 0){
             setWinner(Team.B, DominationFactor.DESTROYED);
-        }else if(objectInfo.getRobotCount(Team.B) == 0){
+        } else if(objectInfo.getRobotCount(Team.B) == 0){
             setWinner(Team.A, DominationFactor.DESTROYED);
         }
     }
