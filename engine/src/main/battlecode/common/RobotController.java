@@ -559,7 +559,7 @@ public strictfp interface RobotController {
      * Tests whether a robot is able to pick up a specific unit.
      *
      * @param id the id of the robot to pick up
-     * @return true if id can be picked up by the robot, false otherwise
+     * @return true if robot with the id can be picked up, false otherwise
      */
     boolean canPickUpUnit(int id);
 
@@ -587,6 +587,28 @@ public strictfp interface RobotController {
      * holding a unit that it can drop.
      */
     void dropUnit(Direction dir) throws GameActionException;
+
+    // ***************************************
+    // ******* NET GUN METHODS ***************
+    // ***************************************
+
+    /**
+     * Tests whether a robot is able to shoot down a specific unit.
+     *
+     * @param id the id of the robot to shoot
+     * @return true if robot with the id can be shot down, false otherwise
+     */
+    boolean canShootUnit(int id);
+
+    /**
+     * Shoots down another unit.
+     *
+     * @throws GameActionException if the robot is not of type NET_GUN,
+     *  or the robot's action cooldown is not ready, or if the unit to
+     *  shoot down is not in the radius of this robot, or if the unit
+     *  cannot be shot down.
+     */
+    void shootUnit(int id) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******

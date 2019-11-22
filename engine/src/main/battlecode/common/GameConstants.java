@@ -57,8 +57,11 @@ public interface GameConstants {
     // ****** ATTACKING ****************
     // *********************************
 
-    /** The radius that delivery drones can pick up in */
+    /** The radius that delivery drones can pick up. */
     int DELIVERY_DRONE_PICKUP_RADIUS = 2;
+
+    /** The radius that net guns can shoot. */
+    int NET_GUN_SHOOT_RADIUS = 3;
 
     // *********************************
     // ****** MISCELLANEOUS ************

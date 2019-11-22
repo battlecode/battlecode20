@@ -701,6 +701,51 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addMoved(id, getLocation());
     }
 
+    // ***************************************
+    // ******* NET GUN METHODS ***************
+    // ***************************************
+
+    /**
+     * Asserts that the robot can shoot down the unit with the specified id.
+     *
+     * @throws GameActionException
+     */
+    private void assertCanShootUnit(int id) throws GameActionException {
+        if(!canShootUnit(id))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot shoot down the specified unit, possibly due to not being a net gun, " +
+                    "action cooldown not ready, the unit not within pickup distance, or unit can't be shot down.");
+    }
+
+    /**
+     * Returns whether or not the robot can shoot down the unit with the specified id.
+     * Checks if the robot can shoot down units, whether the action cooldown is ready,
+     *  whether the unit is within pickup distance, and whether the target unit can be shot down.
+     *
+     * @param id the id of the unit to be shot down
+     */
+    @Override
+    public boolean canShootUnit(int id) {
+        InternalRobot targetRobot = getRobotByID(id);
+        return this.getType().canShoot() && isReady() && targetRobot != null &&
+               targetRobot.getType().canBeShot() &&
+               targetRobot.getLocation().isWithinDistance(getLocation(), GameConstants.NET_GUN_SHOOT_RADIUS);
+    }
+
+    /**
+     * Shoots down the unit with the specified id.
+     *
+     * @param id the id of the unit to be shot down
+     * @throws GameActionException
+     */
+    @Override
+    public void shootUnit(int id) throws GameActionException {
+        assertCanShootUnit(id);
+        this.gameWorld.destroyRobot(id);
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.SHOOT, id);
+    }
+
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************

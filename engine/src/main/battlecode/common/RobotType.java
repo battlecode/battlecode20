@@ -131,7 +131,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can build buildings.
      *
-     * @return whether the robot can build.
+     * @return whether the robot can build
      */
     public boolean canBuild(RobotType type) {
         return this == type.spawnSource;
@@ -140,7 +140,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can produce soup.
      *
-     * @return whether the robot can produce soup.
+     * @return whether the robot can produce soup
      */
     public boolean canProduceSoupAndPollution() {
         return this == REFINERY || this == VAPORATOR || this == HQ;
@@ -149,7 +149,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can move.
      *
-     * @return whether the robot can move.
+     * @return whether the robot can move
      */
     public boolean canMove() {
         return this == MINER || this == LANDSCAPER || this == DELIVERY_DRONE || this == COW;
@@ -158,7 +158,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can fly.
      *
-     * @return whether the robot can fly.
+     * @return whether the robot can fly
      */
     public boolean canFly() {
         return this == DELIVERY_DRONE;
@@ -167,7 +167,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can dig.
      *
-     * @return whether the robot can dig.
+     * @return whether the robot can dig
      */
     public boolean canDig() {
         return this == LANDSCAPER;
@@ -176,7 +176,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can deposit dirt.
      *
-     * @return whether the robot can deposit dirt.
+     * @return whether the robot can deposit dirt
      */
     public boolean canDeposit() {
         return this == LANDSCAPER;
@@ -185,7 +185,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can mine.
      *
-     * @return whether the robot can mine.
+     * @return whether the robot can mine
      */
     public boolean canMine() {
         return this == MINER;
@@ -194,7 +194,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can refine.
      *
-     * @return whether the robot can refine.
+     * @return whether the robot can refine
      */
     public boolean canRefine() {
         return this == MINER;
@@ -203,16 +203,25 @@ public enum RobotType {
     /**
      * Returns whether the robot can shoot drones.
      *
-     * @return whether the robot can shoot.
+     * @return whether the robot can shoot
      */
     public boolean canShoot() {
-        return this == NET_GUN;
+        return this == NET_GUN || this == HQ;
+    }
+
+    /**
+     * Returns whether the robot can be shot.
+     *
+     * @return whether the robot can be shot
+     */
+    public boolean canBeShot() {
+        return this == DELIVERY_DRONE;
     }
 
     /**
      * Returns whether the robot can pick up units.
      *
-     * @return whether the robot can pick up units.
+     * @return whether the robot can pick up units
      */
     public boolean canPickUpUnits() {
         return this == DELIVERY_DRONE;
@@ -221,7 +230,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can drop off units.
      *
-     * @return whether the robot can drop off units.
+     * @return whether the robot can drop off units
      */
     public boolean canDropOffUnits() {
         return this == DELIVERY_DRONE;
@@ -230,7 +239,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can be picked up.
      *
-     * @return whether the robot can be picked up.
+     * @return whether the robot can be picked up
      */
     public boolean canBePickedUp() {
         return this == MINER || this == LANDSCAPER || this == COW;
@@ -239,7 +248,7 @@ public enum RobotType {
     /**
      * Returns whether the robot is a building.
      * 
-     * @return whether the robot is a building.
+     * @return whether the robot is a building
      */
     public boolean isBuilding() {
         return (this == HQ || this == REFINERY || this == VAPORATOR ||

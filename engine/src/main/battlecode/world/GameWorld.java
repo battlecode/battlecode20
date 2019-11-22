@@ -513,7 +513,7 @@ public strictfp class GameWorld {
      * @return whether or not a winner was set
      */
     public boolean setWinnerIfMoreBroadcasts() {
-        // TODO!!
+        // TODO!! GOSSIP_GIRL
         return false;
     }
 
@@ -657,6 +657,7 @@ public strictfp class GameWorld {
     public void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
         removeRobot(robot.getLocation());
+        
         if (robot.getType() == RobotType.HQ)
             this.teamInfo.destroyHQ(robot.getTeam());
 
