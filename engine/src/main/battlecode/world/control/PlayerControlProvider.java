@@ -123,11 +123,6 @@ public class PlayerControlProvider implements RobotControlProvider {
 
     @Override
     public void runRobot(InternalRobot robot) {
-
-        if (robot.isBlocked()) {  // picked up robots cannot perform actions
-            return;
-        }
-
         assert this.sandboxes.get(robot.getID()) != null;
 
         final SandboxedRobotPlayer player = this.sandboxes.get(robot.getID());

@@ -210,6 +210,15 @@ public enum RobotType {
     }
 
     /**
+     * Returns whether the robot can drop off units.
+     *
+     * @return whether the robot can drop off units.
+     */
+    public boolean canDropOffUnits() {
+        return this == DELIVERY_DRONE;
+    }
+
+    /**
      * Returns whether the robot can be picked up.
      *
      * @return whether the robot can be picked up.

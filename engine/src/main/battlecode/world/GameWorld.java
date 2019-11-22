@@ -127,23 +127,24 @@ public strictfp class GameWorld {
                 return updateRobot((InternalRobot) body);
             }
             else {
-                throw new RuntimeException("non-robot non-bullet body registered as dynamic");
+                throw new RuntimeException("non-robot body registered as dynamic");
             }
         });
     }
 
     private boolean updateRobot(InternalRobot robot) {
+        if (robot.isBlocked()) // blocked robots don't get a turn
+            return true;
+
         robot.processBeginningOfTurn();
         this.controlProvider.runRobot(robot);
         robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
-
         robot.processEndOfTurn();
 
         // If the robot terminates but the death signal has not yet
         // been visited:
-        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null) {
+        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
             destroyRobot(robot.getID());
-        }
         return true;
     }
 
@@ -412,7 +413,8 @@ public strictfp class GameWorld {
 
         // Process beginning of each robot's round
         objectInfo.eachRobot((robot) -> {
-            robot.processBeginningOfRound();
+            if (!robot.isBlocked()) // blocked robots don't do anything
+                robot.processBeginningOfRound();
             return true;
         });
     }
@@ -438,7 +440,8 @@ public strictfp class GameWorld {
     public void processEndOfRound() {
         // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
-            robot.processEndOfRound();
+            if (!robot.isBlocked()) // blocked robots don't do anything
+                robot.processEndOfRound();
             return true;
         });
 

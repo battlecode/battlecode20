@@ -316,9 +316,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getMatchMaker().addMoved(getID(), getLocation());
 
         // also move the robot currently being picked up
-        if (this.robot.isCurrentlyHoldingUnit()) {
+        if (this.robot.isCurrentlyHoldingUnit())
             movePickedUpUnit(center);
-        }
     }
 
     // ***********************************
@@ -570,13 +569,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ******* DELIVERY DRONE METHODS ********
     // ***************************************
 
-    private void movePickedUpUnit(MapLocation center) throws GameActionException {
-        int id = this.robot.getIdOfUnitCurrentlyHeld();
-        getRobotByID(id).setLocation(center);
-
-        gameWorld.getMatchMaker().addMoved(id, getLocation());
-    }
-
+    /**
+     * Asserts that the robot can pick up the unit with the specified id.
+     *
+     * @throws GameActionException
+     */
     private void assertCanPickUpUnit(int id) throws GameActionException {
         if(!canPickUpUnit(id))
             throw new GameActionException(CANT_DO_THAT,
@@ -584,12 +581,28 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "is already holding a unit, the unit not within pickup distance, or unit can't be picked up.");
     }
 
+    /**
+     * Returns whether or not the robot can pick up the unit with the specified id.
+     * Checks if the robot can pick up units, whether they are already carrying a
+     *  unit, whether the action cooldown is ready, whether the unit is within pickup
+     *  distance, and whether the target unit can be picked up.
+     *
+     * @param id the id of the unit to be picked up
+     */
     @Override
     public boolean canPickUpUnit(int id) {
+        InternalRobot targetRobot = getRobotByID(id);
         return this.getType().canPickUpUnits() && !this.robot.isCurrentlyHoldingUnit() &&
-               unitWithinPickupDistance(id) && getRobotByID(id).getType().canBePickedUp();
+               isReady() && targetRobot != null && targetRobot.getType().canBePickedUp() &&
+               targetRobot.getLocation().isWithinDistance(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS);
     }
 
+    /**
+     * Picks up the unit with the specified id.
+     *
+     * @param id the id of the unit to be picked up
+     * @throws GameActionException
+     */
     @Override
     public void pickUpUnit(int id) throws GameActionException {
         assertCanPickUpUnit(id);
@@ -602,49 +615,65 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     /**
-     * Check whether the specified unit is within the pickup radius of the robot
+     * Asserts that the robot can drop off a unit in the specified direction.
      *
-     * @param id the id of the robot to pick up
+     * @throws GameActionException
      */
-    private boolean unitWithinPickupDistance(int id) {
-        for (InternalRobot adjacentRobot :
-                gameWorld.getAllRobotsWithinRadius(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS)) {
-            if (adjacentRobot.getID() == id)
-                return true;
-        }
-        return false;
-    }
-
     private void assertCanDropUnit(Direction dir) throws GameActionException {
         if(!canDropUnit(dir))
             throw new GameActionException(CANT_DO_THAT,
                     "Cannot drop a unit, possibly due to not being a delivery drone, " +
-                    "or not currently holding a unit.");
+                    "not currently holding a unit, or the target location is invalid or occupied.");
     }
 
+    /**
+     * Returns whether or not the robot can drop off a unit in the specified direction.
+     * Checks if the robot can drop off units, whether they are carrying a unit, whether
+     *  the action cooldown is ready, and whether the target location is empty.
+     *
+     * @param dir the direction to drop off a unit
+     */
     @Override
     public boolean canDropUnit(Direction dir) {
         try {
             MapLocation loc = adjacentLocation(dir);
-            return this.getType().canPickUpUnits() && this.robot.isCurrentlyHoldingUnit() &&
-               onTheMap(loc) && !isLocationOccupied(loc);
+            return this.getType().canDropOffUnits() && this.robot.isCurrentlyHoldingUnit() &&
+               isReady() && onTheMap(loc) && !isLocationOccupied(loc);
         } catch (GameActionException e) { return false; }
     }
 
+    /**
+     * Drops off a unit in the specified direction.
+     *
+     * @param dir the direction to drop off a unit
+     * @throws GameActionException
+     */
     @Override
     public void dropUnit(Direction dir) throws GameActionException {
         assertCanDropUnit(dir);
         int id = this.robot.getIdOfUnitCurrentlyHeld();
         InternalRobot droppedRobot = getRobotByID(id);
+        MapLocation targetLocation = adjacentLocation(dir);
+
         droppedRobot.unblockUnit();
-
         this.robot.dropUnit();
-        gameWorld.addRobot(adjacentLocation(dir), droppedRobot);
+        this.gameWorld.addRobot(targetLocation, droppedRobot);
 
-        // TODO: need to process killing
-        if (false) {
-            gameWorld.destroyRobot(id);
-        }
+        if (this.gameWorld.isFlooded(targetLocation))
+            this.gameWorld.destroyRobot(id);
+    }
+
+    /**
+     * Moves the picked up unit with the drone.
+     *
+     * @param center the new location of the drone
+     * @throws GameActionException
+     */
+    private void movePickedUpUnit(MapLocation center) throws GameActionException {
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        getRobotByID(id).setLocation(center);
+
+        this.gameWorld.getMatchMaker().addMoved(id, getLocation());
     }
 
     // ***********************************
