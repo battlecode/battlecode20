@@ -171,12 +171,19 @@ public strictfp class InternalRobot {
     // **********************************
 
     /**
+     * Returns the robot's current sensor radius as a function of local pollution.
+     */
+    public float getCurrentSensorRadius() {
+        return (float) Math.max(0, this.type.sensorRadius - this.gameWorld.getPollution(getLocation()) / 20.0);
+    }
+
+    /**
      * Returns whether this robot can sense the given location.
      * 
      * @param toSense the MapLocation to sense
      */
     public boolean canSenseLocation(MapLocation toSense){
-        return this.location.distanceTo(toSense) <= this.type.sensorRadius;
+        return this.location.distanceTo(toSense) <= getCurrentSensorRadius();
     }
 
     /**
@@ -185,7 +192,7 @@ public strictfp class InternalRobot {
      * @param radius the distance to sense
      */
     public boolean canSenseRadius(int radius) {
-        return radius <= this.type.sensorRadius;
+        return radius <= getCurrentSensorRadius();
     }
 
     // ******************************************

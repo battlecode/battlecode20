@@ -217,7 +217,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team) {
         assertNotNull(center);
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadius(center,
-                radius == -1 ? getType().sensorRadius : radius);
+                radius == -1 ? (int) Math.ceil(this.robot.getCurrentSensorRadius()) : radius);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
             // check if this robot
