@@ -449,12 +449,93 @@ public strictfp class GameWorld {
         gameStats.setDominationFactor(d);
     }
 
-    public void setWinnerIfDestruction(){
-        if(objectInfo.getRobotCount(Team.A) == 0){
-            setWinner(Team.B, DominationFactor.DESTROYED);
-        } else if(objectInfo.getRobotCount(Team.B) == 0){
-            setWinner(Team.A, DominationFactor.DESTROYED);
+    /**
+     * Sets the winner if one and only one of the HQ is destroyed.
+     *
+     * @return whether or not a winner was set
+     */
+    public boolean setWinnerIfHQDestroyed() {
+        boolean destroyedA = this.teamInfo.getDestroyedHQ(Team.A);
+        boolean destroyedB = this.teamInfo.getDestroyedHQ(Team.B);
+        if (destroyedA && !destroyedB) {
+            setWinner(Team.B, DominationFactor.HQ_DESTROYED);
+            return true;
+        } else if (destroyedB && !destroyedA) {
+            setWinner(Team.A, DominationFactor.HQ_DESTROYED);
+            return true;
         }
+        return false;
+    }
+
+    /**
+     * Sets the winner if one of the teams has more robots than the other.
+     *
+     * @return whether or not a winner was set
+     */
+    public boolean setWinnerIfQuantity() {
+        int robotCountA = objectInfo.getRobotCount(Team.A);
+        int robotCountB = objectInfo.getRobotCount(Team.B);
+        if (robotCountA == 0 && robotCountB > 0) {
+            setWinner(Team.B, DominationFactor.QUANTITY_OVER_QUALITY);
+            return true;
+        } else if (robotCountB == 0 && robotCountA > 0) {
+            setWinner(Team.A, DominationFactor.QUANTITY_OVER_QUALITY);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Sets the winner if one of the teams has higher net worth
+     *  (soup + soup cost of robots).
+     *
+     * @return whether or not a winner was set
+     */
+    public boolean setWinnerIfQuality() {
+        int[] netWorths = new int[2];
+        netWorths[0] = this.teamInfo.getSoup(Team.A);
+        netWorths[1] = this.teamInfo.getSoup(Team.B);
+        for (InternalRobot robot : objectInfo.robotsArray())
+            netWorths[robot.getTeam().ordinal()] += robot.getType().cost;
+        if (netWorths[0] > netWorths[1]) {
+            setWinner(Team.A, DominationFactor.QUALITY_OVER_QUANTITY);
+            return true;
+        } else if (netWorths[1] > netWorths[0]) {
+            setWinner(Team.B, DominationFactor.QUALITY_OVER_QUANTITY);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Sets the winner if one of the teams has more successful broadcasts.
+     *
+     * @return whether or not a winner was set
+     */
+    public boolean setWinnerIfMoreBroadcasts() {
+        // TODO!!
+        return false;
+    }
+
+    /**
+     * Sets winner based on highest robot id.
+     */
+    public boolean setWinnerHighestRobotID() {
+        InternalRobot highestIDRobot = null;
+        for (InternalRobot robot : objectInfo.robotsArray())
+            if (highestIDRobot == null || robot.getID() > highestIDRobot.getID())
+                highestIDRobot = robot;
+        if (highestIDRobot == null)
+            return false;
+        setWinner(highestIDRobot.getTeam(), DominationFactor.HIGHBORN);
+        return true;
+    }
+
+    /**
+     * Sets a winner arbitrarily. Hopefully this is actually random.
+     */
+    public void setWinnerArbitrary() {
+        setWinner(Math.random() < 0.5 ? Team.A : Team.B, DominationFactor.WON_BY_DUBIOUS_REASONS);
     }
 
     public boolean timeLimitReached() {
@@ -478,28 +559,21 @@ public strictfp class GameWorld {
         floodfill();
 
         // Check for end of match
-        if (timeLimitReached() && gameStats.getWinner() == null) {
-            boolean victorDetermined = false;
-
-            // TODO: tiebreakers
-
-            int bestRobotID = Integer.MIN_VALUE;
-            Team bestRobotTeam = Team.A; // null; ARBITRARY
-
-            // tiebreak by robot id
-            if(!victorDetermined){
-                setWinner(bestRobotTeam, DominationFactor.WON_BY_DUBIOUS_REASONS);
-            }
-        }
+        if (timeLimitReached() && gameStats.getWinner() == null)
+            if (!setWinnerIfHQDestroyed())
+                if (!setWinnerIfQuantity())
+                    if (!setWinnerIfQuality())
+                        if (!setWinnerIfMoreBroadcasts())
+                            if (!setWinnerHighestRobotID())
+                                setWinnerArbitrary();
 
         // update the round statistics
+        // this is not actually needed b/c we added it in TeamInfo.java... but is there anything else?
+        // matchMaker.addTeamSoup(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
+        // matchMaker.addTeamSoup(Team.B, teamInfo.getSoup(Team.B));
 
-        matchMaker.addTeamStat(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
-        matchMaker.addTeamStat(Team.B, teamInfo.getSoup(Team.B));
-
-        if (gameStats.getWinner() != null) {
+        if (gameStats.getWinner() != null)
             running = false;
-        }
     }
 
     /**
@@ -583,6 +657,8 @@ public strictfp class GameWorld {
     public void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
         removeRobot(robot.getLocation());
+        if (robot.getType() == RobotType.HQ)
+            this.teamInfo.destroyHQ(robot.getTeam());
 
         try {
             // if a delivery drone is killed, it drops unit at current location
@@ -592,8 +668,6 @@ public strictfp class GameWorld {
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
-
-        setWinnerIfDestruction();
 
         matchMaker.addDied(id);
     }

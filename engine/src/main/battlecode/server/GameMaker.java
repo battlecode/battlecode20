@@ -639,7 +639,7 @@ public strictfp class GameMaker {
             broadcastedMessages.add(' ');
         }
 
-        public void addTeamStat(Team team, int soup) {
+        public void addTeamSoup(Team team, int soup) {
             teamIDs.add(TeamMapping.id(team));
             teamSoups.add(soup);
         }
