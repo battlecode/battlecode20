@@ -10,10 +10,15 @@ import java.util.*;
  */
 public class TeamInfo {
 
-    private int[] teamSoup = new int[2];
+    private GameWorld gameWorld;
+    private int[] teamSoup;
+    private boolean[] destroyedHQ;
 
-    public TeamInfo() {
+    public TeamInfo(GameWorld gameWorld) {
+        this.gameWorld = gameWorld;
+        this.teamSoup = new int[2];
         Arrays.fill(teamSoup, GameConstants.INITIAL_SOUP);
+        this.destroyedHQ = new boolean[2];
     }
 
     // *********************************
@@ -29,7 +34,21 @@ public class TeamInfo {
     // ***** UPDATE METHODS ************
     // *********************************
 
+    public void addSoupIncome(int amount) {
+        adjustSoup(Team.A, amount);
+        adjustSoup(Team.B, amount);
+    }
+
     public void adjustSoup(Team t, int amount) {
-        teamSoup[t.ordinal()] += amount;
+        this.teamSoup[t.ordinal()] += amount;
+        this.gameWorld.getMatchMaker().addTeamSoup(t, amount);
+    }
+
+    public boolean getDestroyedHQ(Team t) {
+        return destroyedHQ[t.ordinal()];
+    }
+
+    public void destroyHQ(Team t) {
+        destroyedHQ[t.ordinal()] = true;
     }
 }

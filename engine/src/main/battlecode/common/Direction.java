@@ -28,15 +28,7 @@ public enum Direction {
     /**
      * Direction that represents pointing west (left on screen).
      */
-    WEST(-1, 0),
-    /**
-     * No direction.
-     */
-    NONE(0, 0),
-    /**
-     * All directions.
-     */
-    OMNI(0, 0);
+    WEST(-1, 0);
 
     /**
      * Change in x, change in y.
@@ -51,14 +43,11 @@ public enum Direction {
     /**
      * Computes the direction opposite this one.
      *
-     * @return the direction pointing in the opposite direction
-     *         to this one, or NONE if it's NONE, or OMNI if it's OMNI
+     * @return the direction pointing in the opposite direction to this one
      *
      * @battlecode.doc.costlymethod
      */
     public Direction opposite() {
-        if (ordinal() >= 4)
-            return this;
         return Direction.values()[(ordinal() + 2) % 4];
     }
 
@@ -66,14 +55,11 @@ public enum Direction {
      * Computes the direction 90 degrees to the left (counter-clockwise)
      * of this one.
      *
-     * @return the direction 90 degrees left of this one, or NONE if it's NONE,
-     *         or OMNI if it's OMNI
+     * @return the direction 90 degrees left of this one
      *
      * @battlecode.doc.costlymethod
      */
     public Direction rotateLeft() {
-        if (ordinal() >= 4)
-            return this;
         return Direction.values()[(ordinal() + 4 - 1) % 4];
     }
 
@@ -81,14 +67,11 @@ public enum Direction {
      * Computes the direction 90 degrees to the right (clockwise)
      * of this one.
      *
-     * @return the direction 90 degrees right of this one, or NONE if it's NONE,
-     *         or OMNI if it's OMNI
+     * @return the direction 90 degrees right of this one
      *
      * @battlecode.doc.costlymethod
      */
     public Direction rotateRight() {
-        if (ordinal() >= 4)
-            return this;
         return Direction.values()[(ordinal() + 1) % 4];
     }
 }

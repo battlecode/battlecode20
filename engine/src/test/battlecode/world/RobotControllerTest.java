@@ -69,28 +69,28 @@ public class RobotControllerTest {
     /**
      * Ensure that actions take place immediately.
      */
-    @Test
-    public void testImmediateActions() throws GameActionException {
-        LiveMap map= new TestMapBuilder("test", 0, 0, 100, 100, 1337, 1000).build();
-        TestGame game = new TestGame(map);
+    // @Test
+    // public void testImmediateActions() throws GameActionException {
+    //     LiveMap map= new TestMapBuilder("test", 0, 0, 100, 100, 1337, 1000).build();
+    //     TestGame game = new TestGame(map);
 
-        final int a = game.spawn(1, 1, RobotType.MINER, Team.A);
+    //     final int a = game.spawn(1, 1, RobotType.MINER, Team.A);
 
-        game.round((id, rc) -> {
-            if (id != a) return;
+    //     game.round((id, rc) -> {
+    //         if (id != a) return;
 
-            final MapLocation start = rc.getLocation();
-            assertEquals(new MapLocation(1, 1), start);
+    //         final MapLocation start = rc.getLocation();
+    //         assertEquals(new MapLocation(1, 1), start);
 
-            rc.move(Direction.EAST);
+    //         rc.move(Direction.EAST);
 
-            final MapLocation newLocation = rc.getLocation();
-            assertEquals(new MapLocation(2, 1), newLocation);
-        });
+    //         final MapLocation newLocation = rc.getLocation();
+    //         assertEquals(new MapLocation(2, 1), newLocation);
+    //     });
 
-        // Let delays go away
-        game.waitRounds(10);
-    }
+    //     // Let delays go away
+    //     game.waitRounds(10);
+    // }
 
     // @Test
     // public void testSpawns() throws GameActionException {
@@ -123,27 +123,27 @@ public class RobotControllerTest {
 
     // }
 
-    @Test
-    public void testNullSense() throws GameActionException {
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-                .build();
+    // @Test
+    // public void testNullSense() throws GameActionException {
+    //     LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
+    //             .build();
 
-        // This creates the actual game.
-        TestGame game = new TestGame(map);
+    //     // This creates the actual game.
+    //     TestGame game = new TestGame(map);
 
-        final int soldierA = game.spawn(3, 5, RobotType.MINER, Team.A);
-        final int soldierB = game.spawn(7, 5, RobotType.MINER, Team.B);
+    //     final int soldierA = game.spawn(3, 5, RobotType.MINER, Team.A);
+    //     final int soldierB = game.spawn(7, 5, RobotType.MINER, Team.B);
 
-        game.round((id, rc) -> {
-            if(id != soldierA) return;
+    //     game.round((id, rc) -> {
+    //         if(id != soldierA) return;
 
-            RobotInfo actualBot = rc.senseRobotAtLocation(new MapLocation(3,5));
-            RobotInfo nullBot = rc.senseRobotAtLocation(new MapLocation(5,7));
+    //         RobotInfo actualBot = rc.senseRobotAtLocation(new MapLocation(3,5));
+    //         RobotInfo nullBot = rc.senseRobotAtLocation(new MapLocation(5,7));
 
-            assertNotEquals(actualBot,null);
-            assertEquals(nullBot,null);
-        });
-    }
+    //         assertNotEquals(actualBot,null);
+    //         assertEquals(nullBot,null);
+    //     });
+    // }
 
     // Check to ensure execution order is equal to spawn order
     // @Test

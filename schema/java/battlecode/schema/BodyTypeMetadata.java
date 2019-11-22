@@ -13,9 +13,8 @@ import com.google.flatbuffers.*;
  */
 public final class BodyTypeMetadata extends Table {
   public static BodyTypeMetadata getRootAsBodyTypeMetadata(ByteBuffer _bb) { return getRootAsBodyTypeMetadata(_bb, new BodyTypeMetadata()); }
-  public static BodyTypeMetadata getRootAsBodyTypeMetadata(ByteBuffer _bb, BodyTypeMetadata obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
-  public void __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; vtable_start = bb_pos - bb.getInt(bb_pos); vtable_size = bb.getShort(vtable_start); }
-  public BodyTypeMetadata __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public static BodyTypeMetadata getRootAsBodyTypeMetadata(ByteBuffer _bb, BodyTypeMetadata obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__init(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
+  public BodyTypeMetadata __init(int _i, ByteBuffer _bb) { bb_pos = _i; bb = _bb; return this; }
 
   /**
    * The relevant type.
@@ -40,7 +39,7 @@ public final class BodyTypeMetadata extends Table {
   /**
    * The number of cooldowns between every two actions, for pollution 0.
    */
-  public int actionCooldown() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public float actionCooldown() { int o = __offset(14); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
   /**
    * The maximum distance this type can sense other robots.
    */
@@ -72,7 +71,7 @@ public final class BodyTypeMetadata extends Table {
       int cost,
       int dirtLimit,
       int soupLimit,
-      int actionCooldown,
+      float actionCooldown,
       int sensorRadius,
       int pollutionRadius,
       int pollutionAmount,
@@ -101,7 +100,7 @@ public final class BodyTypeMetadata extends Table {
   public static void addCost(FlatBufferBuilder builder, int cost) { builder.addInt(2, cost, 0); }
   public static void addDirtLimit(FlatBufferBuilder builder, int dirtLimit) { builder.addInt(3, dirtLimit, 0); }
   public static void addSoupLimit(FlatBufferBuilder builder, int soupLimit) { builder.addInt(4, soupLimit, 0); }
-  public static void addActionCooldown(FlatBufferBuilder builder, int actionCooldown) { builder.addInt(5, actionCooldown, 0); }
+  public static void addActionCooldown(FlatBufferBuilder builder, float actionCooldown) { builder.addFloat(5, actionCooldown, 0.0f); }
   public static void addSensorRadius(FlatBufferBuilder builder, int sensorRadius) { builder.addInt(6, sensorRadius, 0); }
   public static void addPollutionRadius(FlatBufferBuilder builder, int pollutionRadius) { builder.addInt(7, pollutionRadius, 0); }
   public static void addPollutionAmount(FlatBufferBuilder builder, int pollutionAmount) { builder.addInt(8, pollutionAmount, 0); }

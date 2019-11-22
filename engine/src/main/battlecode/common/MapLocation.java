@@ -134,20 +134,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
-     * Determines whether this location is within the sensor radius of the
-     * given robot.
-     *
-     * @param robot the robot to test
-     * @return true if this location is within the robot's sensor radius,
-     *         false otherwise
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public final boolean isWithinSensorRadius(RobotInfo robot){
-        return isWithinDistance(robot.location, robot.type.sensorRadius);
-    }
-
-    /**
      * Returns the Direction from this MapLocation to <code>location</code>.
      * If <code>location</code> is null then the return value is null.
      * If <code>location</code> equals this location then the return value is null.
