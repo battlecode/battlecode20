@@ -529,9 +529,15 @@ public strictfp class GameWorld {
     // ****** DESTROYING ***************
     // *********************************
 
-    public void destroyRobot(int id){
+    public void destroyRobot(int id) {
         InternalRobot robot = objectInfo.getRobotByID(id);
         removeRobot(robot.getLocation());
+
+        try {
+            // if a delivery drone is killed, it drops unit at current location
+            if (robot.getType().canDropOffUnits() && robot.isCurrentlyHoldingUnit())
+                robot.getController().dropUnit(null, false);
+        } catch (GameActionException e) {}
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);

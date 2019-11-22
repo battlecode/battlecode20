@@ -156,6 +156,15 @@ public enum RobotType {
     }
 
     /**
+     * Returns whether the robot can fly.
+     *
+     * @return whether the robot can fly.
+     */
+    public boolean canFly() {
+        return this == DELIVERY_DRONE;
+    }
+
+    /**
      * Returns whether the robot can dig.
      *
      * @return whether the robot can dig.

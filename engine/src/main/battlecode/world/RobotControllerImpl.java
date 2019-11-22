@@ -152,7 +152,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean onTheMap(MapLocation loc) {
         assertNotNull(loc);
-        // assertCanSenseLocation(loc);
         return gameWorld.getGameMap().onTheMap(loc);
     }
 
@@ -298,13 +297,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
             assertNotNull(center);
             return getType().canMove() && getLocation().distanceTo(center) <= 1 &&
                 onTheMap(center) && !isLocationOccupied(center) &&
-                gameWorld.getDirtDifference(getLocation(), center)
-                 <= GameConstants.MAX_DIRT_DIFFERENCE;
+                (getType().canFly() || gameWorld.getDirtDifference(getLocation(), center)
+                 <= GameConstants.MAX_DIRT_DIFFERENCE);
         } catch (GameActionException e) { return false; }
     }
 
     @Override
     public void move(Direction dir) throws GameActionException {
+        assertNotNull(dir);
         MapLocation center = adjacentLocation(dir);
         assertNotNull(center);
         assertIsReady();
@@ -628,18 +628,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     /**
      * Returns whether or not the robot can drop off a unit in the specified direction.
-     * Checks if the robot can drop off units, whether they are carrying a unit, whether
-     *  the action cooldown is ready, and whether the target location is empty.
+     * Checks if the robot can drop off units, whether they are carrying a unit, and
+     *  whether the action cooldown is ready.
      *
      * @param dir the direction to drop off a unit
      */
     @Override
     public boolean canDropUnit(Direction dir) {
-        try {
-            MapLocation loc = adjacentLocation(dir);
-            return this.getType().canDropOffUnits() && this.robot.isCurrentlyHoldingUnit() &&
-               isReady() && onTheMap(loc) && !isLocationOccupied(loc);
-        } catch (GameActionException e) { return false; }
+        MapLocation loc = adjacentLocation(dir);
+        return isReady() && onTheMap(loc) && this.getType().canDropOffUnits() &&
+            this.robot.isCurrentlyHoldingUnit();
     }
 
     /**
@@ -650,16 +648,34 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public void dropUnit(Direction dir) throws GameActionException {
-        assertCanDropUnit(dir);
+        assertNotNull(dir);
+        dropUnit(dir, true);
+    }
+
+    /**
+     * Drops off a unit in the specified direction.
+     *
+     * @param dir the direction to drop off a unit, or null if current location
+     * @param checkConditions whether or not to assert if the robot can drop
+     *        a unit; only false if a drone dies and automatically drops
+     * @throws GameActionException
+     */
+    public void dropUnit(Direction dir, boolean checkConditions) throws GameActionException {
+        if (checkConditions)
+            assertCanDropUnit(dir);
+
         int id = this.robot.getIdOfUnitCurrentlyHeld();
         InternalRobot droppedRobot = getRobotByID(id);
-        MapLocation targetLocation = adjacentLocation(dir);
+        MapLocation targetLocation = dir == null ? getLocation() : adjacentLocation(dir);
 
         droppedRobot.unblockUnit();
         this.robot.dropUnit();
         this.gameWorld.addRobot(targetLocation, droppedRobot);
 
-        if (this.gameWorld.isFlooded(targetLocation))
+        gameWorld.getMatchMaker().addAction(getID(), Action.DROP_UNIT, id);
+
+        // unit is destroyed if dropped in Ocean, onto a building, or onto another unit
+        if (isLocationOccupied(targetLocation) || this.gameWorld.isFlooded(targetLocation))
             this.gameWorld.destroyRobot(id);
     }
 
