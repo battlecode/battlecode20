@@ -267,10 +267,8 @@ table Round {
     /// The amount the dirt changed by.
     dirtChanges: [int];
 
-    /// The indexes of the locations whose water amount changed.
+    /// The indexes of the locations whose flood situation changed.
     waterChangedLocs: VecTable;
-    /// The amount the water changed by.
-    waterChanges: [int];
 
     /// The indexes of the locations whose pollution amount changed.
     pollutionChangedLocs: VecTable;

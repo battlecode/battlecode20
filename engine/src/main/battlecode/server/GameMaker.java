@@ -343,7 +343,6 @@ public strictfp class GameMaker {
 
         private TIntArrayList waterChangedLocsXs; //For locs
         private TIntArrayList waterChangedLocsYs; //For locs
-        private TIntArrayList waterChanges; // ints
 
         private TIntArrayList pollutionChangedLocsXs; //For locs
         private TIntArrayList pollutionChangedLocsYs; //For locs
@@ -406,7 +405,6 @@ public strictfp class GameMaker {
             this.dirtChanges = new TIntArrayList();
             this.waterChangedLocsXs = new TIntArrayList();
             this.waterChangedLocsYs = new TIntArrayList();
-            this.waterChanges = new TIntArrayList();
             this.pollutionChangedLocsXs = new TIntArrayList();
             this.pollutionChangedLocsYs = new TIntArrayList();
             this.pollutionChanges = new TIntArrayList();
@@ -508,7 +506,6 @@ public strictfp class GameMaker {
 
                 // The water changes on locations
                 int waterChangedLocsP = createVecTable(builder, waterChangedLocsXs, waterChangedLocsYs);
-                int waterChangesP = intVector(builder, waterChanges, Round::startWaterChangesVector);
 
                 // The pollution changes on locations
                 int pollutionChangedLocsP = createVecTable(builder, pollutionChangedLocsXs, pollutionChangedLocsYs);
@@ -556,7 +553,6 @@ public strictfp class GameMaker {
                 Round.addDirtChangedLocs(builder, dirtChangedLocsP);
                 Round.addDirtChanges(builder, dirtChangesP);
                 Round.addWaterChangedLocs(builder, waterChangedLocsP);
-                Round.addWaterChanges(builder, waterChangesP);
                 Round.addPollutionChangedLocs(builder, pollutionChangedLocsP);
                 Round.addPollutionChanges(builder, pollutionChangesP);
                 Round.addSoupChangedLocs(builder, soupChangedLocsP);
@@ -612,10 +608,9 @@ public strictfp class GameMaker {
             dirtChanges.add(change);
         }
 
-        public void addWaterChanged(MapLocation loc, int change) {
+        public void addWaterChanged(MapLocation loc) {
             waterChangedLocsXs.add(loc.x);
             waterChangedLocsYs.add(loc.y);
-            waterChanges.add(change);
         }
 
         public void addPollutionChanged(MapLocation loc, int change) {
@@ -700,7 +695,6 @@ public strictfp class GameMaker {
             dirtChanges.clear();
             waterChangedLocsXs.clear();
             waterChangedLocsYs.clear();
-            waterChanges.clear();
             pollutionChangedLocsXs.clear();
             pollutionChangedLocsYs.clear();
             pollutionChanges.clear();
