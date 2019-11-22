@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class GenerateMaps {
     public static void makeSimple() throws IOException {
-        LiveMap map = new TestMapBuilder("maptestsmall", 0, 0, 32, 32, 30, 3000)
+        LiveMap map = new TestMapBuilder("maptestsmall", 0, 0, 32, 32, 30, 3000, 0)
                 .addRobot(
                         0,
                         Team.A,

@@ -1239,11 +1239,11 @@ battlecode.schema.GameMap.prototype.dirtArray = function() {
  * The water levels (above dirt).
  *
  * @param {number} index
- * @returns {number}
+ * @returns {boolean}
  */
 battlecode.schema.GameMap.prototype.water = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+  return offset ? !!this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index) : false;
 };
 
 /**
@@ -1255,11 +1255,11 @@ battlecode.schema.GameMap.prototype.waterLength = function() {
 };
 
 /**
- * @returns {Int32Array}
+ * @returns {Int8Array}
  */
 battlecode.schema.GameMap.prototype.waterArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
@@ -1317,10 +1317,20 @@ battlecode.schema.GameMap.prototype.soupArray = function() {
 };
 
 /**
+ * The initial water level.
+ *
+ * @returns {number}
+ */
+battlecode.schema.GameMap.prototype.initialWater = function() {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 battlecode.schema.GameMap.startGameMap = function(builder) {
-  builder.startObject(9);
+  builder.startObject(10);
 };
 
 /**
@@ -1402,13 +1412,13 @@ battlecode.schema.GameMap.addWater = function(builder, waterOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {Array.<number>} data
+ * @param {Array.<boolean>} data
  * @returns {flatbuffers.Offset}
  */
 battlecode.schema.GameMap.createWaterVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
+  builder.startVector(1, data.length, 1);
   for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
+    builder.addInt8(+data[i]);
   }
   return builder.endVector();
 };
@@ -1418,7 +1428,7 @@ battlecode.schema.GameMap.createWaterVector = function(builder, data) {
  * @param {number} numElems
  */
 battlecode.schema.GameMap.startWaterVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+  builder.startVector(1, numElems, 1);
 };
 
 /**
@@ -1481,6 +1491,14 @@ battlecode.schema.GameMap.startSoupVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {number} initialWater
+ */
+battlecode.schema.GameMap.addInitialWater = function(builder, initialWater) {
+  builder.addFieldInt32(9, initialWater, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 battlecode.schema.GameMap.endGameMap = function(builder) {
@@ -1499,9 +1517,10 @@ battlecode.schema.GameMap.endGameMap = function(builder) {
  * @param {flatbuffers.Offset} waterOffset
  * @param {flatbuffers.Offset} pollutionOffset
  * @param {flatbuffers.Offset} soupOffset
+ * @param {number} initialWater
  * @returns {flatbuffers.Offset}
  */
-battlecode.schema.GameMap.createGameMap = function(builder, nameOffset, minCornerOffset, maxCornerOffset, bodiesOffset, randomSeed, dirtOffset, waterOffset, pollutionOffset, soupOffset) {
+battlecode.schema.GameMap.createGameMap = function(builder, nameOffset, minCornerOffset, maxCornerOffset, bodiesOffset, randomSeed, dirtOffset, waterOffset, pollutionOffset, soupOffset, initialWater) {
   battlecode.schema.GameMap.startGameMap(builder);
   battlecode.schema.GameMap.addName(builder, nameOffset);
   battlecode.schema.GameMap.addMinCorner(builder, minCornerOffset);
@@ -1512,6 +1531,7 @@ battlecode.schema.GameMap.createGameMap = function(builder, nameOffset, minCorne
   battlecode.schema.GameMap.addWater(builder, waterOffset);
   battlecode.schema.GameMap.addPollution(builder, pollutionOffset);
   battlecode.schema.GameMap.addSoup(builder, soupOffset);
+  battlecode.schema.GameMap.addInitialWater(builder, initialWater);
   return battlecode.schema.GameMap.endGameMap(builder);
 }
 

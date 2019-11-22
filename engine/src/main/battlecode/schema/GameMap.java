@@ -49,7 +49,7 @@ public final class GameMap extends Table {
   /**
    * The water levels (above dirt).
    */
-  public int water(int j) { int o = __offset(16); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public boolean water(int j) { int o = __offset(16); return o != 0 ? 0!=bb.get(__vector(o) + j * 1) : false; }
   public int waterLength() { int o = __offset(16); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer waterAsByteBuffer() { return __vector_as_bytebuffer(16, 4); }
   /**
@@ -64,6 +64,10 @@ public final class GameMap extends Table {
   public int soup(int j) { int o = __offset(20); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
   public int soupLength() { int o = __offset(20); return o != 0 ? __vector_len(o) : 0; }
   public ByteBuffer soupAsByteBuffer() { return __vector_as_bytebuffer(20, 4); }
+  /**
+   * The initial water level.
+   */
+  public int initialWater() { int o = __offset(22); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static void startGameMap(FlatBufferBuilder builder) { builder.startObject(9); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(0, nameOffset, 0); }
@@ -75,7 +79,7 @@ public final class GameMap extends Table {
   public static int createDirtVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startDirtVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addWater(FlatBufferBuilder builder, int waterOffset) { builder.addOffset(6, waterOffset, 0); }
-  public static int createWaterVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static int createWaterVector(FlatBufferBuilder builder, boolean[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addBoolean(data[i]); return builder.endVector(); }
   public static void startWaterVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addPollution(FlatBufferBuilder builder, int pollutionOffset) { builder.addOffset(7, pollutionOffset, 0); }
   public static int createPollutionVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
@@ -83,6 +87,7 @@ public final class GameMap extends Table {
   public static void addSoup(FlatBufferBuilder builder, int soupOffset) { builder.addOffset(8, soupOffset, 0); }
   public static int createSoupVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startSoupVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addInitialWater(FlatBufferBuilder builder, int initialWater) { builder.addInt(9, initialWater, 0); }
   public static int endGameMap(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

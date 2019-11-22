@@ -20,7 +20,7 @@ import java.io.IOException;
 public class GenerateMaps {
     @Test
     public void makeSimple() throws IOException {
-        LiveMap map = new TestMapBuilder("maptest", 0, 0, 100, 100,30,3000)
+        LiveMap map = new TestMapBuilder("maptest", 0, 0, 100, 100, 30, 3000, 0)
                 .addRobot(
                         0,
                         Team.A,

@@ -80,11 +80,13 @@ table GameMap {
     /// The dirt levels.
     dirt: [int];
     /// The water levels (above dirt).
-    water: [int];
+    water: [bool];
     /// The pollution levels.
     pollution: [int];
     /// The amount of crude soup to be mined.
     soup: [int];
+    /// The initial water level.
+    initialWater: int;
 }
 
 /// Actions that can be performed.
