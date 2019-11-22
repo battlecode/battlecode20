@@ -274,6 +274,18 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
 
     /**
+     * Returns the crude soup count at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @param loc the given location
+     * @return the crude soup count at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int senseSoup(MapLocation loc) throws GameActionException;
+
+    /**
      * Returns the pollution level at a given location, if the location is
      * within the sensor radius of the robot.
      *
@@ -284,6 +296,30 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int sensePollution(MapLocation loc) throws GameActionException;
+
+    /**
+     * Returns the elevation at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @param loc the given location
+     * @return the elevation at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int senseElevation(MapLocation loc) throws GameActionException;
+
+    /**
+     * Returns whether or not a given location is flooded, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @param loc the given location
+     * @return whether or not a given location is flooded, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean senseFlooding(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.

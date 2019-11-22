@@ -142,17 +142,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************
 
+    @Override
+    public boolean onTheMap(MapLocation loc) {
+        assertNotNull(loc);
+        return gameWorld.getGameMap().onTheMap(loc);
+    }
+
     private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
         if(!canSenseLocation(loc)){
             throw new GameActionException(CANT_SENSE_THAT,
                     "Target location not within sensor range");
         }
-    }
-
-    @Override
-    public boolean onTheMap(MapLocation loc) {
-        assertNotNull(loc);
-        return gameWorld.getGameMap().onTheMap(loc);
     }
 
     @Override
@@ -178,9 +178,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
         InternalRobot bot = gameWorld.getRobot(loc);
-        if(bot != null) {
+        if(bot != null)
             return bot.getRobotInfo();
-        }
         return null;
     }
 
@@ -222,31 +221,41 @@ public final strictfp class RobotControllerImpl implements RobotController {
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
             // check if this robot
-            if(sensedRobot.equals(this.robot)){
+            if (sensedRobot.equals(this.robot))
                 continue;
-            }
             // check if can sense
-            if(!canSenseLocation(sensedRobot.getLocation())){
+            if (!canSenseLocation(sensedRobot.getLocation()))
                 continue;
-            }
             // check if right team
-            if(team != null && sensedRobot.getTeam() != team){
+            if (team != null && sensedRobot.getTeam() != team)
                 continue;
-            }
-
             validSensedRobots.add(sensedRobot.getRobotInfo());
         }
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
     }
 
     @Override
+    public int senseSoup(MapLocation loc) throws GameActionException {
+        assertCanSenseLocation(loc);
+        return this.gameWorld.getSoup(loc);
+    }
+
+    @Override
     public int sensePollution(MapLocation loc) throws GameActionException {
-        if(!canSenseLocation(loc)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Can't sense the pollution level of the specified location " +
-                            "(outside of sensor radius).");
-        }
+        assertCanSenseLocation(loc);
         return this.gameWorld.getPollution(loc);
+    }
+
+    @Override
+    public int senseElevation(MapLocation loc) throws GameActionException {
+        assertCanSenseLocation(loc);
+        return this.gameWorld.getDirt(loc);
+    }
+
+    @Override
+    public boolean senseFlooding(MapLocation loc) throws GameActionException {
+        assertCanSenseLocation(loc);
+        return this.gameWorld.isFlooded(loc);
     }
 
     @Override

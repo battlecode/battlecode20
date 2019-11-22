@@ -354,7 +354,20 @@ public strictfp class GameWorld {
     public void tryResurface(MapLocation loc) {
         int idx = locationToIndex(loc);
         if (this.dirt[idx] >= this.waterLevel)
-            this.flooded[idx] = false;
+            setFloodStatus(idx, false);
+    }
+
+    /**
+     * Sets the flood status of the location at an index.
+     * 
+     * @param idx the index of the location
+     * @param newStatus the new flood status of the location
+     */
+    public void setFloodStatus(int idx, boolean newStatus) {
+        if (this.flooded[idx] != newStatus) {
+            this.flooded[idx] = newStatus;
+            getMatchMaker().addWaterChanged(indexToLocation(idx));
+        }
     }
 
     // ***********************************
