@@ -14,7 +14,7 @@ frontend/public/bc20
 .gradle
 /build/
 
-### Matches should be ignore
+### Matches should be ignored
 /matches/
 
 ### Java
@@ -25,6 +25,7 @@ bin/
 
 ### Client
 client/bc20
+client/visualizer/bc20
 
 ### Vim
 # Swap
@@ -44,3 +45,6 @@ Sessionx.vim
 tags
 # Persistent undo
 [._]*.un~
+
+### Distribution
+temp-dist

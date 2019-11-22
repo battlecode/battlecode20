@@ -22,7 +22,7 @@ public enum GameActionExceptionType {
      */
     NOT_ACTIVE,
     /**
-     * Indicates when a robot tries to sense a robot, bullet, or tree that no longer exists or is no longer
+     * Indicates when a robot tries to sense a robot that no longer exists or is no longer
      * in this robot's sensor range.
      */
     CANT_SENSE_THAT,
@@ -41,8 +41,11 @@ public enum GameActionExceptionType {
      */
     NO_ROBOT_THERE,
     /**
-     * Indicates when a robot tries to perform an action on a tree, but there is
-     * no suitable tree there.
+     * Indicates when a robot tries to send too many messages to the blockchain.
      */
-    NO_TREE_THERE,
+    TOO_LONG_BLOCKCHAIN_MESSAGE,
+    /**
+     * Indicates when round number is out of range.
+     */
+    ROUND_OUT_OF_RANGE
 }

@@ -154,9 +154,6 @@ public strictfp class Server implements Runnable {
             // Set up our control provider
             final RobotControlProvider prov = createControlProvider(currentGame, gameMaker);
 
-            // We start with zeroed team memories.
-            long[][] teamMemory = new long[2][GameConstants.TEAM_MEMORY_LENGTH];
-
             // Count wins
             int aWins = 0, bWins = 0;
 
@@ -165,7 +162,7 @@ public strictfp class Server implements Runnable {
 
                 Team winner;
                 try {
-                    winner = runMatch(currentGame, matchIndex, prov, teamMemory, gameMaker);
+                    winner = runMatch(currentGame, matchIndex, prov, gameMaker);
                 } catch (Exception e) {
                     ErrorReporter.report(e);
                     this.state = ServerState.ERROR;
@@ -183,7 +180,6 @@ public strictfp class Server implements Runnable {
                         warn("Team "+winner+" won???");
                 }
 
-                teamMemory = currentWorld.getTeamInfo().getTeamMemory();
                 currentWorld = null;
 
                 if (currentGame.isBestOfThree()) {
@@ -206,11 +202,10 @@ public strictfp class Server implements Runnable {
     private Team runMatch(GameInfo currentGame,
                           int matchIndex,
                           RobotControlProvider prov,
-                          long[][] teamMemory,
                           GameMaker gameMaker) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
-
+        // GenerateMaps.makeSimple(); // uncomment this to create a map! (the build will fail but still create the map)
         // Load the map for the match
         final LiveMap loadedMap;
         try {
@@ -222,7 +217,7 @@ public strictfp class Server implements Runnable {
         }
 
         // Create the game world!
-        currentWorld = new GameWorld(loadedMap, prov, teamMemory, gameMaker.getMatchMaker());
+        currentWorld = new GameWorld(loadedMap, prov, gameMaker.getMatchMaker());
 
         // Get started
         if (interactive) {
@@ -302,7 +297,7 @@ public strictfp class Server implements Runnable {
         );
         teamProvider.registerControlProvider(
                 Team.NEUTRAL,
-                new NullControlProvider()
+                new CowControlProvider()
         );
         return teamProvider;
     }
@@ -351,20 +346,14 @@ public strictfp class Server implements Runnable {
         DominationFactor dom = stats.getDominationFactor();
 
         switch (dom) {
-            case PHILANTROPIED:
-                sb.append("The winning team won by reaching "+GameConstants.VICTORY_POINTS_TO_WIN+" victory points.");
-                break;
+            // case PHILANTROPIED:
+            //     sb.append("The winning team won by reaching "+GameConstants.VICTORY_POINTS_TO_WIN+" victory points.");
+            //     break;
             case DESTROYED:
                 sb.append("The winning team won by destruction.");
                 break;
             case PWNED:
                 sb.append("The winning team won on tiebreakers (more victory points).");
-                break;
-            case OWNED:
-                sb.append("The winning team won on tiebreakers (more bullet trees).");
-                break;
-            case BARELY_BEAT:
-                sb.append("The winning team won on tiebreakers (more bullet supply, includings cost of active robots)");
                 break;
             case WON_BY_DUBIOUS_REASONS:
                 sb.append("The winning team won arbitrarily (highest robot ID).");
