@@ -731,7 +731,7 @@ function main(){
     { name: "viewOptions", game: createViewOptionGame(512) }
     // { name: "active", game: createActiveGame(128, 128, 128, 4096) },
   ];
-  const prefix = "out/files/";
+  const prefix = "../examples/";
 
   games.forEach(pair => {
     const filename = `${prefix}${pair.name}.bc20`
