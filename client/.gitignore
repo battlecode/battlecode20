@@ -8,6 +8,7 @@
 visualizer/bc20/
 # built client
 visualizer/dist/
+dist/
 
 # Generated test bc20 files
 playback/out/files/
