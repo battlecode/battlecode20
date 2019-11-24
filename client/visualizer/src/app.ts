@@ -101,7 +101,8 @@ export default class Client {
 
     this.games = [];
 
-    if (this.conf.websocketURL !== null) {
+    // If it's in dev, we're not using server
+    if (this.conf.websocketURL !== null && process.env.NODE_ENV !== 'development') {
       this.listener = new WebSocketListener(
         this.conf.websocketURL,
         this.conf.pollEvery
