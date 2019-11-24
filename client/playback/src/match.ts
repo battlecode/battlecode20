@@ -214,30 +214,28 @@ export default class Match {
    * if we don't have deltas to it, we can't.
    * If we can, each call to compute() will update state until current.turn === seekTo
    */
-  seek(round: number): boolean {
+  seek(round: number): void {
     // the last delta we have is this.deltas.length-1, which takes us to turn
     // this.deltas.length-1; if we're higher than that, we can't seek
-    if (round <= this.deltas.length-1) {
-      this._seekTo = round;
-      if (this._seekTo >= this._farthest.turn) {
-        // Ahead of where we've processed; we'll need to compute all the way there.
-        // OR, exactly at the furthest point.
-        this._current = this._farthest;
-      } else {
-        // We've already computed past seekTo; find the closest round before it.
-        // It's possible that a snapshot is closest; this is the turn of that snapshot.
-        const snapBefore = this._seekTo - (this._seekTo % this.snapshotEvery);
-        if (this._current.turn < snapBefore || this._seekTo < this._current.turn) {
-          // If current < snapBefore <= seekTo, set current = snapBefore.
-          // If snapBefore <= seekTo < current, set current = snapBefore.
-          this._current.copyFrom(this.snapshots[Math.floor(snapBefore / this.snapshotEvery)]);
-        }
-        // Otherwise, snapBefore < current <= seekTo, so we're fine.
-      }
 
-      return true;
+    // this.deltas.length-1: the time when the game ends.
+    // this._farthest.turn: the last time we processed so far
+    // this._seekTo: the time we want to be in
+
+    this._seekTo = Math.max(Math.min(this.deltas.length - 1, round), 1);
+
+    if (this._seekTo >= this._farthest.turn) {
+      // Go as far as we can
+      this._current = this._farthest;
+    } else {
+      // Go to the closest round before seekTo
+      // TODO understand & comment & simplify
+      // FIXME how to use without copyFrom
+      const snap = this._seekTo - (this._seekTo % this.snapshotEvery);
+      if (this._current.turn < snap || this._seekTo < this._current.turn) {
+        this.current.copyFrom(this.snapshots[Math.floor(snap / this.snapshotEvery)]);
+      }
     }
-    return false;
   }
 
   /**
@@ -286,6 +284,7 @@ export default class Match {
     }
     world.processDelta(this.deltas[world.turn + 1]);
 
+    // TODO understand & simplify
     // world.turn is now updated
     if (world.turn % this.snapshotEvery === 0
         && this.snapshots[world.turn / this.snapshotEvery] === undefined) {

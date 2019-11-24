@@ -603,10 +603,12 @@ export default class Client {
       rendersPerSecond.update(curTime, 1);
       updatesPerSecond.update(curTime, delta);
 
-      this.controls.setTime(match.current.turn,
-                            match['_farthest'].turn,
-                            updatesPerSecond.tps,
-                            rendersPerSecond.tps);
+      this.controls.setTime(
+        match.current.turn,
+        match['_farthest'].turn,
+        updatesPerSecond.tps,
+        rendersPerSecond.tps
+      );
 
       // run simulation
       // this may look innocuous, but it's a large chunk of the run time
@@ -641,28 +643,8 @@ export default class Client {
       lastTime = curTime;
       lastTurn = match.current.turn;
 
-      // only interpolate if:
-      // - we want to
-      // - we have another frame
-      // - we're going slow enough for it to matter
-      if (this.conf.interpolate &&
-          match.current.turn + 1 < match.deltas.length &&
-          goalUPS < rendersPerSecond.tps) {
-
-        nextStep.loadNextStep(
-          match.current,
-          match.deltas[match.current.turn + 1]
-        );
-
-        let lerp = Math.min(interpGameTime - match.current.turn, 1);
-
-        // @ts-ignore
-        renderer.render(match.current, match.current.minCorner, match.current.maxCorner, nextStep, lerp);
-      } else {
-        // interpGameTime might be incorrect if we haven't computed fast enough
-        // @ts-ignore
-        renderer.render(match.current, match.current.minCorner, match.current.maxCorner);
-      }
+      // @ts-ignore
+      renderer.render(match.current, match.current.minCorner, match.current.maxCorner);
 
       this.updateStats(match.current, meta);
       this.loopID = window.requestAnimationFrame(loop);

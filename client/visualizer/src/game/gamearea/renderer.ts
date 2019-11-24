@@ -50,7 +50,6 @@ export default class Renderer {
 
     // TODO: can this be null???
     this.bgPattern = this.ctx.createPattern(imgs.background, 'repeat')!;
-    //this.treeMedHealth = metadata.types[schema.BodyType.TREE_NEUTRAL].maxHealth / 2;
   }
 
   /**
@@ -72,7 +71,6 @@ export default class Renderer {
     this.renderBackground(world);
 
     this.renderBodies(world, nextStep, lerpAmount);
-    // this.renderBullets(world, lerpAmount);
 
     this.renderIndicatorDotsLines(world);
     this.setMouseoverEvent(world);
@@ -131,8 +129,6 @@ export default class Renderer {
         this.ctx.globalAlpha = Math.min(map.dirt[idxVal] / 5.0, 1);
         this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
       }
-
-      
 
     }
 
@@ -211,18 +207,8 @@ export default class Renderer {
         const img = this.imgs.cow;
         this.drawCircleBot(x, y, radius);
         this.drawImage(img, x, y, radius);
-        // this.drawGoodies(x, y, radius, treeBullets[i], treeBodies[i]);
-        // this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
-          // world.minCorner, world.maxCorner);
       }
 
-      // if (type === cst.COW) {
-      //   const img = this.imgs.robot.bulletTree[team];
-      //   this.drawCircleBot(x, y, radius);
-      //   this.drawImage(img, x, y, radius);
-      //   this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
-      //     world.minCorner, world.maxCorner);
-      // }
     }
 
     // Render the robots
@@ -244,8 +230,6 @@ export default class Renderer {
         const img = tmp[team];
         this.drawCircleBot(x, y, radius);
         this.drawImage(img, x, y, radius);
-        // this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
-        //   world.minCorner, world.maxCorner);
         
         // Draw the sight radius if the robot is selected
         if (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID) {
@@ -298,23 +282,7 @@ export default class Renderer {
       this.ctx.stroke();
     }
 
-    // if (this.conf.bulletSightRadius) {
-    //   const bulletSightRadius = this.metadata.types[type].bulletSightRadius;
-    //   this.ctx.beginPath();
-    //   this.ctx.arc(x, y, bulletSightRadius, 0, 2 * Math.PI);
-    //   this.ctx.strokeStyle = "#ff8e00";
-    //   this.ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH;
-    //   this.ctx.stroke();
-    // }
   }
-
-  /**
-   * Draws goodies centered at (x, y) with the given radius, if there are any
-   */
-  // private drawGoodies(x: number, y: number, radius: number, bullets: number, body: schema.BodyType) {
-  //   if (bullets > 0) this.drawImage(this.imgs.tree.bullets, x, y, radius);
-  //   if (body !== cst.NONE) this.drawImage(this.imgs.tree.robot, x, y, radius);
-  // }
 
   /**
    * Draws an image centered at (x, y) with the given radius
@@ -322,31 +290,6 @@ export default class Renderer {
   private drawImage(img: HTMLImageElement, x: number, y: number, radius: number) {
     this.ctx.drawImage(img, x-radius, y-radius, radius*2, radius*2);
   }
-
-  /**
-   * Draws a health bar for a unit centered at (xRobot, yRobot) with the given
-   * radius, health, and maxHealth
-   */
-  // private drawHealthBar(xRobot: number, yRobot: number, radius: number,
-  //   health: number, maxHealth: number, minCorner: Victor, maxCorner: Victor) {
-  //   if (!this.conf.healthBars) return; // skip if the option is turned off
-
-  //   let x = xRobot - cst.HEALTH_BAR_WIDTH_HALF;
-  //   let y = yRobot + radius;
-
-  //   let minX = minCorner.x;
-  //   let maxX = maxCorner.x - cst.HEALTH_BAR_WIDTH;
-  //   let maxY = maxCorner.y - cst.HEALTH_BAR_HEIGHT;
-  //   x = Math.max(minX, Math.min(x, maxX));
-  //   y = Math.min(maxY, y);
-
-  //   this.ctx.fillStyle = "green"; // current health
-  //   this.ctx.fillRect(x, y, cst.HEALTH_BAR_WIDTH * health / maxHealth,
-  //     cst.HEALTH_BAR_HEIGHT);
-  //   this.ctx.strokeStyle = "black"; // outline
-  //   this.ctx.lineWidth = .1;
-  //   this.ctx.strokeRect(x, y, cst.HEALTH_BAR_WIDTH, cst.HEALTH_BAR_HEIGHT);
-  // }
 
   private setInfoStringEvent(world: GameWorld,
     xs: Int32Array, ys: Int32Array) {
@@ -399,41 +342,6 @@ export default class Renderer {
       onMouseover(x, this.flip(y, minY, maxY));
     };
   }
-
-  // private renderBullets(world: GameWorld, lerpAmount: number | undefined=0) {
-  //   const bullets = world.bullets;
-  //   const length = bullets.length;
-  //   const xs = bullets.arrays.x;
-  //   const ys = bullets.arrays.y;
-  //   const velXs = bullets.arrays.velX;
-  //   const velYs = bullets.arrays.velY;
-  //   const spawnedTimes = bullets.arrays.spawnedTime;
-  //   const minY = world.minCorner.y;
-  //   const maxY = world.maxCorner.y;
-
-  //   for (let i = 0; i < length; i++) {
-  //     const velX = velXs[i];
-  //     const velY = velYs[i];
-
-  //     const dt = (world.turn + lerpAmount) - spawnedTimes[i];
-
-  //     const x = xs[i] + velX*dt;
-  //     const y = this.flip(ys[i] + velY*dt, minY, maxY);
-
-  //     const speedsq = velX*velX + velY*velY;
-
-  //     let img;
-  //     if (speedsq >= cst.HIGH_SPEED_THRESH) {
-  //       img = this.imgs.bullet.fast;
-  //     } else if (speedsq >= cst.MED_SPEED_THRESH) {
-  //       img = this.imgs.bullet.medium;
-  //     } else {
-  //       img = this.imgs.bullet.slow;
-  //     }
-
-  //     this.drawImage(img, x, y, cst.BULLET_SIZE_HALF);
-  //   }
-  // }
 
   private renderIndicatorDotsLines(world: GameWorld) {
     if (!this.conf.indicators) {
