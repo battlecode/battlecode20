@@ -474,29 +474,29 @@ public strictfp interface RobotController {
     void mineSoup(Direction dir) throws GameActionException;
 
     /**
-     * Tests whether the robot can refine soup in the given direction.
-     * Checks cooldown turns remaining, whether the robot can refine, whether
+     * Tests whether the robot can give soup to a refinery in the given direction.
+     * Checks cooldown turns remaining, whether the robot can give soup, whether
      * the robot has crude soup, and that the given direction has a refinery.
      *
-     * @param dir the direction to refine
-     * @return whether it is possible to refine soup in the given direction.
+     * @param dir the direction of the refinery to give soup to
+     * @return whether it is possible to give soup in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canRefineSoup(Direction dir);
+    boolean canGiveSoup(Direction dir);
 
     /**
-     * Refines soup in the given direction (max up to specified amount).
+     * Gives soup in the given direction (max up to specified amount).
      *
-     * @param dir the direction to refine
-     * @param amount the amount of soup to refine
+     * @param dir the direction to give soup
+     * @param amount the amount of soup to give
      * @throws GameActionException if this robot is not a miner, if
-     * the robot is still in cooldown, if there is no soup to refine,
+     * the robot is still in cooldown, if there is no soup to give,
      * or if there is no refinery.
      *
      * @battlecode.doc.costlymethod
      */
-    void refineSoup(Direction dir, int amount) throws GameActionException;
+    void giveSoup(Direction dir, int amount) throws GameActionException;
 
     // ***************************************
     // ********* LANDSCAPER METHODS **********
@@ -550,6 +550,33 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void depositDirt(Direction dir, int amount) throws GameActionException;
+
+    // **************************************
+    // ********** REFINERY METHODS **********
+    // **************************************
+
+    /**
+     * Tests whether the robot can refine the given amount of soup
+     * Checks cooldown turns remaining, whether the robot can refine,
+     * and that the robot has soup.
+     *
+     * @param amount the amount of soup to refine
+     * @return whether it is possible to refine soup
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canRefine(int amount);
+
+    /**
+     * Deposits dirt in the given direction (max up to specified amount).
+     *
+     * @param amount the amount of soup to refine
+     * @throws GameActionException if this robot is not a refinery, if
+     * the robot is still in cooldown, if there is no soup to refine,
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void refine(int amount) throws GameActionException;
 
     // ***************************************
     // ******* DELIVERY DRONE METHODS ********

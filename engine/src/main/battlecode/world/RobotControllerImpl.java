@@ -425,57 +425,57 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     /**
-     * Asserts that the robot can refine soup in the specified direction.
+     * Asserts that the robot can give soup in the specified direction.
      *
      * @throws GameActionException
      */
-    private void assertCanRefineSoup(Direction dir) throws GameActionException{
-        if(!canRefineSoup(dir)){
+    private void assertCanGiveSoup(Direction dir) throws GameActionException{
+        if(!canGiveSoup(dir)){
             throw new GameActionException(CANT_DO_THAT,
-                    "Can't refine soup in given direction, possibly due to " +
-                            "cooldown not expired, this robot can't refine, " +
+                    "Can't give soup in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't give, " +
                             "this robot doesn't have crude soup, " +
                             "or the location doesn't have a refinery.");
         }
     }
 
     /**
-     * Returns whether or not the robot can refine soup in a specified direction.
-     * Checks if the robot can refine, whether they are carring crude soup, whether
+     * Returns whether or not the robot can give soup in a specified direction.
+     * Checks if the robot can give soup, whether they are carring crude soup, whether
      *  the action cooldown is ready, whether the location is on the map,
      *  and whether there is a refinery at the target location.
      *
-     * @param dir the direction to refine in
+     * @param dir the direction of the refinery to give soup to
      */
     @Override
-    public boolean canRefineSoup(Direction dir) {
+    public boolean canGiveSoup(Direction dir) {
         MapLocation center = adjacentLocation(dir);
         if (!onTheMap(center))
             return false;
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
-        return getType().canRefine() && isReady() && getSoupCarrying() > 0 &&
+        return getType().canGive() && isReady() && getSoupCarrying() > 0 &&
                adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
     }
 
     /**
-     * Refines soup in a certain direction; refines up to the amount of crude soup
+     *  Gives soup in a certain direction; gives up to the amount of crude soup
      *  that the robot is carrying.
      *
      * @param dir the direction to mine in
-     * @param amount the amount of soup to refine
+     * @param amount the amount of soup to give
      * @throws GameActionException
      */
     @Override
-    public void refineSoup(Direction dir, int amount) throws GameActionException {
+    public void giveSoup(Direction dir, int amount) throws GameActionException {
         assertNotNull(dir);
-        assertCanRefineSoup(dir);
+        assertCanGiveSoup(dir);
         amount = Math.min(amount, this.getSoupCarrying());
         this.robot.resetCooldownTurns();
         this.robot.removeSoupCarrying(amount);
         InternalRobot refinery = this.gameWorld.getRobot(adjacentLocation(dir));
         refinery.addSoupCarrying(amount);
 
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.REFINE_SOUP, refinery.getID());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.GIVE_SOUP, refinery.getID());
     }
 
     // ***************************************
@@ -572,6 +572,58 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.resetCooldownTurns();
         this.robot.removeDirtCarrying(amount);
         this.gameWorld.addDirt(getID(), adjacentLocation(dir), amount);
+    }
+
+    // **************************************
+    // ********** REFINERY METHODS **********
+    // **************************************
+
+    /**
+     * Asserts that the robot can refine soup.
+     *
+     * @throws GameActionException
+     */
+    private void assertCanRefine(int amount) throws GameActionException{
+        if(!canRefine(amount)){
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can't refine soup, possibly due to cooldown not expired, " + 
+                    "this robot can't refine soup, " +
+                    "or this robot doesn't have soup.");
+        }
+    }
+
+    /**
+     * Tests whether the robot can refine the given amount of soup
+     * Checks cooldown turns remaining, whether the robot can refine,
+     * and that the robot has soup.
+     *
+     * @return whether it is possible to refine soup
+     *
+     * @battlecode.doc.costlymethod
+     */
+    @Override
+    public boolean canRefine(int amount) {
+        return (getType().canRefine() && isReady() &&
+                getSoupCarrying() >= amount && amount > 0);
+    }
+
+    /**
+     * Deposits dirt in the given direction (max up to specified amount).
+     *
+     * @param amount the amount of soup to refine
+     * @throws GameActionException if this robot is not a refinery, if
+     * the robot is still in cooldown, if there is no soup to refine,
+     *
+     * @battlecode.doc.costlymethod
+     */
+    @Override
+    public void refine(int amount) throws GameActionException {
+        assertCanRefine(amount);
+        robot.resetCooldownTurns();
+        robot.removeSoupCarrying(amount);
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), amount);
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.REFINE, -1);
     }
 
     // ***************************************

@@ -18,10 +18,10 @@ public final class Action {
    */
   public static final byte MINE_SOUP = 0;
   /**
-   * Refines a unit of soup (miners).
+   * Gives a unit of soup (miners).
    * Target: refinery.
    */
-  public static final byte REFINE_SOUP = 1;
+  public static final byte GIVE_SOUP = 1;
   /**
    * Digs a unit of dirt (landscapers).
    * Target: tile.
@@ -32,6 +32,11 @@ public final class Action {
    * Target: tile.
    */
   public static final byte DEPOSIT_DIRT = 3;
+  /**
+   * Deposits a unit of dirt (landscapers).
+   * Target: tile.
+   */
+  public static final byte REFINE = 3;
   /**
    * Picks up a unit (drones).
    * Target: unit picked up.
@@ -78,7 +83,7 @@ public final class Action {
    */
   public static final byte DIE_EXCEPTION = 12;
 
-  public static final String[] names = { "MINE_SOUP", "REFINE_SOUP", "DIG_DIRT", "DEPOSIT_DIRT", "PICK_UNIT", "DROP_UNIT", "SPAWN_UNIT", "SHOOT", "DIE_DROWN", "DIE_SHOT", "DIE_TOO_MUCH_DIRT", "DIE_SUICIDE", "DIE_EXCEPTION", };
+  public static final String[] names = { "MINE_SOUP", "GIVE_SOUP", "DIG_DIRT", "DEPOSIT_DIRT", "REFINE", "PICK_UNIT", "DROP_UNIT", "SPAWN_UNIT", "SHOOT", "DIE_DROWN", "DIE_SHOT", "DIE_TOO_MUCH_DIRT", "DIE_SUICIDE", "DIE_EXCEPTION", };
 
   public static String name(int e) { return names[e]; }
 }
