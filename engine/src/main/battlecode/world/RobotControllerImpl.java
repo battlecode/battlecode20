@@ -532,8 +532,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *
      * @throws GameActionException
      */
-    private void assertCanDepositDirt(Direction dir, int amount) throws GameActionException{
-        if(!canDepositDirt(dir, amount)){
+    private void assertCanDepositDirt(Direction dir) throws GameActionException{
+        if(!canDepositDirt(dir)){
             throw new GameActionException(CANT_DO_THAT,
                     "Can't deposit dirt in given direction, possibly due to " +
                             "cooldown not expired, this robot can't deposit, " +
@@ -547,13 +547,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *  the action cooldown is ready, and whether the location is on the map.
      *
      * @param dir the direction to deposit in
-     * @param amount the amount of dirt to deposit
      */
     @Override
-    public boolean canDepositDirt(Direction dir, int amount) {
+    public boolean canDepositDirt(Direction dir) {
         MapLocation center = adjacentLocation(dir);
         return (getType().canDeposit() && isReady() &&
-                onTheMap(center) && getDirtCarrying() >= amount);
+                onTheMap(center) && getDirtCarrying() > 0);
     }
 
     /**
@@ -562,16 +561,15 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *  WE DON'T KNOW YET.
      *
      * @param dir the direction to deposit in
-     * @param amount the amount of dirt to deposit
      * @throws GameActionException
      */
     @Override
-    public void depositDirt(Direction dir, int amount) throws GameActionException {
+    public void depositDirt(Direction dir) throws GameActionException {
         assertNotNull(dir);
-        assertCanDepositDirt(dir, amount);
+        assertCanDepositDirt(dir);
         this.robot.resetCooldownTurns();
-        this.robot.removeDirtCarrying(amount);
-        this.gameWorld.addDirt(getID(), adjacentLocation(dir), amount);
+        this.robot.removeDirtCarrying(1);
+        this.gameWorld.addDirt(getID(), adjacentLocation(dir), 1);
     }
 
     // **************************************
