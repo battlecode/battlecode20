@@ -604,7 +604,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean canRefine(int amount) {
         return (getType().canRefine() && isReady() &&
-                getSoupCarrying() >= amount && amount > 0);
+                getSoupCarrying() >= amount && amount > 0 &&
+                amount <= getType().maxSoupProduced);
     }
 
     /**
