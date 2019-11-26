@@ -206,7 +206,7 @@ public enum RobotType {
      * @return whether the robot can refine soup
      */
     public boolean canRefine() {
-        return this == REFINERY;
+        return this == REFINERY || this == HQ;
     }
 
     /**

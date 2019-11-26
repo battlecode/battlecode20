@@ -454,7 +454,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return false;
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
         return getType().canGive() && isReady() && getSoupCarrying() >= amount && amount >= 0 &&
-               adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
+               adjacentRobot != null && adjacentRobot.getType().canRefine();
     }
 
     /**
