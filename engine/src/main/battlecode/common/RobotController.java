@@ -555,27 +555,26 @@ public strictfp interface RobotController {
     // **************************************
 
     /**
-     * Tests whether the robot can refine the given amount of soup
-     * Checks cooldown turns remaining, whether the robot can refine,
-     * and that the robot has soup.
+     * Tests whether the robot can refine soup.
+     * Checks cooldown turns remaining and whether the robot can refine.
      *
-     * @param amount the amount of soup to refine
      * @return whether it is possible to refine soup
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canRefine(int amount);
+    boolean canRefine();
 
     /**
-     * Deposits dirt in the given direction (max up to specified amount).
+     * Refines soup; the amount of soup refined is the minimum of the amount
+     * of soup held by the robot and the maxSoupProduced. Produces pollution
+     * as a byproduct. Note that this works even if the robot is not carrying soup.
      *
-     * @param amount the amount of soup to refine
      * @throws GameActionException if this robot is not a refinery, if
      * the robot is still in cooldown, if there is no soup to refine,
      *
      * @battlecode.doc.costlymethod
      */
-    void refine(int amount) throws GameActionException;
+    void refine() throws GameActionException;
 
     // ***************************************
     // ******* DELIVERY DRONE METHODS ********

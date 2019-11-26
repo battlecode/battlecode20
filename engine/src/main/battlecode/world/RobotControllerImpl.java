@@ -581,45 +581,42 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *
      * @throws GameActionException
      */
-    private void assertCanRefine(int amount) throws GameActionException{
-        if(!canRefine(amount)){
+    private void assertCanRefine() throws GameActionException{
+        if(!canRefine()){
             throw new GameActionException(CANT_DO_THAT,
                     "Can't refine soup, possibly due to cooldown not expired, " + 
-                    "this robot can't refine soup, " +
-                    "or this robot doesn't have soup.");
+                    "this robot can't refine soup.");
         }
     }
 
     /**
-     * Tests whether the robot can refine the given amount of soup
-     * Checks cooldown turns remaining, whether the robot can refine,
-     * and that the robot has soup.
+     * Tests whether the robot can refine soup.
+     * Checks cooldown turns remaining and whether the robot can refine.
      *
      * @return whether it is possible to refine soup
      *
      * @battlecode.doc.costlymethod
      */
     @Override
-    public boolean canRefine(int amount) {
-        return (getType().canRefine() && isReady() &&
-                getSoupCarrying() >= amount && amount > 0 &&
-                amount <= getType().maxSoupProduced);
+    public boolean canRefine() {
+        return (getType().canRefine() && isReady());
     }
 
     /**
      * Deposits dirt in the given direction (max up to specified amount).
      *
-     * @param amount the amount of soup to refine
      * @throws GameActionException if this robot is not a refinery, if
      * the robot is still in cooldown, if there is no soup to refine,
      *
      * @battlecode.doc.costlymethod
      */
     @Override
-    public void refine(int amount) throws GameActionException {
-        assertCanRefine(amount);
+    public void refine() throws GameActionException {
+        assertCanRefine();
         robot.resetCooldownTurns();
+        int amount = Math.min(getType().maxSoupProduced, getSoupCarrying());
         robot.removeSoupCarrying(amount);
+        gameWorld.adjustPollution(getLocation(), 5); //TODO: how much pollution?? store this constant somewhere!!
         gameWorld.getTeamInfo().adjustSoup(getTeam(), amount);
 
         gameWorld.getMatchMaker().addAction(getID(), Action.REFINE, -1);
