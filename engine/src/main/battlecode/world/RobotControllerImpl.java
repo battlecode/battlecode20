@@ -616,7 +616,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         robot.resetCooldownTurns();
         int amount = Math.min(getType().maxSoupProduced, getSoupCarrying());
         robot.removeSoupCarrying(amount);
-        gameWorld.adjustPollution(getLocation(), 5); //TODO: how much pollution?? store this constant somewhere!!
+        gameWorld.adjustPollution(getLocation(), getType().pollutionAmount); //TODO: how much pollution?? store this constant somewhere!!
         gameWorld.getTeamInfo().adjustSoup(getTeam(), amount);
 
         gameWorld.getMatchMaker().addAction(getID(), Action.REFINE, -1);
@@ -826,7 +826,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * 
      */
     @Override
-    public void sendMessage(int[] messageArray, int cost) throws GameActionException {
+    public void sendMessage(int[] messageArray, int proofOfStake) throws GameActionException {
         if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
             throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
                     "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
