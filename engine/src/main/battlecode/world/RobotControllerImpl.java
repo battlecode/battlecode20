@@ -429,12 +429,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *
      * @throws GameActionException
      */
-    private void assertCanGiveSoup(Direction dir) throws GameActionException{
-        if(!canGiveSoup(dir)){
+    private void assertCanGiveSoup(Direction dir, int amount) throws GameActionException{
+        if(!canGiveSoup(dir, amount)){
             throw new GameActionException(CANT_DO_THAT,
                     "Can't give soup in given direction, possibly due to " +
                             "cooldown not expired, this robot can't give, " +
-                            "this robot doesn't have crude soup, " +
+                            "this robot doesn't have enough crude soup, " +
                             "or the location doesn't have a refinery.");
         }
     }
@@ -448,12 +448,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * @param dir the direction of the refinery to give soup to
      */
     @Override
-    public boolean canGiveSoup(Direction dir) {
+    public boolean canGiveSoup(Direction dir, int amount) {
         MapLocation center = adjacentLocation(dir);
         if (!onTheMap(center))
             return false;
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
-        return getType().canGive() && isReady() && getSoupCarrying() > 0 &&
+        return getType().canGive() && isReady() && getSoupCarrying() >= amount && amount >= 0 &&
                adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
     }
 
@@ -468,7 +468,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public void giveSoup(Direction dir, int amount) throws GameActionException {
         assertNotNull(dir);
-        assertCanGiveSoup(dir);
+        assertCanGiveSoup(dir, amount);
         amount = Math.min(amount, this.getSoupCarrying());
         this.robot.resetCooldownTurns();
         this.robot.removeSoupCarrying(amount);

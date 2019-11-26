@@ -476,17 +476,18 @@ public strictfp interface RobotController {
     /**
      * Tests whether the robot can give soup to a refinery in the given direction.
      * Checks cooldown turns remaining, whether the robot can give soup, whether
-     * the robot has crude soup, and that the given direction has a refinery.
+     * the robot has enough crude soup, and that the given direction has a refinery.
      *
      * @param dir the direction of the refinery to give soup to
+     * @param amount the amounbt of soup to give
      * @return whether it is possible to give soup in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canGiveSoup(Direction dir);
+    boolean canGiveSoup(Direction dir, int amount);
 
     /**
-     * Gives soup in the given direction (max up to specified amount).
+     * Gives soup in the given direction.
      *
      * @param dir the direction to give soup
      * @param amount the amount of soup to give
