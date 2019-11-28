@@ -832,14 +832,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
         }
         int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
-        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost) {
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < proofOfStake) {
             throw new GameActionException(NOT_ENOUGH_RESOURCE, 
-                    "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+                    "Tried to pay " + Integer.toString(proofOfStake) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
         }
         // pay!
-        gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -proofOfStake);
         // create a block chain entry
-        BlockchainEntry bcentry = new BlockchainEntry(cost, messageArray);
+        BlockchainEntry bcentry = new BlockchainEntry(proofOfStake, messageArray);
         // add
         gameWorld.addNewMessage(bcentry);
     }

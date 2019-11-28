@@ -34,6 +34,16 @@ public class TestMapBuilder {
         this.seed = seed;
         this.bodies = new ArrayList<>();
         this.initialWater = initialWater;
+        soupArray = new int[width * height];
+        pollutionArray = new int[width * height];
+        waterArray = new boolean[width * height];
+        dirtArray = new int[width * height];
+        for (int i = 0; i < width * height; i++) {
+            soupArray[i] = 20;
+            pollutionArray[i] = 0;
+            waterArray[i] = false;
+            dirtArray[i] = 20;
+        }
     }
 
     public TestMapBuilder addRobot(int id, Team team, RobotType type, MapLocation loc){

@@ -22,17 +22,17 @@ public class RobotControllerTest {
      *
      * @throws GameActionException shouldn't happen
      */
-    // @Test
-    // public void testBasic() throws GameActionException {
-    //     // Prepares a map with the following properties:
-    //     // origin = [0,0], width = 10, height = 10, num rounds = 100
-    //     // random seed = 1337
-    //     // The map doesn't have to meet specs.
-    //     LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-    //         .build();
+    @Test
+    public void testBasic() throws GameActionException {
+        // Prepares a map with the following properties:
+        // origin = [0,0], width = 10, height = 10, num rounds = 100
+        // random seed = 1337
+        // The map doesn't have to meet specs.
+        TestMapBuilder tm = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100, 10);
+        LiveMap map = tm.build();
 
-    //     // This creates the actual game.
-    //     TestGame game = new TestGame(map);
+        // This creates the actual game.
+        TestGame game = new TestGame(map);
 
     //     // Let's spawn a robot for each team. The integers represent IDs.
     //     float oX = game.getOriginX();
@@ -64,7 +64,7 @@ public class RobotControllerTest {
     //     game.waitRounds(10);
 
     //     // hooray!
-    // }
+    }
 
     /**
      * Ensure that actions take place immediately.
