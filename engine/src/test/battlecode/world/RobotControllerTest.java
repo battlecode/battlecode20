@@ -33,6 +33,22 @@ public class RobotControllerTest {
 
         // This creates the actual game.
         TestGame game = new TestGame(map);
+        int landscaper = game.spawn(1, 1, RobotType.LANDSCAPER, Team.A);
+        InternalRobot landscaperBot = game.getBot(landscaper);
+        RobotController landscaperController = new RobotControllerImpl(game.getWorld(), landscaperBot);
+        assertEquals(new MapLocation(1, 1), landscaperController.getLocation());
+        game.round((id, rc) -> {
+            if (id == landscaper && landscaperController.canDigDirt(Direction.EAST)) {
+                int startdirt = game.getWorld().getDirt(landscaperController.adjacentLocation(Direction.EAST));
+                landscaperController.digDirt(Direction.EAST);
+                assertEquals(startdirt - 1, game.getWorld().getDirt(landscaperController.adjacentLocation(Direction.EAST)));
+            }
+        });
+        // landscaperController.digDirt(Direction.EAST);
+        // landscaperController.digDirt(Direction.EAST);
+        // landscaperController.digDirt(Direction.EAST);
+        // assertEquals(startdirt - 3, game.getWorld().getDirt(landscaperController.adjacentLocation(Direction.EAST)));
+
 
     //     // Let's spawn a robot for each team. The integers represent IDs.
     //     float oX = game.getOriginX();
