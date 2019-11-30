@@ -147,6 +147,43 @@ task debug(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) 
   ]
 }
 
+task headlessX(type: JavaExec, dependsOn: [':engine:build', ':internal-test-bots:build']) {
+  main = 'battlecode.server.Main'
+  classpath = files(serverJar) + project(':internal-test-bots').sourceSets.main.output + configurations.scala
+  args = ['-c=-']
+  jvmArgs = [
+    '-Dbc.server.mode=headless',
+    '-Dbc.server.map-path=maps',
+    '-Dbc.server.debug=true',
+    '-Dbc.engine.debug-methods=true',
+    '-Dbc.game.team-a='+project.property('teamA'),
+    '-Dbc.game.team-b='+project.property('teamB'),
+    '-Dbc.game.team-a.url='+project(':internal-test-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.team-b.url='+project(':internal-test-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.maps='+project.property('maps'),
+    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc20'
+  ]
+}
+
+task debugX(type: JavaExec, dependsOn: [':engine:build', ':internal-test-bots:build']) {
+  main = 'battlecode.server.Main'
+  classpath = files(serverJar) + project(':internal-test-bots').sourceSets.main.output + configurations.scala
+  args = ['-c=-']
+  jvmArgs = [
+    '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
+    '-Dbc.server.mode=headless',
+    '-Dbc.server.map-path=maps',
+    '-Dbc.server.debug=true',
+    '-Dbc.engine.debug-methods=true',
+    '-Dbc.game.team-a='+project.property('teamA'),
+    '-Dbc.game.team-b='+project.property('teamB'),
+    '-Dbc.game.team-a.url='+project(':internal-test-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.team-b.url='+project(':internal-test-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.maps='+project.property('maps'),
+    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc20'
+  ]
+}
+
 task run(dependsOn: ['headless']) {}
 
 task runClient {
