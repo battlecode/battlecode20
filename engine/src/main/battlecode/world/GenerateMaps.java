@@ -46,7 +46,7 @@ public class GenerateMaps {
                     )
                 )
                 .addRobot(
-                    2,
+                    3,
                     Team.NEUTRAL,
                     RobotType.COW,
                     new MapLocation(
