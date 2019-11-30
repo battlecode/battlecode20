@@ -119,7 +119,7 @@ export default class Renderer {
         this.ctx.globalAlpha = map.pollution[idxVal] / 1000.0;
         this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
       }
-      else if (waterLayer && (map.water[idxVal] > 0)){
+      else if (waterLayer && (map.flooded[idxVal] > 0)){
         this.ctx.fillStyle = 'blue';
         this.ctx.globalAlpha = 0.5;
         this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
