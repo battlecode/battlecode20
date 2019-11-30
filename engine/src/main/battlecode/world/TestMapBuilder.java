@@ -72,22 +72,26 @@ public class TestMapBuilder {
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 this.waterArray[i + j * width] = false;
+                if (i < 4 && j < 4) {
+                    this.waterArray[i + j * width] = true;
+                }
             }
         }
         return this;
     }
 
-    // this is very stupid but its okay to be stupid :))
-    public TestMapBuilder addWaterLoc(int x, int y) {
-        this.waterArray[x + y * width] = true;
-        return this;
-    }
 
     public TestMapBuilder setDirt() {
         this.dirtArray = new int[width*height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.dirtArray[i + j * width] = 0;
+                this.dirtArray[i + j * width] = 3;
+                if (i < 16 && j < 8) {
+                    this.dirtArray[i + j * width] = 2;
+                }
+                if (i < 8 && j < 8) {
+                    this.dirtArray[i + j * width] = 1;
+                }
             }
         }
         return this;
