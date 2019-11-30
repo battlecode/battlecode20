@@ -96,3 +96,7 @@ javadoc {
   options.taglets = ["battlecode.doc.CostlyMethodTaglet", "battlecode.doc.RobotTypeTaglet"]
   options.tagletPath = [sourceSets.main.output.classesDir] + sourceSets.main.compileClasspath
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.2'
+}
