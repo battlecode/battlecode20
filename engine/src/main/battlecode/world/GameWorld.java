@@ -124,6 +124,9 @@ public strictfp class GameWorld {
 
     private void updateDynamicBodies(){
         objectInfo.eachDynamicBodyByExecOrder((body) -> {
+            // System.out.println(Arrays.deepToString(this.robots));
+            // System.out.println("iuqhwefiuwfiohqweofhqwiofh");
+            // System.out.println(body);
             if (body instanceof InternalRobot) {
                 return updateRobot((InternalRobot) body);
             }
@@ -495,8 +498,10 @@ public strictfp class GameWorld {
         int[] netWorths = new int[2];
         netWorths[0] = this.teamInfo.getSoup(Team.A);
         netWorths[1] = this.teamInfo.getSoup(Team.B);
-        for (InternalRobot robot : objectInfo.robotsArray())
+        for (InternalRobot robot : objectInfo.robotsArray()) {
+            if (robot.getTeam() == Team.NEUTRAL) continue;
             netWorths[robot.getTeam().ordinal()] += robot.getType().cost;
+        }
         if (netWorths[0] > netWorths[1]) {
             setWinner(Team.A, DominationFactor.QUALITY_OVER_QUANTITY);
             return true;
@@ -655,6 +660,8 @@ public strictfp class GameWorld {
     // *********************************
 
     public void destroyRobot(int id) {
+        // System.out.println("Killing robot: ");
+        // System.out.println(id);
         InternalRobot robot = objectInfo.getRobotByID(id);
         removeRobot(robot.getLocation());
         
