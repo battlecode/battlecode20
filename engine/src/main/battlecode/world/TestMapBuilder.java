@@ -71,9 +71,15 @@ public class TestMapBuilder {
         this.waterArray = new boolean[width*height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.waterArray[i + j * width] = true;
+                this.waterArray[i + j * width] = false;
             }
         }
+        return this;
+    }
+
+    // this is very stupid but its okay to be stupid :))
+    public TestMapBuilder addWaterLoc(int x, int y) {
+        this.waterArray[x + y * width] = true;
         return this;
     }
 
