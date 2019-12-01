@@ -113,6 +113,7 @@ export default class Renderer {
 
     for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
       let idxVal = map.getIdx(i,j);
+      let plotJ = height-j-1;
 
       if (dirtLayer && (map.flooded[idxVal] == 0)) {// && (map.dirt[idxVal] > 0)) {
         // dirt should be a gradient from green brown to orange brown depending on elevation
@@ -134,21 +135,21 @@ export default class Renderer {
         }
         this.ctx.fillStyle = thisrgbcolor;
         this.ctx.globalAlpha = 1;//Math.min(map.dirt[idxVal] / 5.0, 1);
-        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
+        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
       }
 
       if (waterLayer && (map.flooded[idxVal] > 0)){
         // water should always be the same color
         this.ctx.fillStyle = 'rgba(0,0,255,1.0)';
         this.ctx.globalAlpha = 1;
-        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
+        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
       }
 
       if (pollutionLayer) {
         // pollution should add a clouds that are black with some opacity
         this.ctx.fillStyle = 'black';
         this.ctx.globalAlpha = map.pollution[idxVal] / 1000.0;
-        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
+        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
       }
 
     }
