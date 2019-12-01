@@ -131,6 +131,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can build buildings.
      *
+     * @param type the RobotType of the robot to get information on
      * @return whether the robot can build
      */
     public boolean canBuild(RobotType type) {
