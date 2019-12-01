@@ -2,4 +2,4 @@ rootProject.name = 'battlecode-release'
 
 include 'engine', 'example-bots'
 include ":internal-test-bots"
-project(":internal-test-bots").projectDir = file("../battlecode20-internal-test-bots")
+project(":internal-test-bots").projectDir = file("battlecode20-internal-test-bots")
