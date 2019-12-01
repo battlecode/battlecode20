@@ -17,12 +17,12 @@ if (!project.hasProperty("teamB")) {
     ext.teamB = "examplefuncsplayer"
 }
 if (!project.hasProperty("maps")) {
-    ext.maps = "shrine"
+    ext.maps = "maptest"
 }
 
 if (project.hasProperty("release_version")) {
-    if (!project.property("release_version").startsWith("2017")) {
-        throw new StopExecutionException("no")
+    if (!project.property("release_version").startsWith("2020")) {
+        throw new StopExecutionException("release versin must start with 2020!")
     }
 }
 
@@ -228,6 +228,20 @@ task release_main(type: Jar, dependsOn: [':engine:build', ':example-bots:proguar
 }
 
 task release_docs(type: Jar, dependsOn: [':engine:javadoc']) {
+  doFirst {
+    if (!project.hasProperty("release_version") || project.property("release_version") == "unspecified")
+      throw new InvalidUserDataException("Must provide property \"release_version\"")
+  }
+
+  baseName = "battlecode-javadoc"
+  if (project.hasProperty("release_version"))
+    version = project.property("release_version");
+  destinationDir = project.projectDir;
+
+  from new File(project(":engine").docsDir, "javadoc")
+}
+
+task release_docs_zip(type: Zip, dependsOn: [':engine:javadoc']) {
   doFirst {
     if (!project.hasProperty("release_version") || project.property("release_version") == "unspecified")
       throw new InvalidUserDataException("Must provide property \"release_version\"")
