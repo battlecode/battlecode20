@@ -101,7 +101,7 @@ export function defaults(supplied?: any): Config {
     websocketURL: supplied.websocketURL || null,
     matchFileURL: supplied.matchFileURL || null,
     pollEvery: supplied.pollEvery || 500,
-    interpolate: supplied.interpolate || true,
+    interpolate: supplied.interpolate || false,
     healthBars: supplied.healthBars || true,
     circleBots: supplied.circleBots || false,
     indicators: supplied.indicators || true,

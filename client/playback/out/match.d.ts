@@ -104,7 +104,7 @@ export default class Match {
      * if we don't have deltas to it, we can't.
      * If we can, each call to compute() will update state until current.turn === seekTo
      */
-    seek(round: number): boolean;
+    seek(round: number): void;
     /**
      * Perform computations for some amount of time.
      * We try to overshoot timeGoal as little as possible; however, if turn applications start taking a long time, we may overshoot it arbitrarily far.

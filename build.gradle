@@ -10,18 +10,18 @@ sourceCompatibility = 1.8
 // Fun fact: this line of code single-handedly fixed an error I spent two hours debugging.
 evaluationDependsOnChildren()
 
-// if (!project.hasProperty("teamA")) {
-//     ext.teamA = "examplefuncsplayer"
-// }
-// if (!project.hasProperty("teamB")) {
-//     ext.teamB = "examplefuncsplayer"
-// }
-// if (!project.hasProperty("maps")) {
-//     ext.maps = "shrine"
-// }
+if (!project.hasProperty("teamA")) {
+    ext.teamA = "examplefuncsplayer"
+}
+if (!project.hasProperty("teamB")) {
+    ext.teamB = "examplefuncsplayer"
+}
+if (!project.hasProperty("maps")) {
+    ext.maps = "shrine"
+}
 
 if (project.hasProperty("release_version")) {
-    if (!project.property("release_version").startsWith("2020")) {
+    if (!project.property("release_version").startsWith("2017")) {
         throw new StopExecutionException("no")
     }
 }

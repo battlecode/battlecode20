@@ -4,6 +4,14 @@ This is the game client for Battlecode 2020, which can run in your web browser o
 
 If you're a competitor and not interested in *developing* the client, you shouldn't do any of the things this document tells you to do. Proceed at your own risk.
 
+### NPM scripts
+ * `npm run watch`
+ * `npm run electron`
+ * `npm run prod-electron`
+ * `npm run prod-electron-no-sign`
+ * `npm run prod-test`: Test just for local platform.
+ * `npm run clean`
+
 ### Developing
 
 To get started:

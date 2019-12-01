@@ -37,6 +37,9 @@ export default class MatchQueue {
 
     let uploadButton = this.addUploadButton();
     div.appendChild(uploadButton);
+    
+    div.appendChild(document.createElement('br'));
+
     div.appendChild(document.createElement('br'));
 
     let title = document.createElement("b");
@@ -88,6 +91,7 @@ export default class MatchQueue {
 
     return uploadLabel;
   }
+
   loadMatch(files: FileList) {
     const file = files[0];
     console.log(file);
