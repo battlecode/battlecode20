@@ -50,7 +50,6 @@ export default class Renderer {
 
     // TODO: can this be null???
     this.bgPattern = this.ctx.createPattern(imgs.background, 'repeat')!;
-    //this.treeMedHealth = metadata.types[schema.BodyType.TREE_NEUTRAL].maxHealth / 2;
   }
 
   /**
@@ -72,7 +71,6 @@ export default class Renderer {
     this.renderBackground(world);
 
     this.renderBodies(world, nextStep, lerpAmount);
-    // this.renderBullets(world, lerpAmount);
 
     this.renderIndicatorDotsLines(world);
     this.setMouseoverEvent(world);
@@ -89,8 +87,15 @@ export default class Renderer {
   }
 
   private renderBackground(world: GameWorld) {
+    // Array of checked views
+    let checkedView = this.getCheckedView();
+    let waterLayer = checkedView.includes('water');
+    let dirtLayer = checkedView.includes('dirt');
+    let pollutionLayer = checkedView.includes('pollution');
+
     this.ctx.save();
-    this.ctx.fillStyle = this.bgPattern;
+    this.ctx.fillStyle = "white";
+    this.ctx.globalAlpha = 1;
 
     const minX = world.minCorner.x;
     const minY = world.minCorner.y;
@@ -104,15 +109,71 @@ export default class Renderer {
     // scale the background pattern
     this.ctx.fillRect(minX*scale, minY*scale, width*scale, height*scale);
 
-    // const map = world.mapStats;
-    // this.ctx.fillStyle = 'blue';
-    // for(let i=0; i<width; i++) for(let j=0; j<height; j++){
-    //   if(map.water[map.getIdx(i,j)] > 0){
-    //     this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, (minX+i+1)*scale, (minY+j+1)*scale);
-    //   }
-    // }
+    const map = world.mapStats;
+
+    for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
+      let idxVal = map.getIdx(i,j);
+      let plotJ = height-j-1;
+
+      if (dirtLayer && (map.flooded[idxVal] == 0)) {// && (map.dirt[idxVal] > 0)) {
+        // dirt should be a gradient from green brown to orange brown depending on elevation
+        // we simply interpolate here
+        // TODO: change cutoff point for elevation
+        // here we're assuming it is roughly between 0 and 5, which might be very wrong
+        let elevationCoefficient = Math.max(0, Math.min(map.dirt[idxVal] / 5.0, 1)); // this should ideally be standardized using something other than the magic '5.0'
+        let lowground = [89,156,28];
+        let highground = [156,28,28];
+        let thisrgbcolor = 'rgb('
+        for (let ii = 0; ii < 3; ii++) {
+          let val = (1 - elevationCoefficient) * lowground[ii] + elevationCoefficient * highground[ii];
+          thisrgbcolor += val.toString();
+          if (ii < 2) {
+            thisrgbcolor += ",";
+          } else {
+            thisrgbcolor += ")"
+          }
+        }
+        this.ctx.fillStyle = thisrgbcolor;
+        this.ctx.globalAlpha = 1;//Math.min(map.dirt[idxVal] / 5.0, 1);
+        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
+      }
+
+      if (waterLayer && (map.flooded[idxVal] > 0)){
+        // water should always be the same color
+        this.ctx.fillStyle = 'rgba(0,0,255,1.0)';
+        this.ctx.globalAlpha = 1;
+        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
+      }
+
+      if (pollutionLayer) {
+        // pollution should add a clouds that are black with some opacity
+        this.ctx.fillStyle = 'black';
+        this.ctx.globalAlpha = map.pollution[idxVal] / 1000.0;
+        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
+      }
+
+    }
 
     this.ctx.restore();
+  }
+
+  private getCheckedView() {
+    let checkboxes = document.getElementsByName("view");
+
+    if (checkboxes.length === 0) {
+      return ["water", "dirt", "pollution"];
+    }
+
+    let selectedItems : string[] = [];
+    
+		for(let i=0; i<checkboxes.length; i++){
+      let checkboxInput = <HTMLInputElement> checkboxes[i];
+			if(checkboxInput.type =='checkbox' && checkboxInput.checked == true) {
+        selectedItems.push(checkboxInput.value);
+      }
+    }
+    
+    return selectedItems;
   }
 
   private renderBodies(world: GameWorld, nextStep?: NextStep, lerpAmount?: number) {
@@ -128,7 +189,7 @@ export default class Renderer {
     const maxY = world.maxCorner.y;
 
     let nextXs: Int32Array, nextYs: Int32Array, realXs: Int32Array, realYs: Int32Array;
-    if (nextStep) {
+    if (nextStep && lerpAmount) {
       // Interpolated
       nextXs = nextStep.bodies.arrays.x;
       nextYs = nextStep.bodies.arrays.y;
@@ -136,18 +197,19 @@ export default class Renderer {
     }
     else{
       // supposed to be error?
-      console.log("Error in renderer.ts");
-      return;
+      // console.log("Error in renderer.ts");
+      // return;
     }
 
     // Calculate the real xs and ys
     realXs = new Int32Array(length)
     realYs = new Int32Array(length)
     for (let i = 0; i < length; i++) {
-      if (nextStep && lerpAmount) {
+      if (nextStep && lerpAmount && false) {
         // Interpolated
-        realXs[i] = xs[i] + (nextXs[i] - xs[i]) * lerpAmount;
-        realYs[i] = this.flip(ys[i] + (nextYs[i] - ys[i]) * lerpAmount, minY, maxY);
+        console.log("This should not be executed");
+        // realXs[i] = xs[i] + (nextXs[i] - xs[i]) * lerpAmount;
+        // realYs[i] = this.flip(ys[i] + (nextYs[i] - ys[i]) * lerpAmount, minY, maxY);
       } else {
         // Not interpolated
         realXs[i] = xs[i];
@@ -167,18 +229,8 @@ export default class Renderer {
         const img = this.imgs.cow;
         this.drawCircleBot(x, y, radius);
         this.drawImage(img, x, y, radius);
-        // this.drawGoodies(x, y, radius, treeBullets[i], treeBodies[i]);
-        // this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
-          // world.minCorner, world.maxCorner);
       }
 
-      // if (type === cst.COW) {
-      //   const img = this.imgs.robot.bulletTree[team];
-      //   this.drawCircleBot(x, y, radius);
-      //   this.drawImage(img, x, y, radius);
-      //   this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
-      //     world.minCorner, world.maxCorner);
-      // }
     }
 
     // Render the robots
@@ -200,8 +252,6 @@ export default class Renderer {
         const img = tmp[team];
         this.drawCircleBot(x, y, radius);
         this.drawImage(img, x, y, radius);
-        // this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
-        //   world.minCorner, world.maxCorner);
         
         // Draw the sight radius if the robot is selected
         if (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID) {
@@ -254,23 +304,7 @@ export default class Renderer {
       this.ctx.stroke();
     }
 
-    // if (this.conf.bulletSightRadius) {
-    //   const bulletSightRadius = this.metadata.types[type].bulletSightRadius;
-    //   this.ctx.beginPath();
-    //   this.ctx.arc(x, y, bulletSightRadius, 0, 2 * Math.PI);
-    //   this.ctx.strokeStyle = "#ff8e00";
-    //   this.ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH;
-    //   this.ctx.stroke();
-    // }
   }
-
-  /**
-   * Draws goodies centered at (x, y) with the given radius, if there are any
-   */
-  // private drawGoodies(x: number, y: number, radius: number, bullets: number, body: schema.BodyType) {
-  //   if (bullets > 0) this.drawImage(this.imgs.tree.bullets, x, y, radius);
-  //   if (body !== cst.NONE) this.drawImage(this.imgs.tree.robot, x, y, radius);
-  // }
 
   /**
    * Draws an image centered at (x, y) with the given radius
@@ -278,31 +312,6 @@ export default class Renderer {
   private drawImage(img: HTMLImageElement, x: number, y: number, radius: number) {
     this.ctx.drawImage(img, x-radius, y-radius, radius*2, radius*2);
   }
-
-  /**
-   * Draws a health bar for a unit centered at (xRobot, yRobot) with the given
-   * radius, health, and maxHealth
-   */
-  // private drawHealthBar(xRobot: number, yRobot: number, radius: number,
-  //   health: number, maxHealth: number, minCorner: Victor, maxCorner: Victor) {
-  //   if (!this.conf.healthBars) return; // skip if the option is turned off
-
-  //   let x = xRobot - cst.HEALTH_BAR_WIDTH_HALF;
-  //   let y = yRobot + radius;
-
-  //   let minX = minCorner.x;
-  //   let maxX = maxCorner.x - cst.HEALTH_BAR_WIDTH;
-  //   let maxY = maxCorner.y - cst.HEALTH_BAR_HEIGHT;
-  //   x = Math.max(minX, Math.min(x, maxX));
-  //   y = Math.min(maxY, y);
-
-  //   this.ctx.fillStyle = "green"; // current health
-  //   this.ctx.fillRect(x, y, cst.HEALTH_BAR_WIDTH * health / maxHealth,
-  //     cst.HEALTH_BAR_HEIGHT);
-  //   this.ctx.strokeStyle = "black"; // outline
-  //   this.ctx.lineWidth = .1;
-  //   this.ctx.strokeRect(x, y, cst.HEALTH_BAR_WIDTH, cst.HEALTH_BAR_HEIGHT);
-  // }
 
   private setInfoStringEvent(world: GameWorld,
     xs: Int32Array, ys: Int32Array) {
@@ -355,41 +364,6 @@ export default class Renderer {
       onMouseover(x, this.flip(y, minY, maxY));
     };
   }
-
-  // private renderBullets(world: GameWorld, lerpAmount: number | undefined=0) {
-  //   const bullets = world.bullets;
-  //   const length = bullets.length;
-  //   const xs = bullets.arrays.x;
-  //   const ys = bullets.arrays.y;
-  //   const velXs = bullets.arrays.velX;
-  //   const velYs = bullets.arrays.velY;
-  //   const spawnedTimes = bullets.arrays.spawnedTime;
-  //   const minY = world.minCorner.y;
-  //   const maxY = world.maxCorner.y;
-
-  //   for (let i = 0; i < length; i++) {
-  //     const velX = velXs[i];
-  //     const velY = velYs[i];
-
-  //     const dt = (world.turn + lerpAmount) - spawnedTimes[i];
-
-  //     const x = xs[i] + velX*dt;
-  //     const y = this.flip(ys[i] + velY*dt, minY, maxY);
-
-  //     const speedsq = velX*velX + velY*velY;
-
-  //     let img;
-  //     if (speedsq >= cst.HIGH_SPEED_THRESH) {
-  //       img = this.imgs.bullet.fast;
-  //     } else if (speedsq >= cst.MED_SPEED_THRESH) {
-  //       img = this.imgs.bullet.medium;
-  //     } else {
-  //       img = this.imgs.bullet.slow;
-  //     }
-
-  //     this.drawImage(img, x, y, cst.BULLET_SIZE_HALF);
-  //   }
-  // }
 
   private renderIndicatorDotsLines(world: GameWorld) {
     if (!this.conf.indicators) {

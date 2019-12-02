@@ -548,12 +548,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *  the action cooldown is ready, and whether the location is on the map.
      *
      * @param dir the direction to deposit in
+     * @param amount the amount of dirt to deposit
      */
     @Override
-    public boolean canDepositDirt(Direction dir) {
+    public boolean canDepositDirt(Direction dir, int amount) {
         MapLocation center = adjacentLocation(dir);
         return (getType().canDeposit() && isReady() &&
-                onTheMap(center) && getDirtCarrying() > 0);
+                onTheMap(center) && getDirtCarrying() >= amount);
     }
 
     /**
@@ -562,12 +563,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *  WE DON'T KNOW YET.
      *
      * @param dir the direction to deposit in
+     * @param amount the amount of dirt to deposit
      * @throws GameActionException
      */
     @Override
-    public void depositDirt(Direction dir) throws GameActionException {
+    public void depositDirt(Direction dir, int amount) throws GameActionException {
         assertNotNull(dir);
-        assertCanDepositDirt(dir);
+        assertCanDepositDirt(dir, amount);
         this.robot.resetCooldownTurns();
         this.robot.removeDirtCarrying(1);
         this.gameWorld.addDirt(getID(), adjacentLocation(dir), 1);
@@ -830,6 +832,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return (messageArray.length <= GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH &&
             gameWorld.getTeamInfo().getSoup(getTeam()) >= proofOfStake);
     }
+
 
     /**
      * Sends a message to the blockchain at the indicated cost.

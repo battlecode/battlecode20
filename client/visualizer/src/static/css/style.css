@@ -155,8 +155,8 @@ input[type='file'] {
 .teamHeader {
     padding: 14px;
     font-size: 20px;
-    margin-top: 5px;
-    margin-bottom: 10px;
+    margin-top: 15px;
+    margin-bottom: 5px;
 }
 
 .tdLabel {
@@ -177,11 +177,30 @@ input[type='file'] {
     margin-bottom: 6px;
 }
 
+.checkbox {
+    position: absolute;
+    visibility: hidden;
+    cursor: pointer;
+}
+
 label{
     display: inline-block;
     clear: left;
-    width: 70px;
-    text-align: right;
+    width: 80px;
+    text-align: center;
+}
+
+#viewoptionformid {
+    margin-top: 12px;
+    width: 100%;
+}
+
+:checked + .viewspan {
+    padding: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border: 2px solid gray;
+    border-radius: 10px;
 }
 
 input {

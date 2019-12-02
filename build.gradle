@@ -10,19 +10,19 @@ sourceCompatibility = 1.8
 // Fun fact: this line of code single-handedly fixed an error I spent two hours debugging.
 evaluationDependsOnChildren()
 
-// if (!project.hasProperty("teamA")) {
-//     ext.teamA = "examplefuncsplayer"
-// }
-// if (!project.hasProperty("teamB")) {
-//     ext.teamB = "examplefuncsplayer"
-// }
-// if (!project.hasProperty("maps")) {
-//     ext.maps = "shrine"
-// }
+if (!project.hasProperty("teamA")) {
+    ext.teamA = "examplefuncsplayer"
+}
+if (!project.hasProperty("teamB")) {
+    ext.teamB = "examplefuncsplayer"
+}
+if (!project.hasProperty("maps")) {
+    ext.maps = "maptest"
+}
 
 if (project.hasProperty("release_version")) {
     if (!project.property("release_version").startsWith("2020")) {
-        throw new StopExecutionException("no")
+        throw new StopExecutionException("release versin must start with 2020!")
     }
 }
 
@@ -147,6 +147,43 @@ task debug(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) 
   ]
 }
 
+task headlessX(type: JavaExec, dependsOn: [':engine:build', ':internal-test-bots:build']) {
+  main = 'battlecode.server.Main'
+  classpath = files(serverJar) + project(':internal-test-bots').sourceSets.main.output + configurations.scala
+  args = ['-c=-']
+  jvmArgs = [
+    '-Dbc.server.mode=headless',
+    '-Dbc.server.map-path=maps',
+    '-Dbc.server.debug=true',
+    '-Dbc.engine.debug-methods=true',
+    '-Dbc.game.team-a='+project.property('teamA'),
+    '-Dbc.game.team-b='+project.property('teamB'),
+    '-Dbc.game.team-a.url='+project(':internal-test-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.team-b.url='+project(':internal-test-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.maps='+project.property('maps'),
+    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc20'
+  ]
+}
+
+task debugX(type: JavaExec, dependsOn: [':engine:build', ':internal-test-bots:build']) {
+  main = 'battlecode.server.Main'
+  classpath = files(serverJar) + project(':internal-test-bots').sourceSets.main.output + configurations.scala
+  args = ['-c=-']
+  jvmArgs = [
+    '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
+    '-Dbc.server.mode=headless',
+    '-Dbc.server.map-path=maps',
+    '-Dbc.server.debug=true',
+    '-Dbc.engine.debug-methods=true',
+    '-Dbc.game.team-a='+project.property('teamA'),
+    '-Dbc.game.team-b='+project.property('teamB'),
+    '-Dbc.game.team-a.url='+project(':internal-test-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.team-b.url='+project(':internal-test-bots').sourceSets.main.output.classesDir,
+    '-Dbc.game.maps='+project.property('maps'),
+    '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc20'
+  ]
+}
+
 task run(dependsOn: ['headless']) {}
 
 task runClient {
@@ -191,6 +228,20 @@ task release_main(type: Jar, dependsOn: [':engine:build', ':example-bots:proguar
 }
 
 task release_docs(type: Jar, dependsOn: [':engine:javadoc']) {
+  doFirst {
+    if (!project.hasProperty("release_version") || project.property("release_version") == "unspecified")
+      throw new InvalidUserDataException("Must provide property \"release_version\"")
+  }
+
+  baseName = "battlecode-javadoc"
+  if (project.hasProperty("release_version"))
+    version = project.property("release_version");
+  destinationDir = project.projectDir;
+
+  from new File(project(":engine").docsDir, "javadoc")
+}
+
+task release_docs_zip(type: Zip, dependsOn: [':engine:javadoc']) {
   doFirst {
     if (!project.hasProperty("release_version") || project.property("release_version") == "unspecified")
       throw new InvalidUserDataException("Must provide property \"release_version\"")

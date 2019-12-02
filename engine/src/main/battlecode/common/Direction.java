@@ -4,8 +4,6 @@ package battlecode.common;
  * This enumeration represents a direction from one MapLocation to another.
  * There is a direction for each of the cardinals (north, south, east, west),
  * and each of diagonals (northwest, southwest, northeast, southeast).
- * There is also NONE, representing no direction, and OMNI, representing
- * all directions.
  * <p>
  * Since Direction is a Java 1.5 enum, you can use it in <code>switch</code>
  * statements, it has all the standard enum methods (<code>valueOf</code>,
@@ -20,7 +18,7 @@ public enum Direction {
     /**
      * Direction that represents pointing northeast (up and to the right on screen).
      */
-    NORTHEAST(0, -1),
+    NORTHEAST(1, -1),
     /**
      * Direction that represents pointing east (right on screen).
      */

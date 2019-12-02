@@ -58,7 +58,7 @@ class GameWorld {
             maxCorner: new Victor(0, 0),
             bodies: new battlecode_schema_1.schema.SpawnedBodyTable(),
             randomSeed: 0,
-            water: new Int32Array(0),
+            flooded: new Int8Array(0),
             dirt: new Int32Array(0),
             pollution: new Int32Array(0),
             soup: new Int32Array(0),
@@ -114,7 +114,7 @@ class GameWorld {
             this.insertBodies(bodies);
         }
         this.mapStats.randomSeed = map.randomSeed();
-        this.mapStats.water = Int32Array.from(map.waterArray());
+        this.mapStats.flooded = Int8Array.from(map.waterArray());
         this.mapStats.dirt = Int32Array.from(map.dirtArray());
         this.mapStats.pollution = Int32Array.from(map.pollutionArray());
         this.mapStats.soup = Int32Array.from(map.soupArray());
@@ -260,11 +260,13 @@ class GameWorld {
             this.mapStats.dirt[mapIdx] = delta.dirtChanges(i);
         }
         // Water changes on map
-        for (let i = 0; i < delta.waterChangesLength(); i++) {
-            const x = delta.waterChangedLocs().xs(i);
-            const y = delta.waterChangedLocs().ys(i);
-            const mapIdx = this.mapStats.getIdx(x, y);
-            this.mapStats.water[mapIdx] = delta.waterChanges(i);
+        if (delta.waterChangedLocs() !== null) {
+            for (let i = 0; i < delta.waterChangedLocs().xsLength(); i++) {
+                const x = delta.waterChangedLocs().xs(i);
+                const y = delta.waterChangedLocs().ys(i);
+                const mapIdx = this.mapStats.getIdx(x, y);
+                this.mapStats.flooded[mapIdx] = 1 - this.mapStats.flooded[mapIdx]; // this position changed flood situation
+            }
         }
         // Pollution changes on map
         for (let i = 0; i < delta.pollutionChangesLength(); i++) {

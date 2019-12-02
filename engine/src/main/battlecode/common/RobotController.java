@@ -533,22 +533,101 @@ public strictfp interface RobotController {
      * and whether the robot has dirt.
      *
      * @param dir the direction to deposit
+     * @param amount the amount of dirt to deposit
      * @return whether it is possible to deposit dirt in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canDepositDirt(Direction dir);
+    boolean canDepositDirt(Direction dir, int amount);
 
     /**
      * Deposits dirt in the given direction (max up to specified amount).
      *
      * @param dir the direction to deposit
+     * @param amount the amount of dirt to deposit
      * @throws GameActionException if this robot is not a landscaper, if
      * the robot is still in cooldown, if there is no dirt to deposit,
      *
      * @battlecode.doc.costlymethod
      */
-    void depositDirt(Direction dir) throws GameActionException;
+    void depositDirt(Direction dir, int amount) throws GameActionException;
+
+    // ***************************************
+    // ******* DELIVERY DRONE METHODS ********
+    // ***************************************
+
+    /**
+     * Tests whether a robot is able to pick up a specific unit.
+     *
+     * @param id the id of the robot to pick up
+     * @return true if robot with the id can be picked up, false otherwise
+     */
+    boolean canPickUpUnit(int id);
+
+    /**
+     * Picks up another unit.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
+     * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
+     * of this robot.
+     */
+    void pickUpUnit(int id) throws GameActionException;
+
+    /**
+     * Tests whether a robot is able to drop a unit in a specified direction.
+     *
+     * @param dir the specified direction
+     * @return true if a robot can be dropped off, false otherwise
+     */
+    boolean canDropUnit(Direction dir);
+
+    /**
+     * Drops the unit that is currently picked up.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
+     * holding a unit that it can drop.
+     */
+    void dropUnit(Direction dir) throws GameActionException;
+
+    // ***************************************
+    // ******* NET GUN METHODS ***************
+    // ***************************************
+
+    /**
+     * Tests whether a robot is able to shoot down a specific unit.
+     *
+     * @param id the id of the robot to shoot
+     * @return true if robot with the id can be shot down, false otherwise
+     */
+    boolean canShootUnit(int id);
+
+    /**
+     * Shoots down another unit.
+     *
+     * @throws GameActionException if the robot is not of type NET_GUN,
+     *  or the robot's action cooldown is not ready, or if the unit to
+     *  shoot down is not in the radius of this robot, or if the unit
+     *  cannot be shot down.
+     */
+    void shootUnit(int id) throws GameActionException;
+
+    // ***********************************
+    // ****** OTHER ACTION METHODS *******
+    // ***********************************
+
+    /**
+     * Kills your robot and ends the current round. Never fails.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void disintegrate();
+
+    /**
+     * Causes your team to lose the game. It's like typing "gg."
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void resign();
 
     // **************************************
     // ********** REFINERY METHODS **********
