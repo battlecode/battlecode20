@@ -533,8 +533,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *
      * @throws GameActionException
      */
-    private void assertCanDepositDirt(Direction dir) throws GameActionException{
-        if(!canDepositDirt(dir)){
+    private void assertCanDepositDirt(Direction dir, int amount) throws GameActionException{
+        if(!canDepositDirt(dir, amount)){
             throw new GameActionException(CANT_DO_THAT,
                     "Can't deposit dirt in given direction, possibly due to " +
                             "cooldown not expired, this robot can't deposit, " +
@@ -573,56 +573,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.robot.resetCooldownTurns();
         this.robot.removeDirtCarrying(1);
         this.gameWorld.addDirt(getID(), adjacentLocation(dir), 1);
-    }
-
-    // **************************************
-    // ********** REFINERY METHODS **********
-    // **************************************
-
-    /**
-     * Asserts that the robot can refine soup.
-     *
-     * @throws GameActionException
-     */
-    private void assertCanRefine() throws GameActionException{
-        if(!canRefine()){
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can't refine soup, possibly due to cooldown not expired, " + 
-                    "this robot can't refine soup.");
-        }
-    }
-
-    /**
-     * Tests whether the robot can refine soup.
-     * Checks cooldown turns remaining and whether the robot can refine.
-     *
-     * @return whether it is possible to refine soup
-     *
-     * @battlecode.doc.costlymethod
-     */
-    @Override
-    public boolean canRefine() {
-        return (getType().canRefine() && isReady());
-    }
-
-    /**
-     * Deposits dirt in the given direction (max up to specified amount).
-     *
-     * @throws GameActionException if this robot is not a refinery, if
-     * the robot is still in cooldown, if there is no soup to refine,
-     *
-     * @battlecode.doc.costlymethod
-     */
-    @Override
-    public void refine() throws GameActionException {
-        assertCanRefine();
-        robot.resetCooldownTurns();
-        int amount = Math.min(getType().maxSoupProduced, getSoupCarrying());
-        robot.removeSoupCarrying(amount);
-        gameWorld.adjustPollution(getLocation(), getType().pollutionAmount); //TODO: how much pollution?? store this constant somewhere!!
-        gameWorld.getTeamInfo().adjustSoup(getTeam(), amount);
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.REFINE, -1);
     }
 
     // ***************************************

@@ -28,7 +28,7 @@ public class RobotControllerTest {
         // origin = [0,0], width = 10, height = 10, num rounds = 100
         // random seed = 1337
         // The map doesn't have to meet specs.
-        TestMapBuilder tm = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100, 10);
+        /*TestMapBuilder tm = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100, 10);
         LiveMap map = tm.build();
 
         // This creates the actual game.
@@ -43,7 +43,7 @@ public class RobotControllerTest {
                 landscaperController.digDirt(Direction.EAST);
                 assertEquals(startdirt - 1, game.getWorld().getDirt(landscaperController.adjacentLocation(Direction.EAST)));
             }
-        });
+        });*/
         // landscaperController.digDirt(Direction.EAST);
         // landscaperController.digDirt(Direction.EAST);
         // landscaperController.digDirt(Direction.EAST);
