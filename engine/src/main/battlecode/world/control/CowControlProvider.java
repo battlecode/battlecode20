@@ -13,6 +13,7 @@ import java.util.*;
  * in some other file
  */
 public class CowControlProvider implements RobotControlProvider {
+
     /**
      * The directions a cow cares about.
      */
@@ -41,7 +42,7 @@ public class CowControlProvider implements RobotControlProvider {
     /**
      * An rng based on the world seed.
      */
-    private static Random random;
+    private Random random;
 
     //private boolean disableSpawning;
 
@@ -201,11 +202,8 @@ public class CowControlProvider implements RobotControlProvider {
                 while (i-->0) { // TODO: make cow slightly smarter so it doesn't drown immediately
                     Direction dir = randomDirection();
                     if (rc.canMove(dir)) {
-                        System.out.println("i can move");
                         rc.move(dir);
                         break;
-                    } else {
-                        System.out.println("i can't move");
                     }
                 }
                 System.out.println("I'm a cow! at " + rc.getLocation());
@@ -217,7 +215,7 @@ public class CowControlProvider implements RobotControlProvider {
     }
 
     static Direction randomDirection() {
-        return DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
+        return DIRECTIONS[(int) (Math.random() * DIRECTIONS.length)];
     }
 
     @Override

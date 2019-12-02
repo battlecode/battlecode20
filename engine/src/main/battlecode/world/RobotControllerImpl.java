@@ -368,6 +368,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanBuildRobot(type, dir);
 
         this.robot.resetCooldownTurns();
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -type.cost);
 
         int robotID = gameWorld.spawnRobot(type, adjacentLocation(dir), getTeam());
 
@@ -817,6 +818,19 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BLOCKCHAINNNNNNNNNNN *******
     // ***********************************
 
+    private void assertCanSendMessage(int[] messageArray, int proofOfStake) throws GameActionException {
+        if (!canSendMessage(messageArray, proofOfStake))
+            throw new GameActionException(CANT_DO_THAT,
+                "Cannot send the specified message, possibly due to not enough soup to pay " +
+                "or message too long.");
+    }
+
+    @Override
+    public boolean canSendMessage(int[] messageArray, int proofOfStake) {
+        return (messageArray.length <= GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH &&
+            gameWorld.getTeamInfo().getSoup(getTeam()) >= proofOfStake);
+    }
+
     /**
      * Sends a message to the blockchain at the indicated cost.
      * 
@@ -827,7 +841,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public void sendMessage(int[] messageArray, int proofOfStake) throws GameActionException {
-        if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
+        assertCanSendMessage(messageArray, proofOfStake);
+        /*if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
             throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
                     "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
         }
@@ -835,7 +850,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.getTeamInfo().getSoup(getTeam()) < proofOfStake) {
             throw new GameActionException(NOT_ENOUGH_RESOURCE, 
                     "Tried to pay " + Integer.toString(proofOfStake) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
-        }
+        }*/ //this is more detailed but doesn't match our usual formatting?
         // pay!
         gameWorld.getTeamInfo().adjustSoup(getTeam(), -proofOfStake);
         // create a block chain entry
