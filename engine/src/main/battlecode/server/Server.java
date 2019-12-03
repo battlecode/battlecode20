@@ -205,9 +205,13 @@ public strictfp class Server implements Runnable {
                           GameMaker gameMaker) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
-        // GenerateMaps.makeSimple(); // uncomment this to create a map! (the build will fail but still create the map)
-        // Load the map for the match
         final LiveMap loadedMap;
+        try {
+               GenerateMaps.makeSimple(); // uncomment this to create a map! (the build will fail but still create the map)
+        } catch (IOException e) {
+
+        }
+
         try {
             loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")));
             debug("running map " + loadedMap);
@@ -266,8 +270,6 @@ public strictfp class Server implements Runnable {
 
         double timeDiff = (System.currentTimeMillis() - startTime) / 1000.0;
         debug(String.format("match completed in %.4g seconds", timeDiff));
-
-
         return currentWorld.getWinner();
     }
 

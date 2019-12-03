@@ -201,7 +201,8 @@ public class CowControlProvider implements RobotControlProvider {
                 int i = 4;
                 while (i-->0) { // TODO: make cow slightly smarter so it doesn't drown immediately
                     Direction dir = randomDirection();
-                    if (rc.canMove(dir)) {
+                    if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
+                        System.out.println("i can move");
                         rc.move(dir);
                         break;
                     }
