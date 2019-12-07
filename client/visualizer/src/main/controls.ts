@@ -11,7 +11,7 @@ export default class Controls {
 
   readonly timeReadout: Text;
   readonly speedReadout: Text;
-  readonly locationReadout: Text;
+  readonly tileInfo: Text;
   readonly infoString: HTMLTableDataCellElement;
 
   // UPS slider
@@ -56,7 +56,7 @@ export default class Controls {
     this.div = this.baseDiv();
     this.timeReadout = document.createTextNode('No match loaded');
     this.speedReadout = document.createTextNode('UPS: 0 FPS: 0');
-    this.locationReadout = document.createTextNode('X | Y | Dirt | Water | Pollution');
+    this.tileInfo = document.createTextNode('X | Y | Dirt | Water | Pollution');
 
     // initialize the images
     this.conf = conf;
@@ -110,7 +110,7 @@ export default class Controls {
     buttons.appendChild(goNextButton);
     // buttons.appendChild(uploadFileButton);
     buttons.appendChild(document.createElement("br"));
-    buttons.appendChild(this.locationReadout);
+    buttons.appendChild(this.tileInfo);
 
     pauseStartButton.title =  "Pause/resume";
     stopButton.title = "Stop";
@@ -370,7 +370,7 @@ export default class Controls {
     if(water !== undefined) content += ' | W: ' + `${water}`.padStart(3);
     if(pollution !== undefined) content += ' | P: ' + `${pollution}`.padStart(3);
 
-    this.locationReadout.textContent = content;
+    this.tileInfo.textContent = content;
   }
 
   /**
