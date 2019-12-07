@@ -300,7 +300,7 @@ export default class GameWorld {
 
     const maxy = (maxCorner.y()-minCorner.y());
     this.mapStats.getIdx = (x:number, y:number) => (
-      x*maxy + y
+      Math.floor(x)*maxy + Math.floor(y)
     );
     this.mapStats.getLoc = (idx: number) => (
       new Victor(Math.floor(idx / maxy), idx % maxy)

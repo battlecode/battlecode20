@@ -21,7 +21,7 @@ export default class Renderer {
 
   // Callbacks
   readonly onRobotSelected: (id: number) => void;
-  readonly onMouseover: (x: number, y: number) => void;
+  readonly onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number) => void;
 
   // For rendering robot information on click
   private lastSelectedID: number;
@@ -31,7 +31,7 @@ export default class Renderer {
 
   constructor(canvas: HTMLCanvasElement, imgs: AllImages, conf: config.Config, metadata: Metadata,
     onRobotSelected: (id: number) => void,
-    onMouseover: (x: number, y: number) => void) {
+    onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number) => void) {
     this.canvas = canvas;
     this.conf = conf;
     this.imgs = imgs;
@@ -339,7 +339,8 @@ export default class Renderer {
       const y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
 
       // Set the location of the mouseover
-      onMouseover(x, this.flip(y, minY, maxY));
+      const idx = world.mapStats.getIdx(x, y);
+      onMouseover(x, this.flip(y, minY, maxY), world.mapStats.dirt[idx], world.mapStats.water[idx], world.mapStats.pollution[idx]);
     };
   }
 

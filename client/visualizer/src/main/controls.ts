@@ -56,7 +56,7 @@ export default class Controls {
     this.div = this.baseDiv();
     this.timeReadout = document.createTextNode('No match loaded');
     this.speedReadout = document.createTextNode('UPS: 0 FPS: 0');
-    this.locationReadout = document.createTextNode('Location: (???, ???)');
+    this.locationReadout = document.createTextNode('X | Y | Dirt | Water | Pollution');
 
     // initialize the images
     this.conf = conf;
@@ -362,8 +362,15 @@ export default class Controls {
   /**
    * Updates the location readout
    */
-  setLocation(x, y): void {
-    this.locationReadout.textContent = `Location (${x.toFixed(3)}, ${y.toFixed(3)})`;
+  setTileInfo(x: number, y: number, dirt: number, water: number, pollution: number): void {
+    let content: string = "";
+    content += 'X: ' + `${Math.floor(x)}`.padStart(3);
+    content += ' | Y: ' + `${Math.floor(y)}`.padStart(3);
+    if(dirt !== undefined) content += ' | D: ' + `${dirt}`.padStart(3);
+    if(water !== undefined) content += ' | W: ' + `${water}`.padStart(3);
+    if(pollution !== undefined) content += ' | P: ' + `${pollution}`.padStart(3);
+
+    this.locationReadout.textContent = content;
   }
 
   /**

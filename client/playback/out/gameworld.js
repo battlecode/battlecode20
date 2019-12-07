@@ -119,7 +119,7 @@ class GameWorld {
         this.mapStats.pollution = Int32Array.from(map.pollutionArray());
         this.mapStats.soup = Int32Array.from(map.soupArray());
         const maxy = (maxCorner.y() - minCorner.y());
-        this.mapStats.getIdx = (x, y) => (x * maxy + y);
+        this.mapStats.getIdx = (x, y) => (Math.floor(x) * maxy + Math.floor(y));
         this.mapStats.getLoc = (idx) => (new Victor(Math.floor(idx / maxy), idx % maxy));
         // Check with header.totalRounds() ?
     }

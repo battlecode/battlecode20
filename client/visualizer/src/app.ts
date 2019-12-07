@@ -397,8 +397,8 @@ export default class Client {
       lastSelectedID = id;
       this.console.setIDFilter(id);
     };
-    const onMouseover = (x: number, y: number) => {
-      this.controls.setLocation(x, y);
+    const onMouseover = (x: number, y: number, dirt: number, water: number, pollution: number) => {
+      this.controls.setTileInfo(x, y, dirt, water, pollution);
     };
 
     // Configure renderer for this match
