@@ -39,9 +39,6 @@ dependencies {
     scala group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'
 }
 
-
-
-
 def serverJar = new File(project(":engine").libsDir, "engine.jar")
 
 task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
@@ -190,47 +187,41 @@ task release_docs_zip(type: Zip, dependsOn: [':engine:javadoc']) {
 }
 
 task release_sources(type: Jar, dependsOn: classes) {
-    from sourceSets.main.allSource
+  from sourceSets.main.allSource
 }
 
 task prodClient {
-    doLast {
-        exec {
-          commandLine 'npm', 'install'
-          workingDir 'client'
-        }
-        exec {
-          commandLine 'npm', 'run', 'prod-electron'
-          workingDir 'client'
-        }
+  doLast {
+    exec {
+      commandLine 'npm', 'install'
+      workingDir 'client'
     }
+    exec {
+      commandLine 'npm', 'run', 'prod-electron'
+      workingDir 'client'
+    }
+  }
 }
 
 task releaseClientWin(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/win-unpacked')
+  from fileTree('client/dist/win-unpacked')
 }
 
 task releaseClientMac(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/mac')
+  from fileTree('client/dist/mac')
 }
 
 task releaseClientLinux(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/linux-unpacked')
+  from fileTree('client/dist/linux-unpacked')
 }
 
 task releaseClientWin32(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/win-ia32-unpacked')
+  from fileTree('client/dist/win-ia32-unpacked')
 }
 
 task releaseClientLinux32(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/linux-ia32-unpacked')
+  from fileTree('client/dist/linux-ia32-unpacked')
 }
-
-
-
-
-
-
 
 publishing {
   repositories {
@@ -242,14 +233,6 @@ publishing {
       }
     }
   }
-  // publications {
-  //     gpr(MavenPublication) {
-  //         groupId 'org.battlecode'
-  //         artifactId 'battlecode20'
-  //         version 'NONSENSE'
-  //         from(components.java)
-  //     }
-  // }
 
   publications {
     server(MavenPublication) {
@@ -260,52 +243,51 @@ publishing {
       artifact source: release_main, classifier: "src"
       
       artifact release_docs {
-          classifier 'javadoc'
+        classifier 'javadoc'
       }
       artifact release_sources {
-          classifier 'sources'
+        classifier 'sources'
       }
     }
 
-    // clientWin(MavenPublication) {
-    //   groupId 'org.battlecode'
-    //   artifactId 'battlecode-client-win'
-    //   version project.findProperty('release_version') ?: 'NONSENSE'
+    clientWin(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-win'
+      version project.findProperty('release_version') ?: 'NONSENSE'
 
-    //   artifact releaseClientWin
-    // }
+      artifact releaseClientWin
+    }
     
-    // clientMac(MavenPublication) {
-    //   groupId 'org.battlecode'
-    //   artifactId 'battlecode-client-mac'
-    //   version project.findProperty('release_version') ?: 'NONSENSE'
+    clientMac(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-mac'
+      version project.findProperty('release_version') ?: 'NONSENSE'
 
-    //   artifact releaseClientMac
-    // }
+      artifact releaseClientMac
+    }
 
-    // clientLinux(MavenPublication) {
-    //   groupId 'org.battlecode'
-    //   artifactId 'battlecode-client-linux'
-    //   version project.findProperty('release_version') ?: 'NONSENSE'
+    clientLinux(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-linux'
+      version project.findProperty('release_version') ?: 'NONSENSE'
 
-    //   artifact releaseClientLinux
-    // }
+      artifact releaseClientLinux
+    }
 
-    // clientWin32(MavenPublication) {
-    //   groupId 'org.battlecode'
-    //   artifactId 'battlecode-client-win-32'
-    //   version project.findProperty('release_version') ?: 'NONSENSE'
+    clientWin32(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-win-32'
+      version project.findProperty('release_version') ?: 'NONSENSE'
 
-    //   artifact releaseClientWin32
-    // }
+      artifact releaseClientWin32
+    }
 
-    // clientLinux32(MavenPublication) {
-    //   groupId 'org.battlecode'
-    //   artifactId 'battlecode-client-linux-32'
-    //   version project.findProperty('release_version') ?: 'NONSENSE'
+    clientLinux32(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-linux-32'
+      version project.findProperty('release_version') ?: 'NONSENSE'
 
-    //   artifact releaseClientLinux32
-    // }
+      artifact releaseClientLinux32
+    }
   }
-  
 }
