@@ -421,6 +421,9 @@ export default class Client {
     // whether we're seeking
     let externalSeek = false;
 
+    this.controls.isPaused = () => {
+      return goalUPS === 0;
+    }
     this.controls.onTogglePause = () => {
       goalUPS = goalUPS === 0 ? this.controls.getUPS() : 0;
     };
@@ -597,6 +600,9 @@ export default class Client {
 
         // tell the simulation to go to our time goal
         match.seek(interpGameTime | 0);
+      } if (match.current.turn == match.maxTurn){
+        // Match is ended
+        this.controls.onFinish();
       }
 
       // update fps

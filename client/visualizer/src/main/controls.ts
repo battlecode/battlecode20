@@ -2,6 +2,13 @@ import {Config, Mode} from '../config';
 import * as imageloader from '../imageloader';
 import * as cst from '../constants';
 
+type ButtonInfo = {
+  img: HTMLImageElement,
+  text: string,
+  onclick: () => void,
+  changeTo?: string
+};
+
 /**
  * Game controls: pause/unpause, fast forward, rewind
  */
@@ -14,8 +21,12 @@ export default class Controls {
   readonly tileInfo: Text;
   readonly infoString: HTMLTableDataCellElement;
 
-  // Callbacks initialized from outside Controls
-  // Yeah, it's pretty gross :/
+  /**
+   * Callbacks initialized from outside Controls
+   * Most of these are defined in ../app.ts
+   * This is for easily modifing local variables of app.ts, such as goalUPS.
+   */
+
   onGameLoaded: (data: ArrayBuffer) => void;
   onTogglePause: () => void;
   onToggleUPS: () => void;
@@ -23,6 +34,7 @@ export default class Controls {
   onStepForward: () => void;
   onStepBackward: () => void;
   onSeek: (frame: number) => void;
+  isPaused: () => Boolean;
 
   // qualities of progress bar
   canvas: HTMLCanvasElement;
@@ -32,25 +44,16 @@ export default class Controls {
 
   // buttons
   readonly conf: Config;
-  readonly imgs: {
-    playbackStart: HTMLImageElement,
-    playbackPause: HTMLImageElement,
-    playbackStop: HTMLImageElement,
-    goNext: HTMLImageElement,
-    goPrevious: HTMLImageElement,
-    reverseUPS: HTMLImageElement,
-    doubleUPS: HTMLImageElement,
-    halveUPS: HTMLImageElement,
-  };
-  readonly buttonTexts: {
-    playbackStart: string,
-    playbackPause: string,
-    playbackStop: string,
-    goNext: string,
-    goPrevious: string,
-    reverseUPS: string,
-    doubleUPS: string,
-    halveUPS: string,
+
+  readonly buttons: {
+    playbackStart: ButtonInfo,
+    playbackPause: ButtonInfo,
+    playbackStop: ButtonInfo,
+    goNext: ButtonInfo,
+    goPrevious: ButtonInfo,
+    reverseUPS: ButtonInfo,
+    doubleUPS: ButtonInfo,
+    halveUPS: ButtonInfo,
   };
 
   constructor(conf: Config, images: imageloader.AllImages) {
@@ -63,26 +66,18 @@ export default class Controls {
 
     // initialize the images
     this.conf = conf;
-    this.imgs = {
-      playbackStart: images.controls.playbackStart,
-      playbackPause: images.controls.playbackPause,
-      playbackStop: images.controls.playbackStop,
-      goNext: images.controls.goNext,
-      goPrevious: images.controls.goPrevious,
-      reverseUPS: images.controls.reverseUPS,
-      doubleUPS: images.controls.doubleUPS,
-      halveUPS: images.controls.halveUPS,
-    }
-    this.buttonTexts = {
-      playbackStart: 'Start',
-      playbackPause: 'Pause',
-      playbackStop: 'Stop',
-      goNext: 'Next',
-      goPrevious: 'Prev',
-      reverseUPS: 'Reverse',
-      doubleUPS: 'Faster',
-      halveUPS: 'Slower',
-    }
+    const imgs = images.controls;
+    this.buttons = {
+      playbackStart: { img: imgs.playbackStart, text: "Start", onclick: () => this.pause(), changeTo: 'playbackPause' },
+      playbackPause: { img: imgs.playbackPause, text: "Pause", onclick: () => this.pause(), changeTo: 'playbackStart' },
+      playbackStop: { img: imgs.playbackStop, text: "Stop", onclick: () => this.restart() },
+      goNext: { img: imgs.goNext, text: "Next", onclick: () => this.stepForward() },
+      goPrevious: { img: imgs.goPrevious, text: "Prev", onclick: () => this.stepBackward() },
+      reverseUPS: { img: imgs.reverseUPS, text: "Reverse", onclick: () => this.reverseUPS() },
+      doubleUPS: { img: imgs.doubleUPS, text: "Faster", onclick: () => this.doubleUPS() },
+      halveUPS: { img: imgs.halveUPS, text: "Slower", onclick: () => this.halveUPS() },
+    };
+
 
     let table = document.createElement("table");
     let tr = document.createElement("tr");
@@ -100,15 +95,15 @@ export default class Controls {
     let buttons = document.createElement("td");
     buttons.vAlign = "top";
 
-    let reverseButton = this.createButton('reverseUPS', () => this.reverseUPS());
+    let reverseButton = this.createButton('reverseUPS');
 
-    let halveButton = this.createButton('halveUPS', () => this.halveUPS());
-    let goPreviousButton = this.createButton('goPrevious', () => this.stepBackward());
-    let pauseStartButton = this.createButton('playbackPause', () => this.pause(), 'playbackStart');
-    let goNextButton = this.createButton('goNext', () => this.stepForward());
-    let doubleButton = this.createButton('doubleUPS', () => this.doubleUPS());
+    let halveButton = this.createButton('halveUPS');
+    let goPreviousButton = this.createButton('goPrevious');
+    let pauseStartButton = this.createButton('playbackPause');
+    let goNextButton = this.createButton('goNext');
+    let doubleButton = this.createButton('doubleUPS');
 
-    let stopButton = this.createButton('playbackStop', () => this.restart());
+    let stopButton = this.createButton('playbackStop');
 
     buttons.appendChild(reverseButton);
     buttons.appendChild(halveButton);
@@ -151,21 +146,24 @@ export default class Controls {
    * @param hiddenContent name of the image in this.imgs to display as none
    * @return a button with the given attributes
    */
-  private createButton(content, onclick, hiddenContent?) {
+  private createButton(buttonId: string) {
     let button = document.createElement("button");
     button.setAttribute("class", "custom-button");
     button.setAttribute("type", "button");
-    button.id = content;
+    button.id = buttonId;
 
-    if (content != null) button.appendChild(this.imgs[content]);
-    if (content != null) button.innerText = this.buttonTexts[content];
+    const info = this.buttons[buttonId];
 
-    if (hiddenContent != null) {
-      let hiddenImage = this.imgs[hiddenContent];
+    button.appendChild(info.img);
+    button.innerText = info.text;
+
+    const changeTo = info.changeTo;
+    if (changeTo != null) {
+      let hiddenImage = this.buttons[changeTo].img;
       hiddenImage.style.display = "none";
       button.appendChild(hiddenImage);
     }
-    button.onclick = onclick;
+    button.onclick = info.onclick;
 
     return button;
   }
@@ -223,21 +221,12 @@ export default class Controls {
    * Upload a battlecode match file.
    */
   loadMatch(files: FileList) {
-    console.log(files);
     const file = files[0];
-    console.log(file);
     const reader = new FileReader();
     reader.onload = () => {
       this.onGameLoaded(<ArrayBuffer>reader.result);
     };
     reader.readAsArrayBuffer(file);
-  }
-
-  /**
-   * Whether or not the simulation is paused.
-   */
-  isPaused() {
-    return this.imgs.playbackPause.style.display === "none";
   }
 
   /**
@@ -247,18 +236,19 @@ export default class Controls {
     this.onTogglePause();
 
     // toggle the play/pause button
-    if (this.isPaused()) {
-      this.imgs["playbackStart"].style.display = "none";
-      this.imgs["playbackPause"].style.display = "unset";
-    } else {
-      this.imgs["playbackStart"].style.display = "unset";
-      this.imgs["playbackPause"].style.display = "none";
-    }
+    // if (this.isPaused()) {
+    //   this.imgs["playbackStart"].style.display = "none";
+    //   this.imgs["playbackPause"].style.display = "unset";
+    // } else {
+    //   this.imgs["playbackStart"].style.display = "unset";
+    //   this.imgs["playbackPause"].style.display = "none";
+    // }
   }
 
   /**
    * Restart simulation.
    */
+  // TODO stop != restart
   restart() {
     const pauseButton = document.getElementById("playbackPause");
     if (!this.isPaused() && pauseButton) {
@@ -287,8 +277,8 @@ export default class Controls {
   doubleUPS() {
     if (Math.abs(this.curUPS) < 128){
       this.curUPS = this.curUPS * 2;
-      this.onToggleUPS();
     }
+    this.onToggleUPS();
   }
 
   /**
@@ -297,8 +287,8 @@ export default class Controls {
   halveUPS() {
     if (Math.abs(this.curUPS) > 1){
       this.curUPS = this.curUPS / 2;
-      this.onToggleUPS();
     }
+    this.onToggleUPS();
   }
 
   /**
@@ -306,6 +296,14 @@ export default class Controls {
    */
   reverseUPS() {
     this.curUPS = - this.curUPS;
+    this.onToggleUPS();
+  }
+
+  /**
+   * When the match is finished, set UPS to 0.
+   */
+  onFinish() {
+    this.curUPS = 0;
     this.onToggleUPS();
   }
 
@@ -351,6 +349,7 @@ export default class Controls {
    * Health: health/maxHealth
    * Bytecodes Used: bytecodes"
    */
+  // TODO fix this (different stats)
   setInfoString(id, x, y, health, maxHealth, bytecodes?: number): void {
     if (bytecodes !== undefined) {
       // Not a neutral tree or bullet tree
