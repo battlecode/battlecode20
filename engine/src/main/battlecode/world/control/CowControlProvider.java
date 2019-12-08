@@ -17,7 +17,7 @@ public class CowControlProvider implements RobotControlProvider {
     /**
      * The directions a cow cares about.
      */
-    private static final Direction[] DIRECTIONS = {
+    private final Direction[] DIRECTIONS = {
         Direction.NORTH,
         Direction.EAST,
         Direction.SOUTH,
@@ -27,7 +27,7 @@ public class CowControlProvider implements RobotControlProvider {
     /**
      * The types & order to spawn zombie robots in.
      */
-    private static final RobotType COW_TYPE = RobotType.COW;
+    private final RobotType COW_TYPE = RobotType.COW;
 
     /**
      * The world we're operating in.
@@ -42,7 +42,7 @@ public class CowControlProvider implements RobotControlProvider {
     /**
      * An rng based on the world seed.
      */
-    private Random random;
+    private static Random random;
 
     //private boolean disableSpawning;
 
@@ -215,8 +215,8 @@ public class CowControlProvider implements RobotControlProvider {
         }
     }
 
-    static Direction randomDirection() {
-        return DIRECTIONS[(int) (Random.nextDouble() * (double) DIRECTIONS.length)];
+    Direction randomDirection() {
+        return DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
     }
 
     @Override
