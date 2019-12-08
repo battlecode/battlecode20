@@ -70,7 +70,7 @@ export default class Controls {
     this.buttons = {
       playbackStart: { img: imgs.playbackStart, text: "Start", onclick: () => this.pause(), changeTo: 'playbackPause' },
       playbackPause: { img: imgs.playbackPause, text: "Pause", onclick: () => this.pause(), changeTo: 'playbackStart' },
-      playbackStop: { img: imgs.playbackStop, text: "Stop", onclick: () => this.restart() },
+      playbackStop: { img: imgs.playbackStop, text: "Stop", onclick: () => this.stop() },
       goNext: { img: imgs.goNext, text: "Next", onclick: () => this.stepForward() },
       goPrevious: { img: imgs.goPrevious, text: "Prev", onclick: () => this.stepBackward() },
       reverseUPS: { img: imgs.reverseUPS, text: "Reverse", onclick: () => this.reverseUPS() },
@@ -154,8 +154,8 @@ export default class Controls {
 
     const info = this.buttons[buttonId];
 
+    // button.innerText = info.text;
     button.appendChild(info.img);
-    button.innerText = info.text;
 
     const changeTo = info.changeTo;
     if (changeTo != null) {
@@ -236,25 +236,24 @@ export default class Controls {
     this.onTogglePause();
 
     // toggle the play/pause button
-    // if (this.isPaused()) {
-    //   this.imgs["playbackStart"].style.display = "none";
-    //   this.imgs["playbackPause"].style.display = "unset";
-    // } else {
-    //   this.imgs["playbackStart"].style.display = "unset";
-    //   this.imgs["playbackPause"].style.display = "none";
-    // }
+    if (this.isPaused()) {
+      this.buttons["playbackStart"].img.style.display = "none";
+      this.buttons["playbackPause"].img.style.display = "unset";
+    } else {
+      this.buttons["playbackStart"].img.style.display = "unset";
+      this.buttons["playbackPause"].img.style.display = "none";
+    }
   }
 
   /**
-   * Restart simulation.
+   * Stop the match, and go to the first round
    */
-  // TODO stop != restart
-  restart() {
+  stop() {
     const pauseButton = document.getElementById("playbackPause");
     if (!this.isPaused() && pauseButton) {
       pauseButton.click();
     }
-    this.onSeek(0);
+    this.onSeek(1);
   }
 
   /**
@@ -303,8 +302,7 @@ export default class Controls {
    * When the match is finished, set UPS to 0.
    */
   onFinish() {
-    this.curUPS = 0;
-    this.onToggleUPS();
+    if (!this.isPaused()) this.pause();
   }
 
   /**

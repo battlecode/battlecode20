@@ -154,7 +154,7 @@ export default class Client {
         this.controls.pause();
         break;
         case 79: // "o" - Stop
-        this.controls.restart();
+        this.controls.stop();
         break;
       }
     };
@@ -550,7 +550,7 @@ export default class Client {
             controls.pause();
             break;
           case 79: // "o" - Stop
-            controls.restart();
+            controls.stop();
             break;
           case 37: // "LEFT" - Step Backward
             controls.stepBackward();
@@ -601,7 +601,7 @@ export default class Client {
         // tell the simulation to go to our time goal
         match.seek(interpGameTime | 0);
       } if (match.current.turn == match.maxTurn){
-        // Match is ended
+        // Match have ended
         this.controls.onFinish();
       }
 

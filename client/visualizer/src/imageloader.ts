@@ -108,17 +108,18 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   img(result.robot.HQ, BLU, require(dirname + 'sprites/HQ_blue.png'));
   
 
+  // Buttons are from https://material.io/resources/icons
   img(result.controls, 'goNext', require(dirname + 'controls/go-next.png'));
   img(result.controls, 'goPrevious', require(dirname + 'controls/go-previous.png'));
   img(result.controls, 'playbackPause', require(dirname + 'controls/playback-pause.png'));
   img(result.controls, 'playbackStart', require(dirname + 'controls/playback-start.png'));
   img(result.controls, 'playbackStop', require(dirname + 'controls/playback-stop.png'));
-  img(result.controls, 'matchBackward', require(dirname + 'controls/skip-backward.png'));
-  img(result.controls, 'matchForward', require(dirname + 'controls/skip-forward.png'));
-  // TODO get nicer control buttons
-  img(result.controls, 'reverseUPS', require(dirname + 'yellow_star.png'));
+  img(result.controls, 'reverseUPS', require(dirname + 'controls/reverse.png'));
   img(result.controls, 'doubleUPS', require(dirname + 'controls/skip-forward.png'));
   img(result.controls, 'halveUPS', require(dirname + 'controls/skip-backward.png'));
+
+  img(result.controls, 'matchBackward', require(dirname + 'controls/green-previous.png'));
+  img(result.controls, 'matchForward', require(dirname + 'controls/green-next.png'));
 }
 
 
