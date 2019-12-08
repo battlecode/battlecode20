@@ -9,15 +9,15 @@ sourceSets {
     java.srcDirs = ["src/main"]
     resources.srcDirs = ["src/main"]
 
-    // output.classesDirs = { "$buildDir/classes" }
-    // output.resourcesDir = "$buildDir/classes"
+    java.outputDir =  file("$buildDir/classes")
+    output.resourcesDir = "$buildDir/classes"
   }
   test {
     java.srcDirs = ["src/test"]
     resources.srcDirs = ["src/test"]
 
-    // output.classesDirs = { "$buildDir/tests" }
-    // output.resourcesDir = "$buildDir/tests"
+    java.outputDir = file("$buildDir/tests")
+    output.resourcesDir = "$buildDir/tests"
   }
 }
 
