@@ -116,9 +116,7 @@ export default class Match {
     this.snapshots = new Array();
     this.snapshotEvery = 64;
     this.snapshots.push(this._current.copy());
-    // leave [0] undefined
     this.deltas = new Array(1);
-    // leave [0] undefined
     this.logs = new Array(1);
     this.maxTurn = header.maxRounds();
     this._lastTurn = null;
@@ -131,7 +129,7 @@ export default class Match {
    */
   applyDelta(delta: schema.Round) {
     if (delta.roundID() !== this.deltas.length) {
-      throw new Error(`Can't store delta ${delta.roundID()}, only have rounds up to ${this.deltas.length-1}`);
+      throw new Error(`Can't store Round ${delta.roundID()}. Next Round should be Round ${this.deltas.length}`);
     }
     this.deltas.push(delta);
 

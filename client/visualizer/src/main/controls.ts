@@ -348,18 +348,18 @@ export default class Controls {
    * Bytecodes Used: bytecodes"
    */
   // TODO fix this (different stats)
-  setInfoString(id, x, y, health, maxHealth, bytecodes?: number): void {
-    if (bytecodes !== undefined) {
-      // Not a neutral tree or bullet tree
-      this.infoString.innerHTML = `Robot ID ${id}<br>
-        Location: (${x.toFixed(3)}, ${y.toFixed(3)})<br>
-        Health: ${health.toFixed(3)}/${maxHealth.toFixed(3)}<br>
-        Bytecodes Used: ${bytecodes}`;
-    } else {
-      // Neutral tree or bullet tree, no bytecode information
-      this.infoString.innerHTML = `Robot ID ${id}<br>
-        Location: (${x.toFixed(3)}, ${y.toFixed(3)})<br>
-        Health: ${health.toFixed(3)}/${maxHealth.toFixed(3)}`;
-    }
+  setInfoString(id, x: number, y: number, onDirt: number, carryDirt?: number, bytecodes?: number): void {
+    let infoString = `Robot ID ${id} <br>
+      Location: (${x}, ${y})<br>
+      Dirt on this: ${onDirt}`;
+
+      if (carryDirt !== undefined) {
+        infoString += `, Carrying ${carryDirt} dirt`;
+      }
+
+      if (bytecodes !== undefined) {
+        infoString += `<br>Bytecodes Used: ${bytecodes}`;
+      }
+      this.infoString.innerHTML = infoString;
   }
 }

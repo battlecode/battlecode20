@@ -632,16 +632,17 @@ export default class Client {
           let id = bodies.id[index];
           let x = bodies.x[index];
           let y = bodies.y[index];
-          // let health = bodies.health[index];
-          // let maxHealth = bodies.maxHealth[index];
-          let health = 0;
-          let maxHealth = 0;
+
+          let on = bodies.onDirt[index];
+
           let type = bodies.type[index];
           let bytecodes = bodies.bytecodesUsed[index];
           if (type === cst.COW) {
-            this.controls.setInfoString(id, x, y, health, maxHealth);
+            this.controls.setInfoString(id, x, y, on);
+          } else if (type == cst.LANDSCAPER) {
+            this.controls.setInfoString(id, x, y, on, bodies.carryDirt[index], bytecodes);
           } else {
-            this.controls.setInfoString(id, x, y, health, maxHealth, bytecodes);
+            this.controls.setInfoString(id, x, y, on, bytecodes=bytecodes);
           }
         }
       }

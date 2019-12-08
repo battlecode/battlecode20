@@ -362,7 +362,7 @@ export default class Renderer {
 
       // Set the location of the mouseover
       const idx = world.mapStats.getIdx(x, y);
-      onMouseover(x, this.flip(y, minY, maxY), world.mapStats.dirt[idx], world.mapStats.water[idx], world.mapStats.pollution[idx]);
+      onMouseover(x, this.flip(y, minY, maxY), world.mapStats.dirt[idx], world.mapStats.flooded[idx], world.mapStats.pollution[idx]);
     };
   }
 
