@@ -72,6 +72,70 @@ public class RobotControllerTest {
         // hooray!
     }
 
+    @Test
+    public void testImmediateActions() throws GameActionException {
+        LiveMap map = new TestMapBuilder("test", 0, 0, 100, 100, 1337, 1000, 50)
+            .setSoup()
+            .setWater()
+            .setPollution()
+            .setDirt()
+            .build();
+        TestGame game = new TestGame(map);
+
+        final int a = game.spawn(1, 1, RobotType.MINER, Team.A);
+
+        game.round((id, rc) -> {
+            if (id != a) return;
+
+            final MapLocation start = rc.getLocation();
+            assertEquals(new MapLocation(1, 1), start);
+
+            rc.move(Direction.EAST);
+
+            final MapLocation newLocation = rc.getLocation();
+            assertEquals(new MapLocation(2, 1), newLocation);
+        });
+
+        // Let delays go away
+        game.waitRounds(10);
+    }
+
+    @Test
+    public void testSpawns() throws GameActionException {
+        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100, 5)
+            .setSoup()
+            .setWater()
+            .setPollution()
+            .setDirt()
+            .build();
+
+        // This creates the actual game.
+        TestGame game = new TestGame(map);
+
+        // Let's spawn a robot for each team. The integers represent IDs.
+        final int refineryA = game.spawn(3, 3, RobotType.HQ, Team.A);
+
+        // The following specifies the code to be executed in the next round.
+        // Bytecodes are not counted, and yields are automatic at the end.
+        game.getWorld().getTeamInfo().adjustSoup(Team.A, 500000);
+        game.round((id, rc) -> {
+            assertTrue("Can't build robot", rc.canBuildRobot(RobotType.MINER, Direction.EAST));
+            rc.buildRobot(RobotType.MINER, Direction.EAST);
+        });
+
+        for (InternalRobot robot : game.getWorld().getObjectInfo().robots()) {
+            if (robot.getID() != refineryA) {
+                assertEquals(RobotType.MINER, robot.getType());
+            }
+        }
+
+        // Lets wait for 10 rounds go by.
+        game.waitRounds(10);
+
+        // hooray!
+
+    }
+    
     /**
      * Ensure that actions take place immediately.
      */
