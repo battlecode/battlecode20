@@ -22,49 +22,55 @@ public class RobotControllerTest {
      *
      * @throws GameActionException shouldn't happen
      */
-    // @Test
-    // public void testBasic() throws GameActionException {
-    //     // Prepares a map with the following properties:
-    //     // origin = [0,0], width = 10, height = 10, num rounds = 100
-    //     // random seed = 1337
-    //     // The map doesn't have to meet specs.
-    //     LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100)
-    //         .build();
+    @Test
+    public void testBasic() throws GameActionException {
+        // Prepares a map with the following properties:
+        // origin = [0,0], width = 10, height = 10, num rounds = 100
+        // random seed = 1337
+        // The map doesn't have to meet specs.
+        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), 10, 10, 1337, 100, 5)
+            .addRobot(0, Team.A, RobotType.HQ, new MapLocation(0, 0))
+            .addRobot(1, Team.B, RobotType.HQ, new MapLocation(9, 9))
+            .setSoup()
+            .setWater()
+            .setPollution()
+            .setDirt()
+            .build();
 
-    //     // This creates the actual game.
-    //     TestGame game = new TestGame(map);
+        // This creates the actual game.
+        TestGame game = new TestGame(map);
 
-    //     // Let's spawn a robot for each team. The integers represent IDs.
-    //     float oX = game.getOriginX();
-    //     float oY = game.getOriginY();
-    //     final int archonA = game.spawn(oX + 3, oY + 3, RobotType.ARCHON, Team.A);
-    //     final int soldierB = game.spawn(oX + 1, oY + 1, RobotType.SOLDIER, Team
-    //             .B);
-    //     InternalRobot archonABot = game.getBot(archonA);
+        // Let's spawn a robot for each team. The integers represent IDs.
+        int oX = game.getOriginX();
+        int oY = game.getOriginY();
+        final int minerA = game.spawn(oX + 3, oY + 3, RobotType.MINER, Team.A);
+        final int minerB = game.spawn(oX + 1, oY + 1, RobotType.MINER, Team
+                .B);
+        InternalRobot minerABot = game.getBot(minerA);
 
-    //     assertEquals(new MapLocation(oX + 3, oY + 3), archonABot.getLocation());
+        assertEquals(new MapLocation(oX + 3, oY + 3), minerABot.getLocation());
 
-    //     // The following specifies the code to be executed in the next round.
-    //     // Bytecodes are not counted, and yields are automatic at the end.
-    //     game.round((id, rc) -> {
-    //         if (id == archonA) {
-    //             rc.move(Direction.EAST);
-    //         } else if (id == soldierB) {
-    //             // do nothing
-    //         }
-    //     });
+        // The following specifies the code to be executed in the next round.
+        // Bytecodes are not counted, and yields are automatic at the end.
+        game.round((id, rc) -> {
+            if (id == minerA) {
+                rc.move(Direction.EAST);
+            } else if (id == minerB) {
+                // do nothing
+            }
+        });
 
-    //     // Let's assert that things happened properly.
-    //     assertEquals(new MapLocation(
-    //             oX + 3 + RobotType.ARCHON.strideRadius,
-    //             oY + 3
-    //     ), archonABot.getLocation());
+        // Let's assert that things happened properly.
+        assertEquals(new MapLocation(
+                oX + 4,
+                oY + 3
+        ), minerABot.getLocation());
 
-    //     // Lets wait for 10 rounds go by.
-    //     game.waitRounds(10);
+        // Lets wait for 10 rounds go by.
+        game.waitRounds(10);
 
-    //     // hooray!
-    // }
+        // hooray!
+    }
 
     /**
      * Ensure that actions take place immediately.

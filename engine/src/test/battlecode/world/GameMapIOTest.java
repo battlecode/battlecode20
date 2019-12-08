@@ -16,7 +16,7 @@ public class GameMapIOTest {
     @Test
     public void testFindsDefaultMap() throws IOException {
         // will throw exception if default map can't be loaded
-//        GameMapIO.loadMap("maptest", null);
+        GameMapIO.loadMap("maptest", null);
     }
 
     // @Test
@@ -30,4 +30,20 @@ public class GameMapIOTest {
     //     assertEquals(readMap.getOrigin().x, 0.0, 0);
     //     assertEquals(readMap.getOrigin().y, 0.0, 0);
     // }
+
+    @Test
+    public void testRoundTrip() throws IOException {
+        LiveMap inputMap = new TestMapBuilder("simple", 55, 3, 58, 50, 1337, 50, 0)
+                .addRobot(0, Team.A, RobotType.HQ, new MapLocation(0, 0))
+                .addRobot(1, Team.B, RobotType.HQ, new MapLocation(25, 25))
+                .setSoup()
+                .setWater()
+                .setPollution()
+                .setDirt()
+                .build();
+
+        LiveMap outputMap = GameMapIO.Serial.deserialize(GameMapIO.Serial.serialize(inputMap));
+
+        assertEquals("Round trip failed", inputMap, outputMap);
+    }
 }
