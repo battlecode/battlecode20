@@ -56,7 +56,7 @@ class Match {
         this._current.loadFromMatchHeader(header);
         this._farthest = this._current;
         this.snapshots = new Array();
-        this.snapshotEvery = 50;
+        this.snapshotEvery = 64;
         this.snapshots.push(this._current.copy());
         // leave [0] undefined
         this.deltas = new Array(1);
@@ -158,8 +158,6 @@ class Match {
         }
         else {
             // Go to the closest round before seekTo
-            // TODO understand & comment & simplify
-            // FIXME how to use without copyFrom
             const snap = this._seekTo - (this._seekTo % this.snapshotEvery);
             if (this._current.turn < snap || this._seekTo < this._current.turn) {
                 this.current.copyFrom(this.snapshots[Math.floor(snap / this.snapshotEvery)]);
@@ -209,8 +207,7 @@ class Match {
             throw new Error(`Can't process turn ${world.turn + 1}, only have up to ${this.deltas.length - 1}`);
         }
         world.processDelta(this.deltas[world.turn + 1]);
-        // TODO understand & simplify
-        // world.turn is now updated
+        // if this turn should be saved to snapshot, and if it is not saved already:
         if (world.turn % this.snapshotEvery === 0
             && this.snapshots[world.turn / this.snapshotEvery] === undefined) {
             this.snapshots[world.turn / this.snapshotEvery] = world.copy();

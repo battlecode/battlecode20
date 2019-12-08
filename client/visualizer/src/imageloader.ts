@@ -29,7 +29,9 @@ export type AllImages = {
     playbackStop: Image,
     matchForward: Image,
     matchBackward: Image,
-    upload: Image
+    reverseUPS: Image,
+    doubleUPS: Image,
+    halveUPS: Image,
   }
 };
 
@@ -113,7 +115,10 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   img(result.controls, 'playbackStop', require(dirname + 'controls/playback-stop.png'));
   img(result.controls, 'matchBackward', require(dirname + 'controls/skip-backward.png'));
   img(result.controls, 'matchForward', require(dirname + 'controls/skip-forward.png'));
-  img(result.controls, 'upload', require(dirname + 'controls/upload.png'));
+  // TODO get nicer control buttons
+  img(result.controls, 'reverseUPS', require(dirname + 'yellow_star.png'));
+  img(result.controls, 'doubleUPS', require(dirname + 'controls/skip-forward.png'));
+  img(result.controls, 'halveUPS', require(dirname + 'controls/skip-backward.png'));
 }
 
 

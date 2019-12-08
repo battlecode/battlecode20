@@ -606,8 +606,9 @@ export default class Client {
       this.controls.setTime(
         match.current.turn,
         match['_farthest'].turn,
-        updatesPerSecond.tps,
-        rendersPerSecond.tps
+        goalUPS,
+        rendersPerSecond.tps,
+        Math.abs(updatesPerSecond.tps) < Math.max(0, Math.abs(goalUPS) - 2)
       );
 
       // run simulation

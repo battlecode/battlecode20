@@ -30,6 +30,9 @@ export default class Match {
      * Snapshots of the game world.
      * [0] is round 0 (the one stored in the GameMap), [1] is round
      * snapshotEvery * 1, [2] is round snapshotEvery * 2, etc.
+     *
+     * By this, we can quickly navigate to arbitrary time
+     * Saving game world for all round will use too much memory
      */
     readonly snapshots: Array<GameWorld>;
     /**

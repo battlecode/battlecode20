@@ -10,13 +10,9 @@ export default class Controls {
   wrapper: HTMLDivElement;
 
   readonly timeReadout: Text;
-  readonly speedReadout: Text;
+  readonly speedReadout: HTMLSpanElement;
   readonly tileInfo: Text;
   readonly infoString: HTMLTableDataCellElement;
-
-  // UPS slider
-  private sliderBar: HTMLDivElement;
-  private sliderBtn: HTMLDivElement;
 
   // Callbacks initialized from outside Controls
   // Yeah, it's pretty gross :/
@@ -32,6 +28,7 @@ export default class Controls {
   canvas: HTMLCanvasElement;
   maxFrame: number;
   ctx;
+  curUPS: number;
 
   // buttons
   readonly conf: Config;
@@ -41,7 +38,9 @@ export default class Controls {
     playbackStop: HTMLImageElement,
     goNext: HTMLImageElement,
     goPrevious: HTMLImageElement,
-    upload: HTMLImageElement
+    reverseUPS: HTMLImageElement,
+    doubleUPS: HTMLImageElement,
+    halveUPS: HTMLImageElement,
   };
   readonly buttonTexts: {
     playbackStart: string,
@@ -49,14 +48,18 @@ export default class Controls {
     playbackStop: string,
     goNext: string,
     goPrevious: string,
-    upload: string 
+    reverseUPS: string,
+    doubleUPS: string,
+    halveUPS: string,
   };
 
   constructor(conf: Config, images: imageloader.AllImages) {
     this.div = this.baseDiv();
     this.timeReadout = document.createTextNode('No match loaded');
-    this.speedReadout = document.createTextNode('UPS: 0 FPS: 0');
     this.tileInfo = document.createTextNode('X | Y | Dirt | Water | Pollution');
+    this.speedReadout = document.createElement('span');
+    this.speedReadout.style.cssFloat = 'right';
+    this.speedReadout.textContent = 'UPS: 0 FPS: 0';
 
     // initialize the images
     this.conf = conf;
@@ -66,15 +69,19 @@ export default class Controls {
       playbackStop: images.controls.playbackStop,
       goNext: images.controls.goNext,
       goPrevious: images.controls.goPrevious,
-      upload: images.controls.upload
+      reverseUPS: images.controls.reverseUPS,
+      doubleUPS: images.controls.doubleUPS,
+      halveUPS: images.controls.halveUPS,
     }
     this.buttonTexts = {
       playbackStart: 'Start',
       playbackPause: 'Pause',
       playbackStop: 'Stop',
-      goNext: 'Next >',
-      goPrevious: '< Prev',
-      upload: 'Upload'
+      goNext: 'Next',
+      goPrevious: 'Prev',
+      reverseUPS: 'Reverse',
+      doubleUPS: 'Faster',
+      halveUPS: 'Slower',
     }
 
     let table = document.createElement("table");
@@ -85,30 +92,31 @@ export default class Controls {
     timeline.appendChild(this.timeline());
     timeline.appendChild(document.createElement("br"));
     timeline.appendChild(this.timeReadout);
+    timeline.appendChild(this.speedReadout);
 
-    // create the speed slider
-    let slider = document.createElement("td");
-    slider.vAlign = "top";
-    slider.style.padding = "0px 16px";
-    slider.appendChild(this.slider());
-    slider.appendChild(document.createElement("br"));
-    slider.appendChild(this.speedReadout);
+    this.curUPS = 16;
 
     // create the button controls
     let buttons = document.createElement("td");
     buttons.vAlign = "top";
 
-    let pauseStartButton = this.createButton("playbackPause", () => this.pause(), "playbackStart");
-    let stopButton = this.createButton("playbackStop", () => this.restart());
-    let goPreviousButton = this.createButton("goPrevious", () => this.stepBackward());
-    let goNextButton = this.createButton("goNext", () => this.stepForward());
-    // let uploadFileButton = this.uploadFileButton();
+    let reverseButton = this.createButton('reverseUPS', () => this.reverseUPS());
 
-    buttons.appendChild(pauseStartButton);
-    buttons.appendChild(stopButton);
+    let halveButton = this.createButton('halveUPS', () => this.halveUPS());
+    let goPreviousButton = this.createButton('goPrevious', () => this.stepBackward());
+    let pauseStartButton = this.createButton('playbackPause', () => this.pause(), 'playbackStart');
+    let goNextButton = this.createButton('goNext', () => this.stepForward());
+    let doubleButton = this.createButton('doubleUPS', () => this.doubleUPS());
+
+    let stopButton = this.createButton('playbackStop', () => this.restart());
+
+    buttons.appendChild(reverseButton);
+    buttons.appendChild(halveButton);
     buttons.appendChild(goPreviousButton);
+    buttons.appendChild(pauseStartButton);
     buttons.appendChild(goNextButton);
-    // buttons.appendChild(uploadFileButton);
+    buttons.appendChild(doubleButton);
+    buttons.appendChild(stopButton);
     buttons.appendChild(document.createElement("br"));
     buttons.appendChild(this.tileInfo);
 
@@ -116,7 +124,9 @@ export default class Controls {
     stopButton.title = "Stop";
     goPreviousButton.title = "Step back";
     goNextButton.title = "Step forward";
-    // uploadFileButton.title = "Upload a .bc20 replay file";
+    doubleButton.title = "Double Speed";
+    halveButton.title = "Halve Speed";
+    reverseButton.title = "Play Reverse";
 
     // create the info string display
     let infoString = document.createElement("td");
@@ -126,7 +136,7 @@ export default class Controls {
 
     table.appendChild(tr);
     tr.appendChild(timeline);
-    tr.appendChild(slider);
+    tr.appendChild(document.createElement('div'));
     tr.appendChild(buttons);
     tr.appendChild(infoString);
 
@@ -147,8 +157,8 @@ export default class Controls {
     button.setAttribute("type", "button");
     button.id = content;
 
-    button.appendChild(this.imgs[content]);
-    button.innerText = this.buttonTexts[content];
+    if (content != null) button.appendChild(this.imgs[content]);
+    if (content != null) button.innerText = this.buttonTexts[content];
 
     if (hiddenContent != null) {
       let hiddenImage = this.imgs[hiddenContent];
@@ -159,26 +169,6 @@ export default class Controls {
 
     return button;
   }
-
-  // private uploadFileButton() {
-  //   // disguise the default upload file button with a label
-  //   let uploadLabel = document.createElement("label");
-  //   uploadLabel.setAttribute("for", "file-upload");
-  //   uploadLabel.setAttribute("class", "custom-button uploadfilebutton");
-  //   uploadLabel.appendChild(this.imgs["upload"]);
-  //   uploadLabel.innerText = 'upload';
-
-  //   // create the functional button
-  //   let upload = document.createElement('input');
-  //   upload.textContent = 'upload';
-  //   upload.id = "file-upload";
-  //   upload.setAttribute('type', 'file');
-  //   upload.accept = '.bc20';
-  //   upload.onchange = () => this.loadMatch(upload.files as FileList);
-  //   uploadLabel.appendChild(upload);
-
-  //   return uploadLabel;
-  // }
 
   /**
    * Make the controls look good
@@ -202,60 +192,10 @@ export default class Controls {
   }
 
   /**
-   * Creates the slider that adjusts UPS
-   */
-  private slider(): HTMLDivElement {
-    const div = document.createElement("div");
-    const slider = document.createElement("div");
-    slider.className = "slide-control";
-    const btn = document.createElement("div");
-    btn.className = "slide-control-button";
-
-    let startOffset, sliderWidth, handleWidth;
-
-    btn.onmousedown = function(e) {
-      e.preventDefault();
-      handleWidth = btn.clientWidth / 2;
-      startOffset = e.pageX - btn.offsetLeft - handleWidth;
-      sliderWidth = slider.clientWidth;
-      document.onmousemove = moveHandler;
-      document.onmouseup = stopHandler;
-    };
-
-    const moveHandler = (e: MouseEvent) => {
-      const zeroOffset = this.sliderBar.offsetWidth / 2;
-      const zeroBuffer = 4;
-      var posX = e.pageX - startOffset;
-      posX = Math.min(Math.max(0, posX), sliderWidth);
-
-      // Snap to 0 UPS if within buffer
-      posX = Math.abs(zeroOffset - posX) < zeroBuffer ? zeroOffset : posX;
-      btn.style.left = `${posX}px`;
-      this.onToggleUPS();
-    }
-
-    const stopHandler = () => {
-      document.onmousemove = () => {};
-      document.onmouseup = () => {};
-    }
-
-    div.appendChild(slider);
-    slider.appendChild(btn);
-    this.sliderBar = slider;
-    this.sliderBtn = btn;
-    return div;
-  }
-
-  /**
    * Returns the UPS determined by the slider
    */
   getUPS(): number {
-    const zeroOffset = this.sliderBar.offsetWidth / 2;
-    const handleWidth = this.sliderBtn.clientWidth / 2;
-    const buttonOffset = this.sliderBtn.offsetLeft + handleWidth;
-    const upsMagnitude = 0.01 * Math.pow(buttonOffset - zeroOffset, 2);
-    const ups = buttonOffset < zeroOffset ? -upsMagnitude : upsMagnitude;
-    return Math.round(ups);
+    return this.curUPS;
   }
 
   /**
@@ -342,9 +282,37 @@ export default class Controls {
   }
 
   /**
+   * Doubles UPS (Max 128)
+   */
+  doubleUPS() {
+    if (Math.abs(this.curUPS) < 128){
+      this.curUPS = this.curUPS * 2;
+      this.onToggleUPS();
+    }
+  }
+
+  /**
+   * Halves UPS (Min 1)
+   */
+  halveUPS() {
+    if (Math.abs(this.curUPS) > 1){
+      this.curUPS = this.curUPS / 2;
+      this.onToggleUPS();
+    }
+  }
+
+  /**
+   * Changes the sign of UPS
+   */
+  reverseUPS() {
+    this.curUPS = - this.curUPS;
+    this.onToggleUPS();
+  }
+
+  /**
    * Redraws the timeline and sets the current round displayed in the controls.
    */
-  setTime(time: number, loadedTime: number, ups: number, fps: number) {
+  setTime(time: number, loadedTime: number, ups: number, fps: number, lagging: Boolean) {
     // Redraw the timeline
     const scale = this.canvas.width / loadedTime;
     // const scale = this.canvas.width / cst.MAX_ROUND_NUM;
@@ -356,7 +324,10 @@ export default class Controls {
 
     // Edit the text
     this.timeReadout.textContent = `TIME: ${time+1}/${loadedTime+1}`;
-    this.speedReadout.textContent = `UPS: ${ups | 0} FPS: ${fps | 0}`;
+
+    let speedText = (lagging ? '(Lagging) ' : '') + `UPS: ${ups | 0} FPS: ${fps | 0}`;
+    speedText = speedText.padStart(32);
+    this.speedReadout.textContent = speedText;
   }
 
   /**
