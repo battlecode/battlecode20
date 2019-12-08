@@ -216,7 +216,7 @@ public class CowControlProvider implements RobotControlProvider {
     }
 
     static Direction randomDirection() {
-        return DIRECTIONS[(int) (Random.nextDouble() * DIRECTIONS.length)];
+        return DIRECTIONS[(int) (Random.nextDouble() * (double) DIRECTIONS.length)];
     }
 
     @Override
