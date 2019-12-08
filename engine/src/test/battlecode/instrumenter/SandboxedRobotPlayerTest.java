@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class SandboxedRobotPlayerTest {
 
     static String tempClassFolder;
-    @BeforeClass
+   /* @BeforeClass
     public static void setupFolder() throws Exception {
         tempClassFolder = URLUtils.toTempFolder(
                 "testplayeractions/RobotPlayer.class",
@@ -277,7 +277,7 @@ public class SandboxedRobotPlayerTest {
         player.step();
         assertTrue(player.getTerminated());
     }
-
+    */
     // @Test
     // public void testPlayerSystemOut() throws Exception {
     //     ByteArrayOutputStream out = new ByteArrayOutputStream();

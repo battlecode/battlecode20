@@ -85,13 +85,7 @@ public class TestMapBuilder {
         this.dirtArray = new int[width*height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.dirtArray[i + j * width] = 3;
-                if (i < 16 && j < 8) {
-                    this.dirtArray[i + j * width] = 2;
-                }
-                if (i < 8 && j < 8) {
-                    this.dirtArray[i + j * width] = 1;
-                }
+                this.dirtArray[i + j * width] = 0;
             }
         }
         return this;
