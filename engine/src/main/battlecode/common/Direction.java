@@ -62,7 +62,7 @@ public enum Direction {
      * @battlecode.doc.costlymethod
      */
     public Direction opposite() {
-        return Direction.values()[(ordinal() + 2) % 4];
+        return Direction.values()[(ordinal() + 4) % 8];
     }
 
     /**
@@ -74,7 +74,7 @@ public enum Direction {
      * @battlecode.doc.costlymethod
      */
     public Direction rotateLeft() {
-        return Direction.values()[(ordinal() + 4 - 1) % 4];
+        return Direction.values()[(ordinal() + 8 - 2) % 8];
     }
 
     /**
@@ -86,6 +86,6 @@ public enum Direction {
      * @battlecode.doc.costlymethod
      */
     public Direction rotateRight() {
-        return Direction.values()[(ordinal() + 1) % 4];
+        return Direction.values()[(ordinal() + 2) % 8];
     }
 }
