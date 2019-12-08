@@ -30,5 +30,8 @@ client/visualizer/bc20
 ### Distribution
 temp-dist
 
+### Javadoc
+battlecode-javadoc-*
+
 ### test bots
 battlecode20-internal-test-bots

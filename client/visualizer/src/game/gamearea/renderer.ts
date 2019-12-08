@@ -113,21 +113,43 @@ export default class Renderer {
 
     for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
       let idxVal = map.getIdx(i,j);
+      let plotJ = height-j-1;
 
-      if (pollutionLayer && (map.pollution[idxVal] > 0)) {
+      if (dirtLayer && (map.flooded[idxVal] == 0)) {// && (map.dirt[idxVal] > 0)) {
+        // dirt should be a gradient from green brown to orange brown depending on elevation
+        // we simply interpolate here
+        // TODO: change cutoff point for elevation
+        // here we're assuming it is roughly between 0 and 5, which might be very wrong
+        let elevationCoefficient = Math.max(0, Math.min(map.dirt[idxVal] / 5.0, 1)); // this should ideally be standardized using something other than the magic '5.0'
+        let lowground = [89,156,28];
+        let highground = [156,28,28];
+        let thisrgbcolor = 'rgb('
+        for (let ii = 0; ii < 3; ii++) {
+          let val = (1 - elevationCoefficient) * lowground[ii] + elevationCoefficient * highground[ii];
+          thisrgbcolor += val.toString();
+          if (ii < 2) {
+            thisrgbcolor += ",";
+          } else {
+            thisrgbcolor += ")"
+          }
+        }
+        this.ctx.fillStyle = thisrgbcolor;
+        this.ctx.globalAlpha = 1;//Math.min(map.dirt[idxVal] / 5.0, 1);
+        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
+      }
+
+      if (waterLayer && (map.flooded[idxVal] > 0)){
+        // water should always be the same color
+        this.ctx.fillStyle = 'rgba(0,0,255,1.0)';
+        this.ctx.globalAlpha = 1;
+        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
+      }
+
+      if (pollutionLayer) {
+        // pollution should add a clouds that are black with some opacity
         this.ctx.fillStyle = 'black';
         this.ctx.globalAlpha = map.pollution[idxVal] / 1000.0;
-        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
-      }
-      else if (waterLayer && (map.water[idxVal] > 0)){
-        this.ctx.fillStyle = 'blue';
-        this.ctx.globalAlpha = 0.5;
-        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
-      }
-      else if (dirtLayer && (map.dirt[idxVal] > 0)) {
-        this.ctx.fillStyle = this.bgPattern;
-        this.ctx.globalAlpha = Math.min(map.dirt[idxVal] / 5.0, 1);
-        this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, scale, scale);
+        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
       }
 
     }

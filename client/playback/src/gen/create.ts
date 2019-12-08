@@ -42,7 +42,7 @@ type BodiesType = {
 
 type MapType = {
   dirt: number[],
-  water: number[],
+  water: boolean[],
   pollution: number[],
   soup: number[]
 };
@@ -166,7 +166,7 @@ function createMap(builder: flatbuffers.Builder, bodies: number, name: string, m
   // exact sizes?
 
   const dirt: number[] = (map ? map.dirt : new Array(SIZE*SIZE));
-  const water: number[] = (map ? map.water : new Array(SIZE*SIZE));
+  const water: boolean[] = (map ? map.water : new Array(SIZE*SIZE));
   const poll: number[] = (map ? map.pollution : new Array(SIZE*SIZE));
   const soup: number[] = (map ? map.soup : new Array(SIZE*SIZE));
 
@@ -190,6 +190,7 @@ function createMap(builder: flatbuffers.Builder, bodies: number, name: string, m
   schema.GameMap.addWater(builder, bb_water);
   schema.GameMap.addPollution(builder, bb_poll);
   schema.GameMap.addSoup(builder, bb_soup);
+  schema.GameMap.addInitialWater(builder, 0);
 
   return schema.GameMap.endGameMap(builder);
 }
@@ -206,7 +207,7 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
     btmd.addCost(builder, 100);
     btmd.addDirtLimit(builder, 10);
     btmd.addSoupLimit(builder, 100);
-    btmd.addActionCooldown(builder, 10);
+    btmd.addActionCooldown(builder, 10.0);
     btmd.addSensorRadius(builder, 3);
     btmd.addPollutionRadius(builder, 3);
     btmd.addPollutionAmount(builder, 1);
@@ -558,7 +559,11 @@ function createWaterGame(turns: number) {
   };
   for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
     map.dirt[i*SIZE+j] = random(1,5);
-    map.water[i*SIZE+j] = Math.max(random(-10,1), 0);
+    if (random(0,1) <= 0.5) {
+      map.water[i*SIZE+j] = true;
+    } else {
+      map.water[i*SIZE+j] = false;
+    }
   }
 
   const bb_map = createMap(builder, null, 'Water Demo', map);
@@ -593,7 +598,11 @@ function createViewOptionGame(turns: number) {
   };
   for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
     map.dirt[i*SIZE+j] = random(0,5);
-    map.water[i*SIZE+j] = Math.max(random(-6,1), 0);
+    if (random(0,1) <= 0.3) {
+      map.water[i*SIZE+j] = true;
+    } else {
+      map.water[i*SIZE+j] = false;
+    }
     map.pollution[i*SIZE+j] = Math.max(random(-200, 500), 0);
   }
 
