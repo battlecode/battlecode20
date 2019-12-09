@@ -511,7 +511,6 @@ export default class GameWorld {
         bytecodesUsed: delta.bytecodesUsedArray()
       });
     }
-    console.log(this.mapStats);
   }
 
   private insertDiedBodies(delta: schema.Round) {
