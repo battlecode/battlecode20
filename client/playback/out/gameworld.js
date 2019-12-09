@@ -144,6 +144,7 @@ class GameWorld {
         source.teamStats.forEach((value, key) => {
             this.teamStats.set(key, deepcopy(value));
         });
+        this.mapStats = deepcopy(source.mapStats);
     }
     /**
      * Process a set of changes.
@@ -298,6 +299,7 @@ class GameWorld {
                 bytecodesUsed: delta.bytecodesUsedArray()
             });
         }
+        console.log(this.mapStats);
     }
     insertDiedBodies(delta) {
         // Delete the died bodies from the previous round

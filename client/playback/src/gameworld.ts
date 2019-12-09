@@ -27,6 +27,7 @@ export type BodiesSchema = {
   bytecodesUsed: Int32Array, // Only relevant for non-neutral bodies
 };
 
+// TODO change this to schema?
 export type MapStats = {
   name: string,
   minCorner: Victor,
@@ -331,6 +332,7 @@ export default class GameWorld {
     source.teamStats.forEach((value: TeamStats, key: number) => {
       this.teamStats.set(key, deepcopy(value));
     });
+    this.mapStats = deepcopy(source.mapStats);
   }
 
   /**
@@ -509,6 +511,7 @@ export default class GameWorld {
         bytecodesUsed: delta.bytecodesUsedArray()
       });
     }
+    console.log(this.mapStats);
   }
 
   private insertDiedBodies(delta: schema.Round) {
