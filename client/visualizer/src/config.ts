@@ -46,11 +46,6 @@ export interface Config {
   interpolate: boolean;
 
   /**
-   * Whether or not to display health bars
-   */
-  healthBars: boolean;
-
-  /**
    * Whether or not to draw a circle under each robot
    */
   circleBots: boolean;
@@ -74,6 +69,11 @@ export interface Config {
    * Whether to display the splash screen.
    */
   splash: boolean;
+
+  /**
+   * Whether to display the grid
+   */
+  showGrid: boolean;
 }
 
 /**
@@ -102,11 +102,11 @@ export function defaults(supplied?: any): Config {
     matchFileURL: supplied.matchFileURL || null,
     pollEvery: supplied.pollEvery || 500,
     interpolate: supplied.interpolate || false,
-    healthBars: supplied.healthBars || true,
     circleBots: supplied.circleBots || false,
     indicators: supplied.indicators || true,
     mode: supplied.mode || Mode.QUEUE,
     splash: supplied.splash || supplied.matchFileURL == null || true,
     sightRadius: supplied.sightRadius || false,
+    showGrid: supplied.showGrid || false,
   };
 }

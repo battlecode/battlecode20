@@ -152,6 +152,11 @@ export default class Renderer {
         this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
       }
 
+      if (this.conf.showGrid) {
+        this.ctx.strokeStyle = 'white';
+        this.ctx.globalAlpha = 1;
+        this.ctx.strokeRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
+      }
     }
 
     this.ctx.restore();
@@ -190,7 +195,7 @@ export default class Renderer {
 
     let nextXs: Int32Array, nextYs: Int32Array, realXs: Int32Array, realYs: Int32Array;
     if (nextStep && lerpAmount) {
-      // Interpolated
+      // Interpolated (not going to happen in 2019)
       nextXs = nextStep.bodies.arrays.x;
       nextYs = nextStep.bodies.arrays.y;
       lerpAmount = lerpAmount || 0;

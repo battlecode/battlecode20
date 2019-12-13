@@ -24,7 +24,7 @@ Inside `src/main/battlecode` you'll find all the important code for the engine:
   * `GameMap`: information about the game's map.
   * `GameWorld`: holds the map as well as all the robots on the map, and information about teams (such as team score).
     The core gameplay code (processing events by visiting signals and keeping track of global team stats) is here.
-  * `InternalRobot`: the class that describes a single Robot and its properties (health, delays, location, etc.).
+  * `InternalRobot`: the class that describes a single Robot and its properties (delays, location, etc.).
   * `RobotControllerImpl`: this implements `RobotController`. If you're wondering what happens when you call a `RobotController`.
     method, check the method's implementation here. `RobotControllerImpl` interacts heavily with `GameWorld`.
   * `XMLMapHandler`: reads the map from the XML file.

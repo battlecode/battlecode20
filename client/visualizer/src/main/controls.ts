@@ -344,7 +344,7 @@ export default class Controls {
    * Display an info string in the controls bar
    * "Robot ID id
    * Location: (x, y)
-   * Health: health/maxHealth
+   * onDirt, carryDirt
    * Bytecodes Used: bytecodes"
    */
   // TODO fix this (different stats)

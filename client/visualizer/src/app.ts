@@ -547,9 +547,11 @@ export default class Client {
       if(!input) {
         switch (event.keyCode) {
           case 80: // "p" - Pause/Unpause
+          case 32: // " " - Pause/Unpause
             controls.pause();
             break;
           case 79: // "o" - Stop
+          case 27: // <ESC> - Stop
             controls.stop();
             break;
           case 37: // "LEFT" - Step Backward
@@ -558,8 +560,11 @@ export default class Client {
           case 39: // "RIGHT" - Step Forward
             controls.stepForward();
             break;
-          case 72: // "h" - Toggle Health Bars
-            // conf.healthBars = !conf.healthBars;
+          case 38: // "UP" - Faster
+            controls.doubleUPS();
+            break;
+          case 40: // "DOWN" - Slower
+            controls.halveUPS();
             break;
           case 67: // "c" - Toggle Circle Bots
             conf.circleBots = !conf.circleBots;
@@ -573,8 +578,8 @@ export default class Client {
           case 78: // "n" - Toggle sight radius
             conf.sightRadius = !conf.sightRadius;
             break;
-          case 77: // "m" - Toggle bullet sight radius
-            // conf.bulletSightRadius = !conf.bulletSightRadius;
+          case 71: // "g" - Toogle grid view
+            conf.showGrid = !conf.showGrid;
             break;
         }
       }

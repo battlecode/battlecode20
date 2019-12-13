@@ -1,4 +1,5 @@
 import {Config} from './config';
+import { type } from 'os';
 
 type Image = HTMLImageElement;
 
@@ -40,7 +41,7 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   let result: any = {robot: {netGun: [], landscaper: [], miner: [], fulfillmentCenter: [], drone: {empty: [], carry: []}, designSchool: [], refinery: [], vaporator: [], HQ: []}, controls: {}};
 
   // write loaded image to obj[slot]
-  function img(obj, slot, url: string) {
+  function img(obj, slot, url) {
     // we expect another one
     expected++;
     let image = new Image();
@@ -55,13 +56,13 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
     };
     image.onerror = () => {
       loaded++;
-      console.log(`CANNOT LOAD IMAGE: ${url}`);
+      console.log(`CANNOT LOAD IMAGE: ${slot}, ${url}, ${image}`);
       if (loaded === expected) {
         console.log('All images loaded.');
         finished(Object.freeze(result) as AllImages);
       }
     }
-    image.src = url;
+    image.src = url.default;
   }
 
   const dirname = "./static/img/";

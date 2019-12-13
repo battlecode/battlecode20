@@ -299,7 +299,6 @@ class GameWorld {
                 bytecodesUsed: delta.bytecodesUsedArray()
             });
         }
-        console.log(this.mapStats);
     }
     insertDiedBodies(delta) {
         // Delete the died bodies from the previous round
