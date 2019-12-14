@@ -358,7 +358,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             MapLocation spawnLoc = adjacentLocation(dir);
             boolean isClear = onTheMap(spawnLoc) && !isLocationOccupied(spawnLoc);
             boolean cooldownExpired = isReady();
-            return hasBuildRequirements && isClear && cooldownExpired;
+            boolean notFlooded = !gameWorld.isFlooded(spawnLoc);
+            return hasBuildRequirements && isClear && cooldownExpired && notFlooded;
         } catch (GameActionException e) { return false; }
     }
 
