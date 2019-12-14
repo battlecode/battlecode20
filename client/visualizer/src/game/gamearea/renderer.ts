@@ -283,7 +283,7 @@ export default class Renderer {
       }
     }
 
-    this.setInfoStringEvent(world, realXs, realYs);
+    this.setInfoStringEvent(world, xs, ys);
   }
 
   /**
@@ -355,18 +355,16 @@ export default class Renderer {
     const onRobotSelected = this.onRobotSelected;
 
     this.canvas.onmousedown = (event: MouseEvent) => {
-      let x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
-      let y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
+      const {x, y} = this.getIntegerLocation(event, world);
+      // console.log(x);
+      // console.log(y);
 
       // Get the ID of the selected robot
       let selectedRobotID;
       for (let i in ids) {
-        // let radius = radii[i];
-        let radius = 1;
-        let type = types[i];
-        let inXRange: boolean = xs[i] - radius <= x && x <= xs[i] + radius;
-        let inYRange: boolean = ys[i] - radius <= y && y <= ys[i] + radius;
-        if (inXRange && inYRange) {
+        // TODO: hi
+        console.log(xs[i] + ',' + ys[i]);
+        if (xs[i] == x && ys[i] == y) {
           selectedRobotID = ids[i];
           break;
         }
@@ -380,21 +378,33 @@ export default class Renderer {
 
   private setMouseoverEvent(world: GameWorld) {
     // world information
-    const width = world.maxCorner.x - world.minCorner.x;
-    const height = world.maxCorner.y - world.minCorner.y;
+    // const width = world.maxCorner.x - world.minCorner.x;
+    // const height = world.maxCorner.y - world.minCorner.y;
     const onMouseover = this.onMouseover;
-    const minY = world.minCorner.y;
-    const maxY = world.maxCorner.y - 1;
+    // const minY = world.minCorner.y;
+    // const maxY = world.maxCorner.y - 1;
 
     this.canvas.onmousemove = (event) => {
-      const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
-      const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
-      const y = this.flip(_y, minY, maxY)
+      // const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
+      // const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
+      // const y = this.flip(_y, minY, maxY)
 
       // Set the location of the mouseover
+      const {x, y} = this.getIntegerLocation(event, world);
       const idx = world.mapStats.getIdx(x, y);
       onMouseover(x, y, world.mapStats.dirt[idx], world.mapStats.flooded[idx], world.mapStats.pollution[idx]);
     };
+  }
+
+  private getIntegerLocation(event: MouseEvent, world: GameWorld) {
+    const width = world.maxCorner.x - world.minCorner.x;
+    const height = world.maxCorner.y - world.minCorner.y;
+    const minY = world.minCorner.y;
+    const maxY = world.maxCorner.y - 1;
+    const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
+    const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
+    const y = this.flip(_y, minY, maxY)
+    return {x: Math.floor(x), y: Math.floor(y+1)};
   }
 
   private renderIndicatorDotsLines(world: GameWorld) {
