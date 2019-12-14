@@ -111,51 +111,67 @@ export default class Renderer {
 
     const map = world.mapStats;
 
+    let aveheight = 0;
+    for(let i=0; i<width; i++) for(let j=0; j<height; j++){
+      aveheight += map.dirt[map.getIdx(i,j)];
+    }
+    aveheight /= width*height;
+    aveheight = Math.max(1, aveheight);
+
+    const getColor = (x: number): string => {
+      /*
+      // 0   -> 'rgba(89,156,28,1)'
+      // inf -> 'rgba(156,28,28,1)'
+      */
+      // 0   -> 'rgba(0,255,0,0.7)'
+      // inf -> 'rgba(255,0,0,0.7)'
+
+      const lo = [0,255,0], hi = [255,0,0];
+
+      const t = x / (aveheight + x); // (0~inf) -> (0~1), t(aveheight) = 0.5
+
+      let now = [0,0,0];
+      for(let i=0; i<3; i++) now[i] = (hi[i]-lo[i]) * t + lo[i];
+
+      return `rgba(${now[0]},${now[1]},${now[2]},0.7)`;
+    }
+
+
     for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
       let idxVal = map.getIdx(i,j);
       let plotJ = height-j-1;
 
-      if (dirtLayer && (map.flooded[idxVal] == 0)) {// && (map.dirt[idxVal] > 0)) {
-        // dirt should be a gradient from green brown to orange brown depending on elevation
-        // we simply interpolate here
-        // TODO: change cutoff point for elevation
-        // here we're assuming it is roughly between 0 and 5, which might be very wrong
-        let elevationCoefficient = Math.max(0, Math.min(map.dirt[idxVal] / 5.0, 1)); // this should ideally be standardized using something other than the magic '5.0'
-        let lowground = [89,156,28];
-        let highground = [156,28,28];
-        let thisrgbcolor = 'rgb('
-        for (let ii = 0; ii < 3; ii++) {
-          let val = (1 - elevationCoefficient) * lowground[ii] + elevationCoefficient * highground[ii];
-          thisrgbcolor += val.toString();
-          if (ii < 2) {
-            thisrgbcolor += ",";
-          } else {
-            thisrgbcolor += ")"
-          }
-        }
+      const cx = (minX+i)*scale, cy = (minY+plotJ)*scale;
+
+      this.ctx.fillStyle = 'white';
+      this.ctx.globalAlpha = 1;
+
+
+      if (dirtLayer) {// && (map.dirt[idxVal] > 0)) {
+        // dirt should be a gradient from green to red depending on elevation
+        let thisrgbcolor: string = getColor(map.dirt[idxVal]);
         this.ctx.fillStyle = thisrgbcolor;
-        this.ctx.globalAlpha = 1;//Math.min(map.dirt[idxVal] / 5.0, 1);
-        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
       }
 
       if (waterLayer && (map.flooded[idxVal] > 0)){
         // water should always be the same color
         this.ctx.fillStyle = 'rgba(0,0,255,1.0)';
-        this.ctx.globalAlpha = 1;
-        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
       }
+
+      // water covers dirt; we can fill only once
+      this.ctx.fillRect(cx, cy, scale, scale);
 
       if (pollutionLayer) {
         // pollution should add a clouds that are black with some opacity
         this.ctx.fillStyle = 'black';
         this.ctx.globalAlpha = map.pollution[idxVal] / 1000.0;
-        this.ctx.fillRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
+        this.ctx.fillRect(cx, cy, scale, scale);
       }
 
       if (this.conf.showGrid) {
-        this.ctx.strokeStyle = 'white';
+        this.ctx.strokeStyle = 'gray';
         this.ctx.globalAlpha = 1;
-        this.ctx.strokeRect((minX+i)*scale, (minY+plotJ)*scale, scale, scale);
+        this.ctx.strokeRect(cx, cy, scale, scale);
       }
     }
 
@@ -363,11 +379,12 @@ export default class Renderer {
 
     this.canvas.onmousemove = (event) => {
       const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
-      const y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
+      const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
+      const y = this.flip(_y, minY, maxY)
 
       // Set the location of the mouseover
       const idx = world.mapStats.getIdx(x, y);
-      onMouseover(x, this.flip(y, minY, maxY), world.mapStats.dirt[idx], world.mapStats.flooded[idx], world.mapStats.pollution[idx]);
+      onMouseover(x, y, world.mapStats.dirt[idx], world.mapStats.flooded[idx], world.mapStats.pollution[idx]);
     };
   }
 

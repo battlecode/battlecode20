@@ -308,15 +308,21 @@ export default class Controls {
   /**
    * Redraws the timeline and sets the current round displayed in the controls.
    */
+  // TODO scale should be constant; should not depend on loadedTime
   setTime(time: number, loadedTime: number, ups: number, fps: number, lagging: Boolean) {
     // Redraw the timeline
     const scale = this.canvas.width / loadedTime;
     // const scale = this.canvas.width / cst.MAX_ROUND_NUM;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
     this.ctx.fillStyle = "rgb(39, 39, 39)";
-    this.ctx.fillRect(0, 0, time * scale, this.canvas.height)
+    this.ctx.fillRect(0, 0, time * scale, this.canvas.height);
+
     this.ctx.fillStyle = "#777";
-    this.ctx.fillRect(time * scale, 0, (loadedTime - time) * scale, this.canvas.height)
-    this.ctx.clearRect(loadedTime * scale, 0, this.canvas.width, this.canvas.height)
+    this.ctx.fillRect(time * scale, 0, (loadedTime - time) * scale, this.canvas.height);
+
+    this.ctx.fillStyle = 'rgb(255,0,0)';
+    this.ctx.fillRect(time * scale, 0, 2, this.canvas.height);
 
     // Edit the text
     this.timeReadout.textContent = `TIME: ${time+1}/${loadedTime+1}`;

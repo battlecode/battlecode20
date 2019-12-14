@@ -215,6 +215,7 @@ export default class Match {
    * if we don't have deltas to it, we can't.
    * If we can, each call to compute() will update state until current.turn === seekTo
    */
+  // TODO smoother reverse? (the timeline is shaky)
   seek(round: number): void {
     // the last delta we have is this.deltas.length-1, which takes us to turn
     // this.deltas.length-1; if we're higher than that, we can't seek

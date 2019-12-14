@@ -545,13 +545,13 @@ export default class Client {
       
       let input = document.activeElement.nodeName == "INPUT";
       if(!input) {
+        // TODO after touching viewoption buttons, the input (at least arrow keys) does not work
+        //console.log(event.keyCode);
         switch (event.keyCode) {
           case 80: // "p" - Pause/Unpause
-          case 32: // " " - Pause/Unpause
             controls.pause();
             break;
           case 79: // "o" - Stop
-          case 27: // <ESC> - Stop
             controls.stop();
             break;
           case 37: // "LEFT" - Step Backward
@@ -564,7 +564,10 @@ export default class Client {
             controls.doubleUPS();
             break;
           case 40: // "DOWN" - Slower
-            controls.halveUPS();
+          controls.halveUPS();
+            break;
+          case 82: // "r" - reverse UPS
+            controls.reverseUPS();
             break;
           case 67: // "c" - Toggle Circle Bots
             conf.circleBots = !conf.circleBots;
