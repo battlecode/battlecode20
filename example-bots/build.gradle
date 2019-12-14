@@ -19,11 +19,15 @@ sourceSets {
     scala.srcDirs = ["src/main"]
 
     // output.classesDir = "$buildDir/classes"
+    java.outputDir = file("$buildDir/classes")
+    scala.outputDir = file("$buildDir/classes")
   }
   test {
     scala.srcDirs = ["src/test"]
 
     // output.classesDir = "$buildDir/tests"
+    java.outputDir = file("$buildDir/tests")
+    scala.outputDir = file("$buildDir/tests")
   }
     // main.java.srcDirs += 'src/main/kotlin'
 }

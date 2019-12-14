@@ -368,6 +368,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanBuildRobot(type, dir);
 
         this.robot.resetCooldownTurns();
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -type.cost);
 
         int robotID = gameWorld.spawnRobot(type, adjacentLocation(dir), getTeam());
 
@@ -454,7 +455,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return false;
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
         return getType().canRefine() && isReady() && getSoupCarrying() > 0 &&
-               adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
+                adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
     }
 
     /**
@@ -570,8 +571,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanDepositDirt(dir, amount);
         this.robot.resetCooldownTurns();
-        this.robot.removeDirtCarrying(amount);
-        this.gameWorld.addDirt(getID(), adjacentLocation(dir), amount);
+        this.robot.removeDirtCarrying(1);
+        this.gameWorld.addDirt(getID(), adjacentLocation(dir), 1);
     }
 
     // ***************************************
@@ -769,29 +770,44 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BLOCKCHAINNNNNNNNNNN *******
     // ***********************************
 
+    private void assertCanSendMessage(int[] messageArray, int proofOfStake) throws GameActionException {
+        if (!canSendMessage(messageArray, proofOfStake))
+            throw new GameActionException(CANT_DO_THAT,
+                "Cannot send the specified message, possibly due to not enough soup to pay " +
+                "or message too long.");
+    }
+
+    @Override
+    public boolean canSendMessage(int[] messageArray, int proofOfStake) {
+        return (messageArray.length <= GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH &&
+            gameWorld.getTeamInfo().getSoup(getTeam()) >= proofOfStake);
+    }
+
+
     /**
      * Sends a message to the blockchain at the indicated cost.
      * 
-     * @param message the message to send.
+     * @param messageArray the message to send.
      * @param proofOfStake the price that the unit is willing to pay for the message. If
      * the team does not have that much soup, the message will not be sent.
      * 
      */
     @Override
-    public void sendMessage(int[] messageArray, int cost) throws GameActionException {
-        if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
+    public void sendMessage(int[] messageArray, int proofOfStake) throws GameActionException {
+        assertCanSendMessage(messageArray, proofOfStake);
+        /*if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
             throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
                     "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
         }
         int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
-        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost) {
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < proofOfStake) {
             throw new GameActionException(NOT_ENOUGH_RESOURCE, 
-                    "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
-        }
+                    "Tried to pay " + Integer.toString(proofOfStake) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+        }*/ //this is more detailed but doesn't match our usual formatting?
         // pay!
-        gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -proofOfStake);
         // create a block chain entry
-        BlockchainEntry bcentry = new BlockchainEntry(cost, messageArray);
+        BlockchainEntry bcentry = new BlockchainEntry(proofOfStake, messageArray);
         // add
         gameWorld.addNewMessage(bcentry);
     }

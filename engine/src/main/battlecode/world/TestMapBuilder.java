@@ -80,8 +80,7 @@ public class TestMapBuilder {
         return this;
     }
 
-
-    public TestMapBuilder setDirt() {
+  public TestMapBuilder setDirt() {
         this.dirtArray = new int[width*height];
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
