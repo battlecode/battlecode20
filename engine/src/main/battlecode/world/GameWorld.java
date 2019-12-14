@@ -207,8 +207,8 @@ public strictfp class GameWorld {
      * @param idx the index
      */
     public MapLocation indexToLocation(int idx) {
-        return new MapLocation(idx / this.gameMap.getWidth() + this.gameMap.getOrigin().x,
-                               idx % this.gameMap.getWidth() + this.gameMap.getOrigin().y);
+        return new MapLocation(idx % this.gameMap.getWidth() + this.gameMap.getOrigin().x,
+                               idx / this.gameMap.getWidth() + this.gameMap.getOrigin().y);
     }
 
     // ***********************************
@@ -629,8 +629,7 @@ public strictfp class GameWorld {
     /**
      * Add new message to the priority queue of messages, and also add them
      * to the matchmaker.
-     * @param cost
-     * @param message
+     * @param block
      */
     public void addNewMessage(BlockchainEntry block) {
         getMatchMaker().addNewMessage(block.cost, block.serializedMessage);
