@@ -119,8 +119,13 @@ class GameWorld {
         this.mapStats.pollution = Int32Array.from(map.pollutionArray());
         this.mapStats.soup = Int32Array.from(map.soupArray());
         const maxy = (maxCorner.y() - minCorner.y());
-        this.mapStats.getIdx = (x, y) => (Math.floor(x) * maxy + Math.floor(y));
-        this.mapStats.getLoc = (idx) => (new Victor(Math.floor(idx / maxy), idx % maxy));
+        const width = (maxCorner.x() - minCorner.x());
+        this.mapStats.getIdx = (x, y) => (
+        // Math.floor(x)*maxy + Math.floor(y)
+        Math.floor(y) * width + Math.floor(x)
+        // 1
+        );
+        this.mapStats.getLoc = (idx) => (new Victor(idx % width, Math.floor(idx / width)));
         // Check with header.totalRounds() ?
     }
     /**
