@@ -207,7 +207,7 @@ export default class Renderer {
     const xs = bodies.arrays.x;
     const ys = bodies.arrays.y;
     const minY = world.minCorner.y;
-    const maxY = world.maxCorner.y;
+    const maxY = world.maxCorner.y -1;
 
     let nextXs: Int32Array, nextYs: Int32Array, realXs: Int32Array, realYs: Int32Array;
     if (nextStep && lerpAmount) {
@@ -248,8 +248,9 @@ export default class Renderer {
 
       if (type === cst.COW) {
         const img = this.imgs.cow;
-        this.drawCircleBot(x, y, radius);
-        this.drawImage(img, x, y, radius);
+        // this.drawCircleBot(x, y, radius);
+        // this.drawImage(img, x, y, radius);
+        this.drawBot(img, x, y);
       }
 
     }
@@ -271,8 +272,9 @@ export default class Renderer {
         }
 
         const img = tmp[team];
-        this.drawCircleBot(x, y, radius);
-        this.drawImage(img, x, y, radius);
+        // this.drawCircleBot(x, y, radius);
+        // this.drawImage(img, x, y, radius);
+        this.drawBot(img, x, y);
         
         // Draw the sight radius if the robot is selected
         if (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID) {
@@ -334,6 +336,13 @@ export default class Renderer {
     this.ctx.drawImage(img, x-radius, y-radius, radius*2, radius*2);
   }
 
+  /**
+   * Draws a bot at (x, y)
+   */
+  private drawBot(img: HTMLImageElement, x: number, y: number) {
+    this.ctx.drawImage(img, x, y, 1, 1);
+  }
+
   private setInfoStringEvent(world: GameWorld,
     xs: Int32Array, ys: Int32Array) {
     // world information
@@ -375,7 +384,7 @@ export default class Renderer {
     const height = world.maxCorner.y - world.minCorner.y;
     const onMouseover = this.onMouseover;
     const minY = world.minCorner.y;
-    const maxY = world.maxCorner.y;
+    const maxY = world.maxCorner.y - 1;
 
     this.canvas.onmousemove = (event) => {
       const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
@@ -404,7 +413,7 @@ export default class Renderer {
     const dotsGreen = dots.arrays.green;
     const dotsBlue = dots.arrays.blue;
     const minY = world.minCorner.y;
-    const maxY = world.maxCorner.y;
+    const maxY = world.maxCorner.y - 1;
 
     for (let i = 0; i < dots.length; i++) {
       if (this.lastSelectedID === undefined || dotsID[i] === this.lastSelectedID) {

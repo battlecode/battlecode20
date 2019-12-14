@@ -21,6 +21,23 @@ const timeMS = typeof window !== 'undefined' && window.performance && window.per
  */
 class Match {
     /**
+     * Create a Timeline.
+     */
+    constructor(header, meta) {
+        this._current = new gameworld_1.default(meta);
+        this._current.loadFromMatchHeader(header);
+        this._farthest = this._current;
+        this.snapshots = new Array();
+        this.snapshotEvery = 64;
+        this.snapshots.push(this._current.copy());
+        this.deltas = new Array(1);
+        this.logs = new Array(1);
+        this.maxTurn = header.maxRounds();
+        this._lastTurn = null;
+        this._seekTo = 0;
+        this._winner = null;
+    }
+    /**
      * The current game world.
      * DO NOT CACHE this reference between calls to seek() and compute(), it may
      * change.
@@ -48,23 +65,6 @@ class Match {
      * Whether this match has fully loaded.
      */
     get finished() { return this._winner !== null; }
-    /**
-     * Create a Timeline.
-     */
-    constructor(header, meta) {
-        this._current = new gameworld_1.default(meta);
-        this._current.loadFromMatchHeader(header);
-        this._farthest = this._current;
-        this.snapshots = new Array();
-        this.snapshotEvery = 64;
-        this.snapshots.push(this._current.copy());
-        this.deltas = new Array(1);
-        this.logs = new Array(1);
-        this.maxTurn = header.maxRounds();
-        this._lastTurn = null;
-        this._seekTo = 0;
-        this._winner = null;
-    }
     /**
      * Store a schema.Round and the logs contained in it.
      */
@@ -143,6 +143,7 @@ class Match {
      * if we don't have deltas to it, we can't.
      * If we can, each call to compute() will update state until current.turn === seekTo
      */
+    // TODO smoother reverse? (the timeline is shaky)
     seek(round) {
         // the last delta we have is this.deltas.length-1, which takes us to turn
         // this.deltas.length-1; if we're higher than that, we can't seek

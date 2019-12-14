@@ -338,7 +338,7 @@ export default class Controls {
   setTileInfo(x: number, y: number, dirt: number, water: number, pollution: number): void {
     let content: string = "";
     content += 'X: ' + `${Math.floor(x)}`.padStart(3);
-    content += ' | Y: ' + `${Math.floor(y)}`.padStart(3);
+    content += ' | Y: ' + `${Math.floor(y+1)}`.padStart(3);
     if(dirt !== undefined) content += ' | D: ' + `${dirt}`.padStart(3);
     if(water !== undefined) content += ' | W: ' + `${water}`.padStart(3);
     if(pollution !== undefined) content += ' | P: ' + `${pollution}`.padStart(3);
