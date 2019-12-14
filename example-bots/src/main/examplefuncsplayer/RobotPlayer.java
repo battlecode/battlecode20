@@ -6,14 +6,14 @@ public strictfp class RobotPlayer {
 
     static Direction[] directions = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
     static RobotType[] spawnedByMiner = {RobotType.REFINERY, RobotType.VAPORATOR, RobotType.DESIGN_SCHOOL,
-                                         RobotType.FULFILLMENT_CENTER, RobotType.NET_GUN};
+            RobotType.FULFILLMENT_CENTER, RobotType.NET_GUN};
 
     static int turnCount;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
-    **/
+     **/
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
 
@@ -23,14 +23,14 @@ public strictfp class RobotPlayer {
 
         turnCount = 0;
 
-        //System.out.println("I'm a " + rc.getType() + " and I just got created!");
+        System.out.println("I'm a " + rc.getType() + " and I just got created!");
         while (true) {
             turnCount += 1;
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
                 // Here, we've separated the controls into a different method for each RobotType.
                 // You can add the missing ones or rewrite this into your own control structure.
-                //System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
+                System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
                 switch (rc.getType()) {
                     case HQ:                 runHQ();                break;
                     case MINER:              runMiner();             break;
@@ -51,7 +51,7 @@ public strictfp class RobotPlayer {
                 e.printStackTrace();
             }
         }
-	}
+    }
 
     static void runHQ() throws GameActionException {
         for (Direction dir : directions)
@@ -61,17 +61,17 @@ public strictfp class RobotPlayer {
     static void runMiner() throws GameActionException {
         tryBlockchain();
         tryMove(randomDirection());
-        // if (tryMove(randomDirection()))
-        //     System.out.println("I moved!");
+        if (tryMove(randomDirection()))
+            System.out.println("I moved!");
         // tryBuild(randomSpawnedByMiner(), randomDirection());
         for (Direction dir : directions)
             tryBuild(RobotType.FULFILLMENT_CENTER, dir);
         for (Direction dir : directions)
-            tryGive(dir);
-                //System.out.println("I gave soup! " + rc.getTeamSoup());
+            if (tryRefine(dir))
+                System.out.println("I refined soup! " + rc.getTeamSoup());
         for (Direction dir : directions)
-            tryMine(dir);
-                //System.out.println("I mined soup! " + rc.getSoupCarrying());
+            if (tryMine(dir))
+                System.out.println("I mined soup! " + rc.getSoupCarrying());
     }
 
     static void runRefinery() throws GameActionException {
@@ -79,11 +79,11 @@ public strictfp class RobotPlayer {
     }
 
     static void runVaporator() throws GameActionException {
-        
+
     }
 
     static void runDesignSchool() throws GameActionException {
-        
+
     }
 
     static void runFulfillmentCenter() throws GameActionException {
@@ -92,7 +92,7 @@ public strictfp class RobotPlayer {
     }
 
     static void runLandscaper() throws GameActionException {
-        
+
     }
 
     static void runDeliveryDrone() throws GameActionException {
@@ -113,7 +113,7 @@ public strictfp class RobotPlayer {
     }
 
     static void runNetGun() throws GameActionException {
-        
+
     }
 
     /**
@@ -195,15 +195,15 @@ public strictfp class RobotPlayer {
     }
 
     /**
-     * Attempts to give soup in a given direction.
+     * Attempts to refine soup in a given direction.
      *
      * @param dir The intended direction of refining
      * @return true if a move was performed
      * @throws GameActionException
      */
-    static boolean tryGive(Direction dir) throws GameActionException {
-        if (rc.isReady() && rc.canGiveSoup(dir, rc.getSoupCarrying())) {
-            rc.giveSoup(dir, rc.getSoupCarrying());
+    static boolean tryRefine(Direction dir) throws GameActionException {
+        if (rc.isReady() && rc.canRefineSoup(dir)) {
+            rc.refineSoup(dir, rc.getSoupCarrying());
             return true;
         } else return false;
     }
