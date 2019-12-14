@@ -426,57 +426,57 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     /**
-     * Asserts that the robot can give soup in the specified direction.
+     * Asserts that the robot can refine soup in the specified direction.
      *
      * @throws GameActionException
      */
-    private void assertCanGiveSoup(Direction dir, int amount) throws GameActionException{
-        if(!canGiveSoup(dir, amount)){
+    private void assertCanRefineSoup(Direction dir) throws GameActionException{
+        if(!canRefineSoup(dir)){
             throw new GameActionException(CANT_DO_THAT,
-                    "Can't give soup in given direction, possibly due to " +
-                            "cooldown not expired, this robot can't give, " +
-                            "this robot doesn't have enough crude soup, " +
+                    "Can't refine soup in given direction, possibly due to " +
+                            "cooldown not expired, this robot can't refine, " +
+                            "this robot doesn't have crude soup, " +
                             "or the location doesn't have a refinery.");
         }
     }
 
     /**
-     * Returns whether or not the robot can give soup in a specified direction.
-     * Checks if the robot can give soup, whether they are carring crude soup, whether
+     * Returns whether or not the robot can refine soup in a specified direction.
+     * Checks if the robot can refine, whether they are carring crude soup, whether
      *  the action cooldown is ready, whether the location is on the map,
      *  and whether there is a refinery at the target location.
      *
-     * @param dir the direction of the refinery to give soup to
+     * @param dir the direction to refine in
      */
     @Override
-    public boolean canGiveSoup(Direction dir, int amount) {
+    public boolean canRefineSoup(Direction dir) {
         MapLocation center = adjacentLocation(dir);
         if (!onTheMap(center))
             return false;
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
-        return getType().canGive() && isReady() && getSoupCarrying() >= amount && amount >= 0 &&
-               adjacentRobot != null && adjacentRobot.getType().canRefine();
+        return getType().canRefine() && isReady() && getSoupCarrying() > 0 &&
+                adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
     }
 
     /**
-     *  Gives soup in a certain direction; gives up to the amount of crude soup
+     * Refines soup in a certain direction; refines up to the amount of crude soup
      *  that the robot is carrying.
      *
      * @param dir the direction to mine in
-     * @param amount the amount of soup to give
+     * @param amount the amount of soup to refine
      * @throws GameActionException
      */
     @Override
-    public void giveSoup(Direction dir, int amount) throws GameActionException {
+    public void refineSoup(Direction dir, int amount) throws GameActionException {
         assertNotNull(dir);
-        assertCanGiveSoup(dir, amount);
+        assertCanRefineSoup(dir);
         amount = Math.min(amount, this.getSoupCarrying());
         this.robot.resetCooldownTurns();
         this.robot.removeSoupCarrying(amount);
         InternalRobot refinery = this.gameWorld.getRobot(adjacentLocation(dir));
         refinery.addSoupCarrying(amount);
 
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.GIVE_SOUP, refinery.getID());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.REFINE_SOUP, refinery.getID());
     }
 
     // ***************************************
@@ -787,7 +787,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     /**
      * Sends a message to the blockchain at the indicated cost.
      * 
-     * @param message the message to send.
+     * @param messageArray the message to send.
      * @param proofOfStake the price that the unit is willing to pay for the message. If
      * the team does not have that much soup, the message will not be sent.
      * 

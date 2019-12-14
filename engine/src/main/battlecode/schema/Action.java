@@ -11,80 +11,74 @@ package battlecode.schema;
  * the actions were performed.
  */
 public final class Action {
-  private Action() { }
-  /**
-   * Mines a unit of soup (miners).
-   * Target: none.
-   */
-  public static final byte MINE_SOUP = 0;
-  /**
-   * Gives a unit of soup (miners).
-   * Target: refinery.
-   */
-  public static final byte GIVE_SOUP = 1;
-  /**
-   * Digs a unit of dirt (landscapers).
-   * Target: tile.
-   */
-  public static final byte DIG_DIRT = 2;
-  /**
-   * Deposits a unit of dirt (landscapers).
-   * Target: tile.
-   */
-  public static final byte DEPOSIT_DIRT = 3;
-  /**
-   * Deposits a unit of dirt (landscapers).
-   * Target: tile.
-   */
-  public static final byte REFINE = 3;
-  /**
-   * Picks up a unit (drones).
-   * Target: unit picked up.
-   */
-  public static final byte PICK_UNIT = 4;
-  /**
-   * Drops off a unit (drones).
-   * Target: unit dropped off.
-   */
-  public static final byte DROP_UNIT = 5;
-  /**
-   * Builds a unit.
-   * Target: spawned unit.
-   */
-  public static final byte SPAWN_UNIT = 6;
-  /**
-   * Shoots a drone.
-   * Target: drone shot.
-   */
-  public static final byte SHOOT = 7;
-  /**
-   * Dies from drowning.
-   * Target: none.
-   */
-  public static final byte DIE_DROWN = 8;
-  /**
-   * Dies from being shot (drones).
-   * Target: drone.
-   */
-  public static final byte DIE_SHOT = 9;
-  /**
-   * Dies due to having too much dirt on top (buildings).
-   * Target: landscaper
-   */
-  public static final byte DIE_TOO_MUCH_DIRT = 10;
-  /**
-   * Dies from suicide.
-   * Target: none.
-   */
-  public static final byte DIE_SUICIDE = 11;
-  /**
-   * Dies due to an uncaught exception
-   * Target: none.
-   */
-  public static final byte DIE_EXCEPTION = 12;
+    private Action() { }
+    /**
+     * Mines a unit of soup (miners).
+     * Target: none.
+     */
+    public static final byte MINE_SOUP = 0;
+    /**
+     * Refines a unit of soup (miners).
+     * Target: refinery.
+     */
+    public static final byte REFINE_SOUP = 1;
+    /**
+     * Digs a unit of dirt (landscapers).
+     * Target: tile.
+     */
+    public static final byte DIG_DIRT = 2;
+    /**
+     * Deposits a unit of dirt (landscapers).
+     * Target: tile.
+     */
+    public static final byte DEPOSIT_DIRT = 3;
+    /**
+     * Picks up a unit (drones).
+     * Target: unit picked up.
+     */
+    public static final byte PICK_UNIT = 4;
+    /**
+     * Drops off a unit (drones).
+     * Target: unit dropped off.
+     */
+    public static final byte DROP_UNIT = 5;
+    /**
+     * Builds a unit.
+     * Target: spawned unit.
+     */
+    public static final byte SPAWN_UNIT = 6;
+    /**
+     * Shoots a drone.
+     * Target: drone shot.
+     */
+    public static final byte SHOOT = 7;
+    /**
+     * Dies from drowning.
+     * Target: none.
+     */
+    public static final byte DIE_DROWN = 8;
+    /**
+     * Dies from being shot (drones).
+     * Target: drone.
+     */
+    public static final byte DIE_SHOT = 9;
+    /**
+     * Dies due to having too much dirt on top (buildings).
+     * Target: landscaper
+     */
+    public static final byte DIE_TOO_MUCH_DIRT = 10;
+    /**
+     * Dies from suicide.
+     * Target: none.
+     */
+    public static final byte DIE_SUICIDE = 11;
+    /**
+     * Dies due to an uncaught exception
+     * Target: none.
+     */
+    public static final byte DIE_EXCEPTION = 12;
 
-  public static final String[] names = { "MINE_SOUP", "GIVE_SOUP", "DIG_DIRT", "DEPOSIT_DIRT", "REFINE", "PICK_UNIT", "DROP_UNIT", "SPAWN_UNIT", "SHOOT", "DIE_DROWN", "DIE_SHOT", "DIE_TOO_MUCH_DIRT", "DIE_SUICIDE", "DIE_EXCEPTION", };
+    public static final String[] names = { "MINE_SOUP", "REFINE_SOUP", "DIG_DIRT", "DEPOSIT_DIRT", "PICK_UNIT", "DROP_UNIT", "SPAWN_UNIT", "SHOOT", "DIE_DROWN", "DIE_SHOT", "DIE_TOO_MUCH_DIRT", "DIE_SUICIDE", "DIE_EXCEPTION", };
 
-  public static String name(int e) { return names[e]; }
+    public static String name(int e) { return names[e]; }
 }
-

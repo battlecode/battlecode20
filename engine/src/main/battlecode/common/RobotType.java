@@ -193,21 +193,12 @@ public enum RobotType {
     }
 
     /**
-     * Returns whether the robot can give soup.
+     * Returns whether the robot can refine.
      *
-     * @return whether the robot can give soup
-     */
-    public boolean canGive() {
-        return this == MINER;
-    }
-
-    /**
-     * Returns whether the robot can refine soup.
-     *
-     * @return whether the robot can refine soup
+     * @return whether the robot can refine
      */
     public boolean canRefine() {
-        return this == REFINERY || this == HQ;
+        return this == MINER;
     }
 
     /**
