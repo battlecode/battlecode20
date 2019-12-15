@@ -619,7 +619,7 @@ function createSoupGame(turns: number) {
     map.dirt[idxVal] = random(-3,10);
     map.water[idxVal] = random(0, random(0,2));
     map.pollution[idxVal] = Math.max(random(-200, 500), 0);
-    map.soup[idxVal] = random(0, random(0, 3)) * 50;
+    map.soup[idxVal] = random(0, random(0, 3)) * 47;
   }
 
   const bb_map = createMap(builder, null, 'Soup Demo', map);

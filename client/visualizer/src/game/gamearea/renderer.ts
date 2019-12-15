@@ -111,7 +111,8 @@ export default class Renderer {
 
     const map = world.mapStats;
 
-    const getColor = (x: number): string => {
+    // TODO use color pacakge for nicer manipulation?
+    const getDirtColor = (x: number): string => {
       /*
       // -inf > 'rgba(89,156,28,1)'
       // inf -> 'rgba(156,28,28,1)'
@@ -131,6 +132,13 @@ export default class Renderer {
 
       return `rgba(${now[0]},${now[1]},${now[2]},0.7)`;
     }
+    
+    const getSoupColor = (s: number): string => {
+      // TODO is this in right dimention?
+      if (s <= 50)  return 'white';
+      if (s <= 100) return 'yellow';
+      return 'orange';
+    }
 
 
     for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
@@ -145,7 +153,7 @@ export default class Renderer {
 
       if (dirtLayer) {// && (map.dirt[idxVal] > 0)) {
         // dirt should be a gradient from green to red depending on elevation
-        let thisrgbcolor: string = getColor(map.dirt[idxVal]);
+        let thisrgbcolor: string = getDirtColor(map.dirt[idxVal]);
         this.ctx.fillStyle = thisrgbcolor;
       }
 
@@ -165,7 +173,7 @@ export default class Renderer {
       }
 
       if (map.soup[idxVal] != 0){
-        this.ctx.fillStyle = 'yellow';
+        this.ctx.fillStyle = getSoupColor(map.soup[idxVal]);
         this.ctx.globalAlpha = 1;
         this.ctx.fillRect(cx+scale/3, cy+scale/3, scale/3, scale/3);
       }
