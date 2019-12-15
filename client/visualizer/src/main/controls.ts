@@ -59,7 +59,7 @@ export default class Controls {
   constructor(conf: Config, images: imageloader.AllImages) {
     this.div = this.baseDiv();
     this.timeReadout = document.createTextNode('No match loaded');
-    this.tileInfo = document.createTextNode('X | Y | Dirt | Water | Pollution');
+    this.tileInfo = document.createTextNode('X | Y | Dirt | Water | Pollution | Soup');
     this.speedReadout = document.createElement('span');
     this.speedReadout.style.cssFloat = 'right';
     this.speedReadout.textContent = 'UPS: 0 FPS: 0';
@@ -335,13 +335,14 @@ export default class Controls {
   /**
    * Updates the location readout
    */
-  setTileInfo(x: number, y: number, dirt: number, water: number, pollution: number): void {
+  setTileInfo(x: number, y: number, dirt: number, water: number, pollution: number, soup: number): void {
     let content: string = "";
     content += 'X: ' + `${x}`.padStart(3);
     content += ' | Y: ' + `${y}`.padStart(3);
     if(dirt !== undefined) content += ' | D: ' + `${dirt}`.padStart(3);
     if(water !== undefined) content += ' | W: ' + `${water}`.padStart(3);
     if(pollution !== undefined) content += ' | P: ' + `${pollution}`.padStart(3);
+    if(soup !== undefined) content += ' | S: ' + `${soup}`.padStart(3);
 
     this.tileInfo.textContent = content;
   }

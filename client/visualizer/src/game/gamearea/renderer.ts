@@ -21,7 +21,7 @@ export default class Renderer {
 
   // Callbacks
   readonly onRobotSelected: (id: number) => void;
-  readonly onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number) => void;
+  readonly onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number, soup: number) => void;
 
   // For rendering robot information on click
   private lastSelectedID: number;
@@ -31,7 +31,7 @@ export default class Renderer {
 
   constructor(canvas: HTMLCanvasElement, imgs: AllImages, conf: config.Config, metadata: Metadata,
     onRobotSelected: (id: number) => void,
-    onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number) => void) {
+    onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number, soup: number) => void) {
     this.canvas = canvas;
     this.conf = conf;
     this.imgs = imgs;
@@ -394,7 +394,7 @@ export default class Renderer {
       // Set the location of the mouseover
       const {x, y} = this.getIntegerLocation(event, world);
       const idx = world.mapStats.getIdx(x, y);
-      onMouseover(x, y, world.mapStats.dirt[idx], world.mapStats.flooded[idx], world.mapStats.pollution[idx]);
+      onMouseover(x, y, world.mapStats.dirt[idx], world.mapStats.flooded[idx], world.mapStats.pollution[idx], world.mapStats.soup[idx]);
     };
   }
 

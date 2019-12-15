@@ -397,8 +397,9 @@ export default class Client {
       lastSelectedID = id;
       this.console.setIDFilter(id);
     };
-    const onMouseover = (x: number, y: number, dirt: number, water: number, pollution: number) => {
-      this.controls.setTileInfo(x, y, dirt, water, pollution);
+    const onMouseover = (x: number, y: number, dirt: number, water: number, pollution: number, soup: number) => {
+      // Better make tile type and hand that over
+      this.controls.setTileInfo(x, y, dirt, water, pollution, soup);
     };
 
     // Configure renderer for this match
