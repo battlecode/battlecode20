@@ -210,6 +210,8 @@ export default class Sidebar {
     }
 
     // Update the div and set the correct onkeydown events
+    // TODO why does the sidebar need config? (like, circlebots or indicators)
+    // this seems it was not updated for a while
     switch (this.conf.mode) {
       case Mode.GAME:
         this.innerDiv.appendChild(this.stats.div);
@@ -222,9 +224,6 @@ export default class Sidebar {
           if(!input) {
             console.log(input);
             switch (event.keyCode) {
-              case 72: // "h" - Toggle Health Bars
-                this.conf.healthBars = !this.conf.healthBars;
-                break;
               case 67: // "c" - Toggle Circle Bots
                 this.conf.circleBots = !this.conf.circleBots;
                 break;
@@ -236,9 +235,6 @@ export default class Sidebar {
                 break;
               case 78: // "n" - Toggle sight radius
                 this.conf.sightRadius = !this.conf.sightRadius;
-                break;
-              case 77: // "m" - Toggle bullet sight radius
-                // this.conf.bulletSightRadius = !this.conf.bulletSightRadius;
                 break;
             }
           }

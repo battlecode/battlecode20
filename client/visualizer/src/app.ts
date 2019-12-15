@@ -154,7 +154,7 @@ export default class Client {
         this.controls.pause();
         break;
         case 79: // "o" - Stop
-        this.controls.restart();
+        this.controls.stop();
         break;
       }
     };
@@ -397,8 +397,9 @@ export default class Client {
       lastSelectedID = id;
       this.console.setIDFilter(id);
     };
-    const onMouseover = (x: number, y: number) => {
-      this.controls.setLocation(x, y);
+    const onMouseover = (x: number, y: number, dirt: number, water: number, pollution: number, soup: number) => {
+      // Better make tile type and hand that over
+      this.controls.setTileInfo(x, y, dirt, water, pollution, soup);
     };
 
     // Configure renderer for this match
@@ -421,6 +422,9 @@ export default class Client {
     // whether we're seeking
     let externalSeek = false;
 
+    this.controls.isPaused = () => {
+      return goalUPS === 0;
+    }
     this.controls.onTogglePause = () => {
       goalUPS = goalUPS === 0 ? this.controls.getUPS() : 0;
     };
@@ -542,12 +546,14 @@ export default class Client {
       
       let input = document.activeElement.nodeName == "INPUT";
       if(!input) {
+        // TODO after touching viewoption buttons, the input (at least arrow keys) does not work
+        //console.log(event.keyCode);
         switch (event.keyCode) {
           case 80: // "p" - Pause/Unpause
             controls.pause();
             break;
           case 79: // "o" - Stop
-            controls.restart();
+            controls.stop();
             break;
           case 37: // "LEFT" - Step Backward
             controls.stepBackward();
@@ -555,8 +561,14 @@ export default class Client {
           case 39: // "RIGHT" - Step Forward
             controls.stepForward();
             break;
-          case 72: // "h" - Toggle Health Bars
-            // conf.healthBars = !conf.healthBars;
+          case 38: // "UP" - Faster
+            controls.doubleUPS();
+            break;
+          case 40: // "DOWN" - Slower
+          controls.halveUPS();
+            break;
+          case 82: // "r" - reverse UPS
+            controls.reverseUPS();
             break;
           case 67: // "c" - Toggle Circle Bots
             conf.circleBots = !conf.circleBots;
@@ -570,8 +582,8 @@ export default class Client {
           case 78: // "n" - Toggle sight radius
             conf.sightRadius = !conf.sightRadius;
             break;
-          case 77: // "m" - Toggle bullet sight radius
-            // conf.bulletSightRadius = !conf.bulletSightRadius;
+          case 71: // "g" - Toogle grid view
+            conf.showGrid = !conf.showGrid;
             break;
         }
       }
@@ -597,6 +609,9 @@ export default class Client {
 
         // tell the simulation to go to our time goal
         match.seek(interpGameTime | 0);
+      } if (match.current.turn == match.maxTurn){
+        // Match have ended
+        this.controls.onFinish();
       }
 
       // update fps
@@ -606,8 +621,9 @@ export default class Client {
       this.controls.setTime(
         match.current.turn,
         match['_farthest'].turn,
-        updatesPerSecond.tps,
-        rendersPerSecond.tps
+        goalUPS,
+        rendersPerSecond.tps,
+        Math.abs(updatesPerSecond.tps) < Math.max(0, Math.abs(goalUPS) - 2)
       );
 
       // run simulation
@@ -625,16 +641,17 @@ export default class Client {
           let id = bodies.id[index];
           let x = bodies.x[index];
           let y = bodies.y[index];
-          // let health = bodies.health[index];
-          // let maxHealth = bodies.maxHealth[index];
-          let health = 0;
-          let maxHealth = 0;
+
+          let on = bodies.onDirt[index];
+
           let type = bodies.type[index];
           let bytecodes = bodies.bytecodesUsed[index];
           if (type === cst.COW) {
-            this.controls.setInfoString(id, x, y, health, maxHealth);
+            this.controls.setInfoString(id, x, y, on);
+          } else if (type == cst.LANDSCAPER) {
+            this.controls.setInfoString(id, x, y, on, bodies.carryDirt[index], bytecodes);
           } else {
-            this.controls.setInfoString(id, x, y, health, maxHealth, bytecodes);
+            this.controls.setInfoString(id, x, y, on, bytecodes=bytecodes);
           }
         }
       }

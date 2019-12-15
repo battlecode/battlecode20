@@ -38,6 +38,9 @@ export default class Match {
    * Snapshots of the game world.
    * [0] is round 0 (the one stored in the GameMap), [1] is round
    * snapshotEvery * 1, [2] is round snapshotEvery * 2, etc.
+   * 
+   * By this, we can quickly navigate to arbitrary time
+   * Saving game world for all round will use too much memory
    */
   readonly snapshots: Array<GameWorld>;
 
@@ -111,11 +114,9 @@ export default class Match {
     this._current.loadFromMatchHeader(header);
     this._farthest = this._current;
     this.snapshots = new Array();
-    this.snapshotEvery = 50;
+    this.snapshotEvery = 64;
     this.snapshots.push(this._current.copy());
-    // leave [0] undefined
     this.deltas = new Array(1);
-    // leave [0] undefined
     this.logs = new Array(1);
     this.maxTurn = header.maxRounds();
     this._lastTurn = null;
@@ -128,7 +129,7 @@ export default class Match {
    */
   applyDelta(delta: schema.Round) {
     if (delta.roundID() !== this.deltas.length) {
-      throw new Error(`Can't store delta ${delta.roundID()}, only have rounds up to ${this.deltas.length-1}`);
+      throw new Error(`Can't store Round ${delta.roundID()}. Next Round should be Round ${this.deltas.length}`);
     }
     this.deltas.push(delta);
 
@@ -214,6 +215,7 @@ export default class Match {
    * if we don't have deltas to it, we can't.
    * If we can, each call to compute() will update state until current.turn === seekTo
    */
+  // TODO smoother reverse? (the timeline is shaky)
   seek(round: number): void {
     // the last delta we have is this.deltas.length-1, which takes us to turn
     // this.deltas.length-1; if we're higher than that, we can't seek
@@ -229,8 +231,6 @@ export default class Match {
       this._current = this._farthest;
     } else {
       // Go to the closest round before seekTo
-      // TODO understand & comment & simplify
-      // FIXME how to use without copyFrom
       const snap = this._seekTo - (this._seekTo % this.snapshotEvery);
       if (this._current.turn < snap || this._seekTo < this._current.turn) {
         this.current.copyFrom(this.snapshots[Math.floor(snap / this.snapshotEvery)]);
@@ -284,8 +284,7 @@ export default class Match {
     }
     world.processDelta(this.deltas[world.turn + 1]);
 
-    // TODO understand & simplify
-    // world.turn is now updated
+    // if this turn should be saved to snapshot, and if it is not saved already:
     if (world.turn % this.snapshotEvery === 0
         && this.snapshots[world.turn / this.snapshotEvery] === undefined) {
       this.snapshots[world.turn / this.snapshotEvery] = world.copy();
