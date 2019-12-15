@@ -206,11 +206,6 @@ public strictfp class Server implements Runnable {
 
         final String mapName = currentGame.getMaps()[matchIndex];
         final LiveMap loadedMap;
-//        try {
-//               GenerateMaps.makeSimple(); // uncomment this to create a map! (the build will fail but still create the map)
-//        } catch (IOException e) {
-//
-//        }
 
         try {
             loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")));
