@@ -118,13 +118,8 @@ class GameWorld {
         this.mapStats.dirt = Int32Array.from(map.dirtArray());
         this.mapStats.pollution = Int32Array.from(map.pollutionArray());
         this.mapStats.soup = Int32Array.from(map.soupArray());
-        const maxy = (maxCorner.y() - minCorner.y());
         const width = (maxCorner.x() - minCorner.x());
-        this.mapStats.getIdx = (x, y) => (
-        // Math.floor(x)*maxy + Math.floor(y)
-        Math.floor(y) * width + Math.floor(x)
-        // 1
-        );
+        this.mapStats.getIdx = (x, y) => (Math.floor(y) * width + Math.floor(x));
         this.mapStats.getLoc = (idx) => (new Victor(idx % width, Math.floor(idx / width)));
         // Check with header.totalRounds() ?
     }
@@ -219,11 +214,11 @@ class GameWorld {
                         arrays.cargo[robotID] -= 1;
                         break;
                     case battlecode_schema_1.schema.Action.DIG_DIRT:
-                        this.mapStats.dirt[target] -= 1;
+                        // this.mapStats.dirt[target] -= 1;
                         arrays.carryDirt[robotID] += 1;
                         break;
                     case battlecode_schema_1.schema.Action.DEPOSIT_DIRT:
-                        this.mapStats.dirt[target] += 1;
+                        // this.mapStats.dirt[target] += 1;
                         arrays.carryDirt[robotID] -= 1;
                         // add onDirt of buildings?
                         break;
@@ -263,7 +258,7 @@ class GameWorld {
             const x = delta.dirtChangedLocs().xs(i);
             const y = delta.dirtChangedLocs().ys(i);
             const mapIdx = this.mapStats.getIdx(x, y);
-            this.mapStats.dirt[mapIdx] = delta.dirtChanges(i);
+            this.mapStats.dirt[mapIdx] += delta.dirtChanges(i);
         }
         // Water changes on map
         if (delta.waterChangedLocs() !== null) {
@@ -279,14 +274,14 @@ class GameWorld {
             const x = delta.pollutionChangedLocs().xs(i);
             const y = delta.pollutionChangedLocs().ys(i);
             const mapIdx = this.mapStats.getIdx(x, y);
-            this.mapStats.pollution[mapIdx] = delta.pollutionChanges(i);
+            this.mapStats.pollution[mapIdx] += delta.pollutionChanges(i);
         }
         // Soup changes on map
         for (let i = 0; i < delta.soupChangesLength(); i++) {
             const x = delta.soupChangedLocs().xs(i);
             const y = delta.soupChangedLocs().ys(i);
             const mapIdx = this.mapStats.getIdx(x, y);
-            this.mapStats.soup[mapIdx] = delta.soupChanges(i);
+            this.mapStats.soup[mapIdx] += delta.soupChanges(i);
         }
         // Insert indicator dots and lines
         this.insertIndicatorDots(delta);
