@@ -1,6 +1,7 @@
 package battlecode.world;
 
 import battlecode.common.*;
+import battlecode.schema.Action;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
@@ -29,8 +30,10 @@ public strictfp class GameWorld {
     private final int[] initialSoup;
     private int[] soup;
     private int[] pollution;
-    private int[] water;
     private int[] dirt;
+    private int initialWaterLevel;
+    private int waterLevel;
+    private boolean[] flooded;
     private InternalRobot[][] robots;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
@@ -51,8 +54,10 @@ public strictfp class GameWorld {
         this.initialSoup = gm.getSoupArray();
         this.soup = gm.getSoupArray();
         this.pollution = gm.getPollutionArray();
-        this.water = gm.getWaterArray();
         this.dirt = gm.getDirtArray();
+        this.initialWaterLevel = gm.getWaterLevel();
+        this.waterLevel = this.initialWaterLevel;
+        this.flooded = gm.getWaterArray();
         this.robots = new InternalRobot[gm.getWidth()][gm.getHeight()]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
@@ -60,11 +65,11 @@ public strictfp class GameWorld {
 
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
-        this.teamInfo = new TeamInfo();
+        this.teamInfo = new TeamInfo(this);
 
         this.controlProvider = cp;
 
-        this.rand = new Random(gameMap.getSeed());
+        this.rand = new Random(this.gameMap.getSeed());
 
         this.blockchainQueue = new PriorityQueue<BlockchainEntry>();
         this.blockchain = new ArrayList<ArrayList<BlockchainEntry>>();
@@ -74,12 +79,12 @@ public strictfp class GameWorld {
         controlProvider.matchStarted(this);
 
         // Add the robots contained in the LiveMap to this world.
-        for(RobotInfo robot : gameMap.getInitialBodies()){
+        for(RobotInfo robot : this.gameMap.getInitialBodies()){
             spawnRobot(robot.ID, robot.type, robot.location, robot.team);
         }
 
         // Write match header at beginning of match
-        matchMaker.makeMatchHeader(gameMap);
+        this.matchMaker.makeMatchHeader(this.gameMap);
     }
 
     /**
@@ -119,27 +124,31 @@ public strictfp class GameWorld {
 
     private void updateDynamicBodies(){
         objectInfo.eachDynamicBodyByExecOrder((body) -> {
+            // System.out.println(Arrays.deepToString(this.robots));
+            // System.out.println("iuqhwefiuwfiohqweofhqwiofh");
+            // System.out.println(body);
             if (body instanceof InternalRobot) {
                 return updateRobot((InternalRobot) body);
             }
             else {
-                throw new RuntimeException("non-robot non-bullet body registered as dynamic");
+                throw new RuntimeException("non-robot body registered as dynamic");
             }
         });
     }
 
     private boolean updateRobot(InternalRobot robot) {
+        if (robot.isBlocked()) // blocked robots don't get a turn
+            return true;
+
         robot.processBeginningOfTurn();
         this.controlProvider.runRobot(robot);
         robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
-
         robot.processEndOfTurn();
 
         // If the robot terminates but the death signal has not yet
         // been visited:
-        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null) {
+        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
             destroyRobot(robot.getID());
-        }
         return true;
     }
 
@@ -148,39 +157,39 @@ public strictfp class GameWorld {
     // *********************************
 
     public int getMapSeed() {
-        return gameMap.getSeed();
+        return this.gameMap.getSeed();
     }
 
     public LiveMap getGameMap() {
-        return gameMap;
+        return this.gameMap;
     }
 
     public TeamInfo getTeamInfo() {
-        return teamInfo;
+        return this.teamInfo;
     }
 
     public GameStats getGameStats() {
-        return gameStats;
+        return this.gameStats;
     }
 
     public ObjectInfo getObjectInfo() {
-        return objectInfo;
+        return this.objectInfo;
     }
 
     public GameMaker.MatchMaker getMatchMaker() {
-        return matchMaker;
+        return this.matchMaker;
     }
 
     public Team getWinner() {
-        return gameStats.getWinner();
+        return this.gameStats.getWinner();
     }
 
     public boolean isRunning() {
-        return running;
+        return this.running;
     }
 
     public int getCurrentRound() {
-        return currentRound;
+        return this.currentRound;
     }
 
     /**
@@ -189,7 +198,7 @@ public strictfp class GameWorld {
      * @param loc the MapLocation
      */
     public int locationToIndex(MapLocation loc) {
-        return loc.x - gameMap.getOrigin().x + (loc.y - gameMap.getOrigin().y) * gameMap.getWidth();
+        return loc.x - this.gameMap.getOrigin().x + (loc.y - this.gameMap.getOrigin().y) * this.gameMap.getWidth();
     }
 
     /**
@@ -198,48 +207,20 @@ public strictfp class GameWorld {
      * @param idx the index
      */
     public MapLocation indexToLocation(int idx) {
-        return new MapLocation(idx / gameMap.getWidth() + gameMap.getOrigin().x,
-                               idx % gameMap.getWidth() + gameMap.getOrigin().y);
+        return new MapLocation(idx % this.gameMap.getWidth() + this.gameMap.getOrigin().x,
+                               idx / this.gameMap.getWidth() + this.gameMap.getOrigin().y);
     }
 
+    // ***********************************
+    // ****** SOUP METHODS ***************
+    // ***********************************
+
     public int initialSoupAtLocation(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? initialSoup[locationToIndex(loc)] : 0;
+        return this.gameMap.onTheMap(loc) ? this.initialSoup[locationToIndex(loc)] : 0;
     }
 
     public int getSoup(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? soup[locationToIndex(loc)] : 0;
-    }
-
-    public int getPollution(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? pollution[locationToIndex(loc)] : 0;
-    }
-
-    public void adjustPollution(MapLocation loc, int amount) {
-        if (gameMap.onTheMap(loc))
-            adjustPollution(locationToIndex(loc), amount);
-    }
-
-    public void adjustPollution(int idx, int amount) {
-        int newPollution = Math.max(pollution[idx] + amount, 0);
-        getMatchMaker().addPollutionChanged(indexToLocation(idx), newPollution - pollution[idx]);
-        pollution[idx] = newPollution;
-    }
-
-    public void globalPollution(int amount) {
-        for (int i = 0; i < pollution.length; i++)
-            adjustPollution(i, amount);
-    }
-
-    public int getDirt(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? dirt[locationToIndex(loc)] : 0;
-    }
-
-    public int getDirtDifference(MapLocation loc1, MapLocation loc2) {
-        return Math.abs(getDirt(loc1) - getDirt(loc2));
-    }
-
-    public int getWater(MapLocation loc) {
-        return gameMap.onTheMap(loc) ? water[locationToIndex(loc)] : 0;
+        return this.gameMap.onTheMap(loc) ? this.soup[locationToIndex(loc)] : 0;
     }
 
     public void removeSoup(MapLocation loc) {
@@ -247,64 +228,189 @@ public strictfp class GameWorld {
     }
 
     public void removeSoup(MapLocation loc, int amount) {
-        if (gameMap.onTheMap(loc)) {
+        if (this.gameMap.onTheMap(loc)) {
             int idx = locationToIndex(loc);
-            soup[idx] = Math.max(0, soup[idx] - amount);
+            int newSoup = Math.max(0, this.soup[idx] - amount);
+            getMatchMaker().addSoupChanged(loc, newSoup - this.soup[idx]);
+            this.soup[idx] = newSoup;
         }
     }
 
-    public void removeDirt(MapLocation loc) {
-        removeDirt(loc, 1);
+    // ***********************************
+    // ****** POLLUTION METHODS **********
+    // ***********************************
+
+    public int getPollution(MapLocation loc) {
+        return this.gameMap.onTheMap(loc) ? this.pollution[locationToIndex(loc)] : 0;
     }
 
-    public void removeDirt(MapLocation loc, int amount) {
+    public void adjustPollution(MapLocation loc, int amount) {
+        if (this.gameMap.onTheMap(loc))
+            adjustPollution(locationToIndex(loc), amount);
+    }
+
+    public void adjustPollution(int idx, int amount) {
+        int newPollution = Math.max(this.pollution[idx] + amount, 0);
+        getMatchMaker().addPollutionChanged(indexToLocation(idx), newPollution - this.pollution[idx]);
+        this.pollution[idx] = newPollution;
+    }
+
+    public void globalPollution(int amount) {
+        for (int i = 0; i < this.pollution.length; i++)
+            adjustPollution(i, amount);
+    }
+
+    // ***********************************
+    // ****** DIRT METHODS ***************
+    // ***********************************
+
+    /**
+     * Returns the amount of dirt at a location, or 0 if the location is invalid.
+     * 
+     * @param loc the location
+     * @return the amount of dirt at a location, or 0 if the location is invalid
+     */
+    public int getDirt(MapLocation loc) {
+        return this.gameMap.onTheMap(loc) ? this.dirt[locationToIndex(loc)] : 0;
+    }
+
+    /**
+     * Returns the difference between the dirt levels of two locations.
+     * 
+     * @param loc1 the first location
+     * @param loc2 the second location
+     * @return the difference between the dirt levels of two locations
+     */
+    public int getDirtDifference(MapLocation loc1, MapLocation loc2) {
+        return Math.abs(getDirt(loc1) - getDirt(loc2));
+    }
+
+    /**
+     * Removes one unit of dirt from a location. If there is dirt on a building,
+     *  remove dirt from the building; otherwise remove dirt from the ground.
+     * ALSO ADDS THE ACTION TO MATCHMAKER.
+     * 
+     * @param robotID the id of the robot that initiated the action
+     * @param loc the location
+     */
+    public void removeDirt(int robotID, MapLocation loc) {
+        if (this.gameMap.onTheMap(loc)) {
+            InternalRobot targetRobot = getRobot(loc);
+            int targetID = -1;
+            if (targetRobot != null && targetRobot.getType().isBuilding() && targetRobot.getDirtCarrying() > 0) {
+                targetRobot.removeDirtCarrying(1);
+                targetID = targetRobot.getID();
+            }
+            else {
+                this.dirt[locationToIndex(loc)] -= 1;
+                getMatchMaker().addDirtChanged(loc, -1);
+            }
+            getMatchMaker().addAction(robotID, Action.DIG_DIRT, targetID);
+        }
+    }
+
+    /**
+     * Deposits dirt to a location. If there is a building, the dirt is deposited
+     *  onto the building; otherwise the dirt is deposited onto the ground. Potentially
+     *  resurfaces a tile that has increased in elevation.
+     * ALSO ADDS THE ACTION TO MATCHMAKER.
+     * 
+     * @param robotID the id of the robot that initiated the action
+     * @param loc the location
+     * @param amount the amount of dirt to deposit
+     */
+    public void addDirt(int robotID, MapLocation loc, int amount) {
+        if (this.gameMap.onTheMap(loc)) {
+            InternalRobot targetRobot = getRobot(loc);
+            int targetID = -1;
+            if (targetRobot != null && targetRobot.getType().isBuilding()) {
+                targetRobot.addDirtCarrying(amount);
+                targetID = targetRobot.getID();
+            }
+            else{
+                this.dirt[locationToIndex(loc)] += amount;
+                getMatchMaker().addDirtChanged(loc, amount);
+                tryResurface(loc);
+            }
+            getMatchMaker().addAction(robotID, Action.DEPOSIT_DIRT, targetID);
+        }
+    }
+
+    // ***********************************
+    // ****** WATER METHODS **************
+    // ***********************************
+
+    /**
+     * Returns whether or not a location is flooded, or false if the location is invalid.
+     * 
+     * @param loc the location
+     * @return whether or not a location is flooded, or false if the location is invalid
+     */
+    public boolean isFlooded(MapLocation loc) {
+        return this.gameMap.onTheMap(loc) ? this.flooded[locationToIndex(loc)] : false;
+    }
+
+    /**
+     * Resurfaces a location if the elevation >= water level (set flooded to false).
+     * 
+     * @param loc the location
+     */
+    public void tryResurface(MapLocation loc) {
         int idx = locationToIndex(loc);
-        if (gameMap.onTheMap(loc)) {
-            InternalRobot robot = (getRobot(loc));
-            if (robot == null)
-                dirt[idx] -= amount;
-            else if (robot.getType() != RobotType.LANDSCAPER)
-                robot.addDirtCarrying(amount);
+        if (this.dirt[idx] >= this.waterLevel)
+            setFloodStatus(idx, false);
+    }
+
+    /**
+     * Sets the flood status of the location at an index.
+     * 
+     * @param idx the index of the location
+     * @param newStatus the new flood status of the location
+     */
+    public void setFloodStatus(int idx, boolean newStatus) {
+        if (this.flooded[idx] != newStatus) {
+            this.flooded[idx] = newStatus;
+            getMatchMaker().addWaterChanged(indexToLocation(idx));
+            // a robot potentially drowns
+            InternalRobot floodedRobot = getRobot(indexToLocation(idx));
+            if (newStatus && floodedRobot != null && !floodedRobot.getType().canFly())
+                destroyRobot(floodedRobot.getID());
         }
     }
 
-    public void addDirt(MapLocation loc) {
-        addDirt(loc, 1);
+    /**
+     * Updates the global water level according to an arbitrary function.
+     */
+    public void updateWaterLevel() {
+        this.waterLevel = (int) Math.floor(Math.pow(this.currentRound / 200.0, 2));
     }
 
-    public void addDirt(MapLocation loc, int amount) {
-        int idx = locationToIndex(loc);
-        if (gameMap.onTheMap(loc)) {
-            InternalRobot robot = (getRobot(loc));
-            if (robot == null)
-                dirt[idx] += amount;
-            else if (robot.getType() != RobotType.LANDSCAPER)
-                robot.removeDirtCarrying(amount);
-        }
-    }
+    // ***********************************
+    // ****** ROBOT METHODS **************
+    // ***********************************
 
     public InternalRobot getRobot(MapLocation loc) {
-        return robots[loc.x][loc.y];
+        return this.robots[loc.x][loc.y];
     }
 
     public void moveRobot(MapLocation start, MapLocation end) {
-        addRobot(end, robots[start.x][start.y]);
+        addRobot(end, this.robots[start.x][start.y]);
         removeRobot(start);
     }
 
     public void addRobot(MapLocation loc, InternalRobot robot) {
-        robots[loc.x][loc.y] = robot;
+        this.robots[loc.x][loc.y] = robot;
     }
 
     public void removeRobot(MapLocation loc) {
-        robots[loc.x][loc.y] = null;
+        this.robots[loc.x][loc.y] = null;
     }
 
     public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius) {
         ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
         for (MapLocation newLocation : getAllLocationsWithinRadius(center, radius))
-            if (robots[newLocation.x][newLocation.y] != null)
-                returnRobots.add(robots[newLocation.x][newLocation.y]);
+            if (this.robots[newLocation.x][newLocation.y] != null)
+                returnRobots.add(this.robots[newLocation.x][newLocation.y]);
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
     }
 
@@ -331,10 +437,12 @@ public strictfp class GameWorld {
     public void processBeginningOfRound() {
         // Increment round counter
         currentRound++;
+        this.teamInfo.addSoupIncome(GameConstants.BASE_INCOME_PER_ROUND);
 
         // Process beginning of each robot's round
         objectInfo.eachRobot((robot) -> {
-            robot.processBeginningOfRound();
+            if (!robot.isBlocked()) // blocked robots don't do anything
+                robot.processBeginningOfRound();
             return true;
         });
     }
@@ -344,51 +452,155 @@ public strictfp class GameWorld {
         gameStats.setDominationFactor(d);
     }
 
-    public void setWinnerIfDestruction(){
-        if(objectInfo.getRobotCount(Team.A) == 0){
-            setWinner(Team.B, DominationFactor.DESTROYED);
-        }else if(objectInfo.getRobotCount(Team.B) == 0){
-            setWinner(Team.A, DominationFactor.DESTROYED);
+    /**
+     * Sets the winner if one and only one of the HQ is destroyed.
+     *
+     * @return whether or not a winner was set
+     */
+    public boolean setWinnerIfHQDestroyed() {
+        boolean destroyedA = this.teamInfo.getDestroyedHQ(Team.A);
+        boolean destroyedB = this.teamInfo.getDestroyedHQ(Team.B);
+        if (destroyedA && !destroyedB) {
+            setWinner(Team.B, DominationFactor.HQ_DESTROYED);
+            return true;
+        } else if (destroyedB && !destroyedA) {
+            setWinner(Team.A, DominationFactor.HQ_DESTROYED);
+            return true;
         }
+        return false;
+    }
+
+    /**
+     * Sets the winner if one of the teams has more robots than the other.
+     *
+     * @return whether or not a winner was set
+     */
+    public boolean setWinnerIfQuantity() {
+        int robotCountA = objectInfo.getRobotCount(Team.A);
+        int robotCountB = objectInfo.getRobotCount(Team.B);
+        if (robotCountA == 0 && robotCountB > 0) {
+            setWinner(Team.B, DominationFactor.QUANTITY_OVER_QUALITY);
+            return true;
+        } else if (robotCountB == 0 && robotCountA > 0) {
+            setWinner(Team.A, DominationFactor.QUANTITY_OVER_QUALITY);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Sets the winner if one of the teams has higher net worth
+     *  (soup + soup cost of robots).
+     *
+     * @return whether or not a winner was set
+     */
+    public boolean setWinnerIfQuality() {
+        int[] netWorths = new int[2];
+        netWorths[0] = this.teamInfo.getSoup(Team.A);
+        netWorths[1] = this.teamInfo.getSoup(Team.B);
+        for (InternalRobot robot : objectInfo.robotsArray()) {
+            if (robot.getTeam() == Team.NEUTRAL) continue;
+            netWorths[robot.getTeam().ordinal()] += robot.getType().cost;
+        }
+        if (netWorths[0] > netWorths[1]) {
+            setWinner(Team.A, DominationFactor.QUALITY_OVER_QUANTITY);
+            return true;
+        } else if (netWorths[1] > netWorths[0]) {
+            setWinner(Team.B, DominationFactor.QUALITY_OVER_QUANTITY);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Sets the winner if one of the teams has more successful broadcasts.
+     *
+     * @return whether or not a winner was set
+     */
+    public boolean setWinnerIfMoreBroadcasts() {
+        // TODO!! GOSSIP_GIRL
+        return false;
+    }
+
+    /**
+     * Sets winner based on highest robot id.
+     */
+    public boolean setWinnerHighestRobotID() {
+        InternalRobot highestIDRobot = null;
+        for (InternalRobot robot : objectInfo.robotsArray())
+            if (highestIDRobot == null || robot.getID() > highestIDRobot.getID())
+                highestIDRobot = robot;
+        if (highestIDRobot == null)
+            return false;
+        setWinner(highestIDRobot.getTeam(), DominationFactor.HIGHBORN);
+        return true;
+    }
+
+    /**
+     * Sets a winner arbitrarily. Hopefully this is actually random.
+     */
+    public void setWinnerArbitrary() {
+        setWinner(Math.random() < 0.5 ? Team.A : Team.B, DominationFactor.WON_BY_DUBIOUS_REASONS);
     }
 
     public boolean timeLimitReached() {
-        return currentRound >= gameMap.getRounds() - 1;
+        return currentRound >= this.gameMap.getRounds() - 1;
     }
 
 
     public void processEndOfRound() {
         // Process end of each robot's round
         objectInfo.eachRobot((robot) -> {
-            robot.processEndOfRound();
+            if (!robot.isBlocked()) // blocked robots don't do anything
+                robot.processEndOfRound();
             return true;
         });
 
         // process blockchain messages
         processBlockchain();
 
+        // flooding
+        updateWaterLevel();
+        floodfill();
+
         // Check for end of match
-        if (timeLimitReached() && gameStats.getWinner() == null) {
-            boolean victorDetermined = false;
-
-            // TODO: tiebreakers
-
-            int bestRobotID = Integer.MIN_VALUE;
-            Team bestRobotTeam = Team.A; // null; ARBITRARY
-
-            // tiebreak by robot id
-            if(!victorDetermined){
-                setWinner(bestRobotTeam, DominationFactor.WON_BY_DUBIOUS_REASONS);
-            }
-        }
+        // occurs when one HQ is destroyed, or time limit reached
+        if ((timeLimitReached() || this.teamInfo.getDestroyedHQ(Team.A) || this.teamInfo.getDestroyedHQ(Team.B)) && gameStats.getWinner() == null)
+            if (!setWinnerIfHQDestroyed())
+                if (!setWinnerIfQuantity())
+                    if (!setWinnerIfQuality())
+                        if (!setWinnerIfMoreBroadcasts())
+                            if (!setWinnerHighestRobotID())
+                                setWinnerArbitrary();
 
         // update the round statistics
+        // this is not actually needed b/c we added it in TeamInfo.java... but is there anything else?
+        // matchMaker.addTeamSoup(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
+        // matchMaker.addTeamSoup(Team.B, teamInfo.getSoup(Team.B));
 
-        matchMaker.addTeamStat(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
-        matchMaker.addTeamStat(Team.B, teamInfo.getSoup(Team.B));
-
-        if (gameStats.getWinner() != null) {
+        if (gameStats.getWinner() != null)
             running = false;
+    }
+
+    /**
+     * Flood expands from currently flooded locations to immediately
+     *  adjacent locations that are beneath the current water level.
+     */
+    public void floodfill() {
+        ArrayList<MapLocation> floodOrigins = new ArrayList<MapLocation>();
+        for (int idx = 0; idx < this.flooded.length; idx++)
+            if (this.flooded[idx])
+                floodOrigins.add(indexToLocation(idx));
+        for (MapLocation center : floodOrigins) {
+            for (Direction dir : Direction.values()) {
+                MapLocation targetLoc = center.add(dir);
+                if (!this.gameMap.onTheMap(targetLoc))
+                    continue;
+                int idx = locationToIndex(targetLoc);
+                if (flooded[idx] || dirt[idx] >= waterLevel)
+                    continue;
+                setFloodStatus(idx, true);
+            }
         }
     }
 
@@ -418,8 +630,7 @@ public strictfp class GameWorld {
     /**
      * Add new message to the priority queue of messages, and also add them
      * to the matchmaker.
-     * @param cost
-     * @param message
+     * @param block
      */
     public void addNewMessage(BlockchainEntry block) {
         getMatchMaker().addNewMessage(block.cost, block.serializedMessage);
@@ -448,16 +659,25 @@ public strictfp class GameWorld {
     // ****** DESTROYING ***************
     // *********************************
 
-    public void destroyRobot(int id){
+    public void destroyRobot(int id) {
+        // System.out.println("Killing robot: ");
+        // System.out.println(id);
         InternalRobot robot = objectInfo.getRobotByID(id);
         removeRobot(robot.getLocation());
+        
+        if (robot.getType() == RobotType.HQ)
+            this.teamInfo.destroyHQ(robot.getTeam());
+
+        try {
+            // if a delivery drone is killed, it drops unit at current location
+            if (robot.getType().canDropOffUnits() && robot.isCurrentlyHoldingUnit())
+                robot.getController().dropUnit(null, false);
+        } catch (GameActionException e) {}
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
 
-        setWinnerIfDestruction();
-
-        matchMaker.addDied(id, false);
+        matchMaker.addDied(id);
     }
 }
 

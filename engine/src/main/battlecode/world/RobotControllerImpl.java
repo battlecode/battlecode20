@@ -93,28 +93,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
-    // @Override
-    // public MapLocation[] getInitialArchonLocations(Team t){
-    //     assertNotNull(t);
-    //     if (t == Team.NEUTRAL) {
-    //         return new MapLocation[0];
-    //     } else {
-    //         BodyInfo[] initialRobots = gameWorld.getGameMap().getInitialBodies();
-    //         ArrayList<MapLocation> archonLocs = new ArrayList<>();
-    //         for (BodyInfo initial : initialRobots) {
-    //             if(initial.isRobot()){
-    //                 RobotInfo robot = (RobotInfo) initial;
-    //                 if (robot.type == RobotType.ARCHON && robot.team == t) {
-    //                     archonLocs.add(robot.getLocation());
-    //                 }
-    //             }
-    //         }
-    //         MapLocation[] array = archonLocs.toArray(new MapLocation[archonLocs.size()]);
-    //         Arrays.sort(array);
-    //         return array;
-    //     }
-    // }
-
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
@@ -164,18 +142,17 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************
 
+    @Override
+    public boolean onTheMap(MapLocation loc) {
+        assertNotNull(loc);
+        return gameWorld.getGameMap().onTheMap(loc);
+    }
+
     private void assertCanSenseLocation(MapLocation loc) throws GameActionException {
         if(!canSenseLocation(loc)){
             throw new GameActionException(CANT_SENSE_THAT,
                     "Target location not within sensor range");
         }
-    }
-
-    @Override
-    public boolean onTheMap(MapLocation loc) {
-        assertNotNull(loc);
-        // assertCanSenseLocation(loc);
-        return gameWorld.getGameMap().onTheMap(loc);
     }
 
     @Override
@@ -201,9 +178,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertCanSenseLocation(loc);
         InternalRobot bot = gameWorld.getRobot(loc);
-        if(bot != null) {
+        if(bot != null)
             return bot.getRobotInfo();
-        }
         return null;
     }
 
@@ -241,35 +217,45 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team) {
         assertNotNull(center);
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadius(center,
-                radius == -1 ? getType().sensorRadius : radius);
+                radius == -1 ? (int) Math.ceil(this.robot.getCurrentSensorRadius()) : radius);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
             // check if this robot
-            if(sensedRobot.equals(this.robot)){
+            if (sensedRobot.equals(this.robot))
                 continue;
-            }
             // check if can sense
-            if(!canSenseLocation(sensedRobot.getLocation())){
+            if (!canSenseLocation(sensedRobot.getLocation()))
                 continue;
-            }
             // check if right team
-            if(team != null && sensedRobot.getTeam() != team){
+            if (team != null && sensedRobot.getTeam() != team)
                 continue;
-            }
-
             validSensedRobots.add(sensedRobot.getRobotInfo());
         }
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
     }
 
     @Override
+    public int senseSoup(MapLocation loc) throws GameActionException {
+        assertCanSenseLocation(loc);
+        return this.gameWorld.getSoup(loc);
+    }
+
+    @Override
     public int sensePollution(MapLocation loc) throws GameActionException {
-        if(!canSenseLocation(loc)){
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Can't sense the pollution level of the specified location " +
-                            "(outside of sensor radius).");
-        }
+        assertCanSenseLocation(loc);
         return this.gameWorld.getPollution(loc);
+    }
+
+    @Override
+    public int senseElevation(MapLocation loc) throws GameActionException {
+        assertCanSenseLocation(loc);
+        return this.gameWorld.getDirt(loc);
+    }
+
+    @Override
+    public boolean senseFlooding(MapLocation loc) throws GameActionException {
+        assertCanSenseLocation(loc);
+        return this.gameWorld.isFlooded(loc);
     }
 
     @Override
@@ -290,11 +276,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean isReady() {
-        return this.robot.getCooldownTurns() == 0;
+        return getCooldownTurns() < 1;
     }
 
     @Override
-    public int getCooldownTurns() {
+    public float getCooldownTurns() {
         return this.robot.getCooldownTurns();
     }
 
@@ -320,13 +306,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
             assertNotNull(center);
             return getType().canMove() && getLocation().distanceTo(center) <= 1 &&
                 onTheMap(center) && !isLocationOccupied(center) &&
-                gameWorld.getDirtDifference(getLocation(), center)
-                 <= GameConstants.MAX_DIRT_DIFFERENCE;
+                (getType().canFly() || (gameWorld.getDirtDifference(getLocation(), center)
+                 <= GameConstants.MAX_DIRT_DIFFERENCE && !gameWorld.isFlooded(center)));
         } catch (GameActionException e) { return false; }
     }
 
     @Override
     public void move(Direction dir) throws GameActionException {
+        assertNotNull(dir);
         MapLocation center = adjacentLocation(dir);
         assertNotNull(center);
         assertIsReady();
@@ -338,86 +325,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getMatchMaker().addMoved(getID(), getLocation());
 
         // also move the robot currently being picked up
-        if (this.robot.isCurrentlyHoldingUnit()) {
+        if (this.robot.isCurrentlyHoldingUnit())
             movePickedUpUnit(center);
-        }
-    }
-
-    private void movePickedUpUnit(MapLocation center) throws GameActionException {
-        int id = this.robot.getIdOfUnitCurrentlyHeld();
-        getRobotByID(id).setLocation(center);
-
-        gameWorld.getMatchMaker().addMoved(id, getLocation());
-    }
-
-    private void assertCanPickUpUnit(int id) throws GameActionException {
-        if(!canPickUpUnit(id))
-            throw new GameActionException(CANT_DO_THAT,
-                    "Cannot pick up the specified unit, possibly due to not being a delivery drone, " +
-                    "is already holding a unit, the unit not within pickup distance, or unit can't be picked up.");
-    }
-
-    @Override
-    public boolean canPickUpUnit(int id) {
-        return this.getType().canPickUpUnits() && !this.robot.isCurrentlyHoldingUnit() &&
-               unitWithinPickupDistance(id) && getRobotByID(id).getType().canBePickedUp();
-    }
-
-    @Override
-    public void pickUpUnit(int id) throws GameActionException {
-        assertCanPickUpUnit(id);
-        InternalRobot pickedUpRobot = getRobotByID(id);
-        pickedUpRobot.blockUnit();
-        gameWorld.removeRobot(pickedUpRobot.getLocation());
-        this.robot.pickUpUnit(id);
-
-        gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UNIT, id);
-    }
-
-    /**
-     * Check whether the specified unit is within the pickup radius of the robot
-     *
-     * @param id the id of the robot to pick up
-     */
-    private boolean unitWithinPickupDistance(int id) {
-        for (InternalRobot adjacentRobot :
-                gameWorld.getAllRobotsWithinRadius(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS)) {
-            if (adjacentRobot.getID() == id)
-                return true;
-        }
-        return false;
-    }
-
-    private void assertCanDropUnit(Direction dir) throws GameActionException {
-        if(!canDropUnit(dir))
-            throw new GameActionException(CANT_DO_THAT,
-                    "Cannot drop a unit, possibly due to not being a delivery drone, " +
-                    "or not currently holding a unit.");
-    }
-
-    @Override
-    public boolean canDropUnit(Direction dir) {
-        try {
-            MapLocation loc = adjacentLocation(dir);
-            return this.getType().canPickUpUnits() && this.robot.isCurrentlyHoldingUnit() &&
-               onTheMap(loc) && !isLocationOccupied(loc);
-        } catch (GameActionException e) { return false; }
-    }
-
-    @Override
-    public void dropUnit(Direction dir) throws GameActionException {
-        assertCanDropUnit(dir);
-        int id = this.robot.getIdOfUnitCurrentlyHeld();
-        InternalRobot droppedRobot = getRobotByID(id);
-        droppedRobot.unblockUnit();
-
-        this.robot.dropUnit();
-        gameWorld.addRobot(adjacentLocation(dir), droppedRobot);
-
-        // TODO: need to process killing
-        if (false) {
-            gameWorld.destroyRobot(id);
-        }
     }
 
     // ***********************************
@@ -449,7 +358,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
             MapLocation spawnLoc = adjacentLocation(dir);
             boolean isClear = onTheMap(spawnLoc) && !isLocationOccupied(spawnLoc);
             boolean cooldownExpired = isReady();
-            return hasBuildRequirements && isClear && cooldownExpired;
+            boolean notFlooded = !gameWorld.isFlooded(spawnLoc);
+            return hasBuildRequirements && isClear && cooldownExpired && notFlooded;
         } catch (GameActionException e) { return false; }
     }
 
@@ -459,76 +369,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertCanBuildRobot(type, dir);
 
         this.robot.resetCooldownTurns();
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -type.cost);
 
         int robotID = gameWorld.spawnRobot(type, adjacentLocation(dir), getTeam());
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
 
-
-    // ***********************************
-    // ****** BLOCKCHAINNNNNNNNNNN *******
-    // ***********************************
-
-    /**
-     * Sends a message to the blockchain at the indicated cost.
-     * 
-     * @param message the message to send.
-     * @param proofOfStake the price that the unit is willing to pay for the message. If
-     * the team does not have that much soup, the message will not be sent.
-     * 
-     */
-    @Override
-    public void sendMessage(int[] messageArray, int cost) throws GameActionException {
-        if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
-            throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
-                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
-        }
-        int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
-        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost) {
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, 
-                    "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
-        }
-        // pay!
-        gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
-        // create a block chain entry
-        BlockchainEntry bcentry = new BlockchainEntry(cost, messageArray);
-        // add
-        gameWorld.addNewMessage(bcentry);
-    }
-
-    /**
-     * Gets all messages that were sent at a given round.
-     * @param roundNumber the round index.
-     * @throws GameActionException
-     */
-    @Override
-    public String getRoundMessages(int roundNumber) throws GameActionException {
-        if (roundNumber < 0) {
-            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
-                + "; in fact, no negative round numbers are allowed at all.");
-        }
-        if (roundNumber >= gameWorld.currentRound) {
-            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
-                + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
-        }
-        // just get it!
-        ArrayList<BlockchainEntry> d = gameWorld.blockchain.get(roundNumber);
-        System.out.println(d);
-        BlockchainEntry[] d2 = d.toArray(new BlockchainEntry[d.size()]);
-        String[] stringMessageArray = new String[d2.length];
-        for (int i = 0; i < d2.length; i++) {
-            stringMessageArray[i] = d2[i].serializedMessage;
-        }
-        String serializedMessage = String.join(" ", stringMessageArray);
-        return serializedMessage;
-    }
-
-
     // ***********************************
     // ****** MINER METHODS **************
     // ***********************************
 
+    /**
+     * Asserts that the robot can mine soup in the specified direction.
+     *
+     * @throws GameActionException
+     */
     private void assertCanMineSoup(Direction dir) throws GameActionException{
         if(!canMineSoup(dir)){
             throw new GameActionException(CANT_DO_THAT,
@@ -538,6 +394,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
+    /**
+     * Returns whether or not the robot can mine soup in a specified direction.
+     * Checks if the robot can mine, whether they can carry more soup, whether
+     *  the action cooldown is ready, whether the location is on the map,
+     *  and whether there is soup to be mined in the target location.
+     *
+     * @param dir the direction to mine in
+     */
     @Override
     public boolean canMineSoup(Direction dir) {
         MapLocation center = adjacentLocation(dir);
@@ -545,6 +409,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 isReady() && onTheMap(center) && gameWorld.getSoup(center) > 0;
     }
 
+    /**
+     * Mines soup in a certain direction.
+     *
+     * @param dir the direction to mine in
+     * @throws GameActionException
+     */
     @Override
     public void mineSoup(Direction dir) throws GameActionException {
         assertNotNull(dir);
@@ -556,6 +426,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_SOUP, -1);
     }
 
+    /**
+     * Asserts that the robot can refine soup in the specified direction.
+     *
+     * @throws GameActionException
+     */
     private void assertCanRefineSoup(Direction dir) throws GameActionException{
         if(!canRefineSoup(dir)){
             throw new GameActionException(CANT_DO_THAT,
@@ -566,6 +441,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
+    /**
+     * Returns whether or not the robot can refine soup in a specified direction.
+     * Checks if the robot can refine, whether they are carring crude soup, whether
+     *  the action cooldown is ready, whether the location is on the map,
+     *  and whether there is a refinery at the target location.
+     *
+     * @param dir the direction to refine in
+     */
     @Override
     public boolean canRefineSoup(Direction dir) {
         MapLocation center = adjacentLocation(dir);
@@ -573,15 +456,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
             return false;
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
         return getType().canRefine() && isReady() && getSoupCarrying() > 0 &&
-               adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
+                adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
     }
 
+    /**
+     * Refines soup in a certain direction; refines up to the amount of crude soup
+     *  that the robot is carrying.
+     *
+     * @param dir the direction to mine in
+     * @param amount the amount of soup to refine
+     * @throws GameActionException
+     */
     @Override
     public void refineSoup(Direction dir, int amount) throws GameActionException {
         assertNotNull(dir);
         assertCanRefineSoup(dir);
-        if (amount > this.getSoupCarrying())
-            amount = this.getSoupCarrying();
+        amount = Math.min(amount, this.getSoupCarrying());
         this.robot.resetCooldownTurns();
         this.robot.removeSoupCarrying(amount);
         InternalRobot refinery = this.gameWorld.getRobot(adjacentLocation(dir));
@@ -594,6 +484,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ********* LANDSCAPER METHODS **********
     // ***************************************
 
+    /**
+     * Asserts that the robot can dig dirt in the specified direction.
+     *
+     * @throws GameActionException
+     */
     private void assertCanDigDirt(Direction dir) throws GameActionException{
         if(!canDigDirt(dir)){
             throw new GameActionException(CANT_DO_THAT,
@@ -603,26 +498,44 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
+    /**
+     * Returns whether or not the robot can dig dirt in a specified direction.
+     * Checks if the robot can dig, whether they can carry more dirt, whether
+     *  the action cooldown is ready, and whether the location is on the map.
+     *
+     * @param dir the direction to dig in
+     */
     @Override
     public boolean canDigDirt(Direction dir) {
         MapLocation center = adjacentLocation(dir);
-        if (!getType().canDig() && getDirtCarrying() < getType().dirtLimit && isReady() && onTheMap(center)) return false;
-        InternalRobot robot = this.gameWorld.getRobot(center);
-        return (robot == null || !robot.getType().isBuilding() || robot.getDirtCarrying() > 0);
+        return getType().canDig() && getDirtCarrying() < getType().dirtLimit &&
+                isReady() && onTheMap(center);
     }
 
+    /**
+     * Digs dirt in a certain direction. THIS METHOD DOES NOT ADD ACTIONS TO
+     *  MATCHMAKER BECAUSE THE TARGET CAN BE EITHER A BUILDING OR THE LOCATION,
+     *  WE DON'T KNOW YET.
+     *
+     * @param dir the direction to dig in
+     * @throws GameActionException
+     */
     @Override
     public void digDirt(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertCanDigDirt(dir);
         this.robot.resetCooldownTurns();
-        this.gameWorld.removeDirt(adjacentLocation(dir));
+        this.gameWorld.removeDirt(getID(), adjacentLocation(dir));
         this.robot.addDirtCarrying(1);
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG_DIRT, -1);
     }
 
-    private void assertCanDepositDirt(Direction dir) throws GameActionException{
-        if(!canDepositDirt(dir)){
+    /**
+     * Asserts that the robot can deposit dirt in the specified direction.
+     *
+     * @throws GameActionException
+     */
+    private void assertCanDepositDirt(Direction dir, int amount) throws GameActionException{
+        if(!canDepositDirt(dir, amount)){
             throw new GameActionException(CANT_DO_THAT,
                     "Can't deposit dirt in given direction, possibly due to " +
                             "cooldown not expired, this robot can't deposit, " +
@@ -630,21 +543,209 @@ public final strictfp class RobotControllerImpl implements RobotController {
         }
     }
 
+    /**
+     * Returns whether or not the robot can deposit dirt in a specified direction.
+     * Checks if the robot can deposit, whether they are carrying enough dirt, whether
+     *  the action cooldown is ready, and whether the location is on the map.
+     *
+     * @param dir the direction to deposit in
+     * @param amount the amount of dirt to deposit
+     */
     @Override
-    public boolean canDepositDirt(Direction dir) {
+    public boolean canDepositDirt(Direction dir, int amount) {
         MapLocation center = adjacentLocation(dir);
         return (getType().canDeposit() && isReady() &&
-                onTheMap(center) && getDirtCarrying() > 0);
+                onTheMap(center) && getDirtCarrying() >= amount);
     }
 
+    /**
+     * Deposits dirt in a certain direction. THIS METHOD DOES NOT ADD ACTIONS TO
+     *  MATCHMAKER BECAUSE THE TARGET CAN BE EITHER A BUILDING OR THE LOCATION,
+     *  WE DON'T KNOW YET.
+     *
+     * @param dir the direction to deposit in
+     * @param amount the amount of dirt to deposit
+     * @throws GameActionException
+     */
     @Override
-    public void depositDirt(Direction dir) throws GameActionException {
+    public void depositDirt(Direction dir, int amount) throws GameActionException {
         assertNotNull(dir);
-        assertCanDepositDirt(dir);
+        assertCanDepositDirt(dir, amount);
         this.robot.resetCooldownTurns();
         this.robot.removeDirtCarrying(1);
-        this.gameWorld.addDirt(adjacentLocation(dir));
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.DIG_DIRT, -1);
+        this.gameWorld.addDirt(getID(), adjacentLocation(dir), 1);
+    }
+
+    // ***************************************
+    // ******* DELIVERY DRONE METHODS ********
+    // ***************************************
+
+    /**
+     * Asserts that the robot can pick up the unit with the specified id.
+     *
+     * @throws GameActionException
+     */
+    private void assertCanPickUpUnit(int id) throws GameActionException {
+        if(!canPickUpUnit(id))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot pick up the specified unit, possibly due to not being a delivery drone, " +
+                    "is already holding a unit, the unit not within pickup distance, or unit can't be picked up.");
+    }
+
+    /**
+     * Returns whether or not the robot can pick up the unit with the specified id.
+     * Checks if the robot can pick up units, whether they are already carrying a
+     *  unit, whether the action cooldown is ready, whether the unit is within pickup
+     *  distance, and whether the target unit can be picked up.
+     *
+     * @param id the id of the unit to be picked up
+     */
+    @Override
+    public boolean canPickUpUnit(int id) {
+        InternalRobot targetRobot = getRobotByID(id);
+        return this.getType().canPickUpUnits() && !this.robot.isCurrentlyHoldingUnit() &&
+               isReady() && targetRobot != null && targetRobot.getType().canBePickedUp() &&
+               targetRobot.getLocation().isWithinDistance(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS);
+    }
+
+    /**
+     * Picks up the unit with the specified id.
+     *
+     * @param id the id of the unit to be picked up
+     * @throws GameActionException
+     */
+    @Override
+    public void pickUpUnit(int id) throws GameActionException {
+        assertCanPickUpUnit(id);
+        InternalRobot pickedUpRobot = getRobotByID(id);
+        pickedUpRobot.blockUnit();
+        gameWorld.removeRobot(pickedUpRobot.getLocation());
+        this.robot.pickUpUnit(id);
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UNIT, id);
+    }
+
+    /**
+     * Asserts that the robot can drop off a unit in the specified direction.
+     *
+     * @throws GameActionException
+     */
+    private void assertCanDropUnit(Direction dir) throws GameActionException {
+        if(!canDropUnit(dir))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot drop a unit, possibly due to not being a delivery drone, " +
+                    "not currently holding a unit, or the target location is invalid or occupied.");
+    }
+
+    /**
+     * Returns whether or not the robot can drop off a unit in the specified direction.
+     * Checks if the robot can drop off units, whether they are carrying a unit, and
+     *  whether the action cooldown is ready.
+     *
+     * @param dir the direction to drop off a unit
+     */
+    @Override
+    public boolean canDropUnit(Direction dir) {
+        MapLocation loc = adjacentLocation(dir);
+        return isReady() && onTheMap(loc) && this.getType().canDropOffUnits() &&
+            this.robot.isCurrentlyHoldingUnit();
+    }
+
+    /**
+     * Drops off a unit in the specified direction.
+     *
+     * @param dir the direction to drop off a unit
+     * @throws GameActionException
+     */
+    @Override
+    public void dropUnit(Direction dir) throws GameActionException {
+        assertNotNull(dir);
+        dropUnit(dir, true);
+    }
+
+    /**
+     * Drops off a unit in the specified direction.
+     *
+     * @param dir the direction to drop off a unit, or null if current location
+     * @param checkConditions whether or not to assert if the robot can drop
+     *        a unit; only false if a drone dies and automatically drops
+     * @throws GameActionException
+     */
+    public void dropUnit(Direction dir, boolean checkConditions) throws GameActionException {
+        if (checkConditions)
+            assertCanDropUnit(dir);
+
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        InternalRobot droppedRobot = getRobotByID(id);
+        MapLocation targetLocation = dir == null ? getLocation() : adjacentLocation(dir);
+
+        droppedRobot.unblockUnit();
+        this.robot.dropUnit();
+        this.gameWorld.addRobot(targetLocation, droppedRobot);
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.DROP_UNIT, id);
+
+        // unit is destroyed if dropped in Ocean, onto a building, or onto another unit
+        if (isLocationOccupied(targetLocation) || this.gameWorld.isFlooded(targetLocation))
+            this.gameWorld.destroyRobot(id);
+    }
+
+    /**
+     * Moves the picked up unit with the drone.
+     *
+     * @param center the new location of the drone
+     * @throws GameActionException
+     */
+    private void movePickedUpUnit(MapLocation center) throws GameActionException {
+        int id = this.robot.getIdOfUnitCurrentlyHeld();
+        getRobotByID(id).setLocation(center);
+
+        this.gameWorld.getMatchMaker().addMoved(id, getLocation());
+    }
+
+    // ***************************************
+    // ******* NET GUN METHODS ***************
+    // ***************************************
+
+    /**
+     * Asserts that the robot can shoot down the unit with the specified id.
+     *
+     * @throws GameActionException
+     */
+    private void assertCanShootUnit(int id) throws GameActionException {
+        if(!canShootUnit(id))
+            throw new GameActionException(CANT_DO_THAT,
+                    "Cannot shoot down the specified unit, possibly due to not being a net gun, " +
+                    "action cooldown not ready, the unit not within pickup distance, or unit can't be shot down.");
+    }
+
+    /**
+     * Returns whether or not the robot can shoot down the unit with the specified id.
+     * Checks if the robot can shoot down units, whether the action cooldown is ready,
+     *  whether the unit is within pickup distance, and whether the target unit can be shot down.
+     *
+     * @param id the id of the unit to be shot down
+     */
+    @Override
+    public boolean canShootUnit(int id) {
+        InternalRobot targetRobot = getRobotByID(id);
+        return this.getType().canShoot() && isReady() && targetRobot != null &&
+               targetRobot.getType().canBeShot() &&
+               targetRobot.getLocation().isWithinDistance(getLocation(), GameConstants.NET_GUN_SHOOT_RADIUS);
+    }
+
+    /**
+     * Shoots down the unit with the specified id.
+     *
+     * @param id the id of the unit to be shot down
+     * @throws GameActionException
+     */
+    @Override
+    public void shootUnit(int id) throws GameActionException {
+        assertCanShootUnit(id);
+        this.gameWorld.destroyRobot(id);
+
+        gameWorld.getMatchMaker().addAction(getID(), Action.SHOOT, id);
     }
 
     // ***********************************
@@ -664,6 +765,80 @@ public final strictfp class RobotControllerImpl implements RobotController {
             }
             return true;
         });
+    }
+
+    // ***********************************
+    // ****** BLOCKCHAINNNNNNNNNNN *******
+    // ***********************************
+
+    private void assertCanSendMessage(int[] messageArray, int proofOfStake) throws GameActionException {
+        if (!canSendMessage(messageArray, proofOfStake))
+            throw new GameActionException(CANT_DO_THAT,
+                "Cannot send the specified message, possibly due to not enough soup to pay " +
+                "or message too long.");
+    }
+
+    @Override
+    public boolean canSendMessage(int[] messageArray, int proofOfStake) {
+        return (messageArray.length <= GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH &&
+            gameWorld.getTeamInfo().getSoup(getTeam()) >= proofOfStake);
+    }
+
+
+    /**
+     * Sends a message to the blockchain at the indicated cost.
+     * 
+     * @param messageArray the message to send.
+     * @param proofOfStake the price that the unit is willing to pay for the message. If
+     * the team does not have that much soup, the message will not be sent.
+     * 
+     */
+    @Override
+    public void sendMessage(int[] messageArray, int proofOfStake) throws GameActionException {
+        assertCanSendMessage(messageArray, proofOfStake);
+        /*if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
+            throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
+                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
+        }
+        int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < proofOfStake) {
+            throw new GameActionException(NOT_ENOUGH_RESOURCE, 
+                    "Tried to pay " + Integer.toString(proofOfStake) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+        }*/ //this is more detailed but doesn't match our usual formatting?
+        // pay!
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -proofOfStake);
+        // create a block chain entry
+        BlockchainEntry bcentry = new BlockchainEntry(proofOfStake, messageArray);
+        // add
+        gameWorld.addNewMessage(bcentry);
+    }
+
+    /**
+     * Gets all messages that were sent at a given round.
+     *
+     * @param roundNumber the round index.
+     * @throws GameActionException
+     */
+    @Override
+    public String getRoundMessages(int roundNumber) throws GameActionException {
+        if (roundNumber < 0) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; in fact, no negative round numbers are allowed at all.");
+        }
+        if (roundNumber >= gameWorld.currentRound) {
+            throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
+                + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
+        }
+        // just get it!
+        ArrayList<BlockchainEntry> d = gameWorld.blockchain.get(roundNumber);
+        // System.out.println(d);
+        BlockchainEntry[] d2 = d.toArray(new BlockchainEntry[d.size()]);
+        String[] stringMessageArray = new String[d2.length];
+        for (int i = 0; i < d2.length; i++) {
+            stringMessageArray[i] = d2[i].serializedMessage;
+        }
+        String serializedMessage = String.join(" ", stringMessageArray);
+        return serializedMessage;
     }
 
     // ***********************************

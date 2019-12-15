@@ -274,6 +274,18 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
 
     /**
+     * Returns the crude soup count at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @param loc the given location
+     * @return the crude soup count at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int senseSoup(MapLocation loc) throws GameActionException;
+
+    /**
      * Returns the pollution level at a given location, if the location is
      * within the sensor radius of the robot.
      *
@@ -284,6 +296,30 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int sensePollution(MapLocation loc) throws GameActionException;
+
+    /**
+     * Returns the elevation at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @param loc the given location
+     * @return the elevation at a given location, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int senseElevation(MapLocation loc) throws GameActionException;
+
+    /**
+     * Returns whether or not a given location is flooded, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @param loc the given location
+     * @return whether or not a given location is flooded, if the location is
+     * within the sensor radius of the robot.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean senseFlooding(MapLocation loc) throws GameActionException;
 
     /**
      * Returns the location adjacent to current location in the given direction.
@@ -310,13 +346,13 @@ public strictfp interface RobotController {
 
     /**
      * Returns the number of cooldown turns remaining before this unit can act again.
-     * When this number is 0, isReady() is true.
+     * When this number is less than 1, isReady() is true.
      *
      * @return the number of cooldown turns remaining before this unit can act again.
      *
      * @battlecode.doc.costlymethod
      */
-    int getCooldownTurns();
+    float getCooldownTurns();
 
     // ***********************************
     // ****** MOVEMENT METHODS ***********
@@ -462,39 +498,6 @@ public strictfp interface RobotController {
      */
     void refineSoup(Direction dir, int amount) throws GameActionException;
 
-    /**
-     * Tests whether a robot is able to pick up a specific unit.
-     *
-     * @param id the id of the robot to pick up
-     * @return true if id can be picked up by the robot, false otherwise
-     */
-    boolean canPickUpUnit(int id);
-
-    /**
-     * Picks up another unit.
-     *
-     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
-     * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
-     * of this robot.
-     */
-    void pickUpUnit(int id) throws GameActionException;
-
-    /**
-     * Tests whether a robot is able to drop a unit in a specified direction.
-     *
-     * @param dir the specified direction
-     * @return true if a robot can be dropped off, false otherwise
-     */
-    boolean canDropUnit(Direction dir);
-
-    /**
-     * Drops the unit that is currently picked up.
-     *
-     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
-     * holding a unit that it can drop.
-     */
-    void dropUnit(Direction dir) throws GameActionException;
-
     // ***************************************
     // ********* LANDSCAPER METHODS **********
     // ***************************************
@@ -529,47 +532,83 @@ public strictfp interface RobotController {
      * and whether the robot has dirt.
      *
      * @param dir the direction to deposit
+     * @param amount the amount of dirt to deposit
      * @return whether it is possible to deposit dirt in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canDepositDirt(Direction dir);
+    boolean canDepositDirt(Direction dir, int amount);
 
     /**
      * Deposits dirt in the given direction (max up to specified amount).
      *
      * @param dir the direction to deposit
+     * @param amount the amount of dirt to deposit
      * @throws GameActionException if this robot is not a landscaper, if
      * the robot is still in cooldown, if there is no dirt to deposit,
      *
      * @battlecode.doc.costlymethod
      */
-    void depositDirt(Direction dir) throws GameActionException;
+    void depositDirt(Direction dir, int amount) throws GameActionException;
 
-    // ***********************************
-    // ****** BLOCKCHAINNNNNNNNNNN *******
-    // ***********************************
-
-    /**
-     * Sends a message to the blockchain at the indicated cost.
-     * 
-     * @param messageArray the list of ints to send. if more than K messages, 
-     * @param cost the price that the unit is willing to pay for the message
-     * 
-     */
-    public void sendMessage(int[] messageArray, int cost) throws GameActionException;
-
+    // ***************************************
+    // ******* DELIVERY DRONE METHODS ********
+    // ***************************************
 
     /**
-     * Gets all messages that were sent at a given round.
-     * 
-     * Because one of me and java is stupid, this is returned as a string where a space
-     * separates messages and an underscore separates the numbers in messages.
-     * 
-     * @param roundNumber the round index.
-     * @throws GameActionException
+     * Tests whether a robot is able to pick up a specific unit.
+     *
+     * @param id the id of the robot to pick up
+     * @return true if robot with the id can be picked up, false otherwise
      */
-    public String getRoundMessages(int roundNumber) throws GameActionException;
+    boolean canPickUpUnit(int id);
+
+    /**
+     * Picks up another unit.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
+     * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
+     * of this robot.
+     */
+    void pickUpUnit(int id) throws GameActionException;
+
+    /**
+     * Tests whether a robot is able to drop a unit in a specified direction.
+     *
+     * @param dir the specified direction
+     * @return true if a robot can be dropped off, false otherwise
+     */
+    boolean canDropUnit(Direction dir);
+
+    /**
+     * Drops the unit that is currently picked up.
+     *
+     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
+     * holding a unit that it can drop.
+     */
+    void dropUnit(Direction dir) throws GameActionException;
+
+    // ***************************************
+    // ******* NET GUN METHODS ***************
+    // ***************************************
+
+    /**
+     * Tests whether a robot is able to shoot down a specific unit.
+     *
+     * @param id the id of the robot to shoot
+     * @return true if robot with the id can be shot down, false otherwise
+     */
+    boolean canShootUnit(int id);
+
+    /**
+     * Shoots down another unit.
+     *
+     * @throws GameActionException if the robot is not of type NET_GUN,
+     *  or the robot's action cooldown is not ready, or if the unit to
+     *  shoot down is not in the radius of this robot, or if the unit
+     *  cannot be shot down.
+     */
+    void shootUnit(int id) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
@@ -588,6 +627,39 @@ public strictfp interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void resign();
+
+    // ***********************************
+    // ****** BLOCKCHAINNNNNNNNNNN *******
+    // ***********************************
+
+    /**
+     * Checks that the robot can send a message to blockchain at the indicated cost. 
+     *
+     * @param messageArray the list of ints to send.
+     * @param proofOfStake the price that the unit is willing to pay for the message
+     */
+    boolean canSendMessage(int[] messageArray, int proofOfStake);
+
+    /**
+     * Sends a message to the blockchain at the indicated cost.
+     * 
+     * @param messageArray the list of ints to send.
+     * @param proofOfStake the price that the unit is willing to pay for the message
+     * 
+     */
+    void sendMessage(int[] messageArray, int proofOfStake) throws GameActionException;
+
+
+    /**
+     * Gets all messages that were sent at a given round.
+     * 
+     * Because one of me and java is stupid, this is returned as a string where a space
+     * separates messages and an underscore separates the numbers in messages.
+     * 
+     * @param roundNumber the round index.
+     * @throws GameActionException
+     */
+    public String getRoundMessages(int roundNumber) throws GameActionException;
 
     // ***********************************
     // **** INDICATOR STRING METHODS *****

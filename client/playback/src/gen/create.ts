@@ -5,8 +5,8 @@ import {gzip} from 'pako';
 import { isNull } from 'util';
 import { Signer } from 'crypto';
 
-const SIZE = 50;
-const SIZE2 = SIZE / 2;
+let SIZE = 32;
+const maxID = 4096;
 
 const bodyTypeList = [
   schema.BodyType.MINER,
@@ -23,6 +23,7 @@ const bodyTypeList = [
 ];
 const bodyVariety = bodyTypeList.length;
 
+// Return random integer in [l,r] (inclusive), uniformly
 function random(l: number, r: number): number{
   if(l>r){ console.log("Wrong call of random"); return -1; }
   return Math.min(Math.floor(Math.random() * (r-l+1)) + l, r);
@@ -124,8 +125,8 @@ function createRandomBodies(manager: IDsManager, unitCount: number): BodiesType{
     bodies.robotIDs[i] = manager.useRandomID();
     bodies.teamIDs[i] = random(1,2);
     bodies.types[i] = bodyTypeList[random(0, bodyVariety-1)];
-    bodies.xs[i] = random(0, SIZE);
-    bodies.ys[i] = random(0, SIZE);
+    bodies.xs[i] = random(0, SIZE-1);
+    bodies.ys[i] = random(0, SIZE-1);
   }
 
   return bodies;
@@ -163,15 +164,13 @@ function createSBTable(builder: flatbuffers.Builder, bodies: BodiesType): flatbu
 
 function createMap(builder: flatbuffers.Builder, bodies: number, name: string, map?: MapType): flatbuffers.Offset {
   const bb_name = builder.createString(name);
-  // exact sizes?
 
   const dirt: number[] = (map ? map.dirt : new Array(SIZE*SIZE));
-  const water: number[] = (map ? map.water : new Array(SIZE*SIZE));
+  const water: boolean[] = (map ? map.water : new Array(SIZE*SIZE));
   const poll: number[] = (map ? map.pollution : new Array(SIZE*SIZE));
   const soup: number[] = (map ? map.soup : new Array(SIZE*SIZE));
 
   // all values default to zero
-  // TODO: test with nonzero values?
   const bb_dirt = schema.GameMap.createDirtVector(builder, dirt);
   const bb_water = schema.GameMap.createWaterVector(builder, water);
   const bb_poll = schema.GameMap.createPollutionVector(builder, poll);
@@ -190,6 +189,7 @@ function createMap(builder: flatbuffers.Builder, bodies: number, name: string, m
   schema.GameMap.addWater(builder, bb_water);
   schema.GameMap.addPollution(builder, bb_poll);
   schema.GameMap.addSoup(builder, bb_soup);
+  schema.GameMap.addInitialWater(builder, 0);
 
   return schema.GameMap.endGameMap(builder);
 }
@@ -206,7 +206,7 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
     btmd.addCost(builder, 100);
     btmd.addDirtLimit(builder, 10);
     btmd.addSoupLimit(builder, 100);
-    btmd.addActionCooldown(builder, 10);
+    btmd.addActionCooldown(builder, 10.0);
     btmd.addSensorRadius(builder, 3);
     btmd.addPollutionRadius(builder, 3);
     btmd.addPollutionAmount(builder, 1);
@@ -429,7 +429,6 @@ function createPickGame(turns: number) {
 function createLifeGame(turns: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
-  const maxID = 2048;
 
   events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
@@ -480,36 +479,22 @@ function createWanderGame(turns: number, unitCount: number) {
 
   events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
-  let robotIDs = new Array(unitCount);
-  let teamIDs = new Array(unitCount);
-  let types = new Array(unitCount);
-  let xs = new Array(unitCount);
-  let ys = new Array(unitCount);
+
+  const manager = new IDsManager(maxID);
+
+  const bodies = createRandomBodies(manager, unitCount);
+  const SBTable = createSBTable(builder, bodies);
+  const map = createMap(builder, SBTable, "Wander Demo");
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
+
   let velxs = new Array(unitCount);
   let velys = new Array(unitCount);
-  for (let i = 0; i < robotIDs.length; i++) {
-    robotIDs[i] = i;
-    teamIDs[i] = i%2+1;
-    types[i] = bodyTypeList[random(0, bodyVariety)];
-    xs[i] = random(0, SIZE);
-    ys[i] = random(0, SIZE);
+  for (let i = 0; i < unitCount; i++) {
     velxs[i] = random(-1, 1);
     velys[i] = random(-1, 1);
   }
-
-  const bb_locs = createVecTable(builder, xs, ys);
-  const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, robotIDs);
-  const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, teamIDs);
-  const bb_types = schema.SpawnedBodyTable.createTypesVector(builder, types);
-  schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
-  schema.SpawnedBodyTable.addLocs(builder, bb_locs);
-  schema.SpawnedBodyTable.addRobotIDs(builder, bb_robotIDs);
-  schema.SpawnedBodyTable.addTeamIDs(builder, bb_teamIDs);
-  schema.SpawnedBodyTable.addTypes(builder, bb_types);
-  const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
-
-  const map = createMap(builder, bodies, 'Wander Demo');
-  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
+  const xs = bodies.xs;
+  const ys = bodies.ys;
 
   for (let i = 1; i < turns+1; i++) {
     for (let i = 0; i < unitCount; i++) {
@@ -517,14 +502,14 @@ function createWanderGame(turns: number, unitCount: number) {
         velxs[i] = random(-1, 1);
         velys[i] = random(-1, 1);
       }
-      xs[i] = trimEdge(xs[i] + velxs[i], 0, SIZE);
-      ys[i] = trimEdge(ys[i] + velys[i], 0, SIZE);
-      if(xs[i] === 0 || xs[i] == SIZE) velxs[i] = -velxs[i];
-      if(ys[i] === 0 || ys[i] == SIZE) velys[i] = -velys[i];
+      xs[i] = trimEdge(xs[i] + velxs[i], 0, SIZE-1);
+      ys[i] = trimEdge(ys[i] + velys[i], 0, SIZE-1);
+      if(xs[i] === 0 || xs[i] == SIZE-1) velxs[i] = -velxs[i];
+      if(ys[i] === 0 || ys[i] == SIZE-1) velys[i] = -velys[i];
     }
     const movedLocs = createVecTable(builder, xs, ys);
 
-    const movedP = schema.Round.createMovedIDsVector(builder, robotIDs);
+    const movedP = schema.Round.createMovedIDsVector(builder, bodies.robotIDs);
 
     schema.Round.startRound(builder);
     schema.Round.addRoundID(builder, i);
@@ -557,8 +542,9 @@ function createWaterGame(turns: number) {
     soup: new Array(SIZE*SIZE)
   };
   for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
-    map.dirt[i*SIZE+j] = random(1,5);
-    map.water[i*SIZE+j] = Math.max(random(-10,1), 0);
+    const idxVal = i*SIZE + j;
+    map.dirt[idxVal] = random(0,50);
+    map.water[idxVal] = random(0,3);
   }
 
   const bb_map = createMap(builder, null, 'Water Demo', map);
@@ -579,99 +565,69 @@ function createWaterGame(turns: number) {
   return builder.asUint8Array();
 }
 
-// Game with every units, dies and borns randomly, and moving in random direction
-function createActiveGame(aliveCount: number, churnCount: number, moveCount: number, turns: number) {
+function createViewOptionGame(turns: number) {
   let builder = new flatbuffers.Builder();
   let events: flatbuffers.Offset[] = [];
 
   events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
 
-  let robotIDs = new Array(aliveCount);
-  let teamIDs = new Array(aliveCount);
-  let types = new Array(aliveCount);
-  let xs = new Array(aliveCount);
-  let ys = new Array(aliveCount);
-  for (let i = 0; i < robotIDs.length; i++) {
-    robotIDs[i] = i;
-    teamIDs[i] = i%2+1;
-    types[i] = 1;
-    xs[i] = i;
-    ys[i] = i;
+  const map: MapType = {
+    dirt: new Array(SIZE*SIZE),
+    water: new Array(SIZE*SIZE),
+    pollution: new Array(SIZE*SIZE),
+    soup: new Array(SIZE*SIZE)
+  };
+  for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
+    const idxVal = i*SIZE + j;
+    map.dirt[idxVal] = random(-10,50);
+    map.water[idxVal] = random(0, random(0,3));
+    map.pollution[idxVal] = Math.max(random(-200, 500), 0);
   }
 
-  const bb_locs = createVecTable(builder, xs, ys);
-  const bb_robotIDs = schema.SpawnedBodyTable.createRobotIDsVector(builder, robotIDs);
-  const bb_teamIDs = schema.SpawnedBodyTable.createTeamIDsVector(builder, teamIDs);
-  const bb_types = schema.SpawnedBodyTable.createTypesVector(builder, types);
-  schema.SpawnedBodyTable.startSpawnedBodyTable(builder)
-  schema.SpawnedBodyTable.addLocs(builder, bb_locs);
-  schema.SpawnedBodyTable.addRobotIDs(builder, bb_robotIDs);
-  schema.SpawnedBodyTable.addTeamIDs(builder, bb_teamIDs);
-  schema.SpawnedBodyTable.addTypes(builder, bb_types);
-  const bodies = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
-
-  const map = createMap(builder, bodies, 'Active Demo');
-  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, map), schema.Event.MatchHeader));
-
-  const diedIDs = new Array(churnCount);
-
-  const bornIDs = new Array(churnCount);
-  const bornXs = new Array(churnCount);
-  const bornYs = new Array(churnCount);
-
-  const movedIDs = new Array(moveCount);
-  const movedXs = new Array(moveCount);
-  const movedYs = new Array(moveCount);
-
-  let nextID = aliveCount;
-
-  for (let i = 0; i < churnCount; i++) {
-    bornXs[i] = i;
-    bornYs[i] = i;
-  }
-
-  const bornLocs = createVecTable(builder, bornXs, bornYs);
+  const bb_map = createMap(builder, null, 'ViewOptions Demo', map);
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, bb_map), schema.Event.MatchHeader));
 
   for (let i = 1; i < turns+1; i++) {
-    for (let j = 0; j < churnCount; j++) {
-      diedIDs[j] = robotIDs[j];
-      bornIDs[j] = nextID++;
-      robotIDs.push(bornIDs[j]);
-    }
-    robotIDs.splice(0, churnCount);
-
-    for (let i = 0; i < moveCount; i++) {
-      // TODO: change to discrete?
-      // const t = Math.random() * Math.PI * 2;
-      // movedXs[i] = SIZE2 + Math.cos(t) * SIZE2;
-      // movedYs[i] = SIZE2 + Math.sin(t) * SIZE2;
-      movedXs[i] = Math.round(Math.random()*3)-1;
-      movedYs[i] = Math.round(Math.random()*3)-1;
-    }
-    const movedLocs = createVecTable(builder, movedXs, movedYs);
-
-    for (let j = 0; j < moveCount; j++) {
-      movedIDs[j] = robotIDs[j];
-    }
-    const diedP = schema.Round.createDiedIDsVector(builder, diedIDs);
-
-    const bornP = schema.SpawnedBodyTable.createRobotIDsVector(builder, bornIDs);
-    schema.SpawnedBodyTable.startSpawnedBodyTable(builder);
-    schema.SpawnedBodyTable.addLocs(builder, bornLocs);
-    schema.SpawnedBodyTable.addRobotIDs(builder, bornP);
-    const spawnedP = schema.SpawnedBodyTable.endSpawnedBodyTable(builder);
-
-    const movedP = schema.Round.createMovedIDsVector(builder, movedIDs);
-
     schema.Round.startRound(builder);
     schema.Round.addRoundID(builder, i);
 
-    schema.Round.addMovedLocs(builder, movedLocs);
-    schema.Round.addMovedIDs(builder, movedP);
+    events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
+  }
 
-    schema.Round.addSpawnedBodies(builder, spawnedP);
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
 
-    schema.Round.addDiedIDs(builder, diedP);
+  const wrapper = createGameWrapper(builder, events, turns);
+  builder.finish(wrapper);
+  return builder.asUint8Array();
+}
+
+function createSoupGame(turns: number) {
+  let builder = new flatbuffers.Builder();
+  let events: flatbuffers.Offset[] = [];
+
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
+
+  const map: MapType = {
+    dirt: new Array(SIZE*SIZE),
+    water: new Array(SIZE*SIZE),
+    pollution: new Array(SIZE*SIZE),
+    soup: new Array(SIZE*SIZE)
+  };
+  for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
+    const idxVal = i*SIZE + j;
+    map.dirt[idxVal] = random(-3,10);
+    map.water[idxVal] = random(0, random(0,2));
+    map.pollution[idxVal] = Math.max(random(-200, 500), 0);
+    map.soup[idxVal] = random(0, random(0, 3)) * 47;
+  }
+
+  const bb_map = createMap(builder, null, 'Soup Demo', map);
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, bb_map), schema.Event.MatchHeader));
+
+  for (let i = 1; i < turns+1; i++) {
+    schema.Round.startRound(builder);
+    schema.Round.addRoundID(builder, i);
 
     events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
   }
@@ -689,12 +645,17 @@ function main(){
     { name: "blank", game: createBlankGame(512)},
     { name: "stand", game: createStandGame(1024) },
     { name: "pick", game: createPickGame(1024) },
-    { name: "wander", game: createWanderGame(2048, 64) },
+    { name: "wander", game: createWanderGame(2048, 32) },
     { name: "life", game: createLifeGame(512) },
-    { name: "water", game: createWaterGame(512) }
-    // { name: "active", game: createActiveGame(128, 128, 128, 4096) },
+    { name: "water", game: createWaterGame(512) }, 
+    { name: "soup", game: createSoupGame(512) }, 
+    { name: "viewOptions", game: createViewOptionGame(512) }
   ];
-  const prefix = "out/files/";
+  SIZE = 64;
+  games.push({ name: "big-wander", game: createWanderGame(2048, 128) });
+  SIZE = 32;
+  
+  const prefix = "../examples/";
 
   games.forEach(pair => {
     const filename = `${prefix}${pair.name}.bc20`

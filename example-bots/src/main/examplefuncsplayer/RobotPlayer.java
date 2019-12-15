@@ -6,14 +6,14 @@ public strictfp class RobotPlayer {
 
     static Direction[] directions = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
     static RobotType[] spawnedByMiner = {RobotType.REFINERY, RobotType.VAPORATOR, RobotType.DESIGN_SCHOOL,
-                                         RobotType.FULFILLMENT_CENTER, RobotType.NET_GUN};
+            RobotType.FULFILLMENT_CENTER, RobotType.NET_GUN};
 
     static int turnCount;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
-    **/
+     **/
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
 
@@ -51,7 +51,7 @@ public strictfp class RobotPlayer {
                 e.printStackTrace();
             }
         }
-	}
+    }
 
     static void runHQ() throws GameActionException {
         for (Direction dir : directions)
@@ -79,11 +79,11 @@ public strictfp class RobotPlayer {
     }
 
     static void runVaporator() throws GameActionException {
-        
+
     }
 
     static void runDesignSchool() throws GameActionException {
-        
+
     }
 
     static void runFulfillmentCenter() throws GameActionException {
@@ -92,7 +92,7 @@ public strictfp class RobotPlayer {
     }
 
     static void runLandscaper() throws GameActionException {
-        
+
     }
 
     static void runDeliveryDrone() throws GameActionException {
@@ -113,7 +113,7 @@ public strictfp class RobotPlayer {
     }
 
     static void runNetGun() throws GameActionException {
-        
+
     }
 
     /**
@@ -215,7 +215,8 @@ public strictfp class RobotPlayer {
             for (int i = 0; i < 10; i++) {
                 message[i] = 123;
             }
-            rc.sendMessage(message, 10);
+            if (rc.canSendMessage(message, 10))
+                rc.sendMessage(message, 10);
         }
         // System.out.println(rc.getRoundMessages(turnCount-1));
     }
