@@ -563,11 +563,9 @@ public strictfp class GameWorld {
         updateWaterLevel();
         floodfill();
 
-        // If one team's HQ is destroyed, the other team wins.
-        setWinnerIfHQDestroyed();
-
         // Check for end of match
-        if (timeLimitReached() && gameStats.getWinner() == null)
+        // occurs when one HQ is destroyed, or time limit reached
+        if ((timeLimitReached() || this.teamInfo.getDestroyedHQ(Team.A) || this.teamInfo.getDestroyedHQ(Team.B)) && gameStats.getWinner() == null)
             if (!setWinnerIfHQDestroyed())
                 if (!setWinnerIfQuantity())
                     if (!setWinnerIfQuality())
