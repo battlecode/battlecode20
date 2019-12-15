@@ -112,6 +112,11 @@ publishing {
 
 def serverJar = new File(project(":engine").libsDir, "engine.jar")
 
+task buildMap(type: JavaExec, dependsOn: [':engine:build']) {
+    main = 'battlecode.world.maps.' + project.property('buildMap')
+    classpath = files(serverJar)
+}
+
 task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
   main = 'battlecode.server.Main'
   classpath = files(serverJar) + project(':example-bots').sourceSets.main.output + configurations.scala
