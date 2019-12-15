@@ -33,9 +33,9 @@ public class CentralLake {
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.rotational);
         mapBuilder.addSymmetricHQ(7, 7);
 
-        for(int i = 0; i < mapBuilder.width; i++) {
-            for (int j = 0; j < mapBuilder.height; j++) {
-                mapBuilder.setSymmetricSoup(i, j,  i * j + i + j);
+        for (int i = 17; i < mapBuilder.width-17; i++) {
+            for (int j = 0; j < 3; j++) {
+                mapBuilder.setSymmetricSoup(i, j, j+1);
             }
         }
 
