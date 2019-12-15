@@ -111,24 +111,20 @@ export default class Renderer {
 
     const map = world.mapStats;
 
-    let aveheight = 0;
-    for(let i=0; i<width; i++) for(let j=0; j<height; j++){
-      aveheight += map.dirt[map.getIdx(i,j)];
-    }
-    aveheight /= width*height;
-    aveheight = Math.max(1, aveheight);
-
     const getColor = (x: number): string => {
       /*
-      // 0   -> 'rgba(89,156,28,1)'
+      // -inf > 'rgba(89,156,28,1)'
       // inf -> 'rgba(156,28,28,1)'
       */
-      // 0   -> 'rgba(0,255,0,0.7)'
+      // -inf-> 'rgba(0,255,0,0.7)'
       // inf -> 'rgba(255,0,0,0.7)'
 
       const lo = [0,255,0], hi = [255,0,0];
 
-      const t = x / (aveheight + x); // (0~inf) -> (0~1), t(aveheight) = 0.5
+      // (-inf~inf) -> (0~1)
+      // TODO getting inputs for color transition?
+      const ex = Math.exp(x / 10);
+      const t = ex / (5 + ex);
 
       let now = [0,0,0];
       for(let i=0; i<3; i++) now[i] = (hi[i]-lo[i]) * t + lo[i];

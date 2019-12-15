@@ -579,7 +579,7 @@ function createViewOptionGame(turns: number) {
   };
   for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
     const idxVal = i*SIZE + j;
-    map.dirt[idxVal] = random(0,50);
+    map.dirt[idxVal] = random(-10,50);
     map.water[idxVal] = random(0, random(0,3));
     map.pollution[idxVal] = Math.max(random(-200, 500), 0);
   }
