@@ -12,11 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author james
- *
- * so uh
- *
- * this exists
+ * Generate a map.
  */
 public class MapTestSmall {
 
