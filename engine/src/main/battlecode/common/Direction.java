@@ -14,11 +14,11 @@ public enum Direction {
     /**
      * Direction that represents pointing north (up on screen).
      */
-    NORTH(0, -1),
+    NORTH(0, 1),
     /**
      * Direction that represents pointing northeast (up and to the right on screen).
      */
-    NORTHEAST(1, -1),
+    NORTHEAST(1, 1),
     /**
      * Direction that represents pointing east (right on screen).
      */
@@ -30,11 +30,11 @@ public enum Direction {
     /**
      * Direction that represents pointing south (down on screen).
      */
-    SOUTH(0, 1),
+    SOUTH(0, -1),
     /**
      * Direction that represents pointing southwest (down and to the left on screen).
      */
-    SOUTHWEST(-1, 1),
+    SOUTHWEST(-1, -1),
     /**
      * Direction that represents pointing west (left on screen).
      */
@@ -42,7 +42,7 @@ public enum Direction {
     /**
      * Direction that represents pointing northwest (up and to the left on screen).
      */
-    NORTHWEST(-1, -1);
+    NORTHWEST(-1, 1);
 
     /**
      * Change in x, change in y.
