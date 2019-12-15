@@ -164,6 +164,12 @@ export default class Renderer {
         this.ctx.fillRect(cx, cy, scale, scale);
       }
 
+      if (map.soup[idxVal] != 0){
+        this.ctx.fillStyle = 'yellow';
+        this.ctx.globalAlpha = 1;
+        this.ctx.fillRect(cx+scale/3, cy+scale/3, scale/3, scale/3);
+      }
+
       if (this.conf.showGrid) {
         this.ctx.strokeStyle = 'gray';
         this.ctx.globalAlpha = 1;

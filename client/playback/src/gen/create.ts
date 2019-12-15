@@ -602,6 +602,44 @@ function createViewOptionGame(turns: number) {
   return builder.asUint8Array();
 }
 
+function createSoupGame(turns: number) {
+  let builder = new flatbuffers.Builder();
+  let events: flatbuffers.Offset[] = [];
+
+  events.push(createEventWrapper(builder, createGameHeader(builder), schema.Event.GameHeader));
+
+  const map: MapType = {
+    dirt: new Array(SIZE*SIZE),
+    water: new Array(SIZE*SIZE),
+    pollution: new Array(SIZE*SIZE),
+    soup: new Array(SIZE*SIZE)
+  };
+  for(let i=0; i<SIZE; i++) for(let j=0; j<SIZE; j++){
+    const idxVal = i*SIZE + j;
+    map.dirt[idxVal] = random(-3,10);
+    map.water[idxVal] = random(0, random(0,2));
+    map.pollution[idxVal] = Math.max(random(-200, 500), 0);
+    map.soup[idxVal] = random(0, random(0, 3)) * 50;
+  }
+
+  const bb_map = createMap(builder, null, 'Soup Demo', map);
+  events.push(createEventWrapper(builder, createMatchHeader(builder, turns, bb_map), schema.Event.MatchHeader));
+
+  for (let i = 1; i < turns+1; i++) {
+    schema.Round.startRound(builder);
+    schema.Round.addRoundID(builder, i);
+
+    events.push(createEventWrapper(builder, schema.Round.endRound(builder), schema.Event.Round));
+  }
+
+  events.push(createEventWrapper(builder, createMatchFooter(builder, turns, 1), schema.Event.MatchFooter));
+  events.push(createEventWrapper(builder, createGameFooter(builder, 1), schema.Event.GameFooter));
+
+  const wrapper = createGameWrapper(builder, events, turns);
+  builder.finish(wrapper);
+  return builder.asUint8Array();
+}
+
 function main(){
   const games = [
     { name: "blank", game: createBlankGame(512)},
@@ -610,6 +648,7 @@ function main(){
     { name: "wander", game: createWanderGame(2048, 32) },
     { name: "life", game: createLifeGame(512) },
     { name: "water", game: createWaterGame(512) }, 
+    { name: "soup", game: createSoupGame(512) }, 
     { name: "viewOptions", game: createViewOptionGame(512) }
   ];
   SIZE = 64;
