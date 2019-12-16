@@ -237,10 +237,10 @@ publishing {
   publications {
     server(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'engine20'
+      artifactId 'battlecode'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact source: release_main, classifier: "src"
+      artifact release_main
       
       artifact release_docs {
         classifier 'javadoc'
