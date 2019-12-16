@@ -154,11 +154,11 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
         if (dx == 0 && dy < 0)
             return Direction.NORTH;
         if (dx > 0 && dy == 0)
-            return Direction.EAST;
+            return Direction.WEST;
         if (dx == 0 && dy > 0)
             return Direction.SOUTH;
         if (dx < 0 && dy == 0)
-            return Direction.WEST;
+            return Direction.EAST;
         return null;
     }
 
