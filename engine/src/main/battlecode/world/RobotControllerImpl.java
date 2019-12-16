@@ -304,7 +304,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canMove(MapLocation center) {
         try {
             assertNotNull(center);
-            return getType().canMove() && getLocation().distanceTo(center) <= 1 &&
+            return getType().canMove() && getLocation().distanceTo(center) <= 1.5 &&
                 onTheMap(center) && !isLocationOccupied(center) &&
                 (getType().canFly() || (gameWorld.getDirtDifference(getLocation(), center)
                  <= GameConstants.MAX_DIRT_DIFFERENCE && !gameWorld.isFlooded(center)));
