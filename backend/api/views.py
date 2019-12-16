@@ -263,6 +263,14 @@ class TeamViewSet(viewsets.GenericViewSet,
             team['name'] = request.data.get('name', None)
             team['users'] = [request.user.username]
 
+            try:
+                userObj = User.objects.get(username=request.user.username)
+            except User.DoesNotExist:
+                return Response({'message': 'Logged in user not found a valid user'}, status.HTTP_404_NOT_FOUND)
+
+            if userObj.is_staff:
+                team['staff_team'] = True
+
             serializer = self.get_serializer(data=team)
             if serializer.is_valid():
                 serializer.save()
@@ -357,6 +365,15 @@ class TeamViewSet(viewsets.GenericViewSet,
             return Response({'message': 'Invalid team key'}, status.HTTP_400_BAD_REQUEST)
         if team.users.count() == 4:
             return Response({'message': 'Team has max number of users'}, status.HTTP_400_BAD_REQUEST)
+       
+        try:
+            userObj = User.objects.get(username=request.user.username)
+        except User.DoesNotExist:
+            return Response({'message': 'Logged in user not found a valid user'}, status.HTTP_404_NOT_FOUND)
+
+        if userObj.is_staff:
+            team.staff_team = True
+
         team.users.add(request.user.id)
         team.save()
 
@@ -379,8 +396,6 @@ class TeamViewSet(viewsets.GenericViewSet,
 
         serializer = self.get_serializer(team)
         return Response(serializer.data, status.HTTP_200_OK)
-
-
 
 class SubmissionViewSet(viewsets.GenericViewSet,
                   mixins.CreateModelMixin,
@@ -457,34 +472,6 @@ class SubmissionViewSet(viewsets.GenericViewSet,
 
         download_url = GCloudUploadDownload.signed_download_url(SUBMISSION_FILENAME(pk), GCLOUD_SUB_BUCKET)
         return Response({'download_url': download_url}, status.HTTP_200_OK)
-
-
-    def signed_url(self, submission_id):
-        """
-        returns a pre-signed url for uploading the submission with given id to google cloud
-        this URL can be used with a PUT request to upload data; no authentication needed.
-        """
-        with tempfile.NamedTemporaryFile() as temp:
-            temp.write(settings.GOOGLE_APPLICATION_CREDENTIALS.encode('utf-8'))
-            temp.flush()
-            storage_client = storage.Client.from_service_account_json(temp.name)
-            bucket = storage_client.get_bucket(GCLOUD_BUCKET)
-            blob = bucket.blob(SUBMISSION_FILENAME(submission_id))
-            return blob.create_resumable_upload_session()
-
-    def signed_download_url(self, submisison_id):
-        """
-        returns a pre-signed url for downloading the zip of the submission from
-        google cloud, this URL can be used with a GET request to dowload the file
-        with no additional authentication needed.
-        """
-        with tempfile.NamedTemporaryFile() as temp:
-            temp.write(settings.GOOGLE_APPLICATION_CREDENTIALS.encode('utf-8'))
-            temp.flush()
-            storage_client = storage.Client.from_service_account_json(temp.name)
-            bucket = storage_client.get_bucket(GCLOUD_BUCKET)
-            blob = bucket.blob(SUBMISSION_FILENAME(submission_id))
-
 
     @action(methods=['patch'], detail=True)
     def compilation_update(self, request, team, league_id, pk=None):
