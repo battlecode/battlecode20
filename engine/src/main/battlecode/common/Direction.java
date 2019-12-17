@@ -42,7 +42,11 @@ public enum Direction {
     /**
      * Direction that represents pointing northwest (up and to the left on screen).
      */
-    NORTHWEST(-1, 1);
+    NORTHWEST(-1, 1),
+    /**
+     * Direction that represents pointing nowhere.
+     */
+    CENTER(0, 0);
 
     /**
      * Change in x, change in y.
@@ -62,30 +66,36 @@ public enum Direction {
      * @battlecode.doc.costlymethod
      */
     public Direction opposite() {
+        if (ordinal() >= 8)
+            return this; // center
         return Direction.values()[(ordinal() + 4) % 8];
     }
 
     /**
-     * Computes the direction 90 degrees to the left (counter-clockwise)
+     * Computes the direction 45 degrees to the left (counter-clockwise)
      * of this one.
      *
-     * @return the direction 90 degrees left of this one
+     * @return the direction 45 degrees left of this one
      *
      * @battlecode.doc.costlymethod
      */
     public Direction rotateLeft() {
-        return Direction.values()[(ordinal() + 8 - 2) % 8];
+        if (ordinal() >= 8)
+            return this; // center
+        return Direction.values()[(ordinal() + 8 - 1) % 8];
     }
 
     /**
-     * Computes the direction 90 degrees to the right (clockwise)
+     * Computes the direction 45 degrees to the right (clockwise)
      * of this one.
      *
-     * @return the direction 90 degrees right of this one
+     * @return the direction 45 degrees right of this one
      *
      * @battlecode.doc.costlymethod
      */
     public Direction rotateRight() {
-        return Direction.values()[(ordinal() + 2) % 8];
+        if (ordinal() >= 8)
+            return this; // center
+        return Direction.values()[(ordinal() + 1) % 8];
     }
 }
