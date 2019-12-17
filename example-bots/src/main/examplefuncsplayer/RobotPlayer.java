@@ -215,8 +215,8 @@ public strictfp class RobotPlayer {
             for (int i = 0; i < 10; i++) {
                 message[i] = 123;
             }
-            if (rc.canSendMessage(message, 10))
-                rc.sendMessage(message, 10);
+            if (rc.canSubmitTransaction(message, 10))
+                rc.submitTransaction(message, 10);
         }
         // System.out.println(rc.getRoundMessages(turnCount-1));
     }

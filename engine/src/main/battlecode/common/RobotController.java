@@ -633,33 +633,31 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Checks that the robot can send a message to blockchain at the indicated cost. 
+     * Checks that the robot can submit a transaction to the blockchain at the indicated cost.
      *
-     * @param messageArray the list of ints to send.
-     * @param proofOfStake the price that the unit is willing to pay for the message
+     * @param message the list of ints to send.
+     * @param cost the price that the unit is willing to pay for the message
      */
-    boolean canSendMessage(int[] messageArray, int proofOfStake);
+    boolean canSubmitTransaction(int[] message, int cost);
 
     /**
-     * Sends a message to the blockchain at the indicated cost.
+     * Submits a transaction to the blockchain at the indicated cost.
      * 
-     * @param messageArray the list of ints to send.
-     * @param proofOfStake the price that the unit is willing to pay for the message
+     * @param message the list of ints to send.
+     * @param cost the price that the unit is willing to pay for the message
      * 
      */
-    void sendMessage(int[] messageArray, int proofOfStake) throws GameActionException;
+    void submitTransaction(int[] message, int cost) throws GameActionException;
 
 
     /**
-     * Gets all messages that were sent at a given round.
-     * 
-     * Because one of me and java is stupid, this is returned as a string where a space
-     * separates messages and an underscore separates the numbers in messages.
-     * 
+     * Get the block of messages that was approved at a given round.
+     * The block will contain a list of transactions.
+     *
      * @param roundNumber the round index.
-     * @throws GameActionException
+     * @throws GameActionException if the round is not available.
      */
-    public String getRoundMessages(int roundNumber) throws GameActionException;
+    public Transaction[] getBlock(int roundNumber) throws GameActionException;
 
     // ***********************************
     // **** INDICATOR STRING METHODS *****

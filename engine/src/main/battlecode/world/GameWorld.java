@@ -6,7 +6,6 @@ import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
 import battlecode.world.control.RobotControlProvider;
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.util.*;
 
@@ -43,9 +42,9 @@ public strictfp class GameWorld {
     private Random rand;
 
     // the pool of messages not yet sent
-    private PriorityQueue<BlockchainEntry> blockchainQueue;
+    private PriorityQueue<Transaction> blockchainQueue;
     // the messages that have been broadcasted already
-    public ArrayList<ArrayList<BlockchainEntry>> blockchain;
+    public ArrayList<ArrayList<Transaction>> blockchain;
 
     private final GameMaker.MatchMaker matchMaker;
 
@@ -71,8 +70,8 @@ public strictfp class GameWorld {
 
         this.rand = new Random(this.gameMap.getSeed());
 
-        this.blockchainQueue = new PriorityQueue<BlockchainEntry>();
-        this.blockchain = new ArrayList<ArrayList<BlockchainEntry>>();
+        this.blockchainQueue = new PriorityQueue<Transaction>();
+        this.blockchain = new ArrayList<ArrayList<Transaction>>();
 
         this.matchMaker = matchMaker;
 
@@ -628,31 +627,31 @@ public strictfp class GameWorld {
     // *********************************
 
     /**
-     * Add new message to the priority queue of messages, and also add them
+     * Add new transaction to the priority queue of transactions, and also add them
      * to the matchmaker.
-     * @param block
+     * @param transaction The message to add.
      */
-    public void addNewMessage(BlockchainEntry block) {
-        getMatchMaker().addNewMessage(block.cost, block.serializedMessage);
+    public void addTransaction(Transaction transaction) {
+        getMatchMaker().addNewMessage(transaction.getCost(), transaction.getSerializedMessage());
 
         // add it to the priority queue 
-        blockchainQueue.add(block);
+        blockchainQueue.add(transaction);
     }
 
-    public void processBlockchain() {
+    private void processBlockchain() {
         // process messages, take the K first ones!
-        ArrayList<BlockchainEntry> thisRoundMessages = new ArrayList<BlockchainEntry>();
-        for (int i = 0; i < GameConstants.NUMBER_OF_BROADCASTED_MESSAGES; i++) {
+        ArrayList<Transaction> block = new ArrayList<Transaction>();
+        for (int i = 0; i < GameConstants.NUMBER_OF_TRANSACTIONS_PER_BLOCK; i++) {
             if (blockchainQueue.size() > 0) {
-                BlockchainEntry block = blockchainQueue.poll();
+                Transaction transaction = blockchainQueue.poll();
                 // send this to match maker!
-                matchMaker.addBroadcastedMessage(block.cost, block.serializedMessage);
+                matchMaker.addBroadcastedMessage(transaction.getCost(), transaction.getSerializedMessage());
                 // also add it to this round's list of messages!
-                thisRoundMessages.add(block);
+                block.add(transaction);
             }
         }
         // add this to the blockchain!
-        blockchain.add(thisRoundMessages);
+        blockchain.add(block);
     }
    
     // *********************************

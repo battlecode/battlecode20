@@ -6,7 +6,6 @@ import battlecode.instrumenter.RobotDeathException;
 import battlecode.schema.Action;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -771,46 +770,48 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BLOCKCHAINNNNNNNNNNN *******
     // ***********************************
 
-    private void assertCanSendMessage(int[] messageArray, int proofOfStake) throws GameActionException {
-        if (!canSendMessage(messageArray, proofOfStake))
-            throw new GameActionException(CANT_DO_THAT,
-                "Cannot send the specified message, possibly due to not enough soup to pay " +
-                "or message too long.");
+    private void assertCanSubmitTransaction(int[] message, int cost) throws GameActionException {
+        if (message.length > GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH) {
+            throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
+                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH) +
+                            " integers in one message, not " + Integer.toString(message.length) + ".");
+        }
+        int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost) {
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
+                    "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+        }
     }
 
     @Override
-    public boolean canSendMessage(int[] messageArray, int proofOfStake) {
-        return (messageArray.length <= GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH &&
-            gameWorld.getTeamInfo().getSoup(getTeam()) >= proofOfStake);
+    public boolean canSubmitTransaction(int[] message, int cost) {
+        try {
+            assertCanSubmitTransaction(message, cost);
+        } catch (GameActionException e) {
+            return false;
+        }
+        return true;
     }
 
 
     /**
      * Sends a message to the blockchain at the indicated cost.
      * 
-     * @param messageArray the message to send.
-     * @param proofOfStake the price that the unit is willing to pay for the message. If
-     * the team does not have that much soup, the message will not be sent.
+     * @param message the message to send.
+     * @param cost the price that the unit is willing to pay for the message.
+     * @throws GameActionException if message is too long or the team does not
+     * have that that much soup.
      * 
      */
     @Override
-    public void sendMessage(int[] messageArray, int proofOfStake) throws GameActionException {
-        assertCanSendMessage(messageArray, proofOfStake);
-        /*if (messageArray.length > GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) {
-            throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
-                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_MESSAGE_LENGTH) + " integers in one message.");
-        }
-        int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
-        if (gameWorld.getTeamInfo().getSoup(getTeam()) < proofOfStake) {
-            throw new GameActionException(NOT_ENOUGH_RESOURCE, 
-                    "Tried to pay " + Integer.toString(proofOfStake) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
-        }*/ //this is more detailed but doesn't match our usual formatting?
+    public void submitTransaction(int[] message, int cost) throws GameActionException {
+        assertCanSubmitTransaction(message, cost);
         // pay!
-        gameWorld.getTeamInfo().adjustSoup(getTeam(), -proofOfStake);
+        gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
         // create a block chain entry
-        BlockchainEntry bcentry = new BlockchainEntry(proofOfStake, messageArray);
+        Transaction transaction = new Transaction(cost, message);
         // add
-        gameWorld.addNewMessage(bcentry);
+        gameWorld.addTransaction(transaction);
     }
 
     /**
@@ -820,7 +821,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * @throws GameActionException
      */
     @Override
-    public String getRoundMessages(int roundNumber) throws GameActionException {
+    public Transaction[] getBlock(int roundNumber) throws GameActionException {
         if (roundNumber < 0) {
             throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
                 + "; in fact, no negative round numbers are allowed at all.");
@@ -830,15 +831,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
                 + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
         }
         // just get it!
-        ArrayList<BlockchainEntry> d = gameWorld.blockchain.get(roundNumber);
-        // System.out.println(d);
-        BlockchainEntry[] d2 = d.toArray(new BlockchainEntry[d.size()]);
-        String[] stringMessageArray = new String[d2.length];
-        for (int i = 0; i < d2.length; i++) {
-            stringMessageArray[i] = d2[i].serializedMessage;
-        }
-        String serializedMessage = String.join(" ", stringMessageArray);
-        return serializedMessage;
+        Transaction[] transactions = gameWorld.blockchain.get(roundNumber).toArray(new Transaction[0]);
+        return transactions;
     }
 
     // ***********************************

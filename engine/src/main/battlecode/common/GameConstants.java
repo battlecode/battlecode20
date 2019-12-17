@@ -64,14 +64,14 @@ public interface GameConstants {
     int NET_GUN_SHOOT_RADIUS = 3;
 
     // *********************************
-    // ****** MISCELLANEOUS ************
+    // ****** BLOCKCHAINNNN ************
     // *********************************
 
     /** The maximum number of integers that can be sent in one message. */
-    int MAX_BLOCKCHAIN_MESSAGE_LENGTH = 10;
+    int MAX_BLOCKCHAIN_TRANSACTION_LENGTH = 10;
 
-    /** The number of messages that get broadcasted every turn. */
-    int NUMBER_OF_BROADCASTED_MESSAGES = 10;
+    /** The number of transactions that get broadcasted every round. */
+    int NUMBER_OF_TRANSACTIONS_PER_BLOCK = 10;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
