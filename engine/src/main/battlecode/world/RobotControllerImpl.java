@@ -268,16 +268,30 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertIsReady() throws GameActionException{
         if(!isReady()){
-            throw new GameActionException(NOT_ACTIVE,
+            throw new GameActionException(IS_NOT_READY,
                     "This robot's action cooldown has not expired.");
         }
     }
 
+    /**
+     * Check if the robot is ready to perform an action. Returns true if
+     * the current cooldown counter is strictly less than 1.
+     *
+     * @return true if the robot can do an action, false otherwise
+     */
     @Override
     public boolean isReady() {
         return getCooldownTurns() < 1;
     }
 
+    /**
+     * Return the cooldown turn counter of the robot. If this is < 1, the robot
+     * can perform an action; otherwise, it cannot.
+     * The counter is decreased by 1 at the start of every
+     * turn, and increased to varying degrees by different actions taken.
+     *
+     * @return the number of cooldown turns as a float
+     */
     @Override
     public float getCooldownTurns() {
         return this.robot.getCooldownTurns();
@@ -308,6 +322,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Robot is of type " + getType() + " which cannot fly, and the dirt difference to " + loc + " is " +
                     gameWorld.getDirtDifference(getLocation(), loc) + " which is higher than the limit of " +
                     GameConstants.MAX_DIRT_DIFFERENCE + " for non-flying units.");
+        if (!isReady())
+            throw new GameActionException(IS_NOT_READY, "The robot is currently cooling down. " +
+                    "You need to wait a bit before the next action.");
     }
 
     @Override
@@ -600,10 +617,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * @throws GameActionException
      */
     private void assertCanPickUpUnit(int id) throws GameActionException {
-        if(!canPickUpUnit(id))
-            throw new GameActionException(CANT_DO_THAT,
-                    "Cannot pick up the specified unit, possibly due to not being a delivery drone, " +
-                    "is already holding a unit, the unit not within pickup distance, or unit can't be picked up.");
         if (!getType().canPickUpUnits())
             throw new GameActionException(CANT_PICK_UP_UNIT,
                     "Robot is of type " + getType() + " which cannot pick up other units.");
@@ -611,10 +624,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_PICK_UP_UNIT,
                     "Robot is already holding a unit; you can't pick up another one!");
         if (!isReady())
-            throw new GameActionException(CANT_PICK_UP_UNIT,
+            throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");
         if (getRobotByID(id) == null)
-            throw new GameActionException(CANT_PICK_UP_UNIT,
+            throw new GameActionException(NO_ROBOT_THERE,
                     "No unit of ID " + id + " exists! Impossible to pick up nonexistent things.");
         if (!getRobotByID(id).getType().canBePickedUp())
             throw new GameActionException(CANT_PICK_UP_UNIT,
