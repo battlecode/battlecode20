@@ -604,6 +604,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Cannot pick up the specified unit, possibly due to not being a delivery drone, " +
                     "is already holding a unit, the unit not within pickup distance, or unit can't be picked up.");
+        if (!getType().canPickUpUnits())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Robot is of type " + getType() + " which cannot pick up other units.");
+        if (robot.isCurrentlyHoldingUnit())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Robot is already holding a unit; you can't pick up another one!");
+        if (!isReady())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
+        if (getRobotByID(id) == null)
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "No unit of ID " + id + " exists! Impossible to pick up nonexistent things.");
+        if (!getRobotByID(id).getType().canBePickedUp())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Cannot pick up any unit of type " + getRobotByID(id).getType() + ".");
+        if (!getRobotByID(id).getLocation().isWithinDistanceSquared(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED))
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Cannot pick up unit outside pickup radius; unit is " +
+                    getRobotByID(id).getLocation().distanceSquaredTo(getLocation()) +
+                            " away, but the pickup radius squared is " + GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED);
     }
 
     /**
@@ -616,10 +636,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public boolean canPickUpUnit(int id) {
-        InternalRobot targetRobot = getRobotByID(id);
-        return this.getType().canPickUpUnits() && !this.robot.isCurrentlyHoldingUnit() &&
-               isReady() && targetRobot != null && targetRobot.getType().canBePickedUp() &&
-               targetRobot.getLocation().isWithinDistanceSquared(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS);
+        try {
+            assertCanPickUpUnit(id);
+        } catch (GameActionException e) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -745,7 +767,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         InternalRobot targetRobot = getRobotByID(id);
         return this.getType().canShoot() && isReady() && targetRobot != null &&
                targetRobot.getType().canBeShot() &&
-               targetRobot.getLocation().isWithinDistanceSquared(getLocation(), GameConstants.NET_GUN_SHOOT_RADIUS);
+               targetRobot.getLocation().isWithinDistanceSquared(getLocation(), GameConstants.NET_GUN_SHOOT_RADIUS_SQUARED);
     }
 
     /**
