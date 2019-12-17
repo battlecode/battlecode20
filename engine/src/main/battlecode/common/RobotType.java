@@ -100,12 +100,12 @@ public enum RobotType {
     /**
      * Range for sensing robots and trees.
      */
-    public final int sensorRadius;
+    public final int sensorRadiusSquared;
 
     /**
      * How many units a cow pollutes.
      */
-    public final int pollutionRadius;
+    public final int pollutionRadiusSquared;
 
     /**
      * Amount of pollution created when refining soup.
@@ -258,15 +258,15 @@ public enum RobotType {
     }
 
     RobotType(RobotType spawnSource, int cost, int dirtLimit, int soupLimit,
-              float actionCooldown, int sensorRadius, int pollutionRadius, int pollutionAmount,
+              float actionCooldown, int sensorRadiusSquared, int pollutionRadiusSquared, int pollutionAmount,
               int globalPollutionAmount, int maxSoupProduced, int bytecodeLimit) {
         this.spawnSource           = spawnSource;
         this.cost                  = cost;
         this.dirtLimit             = dirtLimit;
         this.soupLimit             = soupLimit;
         this.actionCooldown        = actionCooldown;
-        this.sensorRadius          = sensorRadius;
-        this.pollutionRadius       = pollutionRadius;
+        this.sensorRadiusSquared = sensorRadiusSquared;
+        this.pollutionRadiusSquared = pollutionRadiusSquared;
         this.pollutionAmount       = pollutionAmount;
         this.globalPollutionAmount = globalPollutionAmount;
         this.maxSoupProduced       = maxSoupProduced;

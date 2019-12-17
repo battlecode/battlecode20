@@ -92,19 +92,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
-     * Computes the Euclidean distance from this location to the specified
-     * location.
-     *
-     * @param location the location to compute the distance to
-     * @return the distance to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public final float distanceTo(MapLocation location) {
-        return (float) Math.sqrt(distanceSquaredTo(location));
-    }
-
-    /**
      * Computes the squared distance from this location to the specified
      * location.
      *
@@ -124,13 +111,28 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      * from target location.
      *
      * @param location the location to test
-     * @param dist the distance for the location to be within
-     * @return true if the given location is within dist to this one; false otherwise
+     * @param distanceSquared the distance squared for the location to be within
+     * @return true if the given location is within distanceSquared to this one; false otherwise
      *
      * @battlecode.doc.costlymethod
      */
-    public final boolean isWithinDistance(MapLocation location, float dist) {
-        return this.distanceSquaredTo(location) <= dist * dist;
+    public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared) {
+        return this.distanceSquaredTo(location) <= distanceSquared;
+    }
+
+    /**
+     * Determines whether this location is adjacent to a given location.
+     *
+     * @param location the target location
+     * @return true if the given location is adjacent to this one
+     */
+    public final boolean isAdjacentTo(MapLocation location) {
+        int absdx = Math.abs(this.x - location.x);
+        int absdy = Math.abs(this.y - location.y);
+        if (absdx <= 1 && absdy <= 1) {
+            return true;
+        }
+        return false;
     }
 
     /**

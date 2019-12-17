@@ -405,28 +405,28 @@ public strictfp class GameWorld {
         this.robots[loc.x][loc.y] = null;
     }
 
-    public InternalRobot[] getAllRobotsWithinRadius(MapLocation center, int radius) {
+    public InternalRobot[] getAllRobotsWithinRadiusSquared(MapLocation center, int radiusSquared) {
         ArrayList<InternalRobot> returnRobots = new ArrayList<InternalRobot>();
-        for (MapLocation newLocation : getAllLocationsWithinRadius(center, radius))
+        for (MapLocation newLocation : getAllLocationsWithinRadiusSquared(center, radiusSquared))
             if (this.robots[newLocation.x][newLocation.y] != null)
                 returnRobots.add(this.robots[newLocation.x][newLocation.y]);
         return returnRobots.toArray(new InternalRobot[returnRobots.size()]);
     }
 
-    public ArrayList<MapLocation> getAllLocationsWithinRadius(MapLocation center, int radius) {
+    public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
         ArrayList<MapLocation> returnLocations = new ArrayList<MapLocation>();
-        int minX = Math.max(center.x - radius, 0);
-        int minY = Math.max(center.y - radius, 0);
-        int maxX = Math.min(center.x + radius, this.gameMap.getWidth() - 1);
-        int maxY = Math.min(center.y + radius, this.gameMap.getHeight() - 1);
+        int minX = Math.max(center.x - radiusSquared, 0);
+        int minY = Math.max(center.y - radiusSquared, 0);
+        int maxX = Math.min(center.x + radiusSquared, this.gameMap.getWidth() - 1);
+        int maxY = Math.min(center.y + radiusSquared, this.gameMap.getHeight() - 1);
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 MapLocation newLocation = new MapLocation(x, y);
-                if (center.isWithinDistance(newLocation, radius))
+                if (center.isWithinDistanceSquared(newLocation, radiusSquared))
                     returnLocations.add(newLocation);
             }
         }
-        return returnLocations;
+        return returnLocations.toArray(new MapLocation[0]);
     }
 
     // *********************************

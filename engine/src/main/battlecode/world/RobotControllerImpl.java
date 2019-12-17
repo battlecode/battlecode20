@@ -161,8 +161,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canSenseRadius(int radius) {
-        return this.robot.canSenseRadius(radius);
+    public boolean canSenseRadiusSquared(int radiusSquared) {
+        return this.robot.canSenseRadiusSquared(radiusSquared);
     }
 
     @Override
@@ -215,8 +215,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team) {
         assertNotNull(center);
-        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadius(center,
-                radius == -1 ? (int) Math.ceil(this.robot.getCurrentSensorRadius()) : radius);
+        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center,
+                radius == -1 ? (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared()) : radius);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
             // check if this robot
@@ -288,9 +288,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     private void assertCanMove(MapLocation loc) throws GameActionException{
-        if(!canMove(loc))
+        if (!getType().canMove())
             throw new GameActionException(CANT_MOVE_THERE,
-                    "Cannot move to the target location " + loc +".");
+                    "Robot is of type " + getType() + " which cannot move.");
+        if (!getLocation().isAdjacentTo(loc))
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Can only move to adjacent locations; " + loc + " is not adjacent to " + getLocation() + ".");
+        if (!onTheMap(loc))
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Can only move to locations on the map; " + loc + " is not on the map.");
+        if (isLocationOccupied(loc))
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Cannot move to an occupied location; " + loc + " is occupied.");
+        if (gameWorld.isFlooded(loc) && !getType().canFly())
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Robot is of type "  + getType() + " which cannot fly over water; " + loc + " is flooded.");
+        if (gameWorld.getDirtDifference(getLocation(), loc) > GameConstants.MAX_DIRT_DIFFERENCE)
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Robot is of type " + getType() + " which cannot fly, and the dirt difference to " + loc + " is " +
+                    gameWorld.getDirtDifference(getLocation(), loc) + " which is higher than the limit of " +
+                    GameConstants.MAX_DIRT_DIFFERENCE + " for non-flying units.");
     }
 
     @Override
@@ -300,13 +317,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canMove(MapLocation center) {
+    public boolean canMove(MapLocation location) {
         try {
-            assertNotNull(center);
-            return getType().canMove() && getLocation().distanceTo(center) <= 1.5 &&
-                onTheMap(center) && !isLocationOccupied(center) &&
-                (getType().canFly() || (gameWorld.getDirtDifference(getLocation(), center)
-                 <= GameConstants.MAX_DIRT_DIFFERENCE && !gameWorld.isFlooded(center)));
+            assertNotNull(location);
+            assertCanMove(location);
+            return true;
         } catch (GameActionException e) { return false; }
     }
 
@@ -589,6 +604,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT,
                     "Cannot pick up the specified unit, possibly due to not being a delivery drone, " +
                     "is already holding a unit, the unit not within pickup distance, or unit can't be picked up.");
+        if (!getType().canPickUpUnits())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Robot is of type " + getType() + " which cannot pick up other units.");
+        if (robot.isCurrentlyHoldingUnit())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Robot is already holding a unit; you can't pick up another one!");
+        if (!isReady())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
+        if (getRobotByID(id) == null)
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "No unit of ID " + id + " exists! Impossible to pick up nonexistent things.");
+        if (!getRobotByID(id).getType().canBePickedUp())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Cannot pick up any unit of type " + getRobotByID(id).getType() + ".");
+        if (!getRobotByID(id).getLocation().isWithinDistanceSquared(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED))
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Cannot pick up unit outside pickup radius; unit is " +
+                    getRobotByID(id).getLocation().distanceSquaredTo(getLocation()) +
+                            " away, but the pickup radius squared is " + GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED);
     }
 
     /**
@@ -601,10 +636,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public boolean canPickUpUnit(int id) {
-        InternalRobot targetRobot = getRobotByID(id);
-        return this.getType().canPickUpUnits() && !this.robot.isCurrentlyHoldingUnit() &&
-               isReady() && targetRobot != null && targetRobot.getType().canBePickedUp() &&
-               targetRobot.getLocation().isWithinDistance(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS);
+        try {
+            assertCanPickUpUnit(id);
+        } catch (GameActionException e) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -730,7 +767,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         InternalRobot targetRobot = getRobotByID(id);
         return this.getType().canShoot() && isReady() && targetRobot != null &&
                targetRobot.getType().canBeShot() &&
-               targetRobot.getLocation().isWithinDistance(getLocation(), GameConstants.NET_GUN_SHOOT_RADIUS);
+               targetRobot.getLocation().isWithinDistanceSquared(getLocation(), GameConstants.NET_GUN_SHOOT_RADIUS_SQUARED);
     }
 
     /**
@@ -772,7 +809,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
     private void assertCanSubmitTransaction(int[] message, int cost) throws GameActionException {
         if (message.length > GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH) {
-            throw new GameActionException(TOO_LONG_BLOCKCHAIN_MESSAGE,
+            throw new GameActionException(TOO_LONG_BLOCKCHAIN_TRANSACTION,
                     "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH) +
                             " integers in one message, not " + Integer.toString(message.length) + ".");
         }

@@ -36,6 +36,10 @@ public enum GameActionExceptionType {
      */
     CANT_DO_THAT,
     /**
+     * Indicates when a robot tries to pick up a unit but can't.
+     */
+    CANT_PICK_UP_UNIT,
+    /**
      * Indicates when a robot tries to perform an action on another robot, but there is
      * no suitable robot there.
      */
@@ -43,7 +47,7 @@ public enum GameActionExceptionType {
     /**
      * Indicates when a robot tries to send too many messages to the blockchain.
      */
-    TOO_LONG_BLOCKCHAIN_MESSAGE,
+    TOO_LONG_BLOCKCHAIN_TRANSACTION,
     /**
      * Indicates when round number is out of range.
      */

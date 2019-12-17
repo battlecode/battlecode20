@@ -15,7 +15,6 @@ battlecode/common/MapLocation/add                                  2    false
 battlecode/common/MapLocation/compareTo                            2    false
 battlecode/common/MapLocation/directionTo                          2    false
 battlecode/common/MapLocation/distanceSquaredTo                    2    false
-battlecode/common/MapLocation/distanceTo                           2    false
 battlecode/common/MapLocation/equals                               2    false
 battlecode/common/MapLocation/hashCode                             2    false
 battlecode/common/MapLocation/isWithinDistance                     2    false
