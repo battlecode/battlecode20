@@ -74,6 +74,23 @@ export interface Config {
    * Whether to display the grid
    */
   showGrid: boolean;
+
+  /**
+   * Viewoption for Dirt
+   */
+  viewDirt: boolean;
+
+  /**
+   * Viewoption for Water
+   */
+  viewWater: boolean;
+
+  /**
+   * Viewoption for Pollution
+   */
+  viewPoll: boolean;
+
+  
 }
 
 /**
@@ -108,5 +125,8 @@ export function defaults(supplied?: any): Config {
     splash: supplied.splash || supplied.matchFileURL == null || true,
     sightRadius: supplied.sightRadius || false,
     showGrid: supplied.showGrid || false,
+    viewDirt: supplied.viewDirt || true,
+    viewWater: supplied.viewDirt || true,
+    viewPoll: supplied.viewDirt || true,
   };
 }

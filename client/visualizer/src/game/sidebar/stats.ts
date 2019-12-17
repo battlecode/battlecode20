@@ -35,6 +35,8 @@ export default class Stats {
 
   private robotConsole: HTMLDivElement;
 
+  private conf: Config;
+
   // Note: robot types and number of teams are currently fixed regardless of
   // match info. Keep in mind if we ever change these, or implement this less
   // statically.
@@ -44,6 +46,7 @@ export default class Stats {
   ];
 
   constructor(conf: Config, images: AllImages, robotConsole: Console) {
+    this.conf = conf;
     this.images = images;
     this.div = document.createElement("div");
 
@@ -262,6 +265,8 @@ export default class Stats {
     pollutionInp.setAttribute("id", "pollutionid");
     pollutionLabel.setAttribute("for", "pollutionid");
     pollutionInp.setAttribute("class", "checkbox");
+    pollutionInp.onclick = () => { this.conf.viewPoll = !this.conf.viewPoll; };
+
     pollutionSpan.innerHTML = "pollution";
     pollutionLabel.appendChild(pollutionInp);
     pollutionLabel.appendChild(pollutionSpan);
@@ -278,6 +283,8 @@ export default class Stats {
     waterInp.setAttribute("id", "waterid");
     waterLabel.setAttribute("for", "waterid");
     waterInp.setAttribute("class", "checkbox");
+    waterInp.onclick = () => { this.conf.viewWater = !this.conf.viewWater; };
+
     waterSpan.innerHTML = "water";
     waterLabel.appendChild(waterInp);
     waterLabel.appendChild(waterSpan);
@@ -294,6 +301,8 @@ export default class Stats {
     dirtInp.setAttribute("id", "dirtid");
     dirtLabel.setAttribute("for", "dirtid");
     dirtInp.setAttribute("class", "checkbox");
+    dirtInp.onclick = () => { this.conf.viewDirt = !this.conf.viewDirt; };
+
     dirtSpan.innerHTML = "dirt";
     dirtLabel.appendChild(dirtInp);
     dirtLabel.appendChild(dirtSpan);
