@@ -163,14 +163,14 @@ public strictfp interface RobotController {
     boolean canSenseLocation(MapLocation loc);
 
     /**
-     * Senses whether a point at the given radius is within the robot's sensor range.
+     * Senses whether a point at the given radius squared is within the robot's sensor range.
      *
-     * @param radius the radius to check
+     * @param radiusSquared the radius to check
      * @return true if the given location is within the robot's sensor range; false otherwise.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canSenseRadius(int radius);
+    boolean canSenseRadiusSquared(int radiusSquared);
 
     /**
      * Senses whether there is a robot at the given location.

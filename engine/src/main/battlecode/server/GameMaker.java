@@ -12,17 +12,11 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.array.TCharArrayList;
-import gnu.trove.map.TObjectByteMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.ToIntFunction;
 import java.util.zip.GZIPOutputStream;
 
@@ -277,8 +271,8 @@ public strictfp class GameMaker {
             BodyTypeMetadata.addDirtLimit(builder, type.dirtLimit);
             BodyTypeMetadata.addSoupLimit(builder, type.soupLimit);
             BodyTypeMetadata.addActionCooldown(builder, type.actionCooldown);
-            BodyTypeMetadata.addSensorRadius(builder, type.sensorRadius);
-            BodyTypeMetadata.addPollutionRadius(builder, type.pollutionRadius);
+            BodyTypeMetadata.addSensorRadius(builder, type.sensorRadiusSquared);
+            BodyTypeMetadata.addPollutionRadius(builder, type.pollutionRadiusSquared);
             BodyTypeMetadata.addPollutionAmount(builder, type.pollutionAmount);
             BodyTypeMetadata.addMaxSoupProduced(builder, type.maxSoupProduced);
             BodyTypeMetadata.addBytecodeLimit(builder, type.bytecodeLimit);

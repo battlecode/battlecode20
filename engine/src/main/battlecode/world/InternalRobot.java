@@ -171,10 +171,11 @@ public strictfp class InternalRobot {
     // **********************************
 
     /**
-     * Returns the robot's current sensor radius as a function of local pollution.
+     * Returns the robot's current sensor radius squared, which is affected
+     * by the current pollution level at the present location.
      */
-    public float getCurrentSensorRadius() {
-        return (float) Math.max(0, this.type.sensorRadius - this.gameWorld.getPollution(getLocation()) / 20.0);
+    public int getCurrentSensorRadiusSquared() {
+        return (int) Math.round(Math.max(0, this.type.sensorRadiusSquared - this.gameWorld.getPollution(getLocation()) / 20.0));
     }
 
     /**
@@ -183,16 +184,16 @@ public strictfp class InternalRobot {
      * @param toSense the MapLocation to sense
      */
     public boolean canSenseLocation(MapLocation toSense){
-        return this.location.distanceTo(toSense) <= getCurrentSensorRadius();
+        return this.location.distanceSquaredTo(toSense) <= getCurrentSensorRadiusSquared();
     }
 
     /**
      * Returns whether this robot can sense something a given radius away.
      * 
-     * @param radius the distance to sense
+     * @param radiusSquared the distance squared to sense
      */
-    public boolean canSenseRadius(int radius) {
-        return radius <= getCurrentSensorRadius();
+    public boolean canSenseRadiusSquared(int radiusSquared) {
+        return radiusSquared <= getCurrentSensorRadiusSquared();
     }
 
     // ******************************************
@@ -292,9 +293,9 @@ public strictfp class InternalRobot {
     public void processEndOfTurn() {
         // If refinery/vaporator/hq, produces pollution
         if (this.type.canProduceSoupAndPollution() && this.producedSoup) {
-            ArrayList<MapLocation> withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadius(
+            MapLocation[] withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadiusSquared(
                                                                 this.location, 
-                                                                this.type.pollutionRadius);
+                                                                this.type.pollutionRadiusSquared);
             int pollutionAmount = this.type.pollutionAmount;
             for (MapLocation pollutionLocation : withinPollutionRadius)
                 this.gameWorld.adjustPollution(pollutionLocation, pollutionAmount);
