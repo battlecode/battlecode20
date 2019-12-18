@@ -7,6 +7,7 @@ type Image = HTMLImageElement;
 export type AllImages = {
   background: Image, 
   star: Image,
+  soup: Image,
   cow: Image,
   robot: {
     netGun: Array<Image>,
@@ -38,7 +39,20 @@ export type AllImages = {
 
 export function loadAll(config: Config, finished: (AllImages) => void) {
   let expected = 0, loaded = 0;
-  let result: any = {robot: {netGun: [], landscaper: [], miner: [], fulfillmentCenter: [], drone: {empty: [], carry: []}, designSchool: [], refinery: [], vaporator: [], HQ: []}, controls: {}};
+  let result: any = {
+    robot: {
+      netGun: [],
+      landscaper: [],
+      miner: [],
+      fulfillmentCenter: [],
+      drone: {empty: [], carry: []},
+      designSchool: [],
+      refinery: [],
+      vaporator: [],
+      HQ: []
+    },
+    controls: {}
+  };
 
   // write loaded image to obj[slot]
   function img(obj, slot, url) {
@@ -72,6 +86,7 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   img(result, 'background', require(dirname + 'map/tiled_1.jpg'));
   img(result, 'unknown', require(dirname + 'sprites/unknown.png'));
   img(result, 'star', require(dirname + 'yellow_star.png'));
+  img(result, 'soup', require(dirname + 'soup.png'));
   img(result, 'cow', require(dirname + 'sprites/Cow.png'));
 
 

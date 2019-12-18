@@ -338,9 +338,9 @@ export default class Client {
         throw new Error("teamStats is undefined??? figure this out NOW")
       }
 
-      // Update the bullets and victory points
-      // this.stats.setBullets(teamID, (teamStats as TeamStats).bullets);
-      // this.stats.setVPs(teamID, (teamStats as TeamStats).vps);
+      // Update the Soup
+      this.stats.setSoups(teamID, (teamStats as TeamStats).soup);
+      if(teamStats.soup < 0){ console.log("Soup is negative!!!"); }
 
       // Update each robot count
       this.stats.robots.forEach((type: schema.BodyType) => {
