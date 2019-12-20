@@ -35,6 +35,8 @@ export default class Stats {
 
   private robotConsole: HTMLDivElement;
 
+  private conf: Config;
+
   // Note: robot types and number of teams are currently fixed regardless of
   // match info. Keep in mind if we ever change these, or implement this less
   // statically.
@@ -44,6 +46,7 @@ export default class Stats {
   ];
 
   constructor(conf: Config, images: AllImages, robotConsole: Console) {
+    this.conf = conf;
     this.images = images;
     this.div = document.createElement("div");
 
@@ -177,6 +180,9 @@ export default class Stats {
     this.robotTds = {};
     // this.statBars = new Map<number, { bullets: StatBar, vps: StatBar }>();
 
+    // Add view toggles
+    this.div.append(this.addViewOptions());
+    
     // Populate with new info
     // Add a section to the stats bar for each team in the match
     for (var index = 0; index < teamIDs.length; index++) {
@@ -242,6 +248,67 @@ export default class Stats {
     let consoleDiv = document.createElement("div");
     consoleDiv.append(this.robotConsole);
     this.div.appendChild(consoleDiv);
+  }
+
+  addViewOptions(){
+    let viewOptionForm = document.createElement("form");
+    viewOptionForm.setAttribute("id", "viewoptionformid");
+    
+    let pollutionInp = document.createElement("input");
+    let pollutionLabel = document.createElement("label");
+    let pollutionSpan = document.createElement("span");
+    pollutionSpan.setAttribute("class", "viewspan");
+    pollutionInp.checked = true;
+    pollutionInp.setAttribute("type", "checkbox");
+    pollutionInp.setAttribute("name", "view");
+    pollutionInp.setAttribute("value", "pollution");
+    pollutionInp.setAttribute("id", "pollutionid");
+    pollutionLabel.setAttribute("for", "pollutionid");
+    pollutionInp.setAttribute("class", "checkbox");
+    pollutionInp.onclick = () => { this.conf.viewPoll = !this.conf.viewPoll; };
+
+    pollutionSpan.innerHTML = "pollution";
+    pollutionLabel.appendChild(pollutionInp);
+    pollutionLabel.appendChild(pollutionSpan);
+    viewOptionForm.appendChild(pollutionLabel);
+
+    let waterInp = document.createElement("input");
+    let waterLabel = document.createElement("label");
+    let waterSpan = document.createElement("span");
+    waterSpan.setAttribute("class", "viewspan");
+    waterInp.checked = true;
+    waterInp.setAttribute("type", "checkbox");
+    waterInp.setAttribute("name", "view");
+    waterInp.setAttribute("value", "water");
+    waterInp.setAttribute("id", "waterid");
+    waterLabel.setAttribute("for", "waterid");
+    waterInp.setAttribute("class", "checkbox");
+    waterInp.onclick = () => { this.conf.viewWater = !this.conf.viewWater; };
+
+    waterSpan.innerHTML = "water";
+    waterLabel.appendChild(waterInp);
+    waterLabel.appendChild(waterSpan);
+    viewOptionForm.appendChild(waterLabel);
+
+    let dirtInp = document.createElement("input");
+    let dirtLabel = document.createElement("label");
+    let dirtSpan = document.createElement("span");
+    dirtSpan.setAttribute("class", "viewspan");
+    dirtInp.checked = true;
+    dirtInp.setAttribute("type", "checkbox");
+    dirtInp.setAttribute("name", "view");
+    dirtInp.setAttribute("value", "dirt");
+    dirtInp.setAttribute("id", "dirtid");
+    dirtLabel.setAttribute("for", "dirtid");
+    dirtInp.setAttribute("class", "checkbox");
+    dirtInp.onclick = () => { this.conf.viewDirt = !this.conf.viewDirt; };
+
+    dirtSpan.innerHTML = "dirt";
+    dirtLabel.appendChild(dirtInp);
+    dirtLabel.appendChild(dirtSpan);
+    viewOptionForm.appendChild(dirtLabel);
+
+    return viewOptionForm;
   }
 
   /**

@@ -46,11 +46,6 @@ export interface Config {
   interpolate: boolean;
 
   /**
-   * Whether or not to display health bars
-   */
-  healthBars: boolean;
-
-  /**
    * Whether or not to draw a circle under each robot
    */
   circleBots: boolean;
@@ -74,6 +69,28 @@ export interface Config {
    * Whether to display the splash screen.
    */
   splash: boolean;
+
+  /**
+   * Whether to display the grid
+   */
+  showGrid: boolean;
+
+  /**
+   * Viewoption for Dirt
+   */
+  viewDirt: boolean;
+
+  /**
+   * Viewoption for Water
+   */
+  viewWater: boolean;
+
+  /**
+   * Viewoption for Pollution
+   */
+  viewPoll: boolean;
+
+  
 }
 
 /**
@@ -101,12 +118,15 @@ export function defaults(supplied?: any): Config {
     websocketURL: supplied.websocketURL || null,
     matchFileURL: supplied.matchFileURL || null,
     pollEvery: supplied.pollEvery || 500,
-    interpolate: supplied.interpolate || true,
-    healthBars: supplied.healthBars || true,
+    interpolate: supplied.interpolate || false,
     circleBots: supplied.circleBots || false,
     indicators: supplied.indicators || true,
     mode: supplied.mode || Mode.QUEUE,
     splash: supplied.splash || supplied.matchFileURL == null || true,
     sightRadius: supplied.sightRadius || false,
+    showGrid: supplied.showGrid || false,
+    viewDirt: supplied.viewDirt || true,
+    viewWater: supplied.viewDirt || true,
+    viewPoll: supplied.viewDirt || true,
   };
 }

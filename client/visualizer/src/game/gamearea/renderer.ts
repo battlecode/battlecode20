@@ -21,7 +21,7 @@ export default class Renderer {
 
   // Callbacks
   readonly onRobotSelected: (id: number) => void;
-  readonly onMouseover: (x: number, y: number) => void;
+  readonly onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number, soup: number) => void;
 
   // For rendering robot information on click
   private lastSelectedID: number;
@@ -31,7 +31,7 @@ export default class Renderer {
 
   constructor(canvas: HTMLCanvasElement, imgs: AllImages, conf: config.Config, metadata: Metadata,
     onRobotSelected: (id: number) => void,
-    onMouseover: (x: number, y: number) => void) {
+    onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number, soup: number) => void) {
     this.canvas = canvas;
     this.conf = conf;
     this.imgs = imgs;
@@ -50,7 +50,6 @@ export default class Renderer {
 
     // TODO: can this be null???
     this.bgPattern = this.ctx.createPattern(imgs.background, 'repeat')!;
-    //this.treeMedHealth = metadata.types[schema.BodyType.TREE_NEUTRAL].maxHealth / 2;
   }
 
   /**
@@ -72,7 +71,6 @@ export default class Renderer {
     this.renderBackground(world);
 
     this.renderBodies(world, nextStep, lerpAmount);
-    // this.renderBullets(world, lerpAmount);
 
     this.renderIndicatorDotsLines(world);
     this.setMouseoverEvent(world);
@@ -89,8 +87,13 @@ export default class Renderer {
   }
 
   private renderBackground(world: GameWorld) {
+    let dirtLayer = this.conf.viewDirt;
+    let waterLayer = this.conf.viewWater;
+    let pollutionLayer = this.conf.viewPoll;
+
     this.ctx.save();
-    this.ctx.fillStyle = this.bgPattern;
+    this.ctx.fillStyle = "white";
+    this.ctx.globalAlpha = 1;
 
     const minX = world.minCorner.x;
     const minY = world.minCorner.y;
@@ -104,13 +107,81 @@ export default class Renderer {
     // scale the background pattern
     this.ctx.fillRect(minX*scale, minY*scale, width*scale, height*scale);
 
-    // const map = world.mapStats;
-    // this.ctx.fillStyle = 'blue';
-    // for(let i=0; i<width; i++) for(let j=0; j<height; j++){
-    //   if(map.water[map.getIdx(i,j)] > 0){
-    //     this.ctx.fillRect((minX+i)*scale, (minY+j)*scale, (minX+i+1)*scale, (minY+j+1)*scale);
-    //   }
-    // }
+    const map = world.mapStats;
+
+    // TODO use color pacakge for nicer manipulation?
+    const getDirtColor = (x: number): string => {
+      /*
+      // -inf > 'rgba(89,156,28,1)'
+      // inf -> 'rgba(156,28,28,1)'
+      */
+      // -inf-> 'rgba(0,255,0,0.7)'
+      // inf -> 'rgba(255,0,0,0.7)'
+
+      const lo = [0,255,0], hi = [255,0,0];
+
+      // (-inf~inf) -> (0~1)
+      // TODO getting inputs for color transition?
+      const ex = Math.exp(x / 10);
+      const t = ex / (5 + ex);
+
+      let now = [0,0,0];
+      for(let i=0; i<3; i++) now[i] = (hi[i]-lo[i]) * t + lo[i];
+
+      return `rgba(${now[0]},${now[1]},${now[2]},0.7)`;
+    }
+    
+    const getSoupColor = (s: number): string => {
+      // TODO is this in right dimention?
+      if (s <= 50)  return 'white';
+      if (s <= 100) return 'yellow';
+      return 'orange';
+    }
+
+
+    for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
+      let idxVal = map.getIdx(i,j);
+      let plotJ = height-j-1;
+
+      const cx = (minX+i)*scale, cy = (minY+plotJ)*scale;
+
+      this.ctx.fillStyle = 'white';
+      this.ctx.globalAlpha = 1;
+
+
+      if (dirtLayer) {// && (map.dirt[idxVal] > 0)) {
+        // dirt should be a gradient from green to red depending on elevation
+        let thisrgbcolor: string = getDirtColor(map.dirt[idxVal]);
+        this.ctx.fillStyle = thisrgbcolor;
+      }
+
+      if (waterLayer && (map.flooded[idxVal] > 0)){
+        // water should always be the same color
+        this.ctx.fillStyle = 'rgba(0,0,255,1.0)';
+      }
+
+      // water covers dirt; we can fill only once
+      this.ctx.fillRect(cx, cy, scale, scale);
+
+      if (pollutionLayer) {
+        // pollution should add a clouds that are black with some opacity
+        this.ctx.fillStyle = 'black';
+        this.ctx.globalAlpha = map.pollution[idxVal] / 1000.0;
+        this.ctx.fillRect(cx, cy, scale, scale);
+      }
+
+      if (map.soup[idxVal] != 0){
+        this.ctx.fillStyle = getSoupColor(map.soup[idxVal]);
+        this.ctx.globalAlpha = 1;
+        this.ctx.fillRect(cx+scale/3, cy+scale/3, scale/3, scale/3);
+      }
+
+      if (this.conf.showGrid) {
+        this.ctx.strokeStyle = 'gray';
+        this.ctx.globalAlpha = 1;
+        this.ctx.strokeRect(cx, cy, scale, scale);
+      }
+    }
 
     this.ctx.restore();
   }
@@ -125,29 +196,30 @@ export default class Renderer {
     const xs = bodies.arrays.x;
     const ys = bodies.arrays.y;
     const minY = world.minCorner.y;
-    const maxY = world.maxCorner.y;
+    const maxY = world.maxCorner.y -1;
 
     let nextXs: Int32Array, nextYs: Int32Array, realXs: Int32Array, realYs: Int32Array;
-    if (nextStep) {
-      // Interpolated
+    if (nextStep && lerpAmount) {
+      // Interpolated (not going to happen in 2019)
       nextXs = nextStep.bodies.arrays.x;
       nextYs = nextStep.bodies.arrays.y;
       lerpAmount = lerpAmount || 0;
     }
     else{
       // supposed to be error?
-      console.log("Error in renderer.ts");
-      return;
+      // console.log("Error in renderer.ts");
+      // return;
     }
 
     // Calculate the real xs and ys
     realXs = new Int32Array(length)
     realYs = new Int32Array(length)
     for (let i = 0; i < length; i++) {
-      if (nextStep && lerpAmount) {
+      if (nextStep && lerpAmount && false) {
         // Interpolated
-        realXs[i] = xs[i] + (nextXs[i] - xs[i]) * lerpAmount;
-        realYs[i] = this.flip(ys[i] + (nextYs[i] - ys[i]) * lerpAmount, minY, maxY);
+        console.log("This should not be executed");
+        // realXs[i] = xs[i] + (nextXs[i] - xs[i]) * lerpAmount;
+        // realYs[i] = this.flip(ys[i] + (nextYs[i] - ys[i]) * lerpAmount, minY, maxY);
       } else {
         // Not interpolated
         realXs[i] = xs[i];
@@ -165,20 +237,11 @@ export default class Renderer {
 
       if (type === cst.COW) {
         const img = this.imgs.cow;
-        this.drawCircleBot(x, y, radius);
-        this.drawImage(img, x, y, radius);
-        // this.drawGoodies(x, y, radius, treeBullets[i], treeBodies[i]);
-        // this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
-          // world.minCorner, world.maxCorner);
+        // this.drawCircleBot(x, y, radius);
+        // this.drawImage(img, x, y, radius);
+        this.drawBot(img, x, y);
       }
 
-      // if (type === cst.COW) {
-      //   const img = this.imgs.robot.bulletTree[team];
-      //   this.drawCircleBot(x, y, radius);
-      //   this.drawImage(img, x, y, radius);
-      //   this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
-      //     world.minCorner, world.maxCorner);
-      // }
     }
 
     // Render the robots
@@ -198,10 +261,9 @@ export default class Renderer {
         }
 
         const img = tmp[team];
-        this.drawCircleBot(x, y, radius);
-        this.drawImage(img, x, y, radius);
-        // this.drawHealthBar(x, y, radius, healths[i], maxHealths[i],
-        //   world.minCorner, world.maxCorner);
+        // this.drawCircleBot(x, y, radius);
+        // this.drawImage(img, x, y, radius);
+        this.drawBot(img, x, y);
         
         // Draw the sight radius if the robot is selected
         if (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID) {
@@ -210,7 +272,7 @@ export default class Renderer {
       }
     }
 
-    this.setInfoStringEvent(world, realXs, realYs);
+    this.setInfoStringEvent(world, xs, ys);
   }
 
   /**
@@ -254,23 +316,7 @@ export default class Renderer {
       this.ctx.stroke();
     }
 
-    // if (this.conf.bulletSightRadius) {
-    //   const bulletSightRadius = this.metadata.types[type].bulletSightRadius;
-    //   this.ctx.beginPath();
-    //   this.ctx.arc(x, y, bulletSightRadius, 0, 2 * Math.PI);
-    //   this.ctx.strokeStyle = "#ff8e00";
-    //   this.ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH;
-    //   this.ctx.stroke();
-    // }
   }
-
-  /**
-   * Draws goodies centered at (x, y) with the given radius, if there are any
-   */
-  // private drawGoodies(x: number, y: number, radius: number, bullets: number, body: schema.BodyType) {
-  //   if (bullets > 0) this.drawImage(this.imgs.tree.bullets, x, y, radius);
-  //   if (body !== cst.NONE) this.drawImage(this.imgs.tree.robot, x, y, radius);
-  // }
 
   /**
    * Draws an image centered at (x, y) with the given radius
@@ -280,29 +326,11 @@ export default class Renderer {
   }
 
   /**
-   * Draws a health bar for a unit centered at (xRobot, yRobot) with the given
-   * radius, health, and maxHealth
+   * Draws a bot at (x, y)
    */
-  // private drawHealthBar(xRobot: number, yRobot: number, radius: number,
-  //   health: number, maxHealth: number, minCorner: Victor, maxCorner: Victor) {
-  //   if (!this.conf.healthBars) return; // skip if the option is turned off
-
-  //   let x = xRobot - cst.HEALTH_BAR_WIDTH_HALF;
-  //   let y = yRobot + radius;
-
-  //   let minX = minCorner.x;
-  //   let maxX = maxCorner.x - cst.HEALTH_BAR_WIDTH;
-  //   let maxY = maxCorner.y - cst.HEALTH_BAR_HEIGHT;
-  //   x = Math.max(minX, Math.min(x, maxX));
-  //   y = Math.min(maxY, y);
-
-  //   this.ctx.fillStyle = "green"; // current health
-  //   this.ctx.fillRect(x, y, cst.HEALTH_BAR_WIDTH * health / maxHealth,
-  //     cst.HEALTH_BAR_HEIGHT);
-  //   this.ctx.strokeStyle = "black"; // outline
-  //   this.ctx.lineWidth = .1;
-  //   this.ctx.strokeRect(x, y, cst.HEALTH_BAR_WIDTH, cst.HEALTH_BAR_HEIGHT);
-  // }
+  private drawBot(img: HTMLImageElement, x: number, y: number) {
+    this.ctx.drawImage(img, x, y, 1, 1);
+  }
 
   private setInfoStringEvent(world: GameWorld,
     xs: Int32Array, ys: Int32Array) {
@@ -316,18 +344,16 @@ export default class Renderer {
     const onRobotSelected = this.onRobotSelected;
 
     this.canvas.onmousedown = (event: MouseEvent) => {
-      let x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
-      let y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
+      const {x, y} = this.getIntegerLocation(event, world);
+      // console.log(x);
+      // console.log(y);
 
       // Get the ID of the selected robot
       let selectedRobotID;
       for (let i in ids) {
-        // let radius = radii[i];
-        let radius = 1;
-        let type = types[i];
-        let inXRange: boolean = xs[i] - radius <= x && x <= xs[i] + radius;
-        let inYRange: boolean = ys[i] - radius <= y && y <= ys[i] + radius;
-        if (inXRange && inYRange) {
+        // TODO: hi
+        console.log(xs[i] + ',' + ys[i]);
+        if (xs[i] == x && ys[i] == y) {
           selectedRobotID = ids[i];
           break;
         }
@@ -341,55 +367,34 @@ export default class Renderer {
 
   private setMouseoverEvent(world: GameWorld) {
     // world information
-    const width = world.maxCorner.x - world.minCorner.x;
-    const height = world.maxCorner.y - world.minCorner.y;
+    // const width = world.maxCorner.x - world.minCorner.x;
+    // const height = world.maxCorner.y - world.minCorner.y;
     const onMouseover = this.onMouseover;
-    const minY = world.minCorner.y;
-    const maxY = world.maxCorner.y;
+    // const minY = world.minCorner.y;
+    // const maxY = world.maxCorner.y - 1;
 
     this.canvas.onmousemove = (event) => {
-      const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
-      const y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
+      // const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
+      // const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
+      // const y = this.flip(_y, minY, maxY)
 
       // Set the location of the mouseover
-      onMouseover(x, this.flip(y, minY, maxY));
+      const {x, y} = this.getIntegerLocation(event, world);
+      const idx = world.mapStats.getIdx(x, y);
+      onMouseover(x, y, world.mapStats.dirt[idx], world.mapStats.flooded[idx], world.mapStats.pollution[idx], world.mapStats.soup[idx]);
     };
   }
 
-  // private renderBullets(world: GameWorld, lerpAmount: number | undefined=0) {
-  //   const bullets = world.bullets;
-  //   const length = bullets.length;
-  //   const xs = bullets.arrays.x;
-  //   const ys = bullets.arrays.y;
-  //   const velXs = bullets.arrays.velX;
-  //   const velYs = bullets.arrays.velY;
-  //   const spawnedTimes = bullets.arrays.spawnedTime;
-  //   const minY = world.minCorner.y;
-  //   const maxY = world.maxCorner.y;
-
-  //   for (let i = 0; i < length; i++) {
-  //     const velX = velXs[i];
-  //     const velY = velYs[i];
-
-  //     const dt = (world.turn + lerpAmount) - spawnedTimes[i];
-
-  //     const x = xs[i] + velX*dt;
-  //     const y = this.flip(ys[i] + velY*dt, minY, maxY);
-
-  //     const speedsq = velX*velX + velY*velY;
-
-  //     let img;
-  //     if (speedsq >= cst.HIGH_SPEED_THRESH) {
-  //       img = this.imgs.bullet.fast;
-  //     } else if (speedsq >= cst.MED_SPEED_THRESH) {
-  //       img = this.imgs.bullet.medium;
-  //     } else {
-  //       img = this.imgs.bullet.slow;
-  //     }
-
-  //     this.drawImage(img, x, y, cst.BULLET_SIZE_HALF);
-  //   }
-  // }
+  private getIntegerLocation(event: MouseEvent, world: GameWorld) {
+    const width = world.maxCorner.x - world.minCorner.x;
+    const height = world.maxCorner.y - world.minCorner.y;
+    const minY = world.minCorner.y;
+    const maxY = world.maxCorner.y - 1;
+    const x = width * event.offsetX / this.canvas.offsetWidth + world.minCorner.x;
+    const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
+    const y = this.flip(_y, minY, maxY)
+    return {x: Math.floor(x), y: Math.floor(y+1)};
+  }
 
   private renderIndicatorDotsLines(world: GameWorld) {
     if (!this.conf.indicators) {
@@ -407,7 +412,7 @@ export default class Renderer {
     const dotsGreen = dots.arrays.green;
     const dotsBlue = dots.arrays.blue;
     const minY = world.minCorner.y;
-    const maxY = world.maxCorner.y;
+    const maxY = world.maxCorner.y - 1;
 
     for (let i = 0; i < dots.length; i++) {
       if (this.lastSelectedID === undefined || dotsID[i] === this.lastSelectedID) {

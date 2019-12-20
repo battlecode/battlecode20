@@ -2,6 +2,7 @@
 node_modules
 *__pycache__*
 *.pyc
+.vscode/
 venv/
 docker-compose.prod.yml
 
@@ -48,3 +49,9 @@ tags
 
 ### Distribution
 temp-dist
+
+### Javadoc
+battlecode-javadoc-*
+
+### test bots
+battlecode20-internal-test-bots

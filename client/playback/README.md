@@ -10,11 +10,11 @@ Before you commit, **please run** `npm run build` and commit the changes in the 
 This is a slightly painful fact due to typescript, sorry.
 
 
-### Scripts
+### NPM Scripts
 Remember to run `npm install` without any serious errors in this directory.
 
  * `npm run build`: Compile typescript files (`src/*.ts`) into javascript & typescript declaration files. (`out/*.js`, `out/*.d.ts`)
- * `npm run gen`: Generate dummy bc20 files. It runs typescript without transcripting into javascript, by using `ts-node`.
+ * `npm run gen`: Generate dummy bc20 files. It runs typescript without transcripting into javascript, by using `ts-node`. (`../examples`)
  * `npm run clean`: Simply remove itself and everything in `out` directory.
  * `npm run watch`: Watch for chanages on `src/*.ts` files, and build again whenever change is detected.
 

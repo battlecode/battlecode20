@@ -31,8 +31,11 @@ public interface GameConstants {
     // ****** GAME PARAMETERS **********
     // *********************************
 
-    /** The initial amount of soup each team gets. */
-    int INITIAL_SOUP = 1000;
+    /** The initial amount of soup each team starts off with. */
+    int INITIAL_SOUP = 100;
+
+    /** The amount of soup each team receives per turn. */
+    int BASE_INCOME_PER_ROUND = 1;
 
     /** The number of indicator strings that a player can associate with a robot. */
     int NUMBER_OF_INDICATOR_STRINGS = 3;
@@ -54,18 +57,21 @@ public interface GameConstants {
     // ****** ATTACKING ****************
     // *********************************
 
-    /** The radius that delivery drones can pick up in */
-    int DELIVERY_DRONE_PICKUP_RADIUS = 2;
+    /** The radius that delivery drones can pick up. */
+    int DELIVERY_DRONE_PICKUP_RADIUS_SQUARED = 2;
+
+    /** The radius that net guns can shoot. */
+    int NET_GUN_SHOOT_RADIUS_SQUARED = 3;
 
     // *********************************
-    // ****** MISCELLANEOUS ************
+    // ****** BLOCKCHAINNNN ************
     // *********************************
 
     /** The maximum number of integers that can be sent in one message. */
-    int MAX_BLOCKCHAIN_MESSAGE_LENGTH = 10;
+    int MAX_BLOCKCHAIN_TRANSACTION_LENGTH = 10;
 
-    /** The number of messages that get broadcasted every turn. */
-    int NUMBER_OF_BROADCASTED_MESSAGES = 10;
+    /** The number of transactions that get broadcasted every round. */
+    int NUMBER_OF_TRANSACTIONS_PER_BLOCK = 10;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
@@ -75,5 +81,5 @@ public interface GameConstants {
     int GAME_DEFAULT_SEED = 6370;
 
     /** The default game maxiumum number of rounds. **/
-    int GAME_DEFAULT_ROUNDS = 3000;
+    int GAME_DEFAULT_ROUNDS = 500;
 }

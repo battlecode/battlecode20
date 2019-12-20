@@ -30,6 +30,9 @@ export default class Match {
      * Snapshots of the game world.
      * [0] is round 0 (the one stored in the GameMap), [1] is round
      * snapshotEvery * 1, [2] is round snapshotEvery * 2, etc.
+     *
+     * By this, we can quickly navigate to arbitrary time
+     * Saving game world for all round will use too much memory
      */
     readonly snapshots: Array<GameWorld>;
     /**
@@ -104,7 +107,7 @@ export default class Match {
      * if we don't have deltas to it, we can't.
      * If we can, each call to compute() will update state until current.turn === seekTo
      */
-    seek(round: number): boolean;
+    seek(round: number): void;
     /**
      * Perform computations for some amount of time.
      * We try to overshoot timeGoal as little as possible; however, if turn applications start taking a long time, we may overshoot it arbitrarily far.

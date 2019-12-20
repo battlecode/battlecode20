@@ -205,9 +205,8 @@ public strictfp class Server implements Runnable {
                           GameMaker gameMaker) throws Exception {
 
         final String mapName = currentGame.getMaps()[matchIndex];
-        // GenerateMaps.makeSimple(); // uncomment this to create a map! (the build will fail but still create the map)
-        // Load the map for the match
         final LiveMap loadedMap;
+
         try {
             loadedMap = GameMapIO.loadMap(mapName, new File(options.get("bc.game.map-path")));
             debug("running map " + loadedMap);
@@ -266,8 +265,6 @@ public strictfp class Server implements Runnable {
 
         double timeDiff = (System.currentTimeMillis() - startTime) / 1000.0;
         debug(String.format("match completed in %.4g seconds", timeDiff));
-
-
         return currentWorld.getWinner();
     }
 
@@ -346,17 +343,23 @@ public strictfp class Server implements Runnable {
         DominationFactor dom = stats.getDominationFactor();
 
         switch (dom) {
-            // case PHILANTROPIED:
-            //     sb.append("The winning team won by reaching "+GameConstants.VICTORY_POINTS_TO_WIN+" victory points.");
-            //     break;
-            case DESTROYED:
-                sb.append("The winning team won by destruction.");
+            case HQ_DESTROYED:
+                sb.append("The winning team won by enemy HQ being destroyed.");
                 break;
-            case PWNED:
-                sb.append("The winning team won on tiebreakers (more victory points).");
+            case QUANTITY_OVER_QUALITY:
+                sb.append("The winning team won on tiebreakers (more robots).");
+                break;
+            case QUALITY_OVER_QUANTITY:
+                sb.append("The winning team won on tiebreakers (higher net worth: soup + soup cost of robots).");
+                break;
+            case GOSSIP_GIRL:
+                sb.append("The winning team won on tiebreakers (more successful broadcasts).");
+                break;
+            case HIGHBORN:
+                sb.append("The winning team won arbitrarily (highest robot ID).");
                 break;
             case WON_BY_DUBIOUS_REASONS:
-                sb.append("The winning team won arbitrarily (highest robot ID).");
+                sb.append("The winning team won arbitrarily (coin flip).");
                 break;
         }
 

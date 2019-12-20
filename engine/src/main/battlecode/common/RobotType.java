@@ -10,38 +10,38 @@ public enum RobotType {
      * The base produces miners, is also a net gun and a refinery.
      * @battlecode.doc.robottype
      */
-    HQ                      (null,  0,  0,  0,  0,  7,  4,  1,  1,  10,  15000),
+    HQ                      (null,  0,  0,  0,  1,  7,  4,  1,  1,  10,  15000),
     //                       SS     C   DL  SL  AC  SR  PR  PA  GP  MS   BL
     /**
      * Miners extract crude soup and bring it to the refineries.
      *
      * @battlecode.doc.robottype
      */
-    MINER                   (HQ,  10,  0,  40,  2,  8,  0,  0,  0,  0,  15000), // chef?
+    MINER                   (HQ,  10,  0,  40,  1,  8,  0,  0,  0,  0,  15000), // chef?
     //                       SS   C    DL  SL   AC  SR  PR  PA  GP  MS  BL
     /**
      * Refineries turn crude soup into refined soup, and produce pollution.
      * @battlecode.doc.robottype
      */
-    REFINERY                (MINER,  20,  0,  0,  0,  5,  4,  1,  1,  10,  15000),
+    REFINERY                (MINER,  20,  0,  0,  1,  5,  4,  1,  1,  10,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS   BL
     /**
      * Vaporators reduce pollution.
      * @battlecode.doc.robottype
      */
-    VAPORATOR               (MINER,  20,  0,  0,  0,  5,  4,  -1,  -1,  5,  15000),
+    VAPORATOR               (MINER,  20,  0,  0,  1,  5,  4,  -1,  -1,  5,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA   GP   MS  BL
     /**
      * Design schools create landscapers.
      * @battlecode.doc.robottype
      */
-    DESIGN_SCHOOL           (MINER,  20,  0,  0,  0,  5,  0,  0,  0,  0,  15000),
+    DESIGN_SCHOOL           (MINER,  20,  0,  0,  1,  5,  0,  0,  0,  0,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Fulfillment centers create drones.
      * @battlecode.doc.robottype
      */
-    FULFILLMENT_CENTER      (MINER,  20,  0,  0,  0,  5,  0,  0,  0,  0,  15000),
+    FULFILLMENT_CENTER      (MINER,  20,  0,  0,  1,  5,  0,  0,  0,  0,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Landscapers take dirt from adjacent (decreasing the elevation)
@@ -49,25 +49,25 @@ public enum RobotType {
      * into water (increasing the elevation).
      * @battlecode.doc.robottype
      */
-    LANDSCAPER              (DESIGN_SCHOOL,  10,  40,  0,  4,  4,  0,  0,  0,  0,  15000),
+    LANDSCAPER              (DESIGN_SCHOOL,  10,  40,  0,  1,  4,  0,  0,  0,  0,  15000),
     //                       SS              C    DL   SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Drones pick up any unit and drop them somewhere else.
      * @battlecode.doc.robottype
      */
-    DELIVERY_DRONE          (FULFILLMENT_CENTER,  10,  0,  0,  8,  4,  0,  0,  0,  0,  15000),
+    DELIVERY_DRONE          (FULFILLMENT_CENTER,  10,  0,  0,  1,  4,  0,  0,  0,  0,  15000),
     //                       SS                   C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Net guns shoot down drones.
      * @battlecode.doc.robottype
      */
-    NET_GUN                 (MINER,  7,  0,  0,  5,  6,  0,  0,  0,  0,  15000),
+    NET_GUN                 (MINER,  7,  0,  0,  1,  6,  0,  0,  0,  0,  15000),
     //                       SS      C   DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    COW                     (null,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0),
+    COW                     (null,  0,  0,  0,  1,  8,  0,  0,  0,  0,  0),
     //                       SS     C   DL  SL  AC  SR  PR  PA  GP  MS  BL
     ;
     
@@ -95,17 +95,17 @@ public enum RobotType {
      * Cooldown turns for how long before a robot can take 
      * action (build, move, dig, drop, mine, shoot) again.
      */
-    public final int actionCooldown;
+    public final float actionCooldown;
 
     /**
      * Range for sensing robots and trees.
      */
-    public final int sensorRadius;
+    public final int sensorRadiusSquared;
 
     /**
      * How many units a cow pollutes.
      */
-    public final int pollutionRadius;
+    public final int pollutionRadiusSquared;
 
     /**
      * Amount of pollution created when refining soup.
@@ -131,7 +131,8 @@ public enum RobotType {
     /**
      * Returns whether the robot can build buildings.
      *
-     * @return whether the robot can build.
+     * @param type the RobotType of the robot to get information on
+     * @return whether the robot can build
      */
     public boolean canBuild(RobotType type) {
         return this == type.spawnSource;
@@ -140,7 +141,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can produce soup.
      *
-     * @return whether the robot can produce soup.
+     * @return whether the robot can produce soup
      */
     public boolean canProduceSoupAndPollution() {
         return this == REFINERY || this == VAPORATOR || this == HQ;
@@ -149,16 +150,25 @@ public enum RobotType {
     /**
      * Returns whether the robot can move.
      *
-     * @return whether the robot can move.
+     * @return whether the robot can move
      */
     public boolean canMove() {
         return this == MINER || this == LANDSCAPER || this == DELIVERY_DRONE || this == COW;
     }
 
     /**
+     * Returns whether the robot can fly.
+     *
+     * @return whether the robot can fly
+     */
+    public boolean canFly() {
+        return this == DELIVERY_DRONE;
+    }
+
+    /**
      * Returns whether the robot can dig.
      *
-     * @return whether the robot can dig.
+     * @return whether the robot can dig
      */
     public boolean canDig() {
         return this == LANDSCAPER;
@@ -167,7 +177,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can deposit dirt.
      *
-     * @return whether the robot can deposit dirt.
+     * @return whether the robot can deposit dirt
      */
     public boolean canDeposit() {
         return this == LANDSCAPER;
@@ -176,7 +186,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can mine.
      *
-     * @return whether the robot can mine.
+     * @return whether the robot can mine
      */
     public boolean canMine() {
         return this == MINER;
@@ -185,7 +195,7 @@ public enum RobotType {
     /**
      * Returns whether the robot can refine.
      *
-     * @return whether the robot can refine.
+     * @return whether the robot can refine
      */
     public boolean canRefine() {
         return this == MINER;
@@ -194,25 +204,43 @@ public enum RobotType {
     /**
      * Returns whether the robot can shoot drones.
      *
-     * @return whether the robot can shoot.
+     * @return whether the robot can shoot
      */
     public boolean canShoot() {
-        return this == NET_GUN;
+        return this == NET_GUN || this == HQ;
+    }
+
+    /**
+     * Returns whether the robot can be shot.
+     *
+     * @return whether the robot can be shot
+     */
+    public boolean canBeShot() {
+        return this == DELIVERY_DRONE;
     }
 
     /**
      * Returns whether the robot can pick up units.
      *
-     * @return whether the robot can pick up units.
+     * @return whether the robot can pick up units
      */
     public boolean canPickUpUnits() {
         return this == DELIVERY_DRONE;
     }
 
     /**
+     * Returns whether the robot can drop off units.
+     *
+     * @return whether the robot can drop off units
+     */
+    public boolean canDropOffUnits() {
+        return this == DELIVERY_DRONE;
+    }
+
+    /**
      * Returns whether the robot can be picked up.
      *
-     * @return whether the robot can be picked up.
+     * @return whether the robot can be picked up
      */
     public boolean canBePickedUp() {
         return this == MINER || this == LANDSCAPER || this == COW;
@@ -221,7 +249,7 @@ public enum RobotType {
     /**
      * Returns whether the robot is a building.
      * 
-     * @return whether the robot is a building.
+     * @return whether the robot is a building
      */
     public boolean isBuilding() {
         return (this == HQ || this == REFINERY || this == VAPORATOR ||
@@ -230,15 +258,15 @@ public enum RobotType {
     }
 
     RobotType(RobotType spawnSource, int cost, int dirtLimit, int soupLimit,
-              int actionCooldown, int sensorRadius, int pollutionRadius, int pollutionAmount,
+              float actionCooldown, int sensorRadiusSquared, int pollutionRadiusSquared, int pollutionAmount,
               int globalPollutionAmount, int maxSoupProduced, int bytecodeLimit) {
         this.spawnSource           = spawnSource;
         this.cost                  = cost;
         this.dirtLimit             = dirtLimit;
         this.soupLimit             = soupLimit;
         this.actionCooldown        = actionCooldown;
-        this.sensorRadius          = sensorRadius;
-        this.pollutionRadius       = pollutionRadius;
+        this.sensorRadiusSquared = sensorRadiusSquared;
+        this.pollutionRadiusSquared = pollutionRadiusSquared;
         this.pollutionAmount       = pollutionAmount;
         this.globalPollutionAmount = globalPollutionAmount;
         this.maxSoupProduced       = maxSoupProduced;

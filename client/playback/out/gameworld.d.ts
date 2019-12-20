@@ -26,7 +26,7 @@ export declare type MapStats = {
     bodies: schema.SpawnedBodyTable;
     randomSeed: number;
     dirt: Int32Array;
-    water: Int32Array;
+    flooded: Int8Array;
     pollution: Int32Array;
     soup: Int32Array;
     getIdx: (x: number, y: number) => number;

@@ -92,19 +92,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
     }
 
     /**
-     * Computes the Euclidean distance from this location to the specified
-     * location.
-     *
-     * @param location the location to compute the distance to
-     * @return the distance to the given location
-     *
-     * @battlecode.doc.costlymethod
-     */
-    public final float distanceTo(MapLocation location) {
-        return (float) Math.sqrt(distanceSquaredTo(location));
-    }
-
-    /**
      * Computes the squared distance from this location to the specified
      * location.
      *
@@ -124,34 +111,34 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      * from target location.
      *
      * @param location the location to test
-     * @param dist the distance for the location to be within
-     * @return true if the given location is within dist to this one; false otherwise
+     * @param distanceSquared the distance squared for the location to be within
+     * @return true if the given location is within distanceSquared to this one; false otherwise
      *
      * @battlecode.doc.costlymethod
      */
-    public final boolean isWithinDistance(MapLocation location, float dist) {
-        return this.distanceSquaredTo(location) <= dist * dist;
+    public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared) {
+        return this.distanceSquaredTo(location) <= distanceSquared;
     }
 
     /**
-     * Determines whether this location is within the sensor radius of the
-     * given robot.
+     * Determines whether this location is adjacent to a given location.
      *
-     * @param robot the robot to test
-     * @return true if this location is within the robot's sensor radius,
-     *         false otherwise
-     *
-     * @battlecode.doc.costlymethod
+     * @param location the target location
+     * @return true if the given location is adjacent to this one
      */
-    public final boolean isWithinSensorRadius(RobotInfo robot){
-        return isWithinDistance(robot.location, robot.type.sensorRadius);
+    public final boolean isAdjacentTo(MapLocation location) {
+        int absdx = Math.abs(this.x - location.x);
+        int absdy = Math.abs(this.y - location.y);
+        if (absdx <= 1 && absdy <= 1) {
+            return true;
+        }
+        return false;
     }
 
     /**
-     * Returns the Direction from this MapLocation to <code>location</code>.
+     * Returns the closest approximate Direction from this MapLocation to <code>location</code>.
      * If <code>location</code> is null then the return value is null.
-     * If <code>location</code> equals this location then the return value is null.
-     * If the direction is not cardinal then the return value is null.
+     * If <code>location</code> equals this location then the return value is Direction.CENTER.
      *
      * @param location The location to which the Direction will be calculated
      * @return The Direction to <code>location</code> from this MapLocation.
@@ -159,21 +146,42 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      * @battlecode.doc.costlymethod
      */
     public final Direction directionTo(MapLocation location) {
-        if(location == null)
+        if (location == null) {
             return null;
-        if(this.equals(location))
-            return null;
-        int dx = this.x - location.x;
-        int dy = this.y - location.y;
-        if (dx == 0 && dy < 0)
-            return Direction.NORTH;
-        if (dx > 0 && dy == 0)
-            return Direction.EAST;
-        if (dx == 0 && dy > 0)
-            return Direction.SOUTH;
-        if (dx < 0 && dy == 0)
-            return Direction.WEST;
-        return null;
+        }
+
+        double dx = location.x - this.x;
+        double dy = location.y - this.y;
+
+        if (Math.abs(dx) >= 2.414 * Math.abs(dy)) {
+            if (dx > 0) {
+                return Direction.EAST;
+            } else if (dx < 0) {
+                return Direction.WEST;
+            } else {
+                return Direction.CENTER;
+            }
+        } else if (Math.abs(dy) >= 2.414 * Math.abs(dx)) {
+            if (dy > 0) {
+                return Direction.NORTH;
+            } else {
+                return Direction.SOUTH;
+            }
+        } else {
+            if (dy > 0) {
+                if (dx > 0) {
+                    return Direction.NORTHEAST;
+                } else {
+                    return Direction.NORTHWEST;
+                }
+            } else {
+                if (dx > 0) {
+                    return Direction.SOUTHEAST;
+                } else {
+                    return Direction.SOUTHWEST;
+                }
+            }
+        }
     }
 
     /**
@@ -187,8 +195,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      * @battlecode.doc.costlymethod
      */
     public final MapLocation add(Direction direction) {
-        if(direction == null)
-            return new MapLocation(x, y);
         return translate(direction.dx, direction.dy);
     }
 
@@ -204,8 +210,6 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      * @battlecode.doc.costlymethod
      */
     public final MapLocation subtract(Direction direction) {
-        if(direction == null)
-            return new MapLocation(x, y);
         return this.add(direction.opposite());
     }
 

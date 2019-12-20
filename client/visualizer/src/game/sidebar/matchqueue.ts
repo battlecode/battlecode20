@@ -37,6 +37,9 @@ export default class MatchQueue {
 
     let uploadButton = this.addUploadButton();
     div.appendChild(uploadButton);
+    
+    div.appendChild(document.createElement('br'));
+
     div.appendChild(document.createElement('br'));
 
     let title = document.createElement("b");
@@ -88,6 +91,7 @@ export default class MatchQueue {
 
     return uploadLabel;
   }
+
   loadMatch(files: FileList) {
     const file = files[0];
     console.log(file);
@@ -142,9 +146,9 @@ export default class MatchQueue {
             const mapName = match.current.mapName;
             const matchWinner = this.winnerTeam(meta.teams, match.winner);
             // TODO: figure out if match.lastTurn can be null???
-            if (match.lastTurn == null) {
-              throw new Error('match.lastTurn is null. what is going on here???')
-            }
+            // if (match.lastTurn == null) {
+            //   throw new Error('match.lastTurn is null. what is going on here???')
+            // }
             const rounds = match.lastTurn! + 1;
             const active = gameIndex === activeGame && matchIndex === activeMatch;
             const cb = () => { this.gotoMatch(gameIndex, matchIndex) };

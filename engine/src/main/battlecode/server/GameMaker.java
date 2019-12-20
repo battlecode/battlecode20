@@ -12,17 +12,11 @@ import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.array.TCharArrayList;
-import gnu.trove.map.TObjectByteMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.ToIntFunction;
 import java.util.zip.GZIPOutputStream;
 
@@ -277,8 +271,8 @@ public strictfp class GameMaker {
             BodyTypeMetadata.addDirtLimit(builder, type.dirtLimit);
             BodyTypeMetadata.addSoupLimit(builder, type.soupLimit);
             BodyTypeMetadata.addActionCooldown(builder, type.actionCooldown);
-            BodyTypeMetadata.addSensorRadius(builder, type.sensorRadius);
-            BodyTypeMetadata.addPollutionRadius(builder, type.pollutionRadius);
+            BodyTypeMetadata.addSensorRadius(builder, type.sensorRadiusSquared);
+            BodyTypeMetadata.addPollutionRadius(builder, type.pollutionRadiusSquared);
             BodyTypeMetadata.addPollutionAmount(builder, type.pollutionAmount);
             BodyTypeMetadata.addMaxSoupProduced(builder, type.maxSoupProduced);
             BodyTypeMetadata.addBytecodeLimit(builder, type.bytecodeLimit);
@@ -343,7 +337,6 @@ public strictfp class GameMaker {
 
         private TIntArrayList waterChangedLocsXs; //For locs
         private TIntArrayList waterChangedLocsYs; //For locs
-        private TIntArrayList waterChanges; // ints
 
         private TIntArrayList pollutionChangedLocsXs; //For locs
         private TIntArrayList pollutionChangedLocsYs; //For locs
@@ -406,7 +399,6 @@ public strictfp class GameMaker {
             this.dirtChanges = new TIntArrayList();
             this.waterChangedLocsXs = new TIntArrayList();
             this.waterChangedLocsYs = new TIntArrayList();
-            this.waterChanges = new TIntArrayList();
             this.pollutionChangedLocsXs = new TIntArrayList();
             this.pollutionChangedLocsYs = new TIntArrayList();
             this.pollutionChanges = new TIntArrayList();
@@ -508,7 +500,6 @@ public strictfp class GameMaker {
 
                 // The water changes on locations
                 int waterChangedLocsP = createVecTable(builder, waterChangedLocsXs, waterChangedLocsYs);
-                int waterChangesP = intVector(builder, waterChanges, Round::startWaterChangesVector);
 
                 // The pollution changes on locations
                 int pollutionChangedLocsP = createVecTable(builder, pollutionChangedLocsXs, pollutionChangedLocsYs);
@@ -556,7 +547,6 @@ public strictfp class GameMaker {
                 Round.addDirtChangedLocs(builder, dirtChangedLocsP);
                 Round.addDirtChanges(builder, dirtChangesP);
                 Round.addWaterChangedLocs(builder, waterChangedLocsP);
-                Round.addWaterChanges(builder, waterChangesP);
                 Round.addPollutionChangedLocs(builder, pollutionChangedLocsP);
                 Round.addPollutionChanges(builder, pollutionChangesP);
                 Round.addSoupChangedLocs(builder, soupChangedLocsP);
@@ -596,7 +586,7 @@ public strictfp class GameMaker {
             movedLocsYs.add(newLocation.y);
         }
 
-        public void addDied(int id, boolean currency) {
+        public void addDied(int id) {
             diedIDs.add(id);
         }
 
@@ -612,10 +602,9 @@ public strictfp class GameMaker {
             dirtChanges.add(change);
         }
 
-        public void addWaterChanged(MapLocation loc, int change) {
+        public void addWaterChanged(MapLocation loc) {
             waterChangedLocsXs.add(loc.x);
             waterChangedLocsYs.add(loc.y);
-            waterChanges.add(change);
         }
 
         public void addPollutionChanged(MapLocation loc, int change) {
@@ -644,7 +633,7 @@ public strictfp class GameMaker {
             broadcastedMessages.add(' ');
         }
 
-        public void addTeamStat(Team team, int soup) {
+        public void addTeamSoup(Team team, int soup) {
             teamIDs.add(TeamMapping.id(team));
             teamSoups.add(soup);
         }
@@ -700,7 +689,6 @@ public strictfp class GameMaker {
             dirtChanges.clear();
             waterChangedLocsXs.clear();
             waterChangedLocsYs.clear();
-            waterChanges.clear();
             pollutionChangedLocsXs.clear();
             pollutionChangedLocsYs.clear();
             pollutionChanges.clear();

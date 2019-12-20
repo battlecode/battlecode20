@@ -24,7 +24,7 @@ public strictfp class InternalRobot {
     private int soupCarrying; // amount of soup the robot is carrying (miners)
     private int dirtCarrying; // amount of dirt the robot is carrying (landscapers and buildings)
     
-    private int cooldownTurns;
+    private float cooldownTurns;
 
     private boolean producedSoup;
     private boolean currentlyHoldingUnit;
@@ -120,7 +120,7 @@ public strictfp class InternalRobot {
         return dirtCarrying;
     }
     
-    public int getCooldownTurns() {
+    public float getCooldownTurns() {
         return cooldownTurns;
     }
 
@@ -171,21 +171,29 @@ public strictfp class InternalRobot {
     // **********************************
 
     /**
+     * Returns the robot's current sensor radius squared, which is affected
+     * by the current pollution level at the present location.
+     */
+    public int getCurrentSensorRadiusSquared() {
+        return (int) Math.round(Math.max(0, this.type.sensorRadiusSquared - this.gameWorld.getPollution(getLocation()) / 20.0));
+    }
+
+    /**
      * Returns whether this robot can sense the given location.
      * 
      * @param toSense the MapLocation to sense
      */
     public boolean canSenseLocation(MapLocation toSense){
-        return this.location.distanceTo(toSense) <= this.type.sensorRadius;
+        return this.location.distanceSquaredTo(toSense) <= getCurrentSensorRadiusSquared();
     }
 
     /**
      * Returns whether this robot can sense something a given radius away.
      * 
-     * @param radius the distance to sense
+     * @param radiusSquared the distance squared to sense
      */
-    public boolean canSenseRadius(int radius) {
-        return radius <= this.type.sensorRadius;
+    public boolean canSenseRadiusSquared(int radiusSquared) {
+        return radiusSquared <= getCurrentSensorRadiusSquared();
     }
 
     // ******************************************
@@ -214,9 +222,13 @@ public strictfp class InternalRobot {
      * 
      * @param newTurns the number of cooldown turns
      */
-    public void setCooldownTurns(int newTurns) {
+    public void setCooldownTurns(float newTurns) {
         this.cooldownTurns = newTurns;
     }
+
+    // ******************************************
+    // ****** SOUP METHODS **********************
+    // ******************************************
 
     public void addSoupCarrying(int amount) {
         this.soupCarrying += amount;
@@ -226,22 +238,34 @@ public strictfp class InternalRobot {
         this.soupCarrying = amount > this.soupCarrying ? 0 : this.soupCarrying - amount;
     }
 
+    // ******************************************
+    // ****** DIRT METHODS **********************
+    // ******************************************
+
+    /**
+     * Adds dirt that the robot is carrying. If the robot is a building
+     *  and adding the amount makes the amount of dirt carried exceed the
+     *  building's dirt limit, then the building is destroyed.
+     * 
+     * @param amount the amount of dirt to add
+     */
     public void addDirtCarrying(int amount) {
         this.dirtCarrying += amount;
+        if (getType().isBuilding() && this.dirtCarrying > getType().dirtLimit)
+            this.gameWorld.destroyRobot(getID());
     }
 
-    public void removeDirtCarrying(int amount) {
-        this.dirtCarrying -= amount > this.dirtCarrying ? 0 : this.dirtCarrying - amount;
+    /**
+     * Removes dirt that the robot is carrying.
+     * 
+     * @param amount the amount of dirt to remove
+     * @return the amount of dirt removed
+     */
+    public int removeDirtCarrying(int amount) {
+        int oldDirtCarrying = this.dirtCarrying;
+        this.dirtCarrying = amount > this.dirtCarrying ? 0 : this.dirtCarrying - amount;
+        return oldDirtCarrying - this.dirtCarrying;
     }
-
-    // TODO!!
-    // public boolean killRobotIfDead(){
-    //     if(this.health == 0){
-    //         gameWorld.destroyRobot(this.ID);
-    //         return true;
-    //     }
-    //     return false;
-    // }
 
     // *********************************
     // ****** GAMEPLAY METHODS *********
@@ -269,9 +293,9 @@ public strictfp class InternalRobot {
     public void processEndOfTurn() {
         // If refinery/vaporator/hq, produces pollution
         if (this.type.canProduceSoupAndPollution() && this.producedSoup) {
-            ArrayList<MapLocation> withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadius(
+            MapLocation[] withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadiusSquared(
                                                                 this.location, 
-                                                                this.type.pollutionRadius);
+                                                                this.type.pollutionRadiusSquared);
             int pollutionAmount = this.type.pollutionAmount;
             for (MapLocation pollutionLocation : withinPollutionRadius)
                 this.gameWorld.adjustPollution(pollutionLocation, pollutionAmount);

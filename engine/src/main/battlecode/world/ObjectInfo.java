@@ -100,9 +100,8 @@ public strictfp class ObjectInfo {
             // Check if body still exists.
             if (existsRobot(id)) {
                 boolean returnedTrue = op.execute(gameRobotsByID.get(id));
-                if (!returnedTrue) {
+                if (!returnedTrue)
                     break;
-                }
             } else {
                 // The body does not exist, so it was deleted in an earlier
                 // iteration and should be skipped.
@@ -129,7 +128,7 @@ public strictfp class ObjectInfo {
         return robotCount[team.ordinal()];
     }
 
-    public InternalRobot getRobotByID(int id){
+    public InternalRobot getRobotByID(int id) {
         return gameRobotsByID.get(id);
     }
 

@@ -13,10 +13,11 @@ import java.util.*;
  * in some other file
  */
 public class CowControlProvider implements RobotControlProvider {
+
     /**
      * The directions a cow cares about.
      */
-    private static final Direction[] DIRECTIONS = {
+    private final Direction[] DIRECTIONS = {
         Direction.NORTH,
         Direction.EAST,
         Direction.SOUTH,
@@ -26,7 +27,7 @@ public class CowControlProvider implements RobotControlProvider {
     /**
      * The types & order to spawn zombie robots in.
      */
-    private static final RobotType COW_TYPE = RobotType.COW;
+    private final RobotType COW_TYPE = RobotType.COW;
 
     /**
      * The world we're operating in.
@@ -200,12 +201,10 @@ public class CowControlProvider implements RobotControlProvider {
                 int i = 4;
                 while (i-->0) { // TODO: make cow slightly smarter so it doesn't drown immediately
                     Direction dir = randomDirection();
-                    if (rc.canMove(dir)) {
+                    if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
                         System.out.println("i can move");
                         rc.move(dir);
                         break;
-                    } else {
-                        System.out.println("i can't move");
                     }
                 }
                 System.out.println("I'm a cow! at " + rc.getLocation());
@@ -216,7 +215,7 @@ public class CowControlProvider implements RobotControlProvider {
         }
     }
 
-    static Direction randomDirection() {
+    Direction randomDirection() {
         return DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
     }
 

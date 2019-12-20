@@ -1,4 +1,5 @@
 import {Config} from './config';
+import { type } from 'os';
 
 type Image = HTMLImageElement;
 
@@ -29,7 +30,9 @@ export type AllImages = {
     playbackStop: Image,
     matchForward: Image,
     matchBackward: Image,
-    upload: Image
+    reverseUPS: Image,
+    doubleUPS: Image,
+    halveUPS: Image,
   }
 };
 
@@ -38,7 +41,7 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   let result: any = {robot: {netGun: [], landscaper: [], miner: [], fulfillmentCenter: [], drone: {empty: [], carry: []}, designSchool: [], refinery: [], vaporator: [], HQ: []}, controls: {}};
 
   // write loaded image to obj[slot]
-  function img(obj, slot, url: string) {
+  function img(obj, slot, url) {
     // we expect another one
     expected++;
     let image = new Image();
@@ -53,13 +56,13 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
     };
     image.onerror = () => {
       loaded++;
-      console.log(`CANNOT LOAD IMAGE: ${url}`);
+      console.log(`CANNOT LOAD IMAGE: ${slot}, ${url}, ${image}`);
       if (loaded === expected) {
         console.log('All images loaded.');
         finished(Object.freeze(result) as AllImages);
       }
     }
-    image.src = url;
+    image.src = url.default;
   }
 
   const dirname = "./static/img/";
@@ -106,14 +109,18 @@ export function loadAll(config: Config, finished: (AllImages) => void) {
   img(result.robot.HQ, BLU, require(dirname + 'sprites/HQ_blue.png'));
   
 
+  // Buttons are from https://material.io/resources/icons
   img(result.controls, 'goNext', require(dirname + 'controls/go-next.png'));
   img(result.controls, 'goPrevious', require(dirname + 'controls/go-previous.png'));
   img(result.controls, 'playbackPause', require(dirname + 'controls/playback-pause.png'));
   img(result.controls, 'playbackStart', require(dirname + 'controls/playback-start.png'));
   img(result.controls, 'playbackStop', require(dirname + 'controls/playback-stop.png'));
-  img(result.controls, 'matchBackward', require(dirname + 'controls/skip-backward.png'));
-  img(result.controls, 'matchForward', require(dirname + 'controls/skip-forward.png'));
-  img(result.controls, 'upload', require(dirname + 'controls/upload.png'));
+  img(result.controls, 'reverseUPS', require(dirname + 'controls/reverse.png'));
+  img(result.controls, 'doubleUPS', require(dirname + 'controls/skip-forward.png'));
+  img(result.controls, 'halveUPS', require(dirname + 'controls/skip-backward.png'));
+
+  img(result.controls, 'matchBackward', require(dirname + 'controls/green-previous.png'));
+  img(result.controls, 'matchForward', require(dirname + 'controls/green-next.png'));
 }
 
 

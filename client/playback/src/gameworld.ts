@@ -27,6 +27,7 @@ export type BodiesSchema = {
   bytecodesUsed: Int32Array, // Only relevant for non-neutral bodies
 };
 
+// TODO change this to schema?
 export type MapStats = {
   name: string,
   minCorner: Victor,
@@ -35,7 +36,7 @@ export type MapStats = {
   randomSeed: number,
 
   dirt: Int32Array,
-  water: Int32Array,
+  flooded: Int8Array, // actually a boolean array but flatbuffers does not understand that
   pollution: Int32Array,
   soup: Int32Array
 
@@ -225,7 +226,7 @@ export default class GameWorld {
       maxCorner: new Victor(0,0),
       bodies: new schema.SpawnedBodyTable(),
       randomSeed: 0,
-      water: new Int32Array(0),
+      flooded: new Int8Array(0),
       dirt: new Int32Array(0),
       pollution: new Int32Array(0),
       soup: new Int32Array(0),
@@ -293,17 +294,17 @@ export default class GameWorld {
 
     this.mapStats.randomSeed = map.randomSeed();
 
-    this.mapStats.water = Int32Array.from(map.waterArray());
+    this.mapStats.flooded = Int8Array.from(map.waterArray());
     this.mapStats.dirt = Int32Array.from(map.dirtArray());
     this.mapStats.pollution = Int32Array.from(map.pollutionArray());
     this.mapStats.soup = Int32Array.from(map.soupArray());
 
-    const maxy = (maxCorner.y()-minCorner.y());
+    const width = (maxCorner.x() - minCorner.x());
     this.mapStats.getIdx = (x:number, y:number) => (
-      x*maxy + y
+      Math.floor(y)*width + Math.floor(x)
     );
     this.mapStats.getLoc = (idx: number) => (
-      new Victor(Math.floor(idx / maxy), idx % maxy)
+      new Victor(idx % width, Math.floor(idx / width))
     );
     
     // Check with header.totalRounds() ?
@@ -331,6 +332,7 @@ export default class GameWorld {
     source.teamStats.forEach((value: TeamStats, key: number) => {
       this.teamStats.set(key, deepcopy(value));
     });
+    this.mapStats = deepcopy(source.mapStats);
   }
 
   /**
@@ -413,11 +415,11 @@ export default class GameWorld {
             break;
 
           case schema.Action.DIG_DIRT:
-            this.mapStats.dirt[target] -= 1;
+            // this.mapStats.dirt[target] -= 1;
             arrays.carryDirt[robotID] += 1;
             break;
           case schema.Action.DEPOSIT_DIRT:
-            this.mapStats.dirt[target] += 1;
+            // this.mapStats.dirt[target] += 1;
             arrays.carryDirt[robotID] -= 1;
             // add onDirt of buildings?
             break;
@@ -463,28 +465,30 @@ export default class GameWorld {
       const x = delta.dirtChangedLocs().xs(i);
       const y = delta.dirtChangedLocs().ys(i);
       const mapIdx = this.mapStats.getIdx(x, y);
-      this.mapStats.dirt[mapIdx] = delta.dirtChanges(i);
+      this.mapStats.dirt[mapIdx] += delta.dirtChanges(i);
     }
     // Water changes on map
-    for(let i = 0; i<delta.waterChangesLength(); i++){
-      const x = delta.waterChangedLocs().xs(i);
-      const y = delta.waterChangedLocs().ys(i);
-      const mapIdx = this.mapStats.getIdx(x, y);
-      this.mapStats.water[mapIdx] = delta.waterChanges(i);
+    if (delta.waterChangedLocs() !== null) {
+      for(let i = 0; i<delta.waterChangedLocs().xsLength(); i++){
+        const x = delta.waterChangedLocs().xs(i);
+        const y = delta.waterChangedLocs().ys(i);
+        const mapIdx = this.mapStats.getIdx(x, y);
+        this.mapStats.flooded[mapIdx] = 1 - this.mapStats.flooded[mapIdx]; // this position changed flood situation
+      }
     }
     // Pollution changes on map
     for(let i = 0; i<delta.pollutionChangesLength(); i++){
       const x = delta.pollutionChangedLocs().xs(i);
       const y = delta.pollutionChangedLocs().ys(i);
       const mapIdx = this.mapStats.getIdx(x, y);
-      this.mapStats.pollution[mapIdx] = delta.pollutionChanges(i);
+      this.mapStats.pollution[mapIdx] += delta.pollutionChanges(i);
     }
     // Soup changes on map
     for(let i = 0; i<delta.soupChangesLength(); i++){
       const x = delta.soupChangedLocs().xs(i);
       const y = delta.soupChangedLocs().ys(i);
       const mapIdx = this.mapStats.getIdx(x, y);
-      this.mapStats.soup[mapIdx] = delta.soupChanges(i);
+      this.mapStats.soup[mapIdx] += delta.soupChanges(i);
     }
 
     // Insert indicator dots and lines

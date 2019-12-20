@@ -11,24 +11,24 @@ public class GameStats {
     private Team winner;
     private DominationFactor dominationFactor;
 
-    public GameStats(){
+    public GameStats() {
         this.winner = null;
         this.dominationFactor = null;
     }
 
-    public void setWinner(Team t){
+    public void setWinner(Team t) {
         winner = t;
     }
 
-    public void setDominationFactor(DominationFactor d){
+    public void setDominationFactor(DominationFactor d) {
         dominationFactor = d;
     }
 
-    public Team getWinner(){
+    public Team getWinner() {
         return winner;
     }
 
-    public DominationFactor getDominationFactor(){
+    public DominationFactor getDominationFactor() {
         return dominationFactor;
     }
 
