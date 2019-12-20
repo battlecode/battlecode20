@@ -13,6 +13,7 @@ import Updates from './views/updates';
 import Search from './views/search';
 import Team from './views/team';
 import Rankings from './views/rankings';
+import Bracket from './views/bracket';
 //import IDE from './views/ide';
 import Account from './views/account';
 import Resources from './views/resources';
@@ -76,7 +77,8 @@ class App extends Component {
         <Route path={`${process.env.PUBLIC_URL}/password_forgot`} component={Home} />,
         <Route path={`${process.env.PUBLIC_URL}/password_change`} component={Home} />,
         <Route path={`${process.env.PUBLIC_URL}/login`} component={Home} />,
-        <Route path={`${process.env.PUBLIC_URL}/register`} component={Home} />
+        <Route path={`${process.env.PUBLIC_URL}/register`} component={Home} />,
+        <Route path={`${process.env.PUBLIC_URL}/bracket`} component={Bracket} />
       ]
     }
 
@@ -88,6 +90,7 @@ class App extends Component {
       <Route path={`${process.env.PUBLIC_URL}/resources`} component={Resources} />,
       <Route path={`${process.env.PUBLIC_URL}/rankings/:team_id`} component={TeamInfo} />,
       <Route path={`${process.env.PUBLIC_URL}/rankings`} component={Rankings} />,
+      <Route path={`${process.env.PUBLIC_URL}/bracket`} component={Bracket} />,
       <Route path="*" component={NotFound} />
     ]
 

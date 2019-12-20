@@ -813,11 +813,13 @@ class TournamentViewSet(viewsets.GenericViewSet,
                     "index": 0",
                     "red_team": {
                         "id": 1,
+                        "seed": 1,
                         "name": "asdf",
                         "avatar": "avatar/1.gif"
                     },
                     "blue_team": {
                         "id": 2,
+                        "seed": 2,
                         "name": "asdfasdfasf",
                         "avatar": "avatar/2.gif"
                     },
@@ -828,11 +830,13 @@ class TournamentViewSet(viewsets.GenericViewSet,
                     "index": 1,
                     "red_team": {
                         "id": 3,
+                        "seed": 3,
                         "name": "assdfdf",
                         "avatar": "avatar/3.jpg"
                     },
                     "blue_team": {
                         "id": 4,
+                        "seed": 4,
                         "name": "asdfasdfasf",
                         "avatar": "avatar/4.png"
                     },

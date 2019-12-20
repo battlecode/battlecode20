@@ -505,6 +505,12 @@ class Api {
     callback(tournaments);
   }
 
+  static getTournamentBracket(tournament_id, callback) {
+    $.get(`${URL}/api/${LEAGUE}/tournament/${tournament_id}/bracket`, (data, succcess) => {
+      callback(data.results);
+    });
+  }
+
   //----AUTHENTICATION----
 
   static logout(callback) {

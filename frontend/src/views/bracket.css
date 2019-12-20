@@ -1,0 +1,39 @@
+.match-detail {
+    max-width: 380px;
+    margin-bottom: 10px;
+}
+
+.player-seed {
+    float: left;
+    width: 32px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background-color: #666;
+    color: #fff;
+}
+
+.player-score {
+    position: relative;
+    float: right;
+    width: 40px;
+    /*border-left: 1px solid #ccc;*/
+    padding-top: 2px;
+    padding-bottom: 2px;
+    z-index: 1;
+}
+
+.player-name {
+    position: absolute;
+    left: 32px;
+    right: 0px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 10px;
+}
+
+.player { padding: 0; }
+.player:first-child,
+.player-1 .player-round { border-top-right-radius: 8px; }
+.player:last-child,
+.player-2 .player-round { border-bottom-right-radius: 8px; }
+.hover-trigger:hover .hover-target { background-color: rgba(0,0,0,.05); }
