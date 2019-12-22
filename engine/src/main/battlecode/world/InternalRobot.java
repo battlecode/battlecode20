@@ -285,14 +285,14 @@ public strictfp class InternalRobot {
 
     public void processEndOfTurn() {
         // If refinery/vaporator/hq, produces refined soup
-        if (this.type.canProduceSoupAndPollution() && this.soupCarrying > 0) {
+        if (this.type.canRefine() && this.soupCarrying > 0) {
             int soupProduced = Math.min(this.soupCarrying, this.type.maxSoupProduced);
             this.soupCarrying -= soupProduced;
             this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
             this.producedSoup = true;
         }
         // If refinery/vaporator/hq, produces pollution
-        if (this.type.canProduceSoupAndPollution() && this.producedSoup) {
+        if (this.type.canRefine() && this.producedSoup) {
             MapLocation[] withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadiusSquared(
                                                                 this.location, 
                                                                 this.type.pollutionRadiusSquared);

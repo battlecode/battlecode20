@@ -479,23 +479,23 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     /**
-     * Asserts that the robot can refine soup in the specified direction.
+     * Asserts that the robot can deposit soup in the specified direction.
      *
      * @throws GameActionException
      */
-    private void assertCanRefineSoup(Direction dir) throws GameActionException {
+    private void assertCanDepositSoup(Direction dir) throws GameActionException {
         MapLocation center = adjacentLocation(dir);
-        if (!getType().canRefine())
+        if (!getType().canDepositSoup())
             throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type " + getType() + " which cannot refine soup.");
+                    "Robot is of type " + getType() + " which cannot deposit soup.");
         if (getSoupCarrying() <= 0)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Robot is not carrying any soup available to be refined.");
         if (!onTheMap(center))
             throw new GameActionException(OUT_OF_RANGE,
-                    "Can only refine to locations on the map; " + center + " is not on the map.");
+                    "Can only deposit soup to locations on the map; " + center + " is not on the map.");
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
-        if (adjacentRobot == null || !adjacentRobot.getType().canProduceSoupAndPollution())
+        if (adjacentRobot == null || !adjacentRobot.getType().canRefine())
             throw new GameActionException(CANT_DO_THAT,
                     center + " does not have a refinery, vaporator, or HQ.");
         if (!isReady())
@@ -504,41 +504,41 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     /**
-     * Returns whether or not the robot can refine soup in a specified direction.
-     * Checks if the robot can refine, whether they are carring crude soup, whether
+     * Returns whether or not the robot can deposit soup in a specified direction.
+     * Checks if the robot can deposit soup, whether they are carring crude soup, whether
      *  the action cooldown is ready, whether the location is on the map,
      *  and whether there is a refinery at the target location.
      *
-     * @param dir the direction to refine in
+     * @param dir the direction to deposit soup in
      */
     @Override
-    public boolean canRefineSoup(Direction dir) {
+    public boolean canDepositSoup(Direction dir) {
         try {
             assertNotNull(dir);
-            assertCanRefineSoup(dir);
+            assertCanDepositSoup(dir);
             return true;
         } catch (GameActionException e) { return false; }
     }
 
     /**
-     * Refines soup in a certain direction; refines up to the amount of crude soup
+     * Deposits soup in a certain direction; deposits up to the amount of crude soup
      *  that the robot is carrying.
      *
      * @param dir the direction to mine in
-     * @param amount the amount of soup to refine
+     * @param amount the amount of soup to deposit
      * @throws GameActionException
      */
     @Override
-    public void refineSoup(Direction dir, int amount) throws GameActionException {
+    public void depositSoup(Direction dir, int amount) throws GameActionException {
         assertNotNull(dir);
-        assertCanRefineSoup(dir);
+        assertCanDepositSoup(dir);
         amount = Math.min(amount, this.getSoupCarrying());
         this.robot.resetCooldownTurns();
         this.robot.removeSoupCarrying(amount);
         InternalRobot refinery = this.gameWorld.getRobot(adjacentLocation(dir));
         refinery.addSoupCarrying(amount);
 
-        this.gameWorld.getMatchMaker().addAction(getID(), Action.REFINE_SOUP, refinery.getID());
+        this.gameWorld.getMatchMaker().addAction(getID(), Action.DEPOSIT_SOUP, refinery.getID());
     }
 
     // ***************************************
@@ -606,7 +606,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     private void assertCanDepositDirt(Direction dir, int amount) throws GameActionException {
         MapLocation center = adjacentLocation(dir);
-        if (!getType().canDeposit())
+        if (!getType().canDepositDirt())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot deposit dirt.");
         if (amount <= 0)

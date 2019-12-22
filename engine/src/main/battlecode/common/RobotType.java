@@ -143,7 +143,7 @@ public enum RobotType {
      *
      * @return whether the robot can produce soup
      */
-    public boolean canProduceSoupAndPollution() {
+    public boolean canRefine() {
         return this == REFINERY || this == VAPORATOR || this == HQ;
     }
 
@@ -179,7 +179,7 @@ public enum RobotType {
      *
      * @return whether the robot can deposit dirt
      */
-    public boolean canDeposit() {
+    public boolean canDepositDirt() {
         return this == LANDSCAPER;
     }
 
@@ -193,11 +193,11 @@ public enum RobotType {
     }
 
     /**
-     * Returns whether the robot can refine.
+     * Returns whether the robot can deposit soup.
      *
-     * @return whether the robot can refine
+     * @return whether the robot can deposit soup
      */
-    public boolean canRefine() {
+    public boolean canDepositSoup() {
         return this == MINER;
     }
 
