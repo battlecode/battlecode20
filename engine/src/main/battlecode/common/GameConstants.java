@@ -32,7 +32,7 @@ public interface GameConstants {
     // *********************************
 
     /** The initial amount of soup each team starts off with. */
-    int INITIAL_SOUP = 100;
+    int INITIAL_SOUP = 250;
 
     /** The amount of soup each team receives per turn. */
     int BASE_INCOME_PER_ROUND = 1;
