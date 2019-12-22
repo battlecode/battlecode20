@@ -289,11 +289,11 @@ input {
 
 #logo {
     font-weight: normal;
-    font-size: 30px;
+    font-size: 20px;
     text-align: center;
     font-family: sans-serif;
-    padding-top: 15px;
-    padding-bottom: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .console {
