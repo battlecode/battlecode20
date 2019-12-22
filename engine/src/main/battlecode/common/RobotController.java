@@ -482,29 +482,29 @@ public strictfp interface RobotController {
     void mineSoup(Direction dir) throws GameActionException;
 
     /**
-     * Tests whether the robot can refine soup in the given direction.
-     * Checks cooldown turns remaining, whether the robot can refine, whether
+     * Tests whether the robot can deposit soup in the given direction.
+     * Checks cooldown turns remaining, whether the robot can deposit soup, whether
      * the robot has crude soup, and that the given direction has a refinery.
      *
-     * @param dir the direction to refine
-     * @return whether it is possible to refine soup in the given direction.
+     * @param dir the direction to deposit soup
+     * @return whether it is possible to deposit soup in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canRefineSoup(Direction dir);
+    boolean canDepositSoup(Direction dir);
 
     /**
-     * Refines soup in the given direction (max up to specified amount).
+     * Deposits soup in the given direction (max up to specified amount).
      *
-     * @param dir the direction to refine
-     * @param amount the amount of soup to refine
+     * @param dir the direction to deposit soup
+     * @param amount the amount of soup to deposit
      * @throws GameActionException if this robot is not a miner, if
-     * the robot is still in cooldown, if there is no soup to refine,
+     * the robot is still in cooldown, if there is no soup to deposit,
      * or if there is no refinery.
      *
      * @battlecode.doc.costlymethod
      */
-    void refineSoup(Direction dir, int amount) throws GameActionException;
+    void depositSoup(Direction dir, int amount) throws GameActionException;
 
     // ***************************************
     // ********* LANDSCAPER METHODS **********
