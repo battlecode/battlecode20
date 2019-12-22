@@ -209,16 +209,16 @@ class GameWorld {
                         this.mapStats.soup[target] -= 1;
                         break;
                     case battlecode_schema_1.schema.Action.REFINE_SOUP:
-                        const teamID = arrays.team[robotID];
-                        this.teamStats[teamID].soup += 1;
+                        const teamID = arrays.team[this.bodies.index(robotID)];
+                        this.teamStats.get(teamID).soup += 1;
                         arrays.cargo[robotID] -= 1;
                         break;
                     case battlecode_schema_1.schema.Action.DIG_DIRT:
-                        // this.mapStats.dirt[target] -= 1;
+                        // this.mapStats.dirt[target] -= 1; // this is done somewhere else
                         arrays.carryDirt[robotID] += 1;
                         break;
                     case battlecode_schema_1.schema.Action.DEPOSIT_DIRT:
-                        // this.mapStats.dirt[target] += 1;
+                        // this.mapStats.dirt[target] += 1; // this is done somewhere else
                         arrays.carryDirt[robotID] -= 1;
                         // add onDirt of buildings?
                         break;

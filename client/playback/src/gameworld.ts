@@ -409,17 +409,17 @@ export default class GameWorld {
             break;
 
           case schema.Action.REFINE_SOUP:
-            const teamID = arrays.team[robotID];
-            this.teamStats[teamID].soup += 1;
+            const teamID = arrays.team[this.bodies.index(robotID)];
+            this.teamStats.get(teamID).soup += 1;
             arrays.cargo[robotID] -= 1;
             break;
 
           case schema.Action.DIG_DIRT:
-            // this.mapStats.dirt[target] -= 1;
+            // this.mapStats.dirt[target] -= 1; // this is done somewhere else
             arrays.carryDirt[robotID] += 1;
             break;
           case schema.Action.DEPOSIT_DIRT:
-            // this.mapStats.dirt[target] += 1;
+            // this.mapStats.dirt[target] += 1; // this is done somewhere else
             arrays.carryDirt[robotID] -= 1;
             // add onDirt of buildings?
             break;

@@ -196,7 +196,7 @@ class StructOfArrays {
      * or -1.
      */
     index(primary) {
-        const index = this._primLookup[primary];
+        const index = this._primLookup.get(primary);
         return index === undefined ? -1 : index;
     }
     /**
