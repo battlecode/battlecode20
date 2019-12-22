@@ -472,8 +472,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanMineSoup(dir);
         this.robot.resetCooldownTurns();
-        this.gameWorld.removeSoup(adjacentLocation(dir));
-        this.robot.addSoupCarrying(1);
+        MapLocation mineLoc = adjacentLocation(dir);
+        int soupMined = Math.min(GameConstants.SOUP_MINING_RATE, Math.min(gameWorld.getSoup(mineLoc), getType().soupLimit - getSoupCarrying()));;
+        this.gameWorld.removeSoup(adjacentLocation(dir), soupMined);
+        this.robot.addSoupCarrying(soupMined);
 
         this.gameWorld.getMatchMaker().addAction(getID(), Action.MINE_SOUP, -1);
     }

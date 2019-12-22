@@ -471,7 +471,9 @@ public strictfp interface RobotController {
     boolean canMineSoup(Direction dir);
 
     /**
-     * Mines soup in the given direction.
+     * Mines soup in the given direction. Mines up to GameConstants.SOUP_MINING_RATE,
+     * limited by how much soup the miner can still carry and how much soup exists at
+     * the location.
      *
      * @param dir the direction to mine
      * @throws GameActionException if this robot is not a miner, if

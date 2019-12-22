@@ -166,7 +166,7 @@ export default class Renderer {
       if (pollutionLayer) {
         // pollution should add a clouds that are black with some opacity
         this.ctx.fillStyle = 'black';
-        this.ctx.globalAlpha = map.pollution[idxVal] / 100.0;
+        this.ctx.globalAlpha = map.pollution[idxVal] / 100000.0;
         this.ctx.fillRect(cx, cy, scale, scale);
       }
 

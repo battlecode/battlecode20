@@ -222,10 +222,6 @@ public strictfp class GameWorld {
         return this.gameMap.onTheMap(loc) ? this.soup[locationToIndex(loc)] : 0;
     }
 
-    public void removeSoup(MapLocation loc) {
-        removeSoup(loc, 1);
-    }
-
     public void removeSoup(MapLocation loc, int amount) {
         if (this.gameMap.onTheMap(loc)) {
             int idx = locationToIndex(loc);
@@ -590,7 +586,7 @@ public strictfp class GameWorld {
             if (this.flooded[idx])
                 floodOrigins.add(indexToLocation(idx));
         for (MapLocation center : floodOrigins) {
-            for (Direction dir : Direction.values()) {
+            for (Direction dir : Direction.cardinalDirections()) {
                 MapLocation targetLoc = center.add(dir);
                 if (!this.gameMap.onTheMap(targetLoc))
                     continue;
