@@ -573,9 +573,8 @@ public strictfp class GameWorld {
                                 setWinnerArbitrary();
 
         // update the round statistics
-        // this is not actually needed b/c we added it in TeamInfo.java... but is there anything else?
-        // matchMaker.addTeamSoup(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
-        // matchMaker.addTeamSoup(Team.B, teamInfo.getSoup(Team.B));
+         matchMaker.addTeamSoup(Team.A, teamInfo.getSoup(Team.A));
+         matchMaker.addTeamSoup(Team.B, teamInfo.getSoup(Team.B));
 
         if (gameStats.getWinner() != null)
             running = false;
