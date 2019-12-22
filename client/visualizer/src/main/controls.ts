@@ -325,7 +325,7 @@ export default class Controls {
     this.ctx.fillRect(time * scale, 0, 2, this.canvas.height);
 
     // Edit the text
-    this.timeReadout.textContent = `TIME: ${time+1}/${loadedTime+1}`;
+    this.timeReadout.textContent = `Round: ${time}/${loadedTime}`;
 
     let speedText = (lagging ? '(Lagging) ' : '') + `UPS: ${ups | 0} FPS: ${fps | 0}`;
     speedText = speedText.padStart(32);
