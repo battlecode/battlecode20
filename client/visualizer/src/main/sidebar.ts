@@ -144,6 +144,7 @@ export default class Sidebar {
     input box. (WARNING: If you want to, say, suddenly display 3000 rounds
     of data on round 2999, pause the client first to prevent freezing.)<br>
     <br>
+    <!---
     <b class="blue">How to Use the Map Editor</b><br>
     Select the initial map settings: name, width, height, symmetry. Add trees
     and archons by setting the coordinates and radius, and clicking
@@ -161,7 +162,7 @@ export default class Sidebar {
     If you are directed to save your map, save it in the
     <b>/battlecode-scaffold-2017-master/maps</b> directory of your scaffold.
     (Note: the name of your .map17 file must be the same as the name of your
-    map.)`;
+    map.)-->`;
 
     const div = document.createElement("div");
     div.id = "helpDiv";
