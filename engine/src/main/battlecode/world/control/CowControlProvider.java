@@ -19,9 +19,13 @@ public class CowControlProvider implements RobotControlProvider {
      */
     private final Direction[] DIRECTIONS = {
         Direction.NORTH,
+        Direction.NORTHEAST,
         Direction.EAST,
+        Direction.SOUTHEAST,
         Direction.SOUTH,
+        Direction.SOUTHWEST,
         Direction.WEST,
+        Direction.NORTHWEST
     };
 
     /**
@@ -202,12 +206,10 @@ public class CowControlProvider implements RobotControlProvider {
                 while (i-->0) { // TODO: make cow slightly smarter so it doesn't drown immediately
                     Direction dir = randomDirection();
                     if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
-                        System.out.println("i can move");
                         rc.move(dir);
                         break;
                     }
                 }
-                System.out.println("I'm a cow! at " + rc.getLocation());
                 return;
             }
         } catch (Exception e) {
