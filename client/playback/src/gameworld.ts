@@ -405,13 +405,15 @@ export default class GameWorld {
           
           case schema.Action.MINE_SOUP:
             arrays.cargo[robotID] += 1;
-            this.mapStats.soup[target] -= 1;
             break;
 
           case schema.Action.REFINE_SOUP:
-            const teamID = arrays.team[this.bodies.index(robotID)];
+            break;
+          
+          case schema.Action.DEPOSIT_SOUP:
             arrays.cargo[robotID] -= 1;
             break;
+
 
           case schema.Action.DIG_DIRT:
             // this.mapStats.dirt[target] -= 1; // this is done somewhere else
