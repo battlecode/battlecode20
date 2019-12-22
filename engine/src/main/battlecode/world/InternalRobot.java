@@ -21,7 +21,7 @@ public strictfp class InternalRobot {
     private int bytecodesUsed;
 
     private int roundsAlive;
-    private int soupCarrying; // amount of soup the robot is carrying (miners)
+    private int soupCarrying; // amount of soup the robot is carrying (miners and refineries)
     private int dirtCarrying; // amount of dirt the robot is carrying (landscapers and buildings)
     
     private float cooldownTurns;
@@ -280,6 +280,10 @@ public strictfp class InternalRobot {
         if (this.cooldownTurns > 0)
             this.cooldownTurns--;
         this.producedSoup = false;
+        this.currentBytecodeLimit = getType().bytecodeLimit;
+    }
+
+    public void processEndOfTurn() {
         // If refinery/vaporator/hq, produces refined soup
         if (this.type.canProduceSoupAndPollution() && this.soupCarrying > 0) {
             int soupProduced = Math.min(this.soupCarrying, this.type.maxSoupProduced);
@@ -287,10 +291,6 @@ public strictfp class InternalRobot {
             this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
             this.producedSoup = true;
         }
-        this.currentBytecodeLimit = getType().bytecodeLimit;
-    }
-
-    public void processEndOfTurn() {
         // If refinery/vaporator/hq, produces pollution
         if (this.type.canProduceSoupAndPollution() && this.producedSoup) {
             MapLocation[] withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadiusSquared(
