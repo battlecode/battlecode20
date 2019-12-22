@@ -4,85 +4,98 @@ package battlecode.common;
  * Defines constants that affect gameplay.
  */
 @SuppressWarnings("unused")
-public interface GameConstants {
+public class GameConstants {
 
     /**
      * The current spec version the server compiles with.
      */
-    String SPEC_VERSION = "1.0";
+    public static final String SPEC_VERSION = "1.0";
 
     // *********************************
     // ****** MAP CONSTANTS ************
     // *********************************
 
     /** The minimum possible map height. */
-    int MAP_MIN_HEIGHT = 32;
+    public static final int MAP_MIN_HEIGHT = 32;
 
     /** The maximum possible map height. */
-    int MAP_MAX_HEIGHT = 64;
+    public static final int MAP_MAX_HEIGHT = 64;
 
-    /** The minumum possible map width. */
-    int MAP_MIN_WIDTH = 32;
+    /** The minimum possible map width. */
+    public static final int MAP_MIN_WIDTH = 32;
 
-    /** The maxiumum possible map width. */
-    int MAP_MAX_WIDTH = 64;
+    /** The maximum possible map width. */
+    public static final int MAP_MAX_WIDTH = 64;
 
     // *********************************
     // ****** GAME PARAMETERS **********
     // *********************************
 
-    /** The initial amount of soup each team starts off with. */
-    int INITIAL_SOUP = 250;
-
-    /** The amount of soup each team receives per turn. */
-    int BASE_INCOME_PER_ROUND = 1;
-
-    /** The amount of soup that a miner gets when performing one mine action. */
-    int SOUP_MINING_RATE = 5;
-
     /** The number of indicator strings that a player can associate with a robot. */
-    int NUMBER_OF_INDICATOR_STRINGS = 3;
+    public static final int NUMBER_OF_INDICATOR_STRINGS = 3;
 
     /** The bytecode penalty that is imposed each time an exception is thrown. */
-    int EXCEPTION_BYTECODE_PENALTY = 500;
+    public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
     /** Maximum ID a Robot will have */
-    int MAX_ROBOT_ID = 32000;
+    public static final int MAX_ROBOT_ID = 32000;
+
+    // *********************************
+    // ****** SOUP *********************
+    // *********************************
+
+    /** The initial amount of soup each team starts off with. */
+    public static final int INITIAL_SOUP = 250;
+
+    /** The amount of soup each team receives per turn. */
+    public static final int BASE_INCOME_PER_ROUND = 1;
+
+    /** The amount of soup that a miner gets when performing one mine action. */
+    public static final int SOUP_MINING_RATE = 5;
+
+    // *********************************
+    // ****** POLLUTION ****************
+    // *********************************
+
+    /** The coefficient that the sensor radius will be multiplied by, as a function of pollution. */
+    public static float SENSOR_RADIUS_POLLUTION_FOG_COEFFICIENT(int pollution) {
+        return (float) Math.max(0, (1.0 - (pollution / 10000.0)));
+    }
 
     // *********************************
     // ****** MOVEMENT *****************
     // *********************************
 
     /** The maximum difference between dirt levels that a robot can cross. */
-    int MAX_DIRT_DIFFERENCE = 3;
+    public static final int MAX_DIRT_DIFFERENCE = 3;
 
     // *********************************
     // ****** ATTACKING ****************
     // *********************************
 
     /** The radius that delivery drones can pick up. */
-    int DELIVERY_DRONE_PICKUP_RADIUS_SQUARED = 2;
+    public static final int DELIVERY_DRONE_PICKUP_RADIUS_SQUARED = 2;
 
     /** The radius that net guns can shoot. */
-    int NET_GUN_SHOOT_RADIUS_SQUARED = 3;
+    public static final int NET_GUN_SHOOT_RADIUS_SQUARED = 3;
 
     // *********************************
     // ****** BLOCKCHAINNNN ************
     // *********************************
 
     /** The maximum number of integers that can be sent in one message. */
-    int MAX_BLOCKCHAIN_TRANSACTION_LENGTH = 10;
+    public static final int MAX_BLOCKCHAIN_TRANSACTION_LENGTH = 10;
 
     /** The number of transactions that get broadcasted every round. */
-    int NUMBER_OF_TRANSACTIONS_PER_BLOCK = 10;
+    public static final int NUMBER_OF_TRANSACTIONS_PER_BLOCK = 10;
     
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
     // *********************************
 
     /** The default game seed. **/
-    int GAME_DEFAULT_SEED = 6370;
+    public static final int GAME_DEFAULT_SEED = 6370;
 
     /** The default game maxiumum number of rounds. **/
-    int GAME_DEFAULT_ROUNDS = 500;
+    public static final int GAME_DEFAULT_ROUNDS = 500;
 }
