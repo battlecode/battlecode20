@@ -266,7 +266,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** READINESS METHODS **********
     // ***********************************
 
-    private void assertIsReady() throws GameActionException{
+    private void assertIsReady() throws GameActionException {
         if(!isReady()){
             throw new GameActionException(IS_NOT_READY,
                     "This robot's action cooldown has not expired.");
@@ -301,30 +301,30 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** MOVEMENT METHODS ***********
     // ***********************************
 
-    private void assertCanMove(MapLocation loc) throws GameActionException{
+    private void assertCanMove(MapLocation loc) throws GameActionException {
         if (!getType().canMove())
-            throw new GameActionException(CANT_MOVE_THERE,
+            throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot move.");
         if (!getLocation().isAdjacentTo(loc))
-            throw new GameActionException(CANT_MOVE_THERE,
+            throw new GameActionException(OUT_OF_RANGE,
                     "Can only move to adjacent locations; " + loc + " is not adjacent to " + getLocation() + ".");
         if (!onTheMap(loc))
-            throw new GameActionException(CANT_MOVE_THERE,
+            throw new GameActionException(OUT_OF_RANGE,
                     "Can only move to locations on the map; " + loc + " is not on the map.");
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot move to an occupied location; " + loc + " is occupied.");
         if (gameWorld.isFlooded(loc) && !getType().canFly())
-            throw new GameActionException(CANT_MOVE_THERE,
+            throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type "  + getType() + " which cannot fly over water; " + loc + " is flooded.");
         if (gameWorld.getDirtDifference(getLocation(), loc) > GameConstants.MAX_DIRT_DIFFERENCE)
-            throw new GameActionException(CANT_MOVE_THERE,
+            throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot fly, and the dirt difference to " + loc + " is " +
                     gameWorld.getDirtDifference(getLocation(), loc) + " which is higher than the limit of " +
                     GameConstants.MAX_DIRT_DIFFERENCE + " for non-flying units.");
         if (!isReady())
-            throw new GameActionException(IS_NOT_READY, "The robot is currently cooling down. " +
-                    "You need to wait a bit before the next action.");
+            throw new GameActionException(IS_NOT_READY,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     @Override
@@ -364,13 +364,26 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** BUILDING/SPAWNING **********
     // ***********************************
 
-    private void assertCanBuildRobot(RobotType type, Direction dir) throws GameActionException{
-        if(!canBuildRobot(type, dir)){
+    private void assertCanBuildRobot(RobotType type, Direction dir) throws GameActionException {
+        MapLocation spawnLoc = adjacentLocation(dir);
+        if (!getType().canBuild(type))
             throw new GameActionException(CANT_DO_THAT,
-                    "Can't build desired robot in given direction, possibly due to " +
-                            "insufficient currency, this robot can't build, " +
-                            "cooldown not expired, or the spawn location is occupied.");
-        }
+                    "Robot is of type " + getType() + " which cannot build robots of type" + type + ".");
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < type.cost)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
+                    "Not enough refined soup to build a robot of type" + type + ".");
+        if (!onTheMap(spawnLoc))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Can only spawn to locations on the map; " + spawnLoc + " is not on the map.");
+        if (isLocationOccupied(spawnLoc))
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Cannot spawn to an occupied location; " + spawnLoc + " is occupied.");
+        if (gameWorld.isFlooded(spawnLoc) && type != RobotType.DELIVERY_DRONE)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can only spawn delivery drones to flooded locations; " + spawnLoc + " is flooded but " + type + " is not a delivery drone.");
+        if (!isReady())
+            throw new GameActionException(IS_NOT_READY,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     @Override
@@ -385,12 +398,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         try {
             assertNotNull(type);
             assertNotNull(dir);
-            boolean hasBuildRequirements = hasRobotBuildRequirements(type);
-            MapLocation spawnLoc = adjacentLocation(dir);
-            boolean isClear = onTheMap(spawnLoc) && !isLocationOccupied(spawnLoc);
-            boolean cooldownExpired = isReady();
-            boolean notFlooded = !gameWorld.isFlooded(spawnLoc);
-            return hasBuildRequirements && isClear && cooldownExpired && notFlooded;
+            assertCanBuildRobot(type, dir);
+            return true;
         } catch (GameActionException e) { return false; }
     }
 
@@ -416,13 +425,23 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *
      * @throws GameActionException
      */
-    private void assertCanMineSoup(Direction dir) throws GameActionException{
-        if(!canMineSoup(dir)){
+    private void assertCanMineSoup(Direction dir) throws GameActionException {
+        MapLocation center = adjacentLocation(dir);
+        if (!getType().canMine())
             throw new GameActionException(CANT_DO_THAT,
-                    "Can't mine soup in given direction, possibly due to " +
-                            "cooldown not expired, this robot can't mine, " +
-                            "or the mine location doesn't contain soup.");
-        }
+                    "Robot is of type " + getType() + " which cannot mine soup.");
+        if (getSoupCarrying() >= getType().soupLimit)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
+                    "No space to carry more soup; robot is already carrying " + getType().soupLimit + " units of soup.");
+        if (!onTheMap(center))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Can only mine from locations on the map; " + center + " is not on the map.");
+        if (gameWorld.getSoup(center) <= 0)
+            throw new GameActionException(CANT_DO_THAT,
+                    center + " does not have any soup to mine.");
+        if (!isReady())
+            throw new GameActionException(IS_NOT_READY,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     /**
@@ -435,9 +454,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public boolean canMineSoup(Direction dir) {
-        MapLocation center = adjacentLocation(dir);
-        return getType().canMine() && getSoupCarrying() < getType().soupLimit &&
-                isReady() && onTheMap(center) && gameWorld.getSoup(center) > 0;
+        try {
+            assertNotNull(dir);
+            assertCanMineSoup(dir);
+            return true;
+        } catch (GameActionException e) { return false; }
     }
 
     /**
@@ -462,14 +483,24 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *
      * @throws GameActionException
      */
-    private void assertCanRefineSoup(Direction dir) throws GameActionException{
-        if(!canRefineSoup(dir)){
+    private void assertCanRefineSoup(Direction dir) throws GameActionException {
+        MapLocation center = adjacentLocation(dir);
+        if (!getType().canRefine())
             throw new GameActionException(CANT_DO_THAT,
-                    "Can't refine soup in given direction, possibly due to " +
-                            "cooldown not expired, this robot can't refine, " +
-                            "this robot doesn't have crude soup, " +
-                            "or the location doesn't have a refinery.");
-        }
+                    "Robot is of type " + getType() + " which cannot refine soup.");
+        if (getSoupCarrying() <= 0)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
+                    "Robot is not carrying any soup available to be refined.");
+        if (!onTheMap(center))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Can only refine to locations on the map; " + center + " is not on the map.");
+        InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
+        if (adjacentRobot == null || !adjacentRobot.getType().canProduceSoupAndPollution())
+            throw new GameActionException(CANT_DO_THAT,
+                    center + " does not have a refinery, vaporator, or HQ.");
+        if (!isReady())
+            throw new GameActionException(IS_NOT_READY,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     /**
@@ -482,12 +513,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public boolean canRefineSoup(Direction dir) {
-        MapLocation center = adjacentLocation(dir);
-        if (!onTheMap(center))
-            return false;
-        InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
-        return getType().canRefine() && isReady() && getSoupCarrying() > 0 &&
-                adjacentRobot != null && adjacentRobot.getType() == RobotType.REFINERY;
+        try {
+            assertNotNull(dir);
+            assertCanRefineSoup(dir);
+            return true;
+        } catch (GameActionException e) { return false; }
     }
 
     /**
@@ -520,13 +550,20 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *
      * @throws GameActionException
      */
-    private void assertCanDigDirt(Direction dir) throws GameActionException{
-        if(!canDigDirt(dir)){
+    private void assertCanDigDirt(Direction dir) throws GameActionException {
+        MapLocation center = adjacentLocation(dir);
+        if (!getType().canDig())
             throw new GameActionException(CANT_DO_THAT,
-                    "Can't dig dirt in given direction, possibly due to " +
-                            "cooldown not expired, this robot can't dig, " +
-                            "or the robot cannot carry more dirt.");
-        }
+                    "Robot is of type " + getType() + " which cannot dig dirt.");
+        if (getDirtCarrying() >= getType().dirtLimit)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
+                    "No space to carry more dirt; robot is already carrying " + getType().dirtLimit + " units of dirt.");
+        if (!onTheMap(center))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Can only dig dirt from locations on the map; " + center + " is not on the map.");
+        if (!isReady())
+            throw new GameActionException(IS_NOT_READY,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     /**
@@ -538,9 +575,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public boolean canDigDirt(Direction dir) {
-        MapLocation center = adjacentLocation(dir);
-        return getType().canDig() && getDirtCarrying() < getType().dirtLimit &&
-                isReady() && onTheMap(center);
+        try {
+            assertNotNull(dir);
+            assertCanDigDirt(dir);
+            return true;
+        } catch (GameActionException e) { return false; }
     }
 
     /**
@@ -565,13 +604,23 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *
      * @throws GameActionException
      */
-    private void assertCanDepositDirt(Direction dir, int amount) throws GameActionException{
-        if(!canDepositDirt(dir, amount)){
+    private void assertCanDepositDirt(Direction dir, int amount) throws GameActionException {
+        MapLocation center = adjacentLocation(dir);
+        if (!getType().canDeposit())
             throw new GameActionException(CANT_DO_THAT,
-                    "Can't deposit dirt in given direction, possibly due to " +
-                            "cooldown not expired, this robot can't deposit, " +
-                            "or this robot doesn't have dirt.");
-        }
+                    "Robot is of type " + getType() + " which cannot deposit dirt.");
+        if (amount <= 0)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can only deposit positive amounts of dirt.");
+        if (getDirtCarrying() < amount)
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
+                    "Robot is only carrying " + getDirtCarrying() + " units of dirt, which is less than the requested amount of " + amount + " units.");
+        if (!onTheMap(center))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Can only deposit dirt to locations on the map; " + center + " is not on the map.");
+        if (!isReady())
+            throw new GameActionException(IS_NOT_READY,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     /**
@@ -584,9 +633,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public boolean canDepositDirt(Direction dir, int amount) {
-        MapLocation center = adjacentLocation(dir);
-        return (getType().canDeposit() && isReady() &&
-                onTheMap(center) && getDirtCarrying() >= amount);
+        try {
+            assertNotNull(dir);
+            assertCanDepositDirt(dir, amount);
+            return true;
+        } catch (GameActionException e) { return false; }
     }
 
     /**
@@ -623,9 +674,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (robot.isCurrentlyHoldingUnit())
             throw new GameActionException(CANT_PICK_UP_UNIT,
                     "Robot is already holding a unit; you can't pick up another one!");
-        if (!isReady())
-            throw new GameActionException(IS_NOT_READY,
-                    "Robot is still cooling down! You need to wait before you can perform another action.");
         if (getRobotByID(id) == null)
             throw new GameActionException(NO_ROBOT_THERE,
                     "No unit of ID " + id + " exists! Impossible to pick up nonexistent things.");
@@ -633,10 +681,13 @@ public final strictfp class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_PICK_UP_UNIT,
                     "Cannot pick up any unit of type " + getRobotByID(id).getType() + ".");
         if (!getRobotByID(id).getLocation().isWithinDistanceSquared(getLocation(), GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED))
-            throw new GameActionException(CANT_PICK_UP_UNIT,
+            throw new GameActionException(OUT_OF_RANGE,
                     "Cannot pick up unit outside pickup radius; unit is " +
                     getRobotByID(id).getLocation().distanceSquaredTo(getLocation()) +
-                            " away, but the pickup radius squared is " + GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED);
+                            " squared distance away, but the pickup radius squared is " + GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED);
+        if (!isReady())
+            throw new GameActionException(IS_NOT_READY,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     /**
@@ -651,10 +702,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public boolean canPickUpUnit(int id) {
         try {
             assertCanPickUpUnit(id);
-        } catch (GameActionException e) {
-            return false;
-        }
-        return true;
+            return true;
+        } catch (GameActionException e) { return false; }
     }
 
     /**
@@ -680,10 +729,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * @throws GameActionException
      */
     private void assertCanDropUnit(Direction dir) throws GameActionException {
-        if(!canDropUnit(dir))
+        MapLocation center = adjacentLocation(dir);
+        if (!getType().canDropOffUnits())
             throw new GameActionException(CANT_DO_THAT,
-                    "Cannot drop a unit, possibly due to not being a delivery drone, " +
-                    "not currently holding a unit, or the target location is invalid or occupied.");
+                    "Robot is of type " + getType() + " which cannot drop off units.");
+        if (!this.robot.isCurrentlyHoldingUnit())
+            throw new GameActionException(NOT_ENOUGH_RESOURCE,
+                    "Robot is not currently holding any units to drop off.");
+        if (!onTheMap(center))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Can only drop units to locations on the map; " + center + " is not on the map.");
+        if (isLocationOccupied(center))
+            throw new GameActionException(CANT_MOVE_THERE,
+                    "Cannot drop off units to an occupied location; " + center + " is occupied.");
+        if (!isReady())
+            throw new GameActionException(IS_NOT_READY,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     /**
@@ -695,9 +756,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public boolean canDropUnit(Direction dir) {
-        MapLocation loc = adjacentLocation(dir);
-        return isReady() && onTheMap(loc) && this.getType().canDropOffUnits() &&
-            this.robot.isCurrentlyHoldingUnit();
+        try {
+            assertNotNull(dir);
+            assertCanDropUnit(dir);
+            return true;
+        } catch (GameActionException e) { return false; }
     }
 
     /**
@@ -762,10 +825,25 @@ public final strictfp class RobotControllerImpl implements RobotController {
      * @throws GameActionException
      */
     private void assertCanShootUnit(int id) throws GameActionException {
-        if(!canShootUnit(id))
+        InternalRobot targetRobot = getRobotByID(id);
+        if (!getType().canShoot())
             throw new GameActionException(CANT_DO_THAT,
-                    "Cannot shoot down the specified unit, possibly due to not being a net gun, " +
-                    "action cooldown not ready, the unit not within pickup distance, or unit can't be shot down.");
+                    "Robot is of type " + getType() + " which cannot shoot units.");
+        if (targetRobot == null)
+            throw new GameActionException(NO_ROBOT_THERE,
+                    "No unit of ID " + id + " exists! Impossible to shoot nonexistent things.");
+        if (!targetRobot.getType().canBeShot())
+            throw new GameActionException(CANT_DO_THAT,
+                    "Target robot is of type " + targetRobot.getType() + " which cannot be shot.");
+
+        if (!targetRobot.getLocation().isWithinDistanceSquared(getLocation(), GameConstants.NET_GUN_SHOOT_RADIUS_SQUARED))
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Cannot shoot unit outside shooting radius; unit is " +
+                    targetRobot.getLocation().distanceSquaredTo(getLocation()) +
+                            " squared distance away, but the shooting radius squared is " + GameConstants.NET_GUN_SHOOT_RADIUS_SQUARED);
+        if (!isReady())
+            throw new GameActionException(IS_NOT_READY,
+                    "Robot is still cooling down! You need to wait before you can perform another action.");
     }
 
     /**
@@ -777,10 +855,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public boolean canShootUnit(int id) {
-        InternalRobot targetRobot = getRobotByID(id);
-        return this.getType().canShoot() && isReady() && targetRobot != null &&
-               targetRobot.getType().canBeShot() &&
-               targetRobot.getLocation().isWithinDistanceSquared(getLocation(), GameConstants.NET_GUN_SHOOT_RADIUS_SQUARED);
+        try {
+            assertCanShootUnit(id);
+            return true;
+        } catch (GameActionException e) { return false; }
     }
 
     /**
@@ -821,26 +899,22 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     private void assertCanSubmitTransaction(int[] message, int cost) throws GameActionException {
-        if (message.length > GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH) {
+        if (message.length > GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH)
             throw new GameActionException(TOO_LONG_BLOCKCHAIN_TRANSACTION,
                     "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH) +
                             " integers in one message, not " + Integer.toString(message.length) + ".");
-        }
         int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
-        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost) {
+        if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
-        }
     }
 
     @Override
     public boolean canSubmitTransaction(int[] message, int cost) {
         try {
             assertCanSubmitTransaction(message, cost);
-        } catch (GameActionException e) {
-            return false;
-        }
-        return true;
+            return true;
+        } catch (GameActionException e) { return false; }
     }
 
 
@@ -872,14 +946,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public Transaction[] getBlock(int roundNumber) throws GameActionException {
-        if (roundNumber < 0) {
+        if (roundNumber < 0)
             throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
                 + "; in fact, no negative round numbers are allowed at all.");
-        }
-        if (roundNumber >= gameWorld.currentRound) {
+        if (roundNumber >= gameWorld.currentRound)
             throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
                 + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
-        }
         // just get it!
         Transaction[] transactions = gameWorld.blockchain.get(roundNumber).toArray(new Transaction[0]);
         return transactions;
