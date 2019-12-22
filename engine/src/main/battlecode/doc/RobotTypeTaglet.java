@@ -178,27 +178,36 @@ public class RobotTypeTaglet implements Taglet {
         StringBuilder builder = new StringBuilder();
         try {
             // TODO: edit this. i honestly don't know what this should be but it should be something else
-            // appendField(builder, rt, "maxHealth");
-            // appendField(builder, rt, "bodyRadius");
-            // appendField(builder, rt, "strideRadius");
-            // builder.append("<br />");
+            appendField(builder, rt, "sensorRadiusSquared");
+            appendField(builder, rt, "actionCooldown");
 
-            // TODO: edit this
-            // appendMethod(builder, rt, "canAttack");
-            // if (rt.attackPower > 0) {
-            //     appendField(builder, rt, "attackPower");
-            // }
-            // builder.append("<br />");
+            if (rt.dirtLimit > 0) {
+                builder.append("<br />");
+                appendField(builder, rt, "dirtLimit");
+            }
+            if (rt.soupLimit > 0) {
+                builder.append("<br />");
+                appendField(builder, rt, "soupLimit");
+            }
 
-            // if (rt.spawnSource != null) {
-            //     appendField(builder, rt, "spawnSource");
-            //     appendField(builder, rt, "buildCooldownTurns");
-            //     builder.append("<br />");
-            // }
+             if (rt.pollutionRadiusSquared > 0) {
+                 builder.append("<br />");
+                 appendField(builder, rt, "pollutionRadiusSquared");
+                 appendField(builder, rt, "pollutionAmount");
+                 appendField(builder, rt, "globalPollutionAmount");
+                 appendField(builder, rt, "maxSoupProduced");
+             }
+
+             if (rt.spawnSource != null) {
+                 builder.append("<br />");
+                 appendField(builder, rt, "spawnSource");
+                 appendField(builder, rt, "cost");
+             }
 
             // appendField(builder, rt, "sensorRadius");
 
             if (rt.bytecodeLimit != 0) {
+                builder.append("<br />");
                 appendField(builder, rt, "bytecodeLimit");
             }
         } catch (Exception e) {
