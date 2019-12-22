@@ -1,7 +1,6 @@
 import {Config} from '../../config';
 import * as cst from '../../constants';
 import {AllImages} from '../../imageloader';
-import Console from './console'
 
 import {schema} from 'battlecode-playback';
 
@@ -45,7 +44,7 @@ export default class Stats {
     cst.MINER, cst.LANDSCAPER, cst.DRONE, cst.NET_GUN, cst.REFINERY, cst.VAPORATOR, cst.HQ, cst.DESIGN_SCHOOL, cst.FULFILLMENT_CENTER
   ];
 
-  constructor(conf: Config, images: AllImages, robotConsole: Console) {
+  constructor(conf: Config, images: AllImages) {
     this.conf = conf;
     this.images = images;
     this.div = document.createElement("div");
@@ -53,7 +52,6 @@ export default class Stats {
     let teamNames: Array<string> = ["?????", "?????"];
     let teamIDs: Array<number> = [1, 2];
     this.statsTableElement = document.createElement("table");
-    this.robotConsole = robotConsole.div;
     this.initializeGame(teamNames, teamIDs);
   }
 
@@ -235,11 +233,6 @@ export default class Stats {
     this.statsTableElement = this.statsTable(teamIDs);
     this.div.appendChild(this.statsTableElement);
     
-    // Add log console
-    let consoleDiv = document.createElement("div");
-    consoleDiv.append(this.robotConsole);
-    this.div.appendChild(consoleDiv);
-
     this.div.appendChild(this.images.soup);
   }
 
