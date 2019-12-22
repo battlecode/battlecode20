@@ -17,7 +17,7 @@ battlecode/common/MapLocation/directionTo                          2    false
 battlecode/common/MapLocation/distanceSquaredTo                    2    false
 battlecode/common/MapLocation/equals                               2    false
 battlecode/common/MapLocation/hashCode                             2    false
-battlecode/common/MapLocation/isWithinDistance                     2    false
+battlecode/common/MapLocation/isWithinDistanceSquared              2    false
 battlecode/common/MapLocation/isWithinSensorRadius                 2    false
 battlecode/common/MapLocation/subtract                             2    false
 battlecode/common/MapLocation/toString                             2    false
@@ -28,14 +28,12 @@ battlecode/common/RobotController/buildRobot                        0     true
 battlecode/common/RobotController/canBuildRobot                     10    true
 battlecode/common/RobotController/canDepositDirt                    10    true
 battlecode/common/RobotController/canDigDirt	                    10    true
-battlecode/common/RobotController/canHireGardener                   10    true
 battlecode/common/RobotController/canMineSoup	                    5     true
 battlecode/common/RobotController/canMove                           10    true
 battlecode/common/RobotController/canRefineSoup	                    5     true
 battlecode/common/RobotController/canSenseAllOfCircle               5     true
 battlecode/common/RobotController/canSenseLocation                  5     true
-battlecode/common/RobotController/canSensePartOfCircle              5     true
-battlecode/common/RobotController/canSenseRadius                    5     true
+battlecode/common/RobotController/canSenseRadiusSquared             5     true
 battlecode/common/RobotController/canSenseRobot                     5     true
 battlecode/common/RobotController/canStrike                         5     true
 battlecode/common/RobotController/digDirt	       		            0     true
@@ -47,12 +45,9 @@ battlecode/common/RobotController/getBuildCooldownTurns             1     true
 battlecode/common/RobotController/getControlBits                    0     true
 battlecode/common/RobotController/getCooldownTurns                  1     true
 battlecode/common/RobotController/getDirtCarrying	                1     true
-battlecode/common/RobotController/getHealth                         1     true
 battlecode/common/RobotController/getID                             1     true
-battlecode/common/RobotController/getInitialArchonLocations         100   true
 battlecode/common/RobotController/getLocation                       1     true
 battlecode/common/RobotController/getMoveCount                      1     true
-battlecode/common/RobotController/getOpponentVictoryPoints          1     true
 battlecode/common/RobotController/getRobotCount                     20    true
 battlecode/common/RobotController/getRoundLimit                     1     true
 battlecode/common/RobotController/getRoundNum                       1     true
@@ -66,7 +61,6 @@ battlecode/common/RobotController/getVictoryPointCost               0     true
 battlecode/common/RobotController/hasAttacked                       1     true
 battlecode/common/RobotController/hasMoved                          1     true
 battlecode/common/RobotController/hasRobotBuildRequirements         5     true
-battlecode/common/RobotController/hireGardener                      0     true
 battlecode/common/RobotController/isBuildReady                      1     true
 battlecode/common/RobotController/isCurrentlyHoldingUnit            1     true
 battlecode/common/RobotController/isReady                           1     true
