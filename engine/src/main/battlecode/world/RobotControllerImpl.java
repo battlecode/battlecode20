@@ -73,11 +73,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // *********************************
 
     @Override
-    public int getRoundLimit() {
-        return gameWorld.getGameMap().getRounds();
-    }
-
-    @Override
     public int getRoundNum() {
         return gameWorld.getCurrentRound();
     }

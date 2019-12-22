@@ -15,20 +15,10 @@ public strictfp interface RobotController {
     // *********************************
 
     /**
-     * Returns the number of rounds in the game. After this many rounds, if neither
-     * team has been destroyed, tiebreakers will be used.
-     *
-     * @return the number of rounds in the game.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getRoundLimit();
-
-    /**
-     * Returns the current round number, where round 0 is the first round of the
+     * Returns the current round number, where round 1 is the first round of the
      * match.
      *
-     * @return the current round number, where round 0 is the first round of the
+     * @return the current round number, where round 1 is the first round of the
      * match.
      *
      * @battlecode.doc.costlymethod
