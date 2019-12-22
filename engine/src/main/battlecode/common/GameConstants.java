@@ -45,7 +45,7 @@ public class GameConstants {
     // *********************************
 
     /** The initial amount of soup each team starts off with. */
-    public static final int INITIAL_SOUP = 250;
+    public static final int INITIAL_SOUP = 500;
 
     /** The amount of soup each team receives per turn. */
     public static final int BASE_INCOME_PER_ROUND = 1;
