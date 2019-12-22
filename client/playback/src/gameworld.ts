@@ -410,7 +410,6 @@ export default class GameWorld {
 
           case schema.Action.REFINE_SOUP:
             const teamID = arrays.team[this.bodies.index(robotID)];
-            this.teamStats.get(teamID).soup += 1;
             arrays.cargo[robotID] -= 1;
             break;
 

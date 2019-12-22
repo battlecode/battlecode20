@@ -210,7 +210,6 @@ class GameWorld {
                         break;
                     case battlecode_schema_1.schema.Action.REFINE_SOUP:
                         const teamID = arrays.team[this.bodies.index(robotID)];
-                        this.teamStats.get(teamID).soup += 1;
                         arrays.cargo[robotID] -= 1;
                         break;
                     case battlecode_schema_1.schema.Action.DIG_DIRT:
