@@ -220,7 +220,7 @@ input {
     overflow-x: hidden;
     overflow-y: hidden;
     color: rgb(39, 39, 39);
-    background-color: rgb(252, 252, 252);
+    background-color: white;
     padding: 10px;
 }
 
@@ -249,7 +249,7 @@ input {
     overflow-x: hidden;
 
     /* Inner style */
-    background-color: rgb(252, 252, 252);
+    background-color: white;
     color: rgb(39, 39, 39);
     text-align: center;
     font-size: 16px;
@@ -260,15 +260,13 @@ input {
 }
 
 #sidebar button {
-    background-color: rgb(39, 39, 39);
     border: none;
     color: white;
-    border-radius: 5px;
     padding: 10px 10px;
     text-align: center;
     display: inline-block;
     font-size: 14px;
-    cursor: grab;
+    cursor: pointer;
 }
 #sidebar button:focus {
     outline: none;
@@ -277,7 +275,16 @@ input {
 #sidebar button.modebutton {
     background-color: white;
     color: rgb(39, 39, 39);
-    padding: 5px 0;
+    padding: 10px 5px;
+    width: 100%;
+    border-bottom-color: rgba(0,0,0,0.04);
+    border-bottom-style: groove;
+}
+#sidebar button.modebutton:hover {
+    background-color: rgba(0,0,0,0.04);
+}
+#sidebar button.selectedmodebutton {
+    border-bottom-color: blue !important;
 }
 
 #logo {

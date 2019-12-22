@@ -16,6 +16,7 @@ export default class Sidebar {
   readonly div: HTMLDivElement; // The public div
   private readonly innerDiv: HTMLDivElement;
   private readonly images: AllImages;
+  private readonly modeButtons: Map<Mode, HTMLButtonElement>;
 
   // Different modes
   readonly stats: Stats;
@@ -74,6 +75,7 @@ export default class Sidebar {
     const modePanel = document.createElement('table');
     modePanel.className = 'modepanel';
     const modePanelRow = document.createElement('tr');
+    this.modeButtons = new Map<Mode, HTMLButtonElement>();
     modePanelRow.appendChild(this.modeButton(Mode.GAME, "Game"));
     modePanelRow.appendChild(this.modeButton(Mode.LOGS, "Logs"));
     modePanelRow.appendChild(this.modeButton(Mode.QUEUE, "Queue"));
@@ -82,10 +84,13 @@ export default class Sidebar {
     modePanelRow.appendChild(this.modeButton(Mode.HELP, "Help"));
     modePanel.appendChild(modePanelRow);
     this.div.appendChild(modePanel);
-    this.div.appendChild(document.createElement('hr'));
 
     this.div.appendChild(this.innerDiv);
-    this.innerDiv.appendChild(this.stats.div);
+
+    this.conf.mode = Mode.GAME;
+
+    this.updateModeButtons();
+    this.setSidebar();
   }
 
 
@@ -187,6 +192,15 @@ export default class Sidebar {
     return logo;
   }
 
+  private updateModeButtons() {
+    this.modeButtons.forEach(button => {
+      button.className = 'modebutton';
+    });
+    let modeButton = this.modeButtons.get(this.conf.mode);
+    if (modeButton !== undefined)
+      modeButton.className = 'modebutton selectedmodebutton';
+  }
+
   private modeButton(mode: Mode, text: string): HTMLTableDataCellElement {
     const cellButton = document.createElement('td');
     const button = document.createElement("button");
@@ -195,8 +209,10 @@ export default class Sidebar {
     button.innerHTML = text;
     button.onclick = () => {
       this.conf.mode = mode;
+      this.updateModeButtons();
       this.setSidebar();
     };
+    this.modeButtons.set(mode, button);
     cellButton.appendChild(button);
     return cellButton;
   }
@@ -252,6 +268,7 @@ export default class Sidebar {
         break;
       case Mode.LOGS:
         this.innerDiv.appendChild(this.console.div);
+        break;
       case Mode.RUNNER:
         this.innerDiv.appendChild(this.matchrunner.div);
         break;
@@ -260,6 +277,6 @@ export default class Sidebar {
         break;
     }
 
-    this.cb();
+    // this.cb();
   }
 }
