@@ -37,6 +37,9 @@ public interface GameConstants {
     /** The amount of soup each team receives per turn. */
     int BASE_INCOME_PER_ROUND = 1;
 
+    /** The amount of soup that a miner gets when performing one mine action. */
+    int SOUP_MINING_RATE = 5;
+
     /** The number of indicator strings that a player can associate with a robot. */
     int NUMBER_OF_INDICATOR_STRINGS = 3;
 
