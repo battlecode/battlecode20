@@ -586,7 +586,7 @@ public strictfp class GameWorld {
             if (this.flooded[idx])
                 floodOrigins.add(indexToLocation(idx));
         for (MapLocation center : floodOrigins) {
-            for (Direction dir : Direction.values()) {
+            for (Direction dir : Direction.cardinalDirections()) {
                 MapLocation targetLoc = center.add(dir);
                 if (!this.gameMap.onTheMap(targetLoc))
                     continue;

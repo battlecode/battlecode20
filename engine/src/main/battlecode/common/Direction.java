@@ -98,4 +98,13 @@ public enum Direction {
             return this; // center
         return Direction.values()[(ordinal() + 1) % 8];
     }
+
+    /**
+     * Returns a list of all cardinal directions.
+     *
+     * @return array of all cardinal directions.
+     */
+    public static Direction[] cardinalDirections() {
+        return new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+    }
 }
