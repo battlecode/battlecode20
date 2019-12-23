@@ -310,7 +310,7 @@ public strictfp class GameWorld {
      *  resurfaces a tile that has increased in elevation.
      * ALSO ADDS THE ACTION TO MATCHMAKER.
      * 
-     * @param robotID the id of the robot that initiated the action
+     * @param robotID the id of the robot that initiated the action, -1 if dead
      * @param loc the location
      * @param amount the amount of dirt to deposit
      */
@@ -667,6 +667,10 @@ public strictfp class GameWorld {
             if (robot.getType().canDropOffUnits() && robot.isCurrentlyHoldingUnit())
                 robot.getController().dropUnit(null, false);
         } catch (GameActionException e) {}
+
+        // if a landscaper is killed, drop dirt at current location
+        if (robot.getType().canDepositDirt() && robot.getDirtCarrying() > 0)
+            addDirt(-1, robot.getLocation(), robot.getDirtCarrying());
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
