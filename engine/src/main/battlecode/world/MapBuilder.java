@@ -105,6 +105,7 @@ public class MapBuilder {
         this.dirtArray[locationToIndex(x, y)] = value;
     }
 
+    // The water level should always be set to 0!!
     public void setWaterLevel(int waterLevel) {
         this.waterLevel = waterLevel;
     }

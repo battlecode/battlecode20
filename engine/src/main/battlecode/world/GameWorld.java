@@ -31,7 +31,7 @@ public strictfp class GameWorld {
     private int[] pollution;
     private int[] dirt;
     private int initialWaterLevel;
-    private int waterLevel;
+    private float waterLevel;
     private boolean[] flooded;
     private InternalRobot[][] robots;
     private final LiveMap gameMap;
@@ -377,7 +377,7 @@ public strictfp class GameWorld {
      * Updates the global water level according to an arbitrary function.
      */
     public void updateWaterLevel() {
-        this.waterLevel = (int) Math.floor(Math.pow(this.currentRound / 200.0, 2));
+        this.waterLevel = GameConstants.WATER_LEVEL(0, getCurrentRound());
     }
 
     // ***********************************
