@@ -96,6 +96,6 @@ public class GameConstants {
     /** The default game seed. **/
     public static final int GAME_DEFAULT_SEED = 6370;
 
-    /** The default game maxiumum number of rounds. **/
-    public static final int GAME_DEFAULT_ROUNDS = 500;
+    /** The maximum number of rounds in a game. In practice, this is not needed, because the water level at round 10,000 will be huge. **/
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 10000;
 }

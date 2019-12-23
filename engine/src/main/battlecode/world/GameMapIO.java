@@ -2,7 +2,6 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.schema.*;
-import battlecode.server.Server;
 import battlecode.util.FlatHelpers;
 import battlecode.util.TeamMapping;
 import com.google.flatbuffers.FlatBufferBuilder;
@@ -227,7 +226,7 @@ public final strictfp class GameMapIO {
             final int height = (int) (raw.maxCorner().y() - raw.minCorner().y());
             final MapLocation origin = new MapLocation((int) raw.minCorner().x(), (int) raw.minCorner().y());
             final int seed = raw.randomSeed();
-            final int rounds = GameConstants.GAME_DEFAULT_ROUNDS;
+            final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();
             final int initialWater = raw.initialWater();
             int[] soupArray = new int[width * height];

@@ -102,6 +102,6 @@ public class TestMapBuilder {
     }
 
     public LiveMap build() {
-        return new LiveMap(width, height, origin, seed, GameConstants.GAME_DEFAULT_ROUNDS, name, bodies.toArray(new RobotInfo[bodies.size()]), soupArray, pollutionArray, waterArray, dirtArray, initialWater);
+        return new LiveMap(width, height, origin, seed, GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, name, bodies.toArray(new RobotInfo[bodies.size()]), soupArray, pollutionArray, waterArray, dirtArray, initialWater);
     }
 }
