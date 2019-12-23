@@ -66,9 +66,9 @@ public class GameConstants {
     // ****** WATER ********************
     // *********************************
 
-    /** The function determining current water level as a function of pollution and round number. */
-    public static float WATER_LEVEL(int pollution, int roundNumber) {
-        return (float) (Math.pow(roundNumber / 200.0, 3) * (1 + pollution / 10000.0));
+    /** The function determining current water level as a function of the round number. */
+    public static float WATER_LEVEL(int roundNumber) {
+        return (float) Math.pow(roundNumber / 200.0, 3);
     }
 
     // *********************************
