@@ -291,8 +291,9 @@ public strictfp class InternalRobot {
             this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
             this.producedSoup = true;
         }
-        // If refinery/vaporator/hq, produces pollution
+        // If refinery/vaporator/hq/cow, produces pollution
         if ((this.type.canRefine() && this.producedSoup) || (this.type == RobotType.COW)) {
+            //System.out.println("I produced pollution!");
             MapLocation[] withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadiusSquared(
                                                                 this.location, 
                                                                 this.type.pollutionRadiusSquared);
