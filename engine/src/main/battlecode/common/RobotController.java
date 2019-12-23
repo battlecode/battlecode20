@@ -532,24 +532,22 @@ public strictfp interface RobotController {
      * and whether the robot has dirt.
      *
      * @param dir the direction to deposit
-     * @param amount the amount of dirt to deposit
      * @return whether it is possible to deposit dirt in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canDepositDirt(Direction dir, int amount);
+    boolean canDepositDirt(Direction dir);
 
     /**
-     * Deposits dirt in the given direction (max up to specified amount).
+     * Deposits 1 unit of dirt in the given direction.
      *
      * @param dir the direction to deposit
-     * @param amount the amount of dirt to deposit
      * @throws GameActionException if this robot is not a landscaper, if
      * the robot is still in cooldown, if there is no dirt to deposit,
      *
      * @battlecode.doc.costlymethod
      */
-    void depositDirt(Direction dir, int amount) throws GameActionException;
+    void depositDirt(Direction dir) throws GameActionException;
 
     // ***************************************
     // ******* DELIVERY DRONE METHODS ********
