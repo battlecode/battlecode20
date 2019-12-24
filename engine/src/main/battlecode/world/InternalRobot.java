@@ -175,7 +175,7 @@ public strictfp class InternalRobot {
      * by the current pollution level at the present location.
      */
     public int getCurrentSensorRadiusSquared() {
-        return (int) Math.round(this.type.sensorRadiusSquared * GameConstants.SENSOR_RADIUS_POLLUTION_FOG_COEFFICIENT(this.gameWorld.getPollution(getLocation())));
+        return (int) Math.round(this.type.sensorRadiusSquared * GameConstants.getSensorRadiusPollutionCoefficient(this.gameWorld.getPollution(getLocation())));
     }
 
     /**
