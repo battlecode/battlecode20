@@ -5,7 +5,7 @@ package battlecode.common;
  */
 public enum RobotType {
 
-    // spawnSource, soupCost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, maxSoupProduced, bytecodeLimit
+    // spawnSource, soupCost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, globalPollutionAmount, maxSoupProduced, bytecodeLimit
     /**
      * The base produces miners, is also a net gun and a refinery.
      * @battlecode.doc.robottype
@@ -30,7 +30,7 @@ public enum RobotType {
      * @battlecode.doc.robottype
      */
     VAPORATOR               (MINER,  1000,  0,  0,  1,  15,  5,  -100,  -1,  10,  15000),
-    //                       SS      C    DL  SL  AC  SR  PR  PA   GP   MS  BL
+    //                       SS      C     DL  SL  AC   SR  PR    PA    GP   MS   BL
     /**
      * Design schools create landscapers.
      * @battlecode.doc.robottype
