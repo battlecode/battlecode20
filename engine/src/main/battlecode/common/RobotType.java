@@ -5,7 +5,7 @@ package battlecode.common;
  */
 public enum RobotType {
 
-    // spawnSource, soupCost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, globalPollutionAmount, maxSoupProduced, bytecodeLimit
+    // spawnSource, soupCost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, globalPollutionAmount, bytecodeLimit
     /**
      * The base produces miners, is also a net gun and a refinery.
      * @battlecode.doc.robottype
