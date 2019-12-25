@@ -67,7 +67,7 @@ public class GameConstants {
     // *********************************
 
     /** The function determining current water level as a function of the round number. */
-    public static float WATER_LEVEL(int roundNumber) {
+    public static float getWaterLevel(int roundNumber) {
         return (float) Math.pow(roundNumber / 200.0, 3);
     }
 
