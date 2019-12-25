@@ -73,11 +73,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // *********************************
 
     @Override
-    public int getRoundLimit() {
-        return gameWorld.getGameMap().getRounds();
-    }
-
-    @Override
     public int getRoundNum() {
         return gameWorld.getCurrentRound();
     }
@@ -606,17 +601,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *
      * @throws GameActionException
      */
-    private void assertCanDepositDirt(Direction dir, int amount) throws GameActionException {
+    private void assertCanDepositDirt(Direction dir) throws GameActionException {
         MapLocation center = adjacentLocation(dir);
         if (!getType().canDepositDirt())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot deposit dirt.");
-        if (amount <= 0)
-            throw new GameActionException(CANT_DO_THAT,
-                    "Can only deposit positive amounts of dirt.");
-        if (getDirtCarrying() < amount)
+        if (getDirtCarrying() < 1)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
-                    "Robot is only carrying " + getDirtCarrying() + " units of dirt, which is less than the requested amount of " + amount + " units.");
+                    "Robot is carriying " + getDirtCarrying() + " units of dirt, and thus cannot deposit any dirt.");
         if (!onTheMap(center))
             throw new GameActionException(OUT_OF_RANGE,
                     "Can only deposit dirt to locations on the map; " + center + " is not on the map.");
@@ -631,13 +623,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *  the action cooldown is ready, and whether the location is on the map.
      *
      * @param dir the direction to deposit in
-     * @param amount the amount of dirt to deposit
      */
     @Override
-    public boolean canDepositDirt(Direction dir, int amount) {
+    public boolean canDepositDirt(Direction dir) {
         try {
             assertNotNull(dir);
-            assertCanDepositDirt(dir, amount);
+            assertCanDepositDirt(dir);
             return true;
         } catch (GameActionException e) { return false; }
     }
@@ -648,13 +639,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
      *  WE DON'T KNOW YET.
      *
      * @param dir the direction to deposit in
-     * @param amount the amount of dirt to deposit
      * @throws GameActionException
      */
     @Override
-    public void depositDirt(Direction dir, int amount) throws GameActionException {
+    public void depositDirt(Direction dir) throws GameActionException {
         assertNotNull(dir);
-        assertCanDepositDirt(dir, amount);
+        assertCanDepositDirt(dir);
         this.robot.resetCooldownTurns();
         this.robot.removeDirtCarrying(1);
         this.gameWorld.addDirt(getID(), adjacentLocation(dir), 1);

@@ -45,7 +45,7 @@ public class GameConstants {
     // *********************************
 
     /** The initial amount of soup each team starts off with. */
-    public static final int INITIAL_SOUP = 250;
+    public static final int INITIAL_SOUP = 500;
 
     /** The amount of soup each team receives per turn. */
     public static final int BASE_INCOME_PER_ROUND = 1;
@@ -60,6 +60,15 @@ public class GameConstants {
     /** The coefficient that the sensor radius will be multiplied by, as a function of pollution. */
     public static float getSensorRadiusPollutionCoefficient(int pollution) {
         return (float) Math.max(0, (1.0 - (pollution / 10000.0)));
+    }
+
+    // *********************************
+    // ****** WATER ********************
+    // *********************************
+
+    /** The function determining current water level as a function of the round number. */
+    public static float getWaterLevel(int roundNumber) {
+        return (float) Math.pow(roundNumber / 200.0, 3);
     }
 
     // *********************************
@@ -96,6 +105,6 @@ public class GameConstants {
     /** The default game seed. **/
     public static final int GAME_DEFAULT_SEED = 6370;
 
-    /** The default game maxiumum number of rounds. **/
-    public static final int GAME_DEFAULT_ROUNDS = 500;
+    /** The maximum number of rounds in a game. In practice, this is not needed, because the water level at round 10,000 will be huge. **/
+    public static final int GAME_MAX_NUMBER_OF_ROUNDS = 10000;
 }

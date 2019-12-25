@@ -15,20 +15,10 @@ public strictfp interface RobotController {
     // *********************************
 
     /**
-     * Returns the number of rounds in the game. After this many rounds, if neither
-     * team has been destroyed, tiebreakers will be used.
-     *
-     * @return the number of rounds in the game.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getRoundLimit();
-
-    /**
-     * Returns the current round number, where round 0 is the first round of the
+     * Returns the current round number, where round 1 is the first round of the
      * match.
      *
-     * @return the current round number, where round 0 is the first round of the
+     * @return the current round number, where round 1 is the first round of the
      * match.
      *
      * @battlecode.doc.costlymethod
@@ -542,24 +532,22 @@ public strictfp interface RobotController {
      * and whether the robot has dirt.
      *
      * @param dir the direction to deposit
-     * @param amount the amount of dirt to deposit
      * @return whether it is possible to deposit dirt in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canDepositDirt(Direction dir, int amount);
+    boolean canDepositDirt(Direction dir);
 
     /**
-     * Deposits dirt in the given direction (max up to specified amount).
+     * Deposits 1 unit of dirt in the given direction.
      *
      * @param dir the direction to deposit
-     * @param amount the amount of dirt to deposit
      * @throws GameActionException if this robot is not a landscaper, if
      * the robot is still in cooldown, if there is no dirt to deposit,
      *
      * @battlecode.doc.costlymethod
      */
-    void depositDirt(Direction dir, int amount) throws GameActionException;
+    void depositDirt(Direction dir) throws GameActionException;
 
     // ***************************************
     // ******* DELIVERY DRONE METHODS ********

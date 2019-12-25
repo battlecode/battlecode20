@@ -377,7 +377,7 @@ public strictfp class GameWorld {
      * Updates the global water level according to an arbitrary function.
      */
     public void updateWaterLevel() {
-        this.waterLevel = (float) Math.floor(Math.pow(this.currentRound / 200.0, 2));
+        this.waterLevel = GameConstants.getWaterLevel(getCurrentRound());
     }
 
     // ***********************************
