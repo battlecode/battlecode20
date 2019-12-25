@@ -38,10 +38,6 @@ public class FourLakeLand {
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.vertical);
         mapBuilder.addSymmetricHQ(10, 10);
 
-        // create 4 nice lakes
-        addLake(mapBuilder, 18, 20, 17); // creates 2
-        addLake(mapBuilder, 30, 10, 17);
-        addLake(mapBuilder, 30, 30, 17);
 
         // add some nice central soup
         addSoup(mapBuilder, 30, 20, 5, 10);
@@ -54,9 +50,15 @@ public class FourLakeLand {
             }
         }
 
+        // add a river to make things interesting
         addRectangleDirt(mapBuilder, 28, 30, 32, 40, 3);
 
-        // add a river to make things interesting
+        // create 4 nice lakes
+        // order matters here!! we want water level to be at -1 here.
+        addLake(mapBuilder, 18, 20, 17, -1); // creates 2
+        addLake(mapBuilder, 30, 10, 17, -1);
+        addLake(mapBuilder, 30, 30, 17, -1);
+
 
         mapBuilder.saveMap(outputDirectory);
 
@@ -88,12 +90,13 @@ public class FourLakeLand {
     /*
      * Add a nice circular lake centered at (x,y).
      */
-    public static void addLake(MapBuilder mapBuilder, int x, int y, int r2) {
+    public static void addLake(MapBuilder mapBuilder, int x, int y, int r2, int v) {
         for (int xx = 0; xx < width; xx++) {
             for (int yy = 0; yy < height; yy++) {
                 int d = (xx-x)*(xx-x) + (yy-y)*(yy-y);
                 if (d <= r2) {
                     mapBuilder.setSymmetricWater(xx, yy, true);
+                    mapBuilder.setSymmetricDirt(xx, yy, v);
                 }
             }
         }
