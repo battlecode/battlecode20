@@ -175,7 +175,7 @@ public strictfp class InternalRobot {
      * by the current pollution level at the present location.
      */
     public int getCurrentSensorRadiusSquared() {
-        return (int) Math.round(this.type.sensorRadiusSquared * GameConstants.SENSOR_RADIUS_POLLUTION_FOG_COEFFICIENT(this.gameWorld.getPollution(getLocation())));
+        return (int) Math.round(this.type.sensorRadiusSquared * GameConstants.getSensorRadiusPollutionCoefficient(this.gameWorld.getPollution(getLocation())));
     }
 
     /**
@@ -284,21 +284,33 @@ public strictfp class InternalRobot {
     }
 
     public void processEndOfTurn() {
-        // If refinery/vaporator/hq, produces refined soup
+        // If refinery//hq, produces refined soup
         if (this.type.canRefine() && this.soupCarrying > 0) {
             int soupProduced = Math.min(this.soupCarrying, this.type.maxSoupProduced);
             this.soupCarrying -= soupProduced;
             this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
             this.producedSoup = true;
         }
-        // If refinery/vaporator/hq, produces pollution
+        // If refinery//hq/cow, produces pollution
         if ((this.type.canRefine() && this.producedSoup) || (this.type == RobotType.COW)) {
+            //System.out.println("I produced pollution!");
             MapLocation[] withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadiusSquared(
                                                                 this.location, 
                                                                 this.type.pollutionRadiusSquared);
             int pollutionAmount = this.type.pollutionAmount;
             for (MapLocation pollutionLocation : withinPollutionRadius)
                 this.gameWorld.adjustPollution(pollutionLocation, pollutionAmount);
+            this.gameWorld.globalPollution(this.type.globalPollutionAmount);
+        }
+        // Vaporator
+        if (this.type == RobotType.VAPORATOR) {
+            this.gameWorld.getTeamInfo().adjustSoup(this.team, RobotType.VAPORATOR.maxSoupProduced);
+            MapLocation[] withinPollutionRadius = this.gameWorld.getAllLocationsWithinRadiusSquared(
+                                                                this.location, 
+                                                                this.type.pollutionRadiusSquared);
+            int pollutionAmount = this.type.pollutionAmount;
+            for (MapLocation pollutionLocation : withinPollutionRadius)
+                this.gameWorld.adjustPollution(pollutionLocation, pollutionAmount); //TODO: adjust amount of pollution as desired
             this.gameWorld.globalPollution(this.type.globalPollutionAmount);
         }
         

@@ -10,6 +10,14 @@ const pako_1 = require("pako");
  */
 class Game {
     /**
+     * Create a Game with nothing inside.
+     */
+    constructor() {
+        this._winner = null;
+        this._matches = new Array();
+        this._meta = null;
+    }
+    /**
      * Whether the game has finished loading.
      */
     get finished() { return this._winner !== null; }
@@ -25,14 +33,6 @@ class Game {
      * The metadata of the game.
      */
     get meta() { return this._meta; }
-    /**
-     * Create a Game with nothing inside.
-     */
-    constructor() {
-        this._winner = null;
-        this._matches = new Array();
-        this._meta = null;
-    }
     /**
      * Get a particular match.
      */
