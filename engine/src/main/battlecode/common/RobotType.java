@@ -10,7 +10,7 @@ public enum RobotType {
      * The base produces miners, is also a net gun and a refinery.
      * @battlecode.doc.robottype
      */
-    HQ                      (null,  0,  0,  0,  1,  15,  5,  100,  1,  50,  15000),
+    HQ                      (null,  0,  0,  0,  1,  15,  5,  10,  1,  50,  15000),
     //                       SS     C   DL  SL  AC  SR  PR  PA  GP  MS   BL
     /**
      * Miners extract crude soup and bring it to the refineries.
@@ -23,13 +23,13 @@ public enum RobotType {
      * Refineries turn crude soup into refined soup, and produce pollution.
      * @battlecode.doc.robottype
      */
-    REFINERY                (MINER,  200,  0,  0,  1,  15,  5,  100,  1,  50,  15000),
+    REFINERY                (MINER,  200,  0,  0,  1,  15,  5,  10,  1,  50,  15000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS   BL
     /**
      * Vaporators reduce pollution.
      * @battlecode.doc.robottype
      */
-    VAPORATOR               (MINER,  1000,  0,  0,  1,  15,  5,  -100,  -1,  10,  15000),
+    VAPORATOR               (MINER,  1000,  0,  0,  1,  15,  5,  -10,  -1,  10,  15000),
     //                       SS      C     DL  SL  AC   SR  PR    PA    GP   MS   BL
     /**
      * Design schools create landscapers.
@@ -67,7 +67,7 @@ public enum RobotType {
      * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    COW                     (null,  0,  0,  0,  2,  35,  16,  100,  0,  0,  0),
+    COW                     (null,  0,  0,  0,  2,  35,  16,  10,  0,  0,  0),
     //                       SS     C   DL  SL  AC  SR  PR  PA  GP  MS  BL
     ;
     

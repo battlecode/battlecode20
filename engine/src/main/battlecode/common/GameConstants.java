@@ -59,12 +59,12 @@ public class GameConstants {
 
     /** The coefficient that the sensor radius will be multiplied by, as a function of pollution. */
     public static float getSensorRadiusPollutionCoefficient(int pollution) {
-        return (float) Math.max(0, (1.0 - (pollution / 10000.0)));
+        return (float) (1.0 / (1.0 + (3.0 * pollution / 10000.0)));
     }
 
     /** The coefficient that the cooldown will be multiplied by, as a function of pollution. */
     public static float getCooldownPollutionCoefficient(int pollution) {
-        return (float) Math.max(0, 1/(1.0 - (pollution / 10000.0)));
+        return (float) (1.0 + (3.0 * pollution / 10000.0));
     }
 
     // *********************************
