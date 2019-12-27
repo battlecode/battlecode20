@@ -344,7 +344,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(center);
         assertIsReady();
         assertCanMove(center);
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
@@ -409,7 +409,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanBuildRobot(type, dir);
 
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         gameWorld.getTeamInfo().adjustSoup(getTeam(), -type.cost);
 
         int robotID = gameWorld.spawnRobot(type, adjacentLocation(dir), getTeam());
@@ -472,7 +472,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void mineSoup(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertCanMineSoup(dir);
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         MapLocation mineLoc = adjacentLocation(dir);
         int soupMined = Math.min(GameConstants.SOUP_MINING_RATE, Math.min(gameWorld.getSoup(mineLoc), getType().soupLimit - getSoupCarrying()));;
         this.gameWorld.removeSoup(adjacentLocation(dir), soupMined);
@@ -536,7 +536,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanDepositSoup(dir);
         amount = Math.min(amount, this.getSoupCarrying());
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         this.robot.removeSoupCarrying(amount);
         InternalRobot refinery = this.gameWorld.getRobot(adjacentLocation(dir));
         refinery.addSoupCarrying(amount);
@@ -597,7 +597,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void digDirt(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertCanDigDirt(dir);
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         this.gameWorld.removeDirt(getID(), adjacentLocation(dir));
         this.robot.addDirtCarrying(1);
     }
@@ -651,7 +651,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void depositDirt(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertCanDepositDirt(dir);
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         this.robot.removeDirtCarrying(1);
         this.gameWorld.addDirt(getID(), adjacentLocation(dir), 1);
     }

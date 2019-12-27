@@ -213,8 +213,8 @@ public strictfp class InternalRobot {
     /**
      * Resets the action cooldown using the formula cooldown = type_cooldown + pollution_at_location.
      */
-    public void resetCooldownTurns() {
-        setCooldownTurns(this.type.actionCooldown + this.gameWorld.getPollution(this.location));
+    public void addCooldownTurns() {
+        setCooldownTurns(this.cooldownTurns + this.type.actionCooldown * GameConstants.getCooldownPollutionCoefficient(this.gameWorld.getPollution(getLocation())));
     }
     
     /**

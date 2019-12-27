@@ -62,6 +62,11 @@ public class GameConstants {
         return (float) Math.max(0, (1.0 - (pollution / 10000.0)));
     }
 
+    /** The coefficient that the cooldown will be multiplied by, as a function of pollution. */
+    public static float getCooldownPollutionCoefficient(int pollution) {
+        return (float) Math.max(0, 1/(1.0 - (pollution / 10000.0)));
+    }
+
     // *********************************
     // ****** WATER ********************
     // *********************************
