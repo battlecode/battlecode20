@@ -100,6 +100,16 @@ public enum Direction {
     }
 
     /**
+     * Returns a list of all directions. This is equivalent to calling
+     * Direction.values().
+     *
+     * @return array of all cardinal directions.
+     */
+    public static Direction[] allDirections() {
+        return Direction.values();
+    }
+
+    /**
      * Returns a list of all cardinal directions.
      *
      * @return array of all cardinal directions.
