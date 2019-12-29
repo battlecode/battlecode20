@@ -93,9 +93,8 @@ public final class Round extends Table {
    * The global pollution level
    */
   public int globalPollution() { int o = __offset(28); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public PollutionEffect localPollutions(int j) { return localPollutions(new PollutionEffect(), j); }
-  public PollutionEffect localPollutions(PollutionEffect obj, int j) { int o = __offset(30); return o != 0 ? obj.__init(__indirect(__vector(o) + j * 4), bb) : null; }
-  public int localPollutionsLength() { int o = __offset(30); return o != 0 ? __vector_len(o) : 0; }
+  public LocalPollutionTable localPollutions() { return localPollutions(new LocalPollutionTable()); }
+  public LocalPollutionTable localPollutions(LocalPollutionTable obj) { int o = __offset(30); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The indexes of the locations whose soup amount changed.
    */
@@ -306,8 +305,6 @@ public final class Round extends Table {
   public static void addWaterChangedLocs(FlatBufferBuilder builder, int waterChangedLocsOffset) { builder.addOffset(11, waterChangedLocsOffset, 0); }
   public static void addGlobalPollution(FlatBufferBuilder builder, int globalPollution) { builder.addInt(12, globalPollution, 0); }
   public static void addLocalPollutions(FlatBufferBuilder builder, int localPollutionsOffset) { builder.addOffset(13, localPollutionsOffset, 0); }
-  public static int createLocalPollutionsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
-  public static void startLocalPollutionsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addSoupChangedLocs(FlatBufferBuilder builder, int soupChangedLocsOffset) { builder.addOffset(14, soupChangedLocsOffset, 0); }
   public static void addSoupChanges(FlatBufferBuilder builder, int soupChangesOffset) { builder.addOffset(15, soupChangesOffset, 0); }
   public static int createSoupChangesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
