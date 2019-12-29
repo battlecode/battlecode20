@@ -13,6 +13,18 @@ table VecTable {
     ys: [int];
 }
 
+/// A table of pollution effects
+/// The pollution effect at a location is (global pollution + all additive effects) * all multiplicative effects
+table PollutionEffect {
+    /// The origin and radius of the circle defining the pollution effect.
+    location: Vec;
+    radiusSquared: int;
+    /// The additive amount of the pollution effect.
+    additiveEffect: int;
+    /// The multiplicative coefficient.
+    multiplicativeEffect: float;
+}
+
 /// A table of RGB values.
 table RGBTable {
     red: [int];
@@ -40,13 +52,11 @@ enum BodyType : byte {
     /// into water (increasing the elevation).
     LANDSCAPER,
     /// Drones pick up any unit and drop them somewhere else.
-    DRONE,
+    DELIVERY_DRONE,
     /// Net guns shoot down drones.
     NET_GUN,
     /// Cows produce pollution.
-    COW,
-    
-    NONE
+    COW
 }
 
 /// A list of new bodies to be placed on the map.
@@ -273,10 +283,9 @@ table Round {
     /// The indexes of the locations whose flood situation changed.
     waterChangedLocs: VecTable;
 
-    /// The indexes of the locations whose pollution amount changed.
-    pollutionChangedLocs: VecTable;
-    /// The amount the pollution changed by.
-    pollutionChanges: [int];
+    /// The global pollution level
+    globalPollution: int;
+    localPollutions: [PollutionEffect];
 
     /// The indexes of the locations whose soup amount changed.
     soupChangedLocs: VecTable;
