@@ -223,6 +223,14 @@ task releaseClientLinux32(type: Zip, dependsOn: ['prodClient']) {
   from fileTree('client/dist/linux-ia32-unpacked')
 }
 
+
+
+task updateVersion() {
+  new File("frontend/public/version.txt").write(project.findProperty('release_version'))
+}
+
+
+publish.dependsOn(updateVersion)
 publishing {
   repositories {
     maven {
