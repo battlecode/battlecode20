@@ -45,13 +45,13 @@ public class GameConstants {
     // *********************************
 
     /** The initial amount of soup each team starts off with. */
-    public static final int INITIAL_SOUP = 500;
+    public static final int INITIAL_SOUP = 210;
 
     /** The amount of soup each team receives per turn. */
     public static final int BASE_INCOME_PER_ROUND = 1;
 
     /** The amount of soup that a miner gets when performing one mine action. */
-    public static final int SOUP_MINING_RATE = 5;
+    public static final int SOUP_MINING_RATE = 7;
 
     // *********************************
     // ****** POLLUTION ****************
@@ -73,7 +73,8 @@ public class GameConstants {
 
     /** The function determining current water level as a function of the round number. */
     public static float getWaterLevel(int roundNumber) {
-        return (float) Math.pow(roundNumber / 200.0, 3);
+        double x = roundNumber;
+        return (float) (Math.exp(0.0028*x-1.38*Math.sin(0.00157*x-1.73)+1.38*Math.sin(-1.73))-1);
     }
 
     // *********************************
@@ -88,21 +89,29 @@ public class GameConstants {
     // *********************************
 
     /** The radius that delivery drones can pick up. */
-    public static final int DELIVERY_DRONE_PICKUP_RADIUS_SQUARED = 2;
+    public static final int DELIVERY_DRONE_PICKUP_RADIUS_SQUARED = 3;
 
     /** The radius that net guns can shoot. */
-    public static final int NET_GUN_SHOOT_RADIUS_SQUARED = 3;
+    public static final int NET_GUN_SHOOT_RADIUS_SQUARED = 15;
 
     // *********************************
     // ****** BLOCKCHAINNNN ************
     // *********************************
 
     /** The maximum number of integers that can be sent in one message. */
-    public static final int MAX_BLOCKCHAIN_TRANSACTION_LENGTH = 10;
+    public static final int MAX_BLOCKCHAIN_TRANSACTION_LENGTH = 7;
 
     /** The number of transactions that get broadcasted every round. */
-    public static final int NUMBER_OF_TRANSACTIONS_PER_BLOCK = 10;
-    
+    public static final int NUMBER_OF_TRANSACTIONS_PER_BLOCK = 7;
+
+
+    // *********************************
+    // ****** COOLDOWNS ****************
+    // *********************************
+
+    /** The initial cooldown level. How many turns a newly created robot (that is, excluding the HQ) needs to wait. */
+    public static final int INITIAL_COOLDOWN_TURNS = 10;
+
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
     // *********************************
