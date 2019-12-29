@@ -5,7 +5,7 @@ import { net } from 'electron';
 // Body types
 export const MINER = schema.BodyType.MINER;
 export const LANDSCAPER = schema.BodyType.LANDSCAPER;
-export const DRONE = schema.BodyType.DRONE;
+export const DRONE = schema.BodyType.DELIVERY_DRONE;
 export const NET_GUN = schema.BodyType.NET_GUN;
 export const COW = schema.BodyType.COW;
 export const REFINERY = schema.BodyType.REFINERY;
@@ -13,7 +13,6 @@ export const VAPORATOR = schema.BodyType.VAPORATOR;
 export const HQ = schema.BodyType.HQ;
 export const DESIGN_SCHOOL = schema.BodyType.DESIGN_SCHOOL;
 export const FULFILLMENT_CENTER = schema.BodyType.FULFILLMENT_CENTER;
-export const NONE = schema.BodyType.NONE;
 
 
 // TODO: Old constants
@@ -41,76 +40,9 @@ export const MAX_ROUND_NUM = 3000;
 
 // Maps available in the server.
 export const SERVER_MAPS = [
-  "Barrier",
-  "DenseForest",
-  "Enclosure",
-  "Hurdle",
-  "LineOfFire",
-  "MagicWood",
-  "shrine",
-  "SparseForest",
-  "Arena",
-  "Barbell",
-  "Boxed",
-  "Bullseye",
-  "Chess",
-  "Clusters",
-  "Cramped",
-  "CrossFire",
-  "DigMeOut",
-  "GiantForest",
-  "LilForts",
-  "Maniple",
-  "MyFirstMap",
-  "OMGTree",
-  "PasscalsTriangles",
-  "Shrubbery",
-  "Sprinkles",
-  "Standoff",
-  "Waves",
-  "1337Tree",
-  "Aligned",
-  "Alone",
-  "Blitzkrieg",
-  "BugTrap",
-  "Captive",
-  "Caterpillar",
-  "Chevron",
-  "Conga",
-  "CropCircles",
-  "Croquembouche",
-  "DarkSide",
-  "DeathStar",
-  "Defenseless",
-  "Fancy",
-  "FlappyTree",
-  "Grass",
-  "GreatDekuTree",
-  "GreenHouse",
-  "HedgeMaze",
-  "HiddenTunnel",
-  "HouseDivided",
-  "Interference",
-  "Lanes",
-  "Levels",
-  "LilMaze",
-  "Misaligned",
-  "ModernArt",
-  "Ocean",
-  "Oxygen",
-  "PacMan",
-  "PeacefulEncounter",
-  "Planets",
-  "Present",
-  "PureImagination",
-  "Shortcut",
-  "Slant",
-  "Snowflake",
-  "TheOtherSide",
-  "TicTacToe",
-  "TreeFarm",
-  "Turtle",
-  "Whirligig"
+  "CentralLake",
+  "FourLakeLand",
+  "ALandDivided"
 ];
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
@@ -125,7 +57,6 @@ export function bodyTypeToString(bodyType: schema.BodyType) {
     case HQ:                return "HQ";
     case DESIGN_SCHOOL:     return "designSchool";
     case FULFILLMENT_CENTER:return "fulfillmentCenter";
-    case NONE:              return "";
     default:                throw new Error("invalid body type");
   }
 }
@@ -152,7 +83,6 @@ export function radiusFromBodyType(bodyType: schema.BodyType) {
     case HQ:
     case DESIGN_SCHOOL:
     case FULFILLMENT_CENTER: return 1;
-    case NONE: return 0;
     default: throw new Error("invalid body type");
   }
 }
