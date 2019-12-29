@@ -88,10 +88,10 @@ public class GameConstants {
     // *********************************
 
     /** The radius that delivery drones can pick up. */
-    public static final int DELIVERY_DRONE_PICKUP_RADIUS_SQUARED = 2;
+    public static final int DELIVERY_DRONE_PICKUP_RADIUS_SQUARED = 3;
 
     /** The radius that net guns can shoot. */
-    public static final int NET_GUN_SHOOT_RADIUS_SQUARED = 3;
+    public static final int NET_GUN_SHOOT_RADIUS_SQUARED = 15;
 
     // *********************************
     // ****** BLOCKCHAINNNN ************
