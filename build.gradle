@@ -236,8 +236,8 @@ publishing {
     maven {
       url = uri("https://maven.pkg.github.com/battlecode/battlecode20")
       credentials {
-        username = project.findProperty("gpr.user") ?: System.getenv("GIT-USERNAME")
-        password = project.findProperty("gpr.key") ?: System.getenv("GIT-KEY")
+        username = project.findProperty("gpr.user") ?: System.getenv("BC20_GITUSERNAME")
+        password = project.findProperty("gpr.key") ?: System.getenv("BC20_GITKEY")
       }
     }
   }
@@ -245,10 +245,10 @@ publishing {
   publications {
     server(MavenPublication) {
       groupId 'org.battlecode'
-      artifactId 'engine20'
+      artifactId 'battlecode'
       version project.findProperty('release_version') ?: 'NONSENSE'
 
-      artifact source: release_main, classifier: "src"
+      artifact release_main
       
       artifact release_docs {
         classifier 'javadoc'
