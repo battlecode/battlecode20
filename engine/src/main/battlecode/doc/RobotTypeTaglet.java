@@ -193,7 +193,10 @@ public class RobotTypeTaglet implements Taglet {
              if (rt.pollutionRadiusSquared > 0) {
                  builder.append("<br />");
                  appendField(builder, rt, "pollutionRadiusSquared");
-                 appendField(builder, rt, "pollutionAmount");
+                 if (rt.localPollutionMultiplicativeEffect != 1)
+                     appendField(builder, rt, "localPollutionMultiplicativeEffect");
+                 if (rt.localPollutionAdditiveEffect != 0)
+                     appendField(builder, rt, "localPollutionAdditiveEffect");
                  appendField(builder, rt, "globalPollutionAmount");
                  appendField(builder, rt, "maxSoupProduced");
              }

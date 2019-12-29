@@ -90,16 +90,11 @@ public final class Round extends Table {
   public VecTable waterChangedLocs() { return waterChangedLocs(new VecTable()); }
   public VecTable waterChangedLocs(VecTable obj) { int o = __offset(26); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
-   * The indexes of the locations whose pollution amount changed.
+   * The global pollution level
    */
-  public VecTable pollutionChangedLocs() { return pollutionChangedLocs(new VecTable()); }
-  public VecTable pollutionChangedLocs(VecTable obj) { int o = __offset(28); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
-  /**
-   * The amount the pollution changed by.
-   */
-  public int pollutionChanges(int j) { int o = __offset(30); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int pollutionChangesLength() { int o = __offset(30); return o != 0 ? __vector_len(o) : 0; }
-  public ByteBuffer pollutionChangesAsByteBuffer() { return __vector_as_bytebuffer(30, 4); }
+  public int globalPollution() { int o = __offset(28); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public LocalPollutionTable localPollutions() { return localPollutions(new LocalPollutionTable()); }
+  public LocalPollutionTable localPollutions(LocalPollutionTable obj) { int o = __offset(30); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**
    * The indexes of the locations whose soup amount changed.
    */
@@ -225,8 +220,8 @@ public final class Round extends Table {
       int dirtChangedLocsOffset,
       int dirtChangesOffset,
       int waterChangedLocsOffset,
-      int pollutionChangedLocsOffset,
-      int pollutionChangesOffset,
+      int globalPollution,
+      int localPollutionsOffset,
       int soupChangedLocsOffset,
       int soupChangesOffset,
       int newMessagesCostsOffset,
@@ -262,8 +257,8 @@ public final class Round extends Table {
     Round.addNewMessagesCosts(builder, newMessagesCostsOffset);
     Round.addSoupChanges(builder, soupChangesOffset);
     Round.addSoupChangedLocs(builder, soupChangedLocsOffset);
-    Round.addPollutionChanges(builder, pollutionChangesOffset);
-    Round.addPollutionChangedLocs(builder, pollutionChangedLocsOffset);
+    Round.addLocalPollutions(builder, localPollutionsOffset);
+    Round.addGlobalPollution(builder, globalPollution);
     Round.addWaterChangedLocs(builder, waterChangedLocsOffset);
     Round.addDirtChanges(builder, dirtChangesOffset);
     Round.addDirtChangedLocs(builder, dirtChangedLocsOffset);
@@ -308,10 +303,8 @@ public final class Round extends Table {
   public static int createDirtChangesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startDirtChangesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addWaterChangedLocs(FlatBufferBuilder builder, int waterChangedLocsOffset) { builder.addOffset(11, waterChangedLocsOffset, 0); }
-  public static void addPollutionChangedLocs(FlatBufferBuilder builder, int pollutionChangedLocsOffset) { builder.addOffset(12, pollutionChangedLocsOffset, 0); }
-  public static void addPollutionChanges(FlatBufferBuilder builder, int pollutionChangesOffset) { builder.addOffset(13, pollutionChangesOffset, 0); }
-  public static int createPollutionChangesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startPollutionChangesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addGlobalPollution(FlatBufferBuilder builder, int globalPollution) { builder.addInt(12, globalPollution, 0); }
+  public static void addLocalPollutions(FlatBufferBuilder builder, int localPollutionsOffset) { builder.addOffset(13, localPollutionsOffset, 0); }
   public static void addSoupChangedLocs(FlatBufferBuilder builder, int soupChangedLocsOffset) { builder.addOffset(14, soupChangedLocsOffset, 0); }
   public static void addSoupChanges(FlatBufferBuilder builder, int soupChangesOffset) { builder.addOffset(15, soupChangesOffset, 0); }
   public static int createSoupChangesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
@@ -352,3 +345,4 @@ public final class Round extends Table {
     return o;
   }
 }
+
