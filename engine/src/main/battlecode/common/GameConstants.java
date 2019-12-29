@@ -45,13 +45,13 @@ public class GameConstants {
     // *********************************
 
     /** The initial amount of soup each team starts off with. */
-    public static final int INITIAL_SOUP = 500;
+    public static final int INITIAL_SOUP = 210;
 
     /** The amount of soup each team receives per turn. */
     public static final int BASE_INCOME_PER_ROUND = 1;
 
     /** The amount of soup that a miner gets when performing one mine action. */
-    public static final int SOUP_MINING_RATE = 5;
+    public static final int SOUP_MINING_RATE = 7;
 
     // *********************************
     // ****** POLLUTION ****************
