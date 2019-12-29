@@ -103,7 +103,15 @@ public class GameConstants {
 
     /** The number of transactions that get broadcasted every round. */
     public static final int NUMBER_OF_TRANSACTIONS_PER_BLOCK = 7;
-    
+
+
+    // *********************************
+    // ****** COOLDOWNS ****************
+    // *********************************
+
+    /** The initial cooldown level. How many turns a newly created robot (that is, excluding the HQ) needs to wait. */
+    public static final int INITIAL_COOLDOWN_TURNS = 10;
+
     // *********************************
     // ****** GAMEPLAY PROPERTIES ******
     // *********************************

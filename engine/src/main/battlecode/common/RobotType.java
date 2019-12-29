@@ -55,7 +55,7 @@ public enum RobotType {
      * Drones pick up any unit and drop them somewhere else.
      * @battlecode.doc.robottype
      */
-    DELIVERY_DRONE          (FULFILLMENT_CENTER,  150,  0,  0,  2,  24,  0,  0,  0,  0,  10000),
+    DELIVERY_DRONE          (FULFILLMENT_CENTER,  150,  0,  0,  1.5f,  24,  0,  0,  0,  0,  10000),
     //                       SS                   C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Net guns shoot down drones.
@@ -67,7 +67,7 @@ public enum RobotType {
      * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    COW                     (null,  0,  0,  0,  2,  1000,  16,  10,  0,  0,  0),
+    COW                     (null,  0,  0,  0,  1,  1000,  16,  10,  0,  0,  0),
     //                       SS     C   DL  SL  AC  SR  PR  PA  GP  MS  BL
     ;
     

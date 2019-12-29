@@ -413,6 +413,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getTeamInfo().adjustSoup(getTeam(), -type.cost);
 
         int robotID = gameWorld.spawnRobot(type, adjacentLocation(dir), getTeam());
+        getRobotByID(robotID).setCooldownTurns(GameConstants.INITIAL_COOLDOWN_TURNS);
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
