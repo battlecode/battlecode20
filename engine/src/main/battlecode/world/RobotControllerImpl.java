@@ -344,7 +344,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(center);
         assertIsReady();
         assertCanMove(center);
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
 
@@ -376,6 +376,12 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.isFlooded(spawnLoc) && type != RobotType.DELIVERY_DRONE)
             throw new GameActionException(CANT_DO_THAT,
                     "Can only spawn delivery drones to flooded locations; " + spawnLoc + " is flooded but " + type + " is not a delivery drone.");
+        if (gameWorld.getDirtDifference(getLocation(), spawnLoc) > GameConstants.MAX_DIRT_DIFFERENCE)
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can only spawn delivery drones to locations with high dirt difference; " +
+                    "the dirt difference to " + spawnLoc + " is " +
+                        gameWorld.getDirtDifference(getLocation(), spawnLoc) + " which is higher than the limit of " +
+                        GameConstants.MAX_DIRT_DIFFERENCE + " for non-flying units like " + type + ".");
         if (!isReady())
             throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");
@@ -403,10 +409,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanBuildRobot(type, dir);
 
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         gameWorld.getTeamInfo().adjustSoup(getTeam(), -type.cost);
 
         int robotID = gameWorld.spawnRobot(type, adjacentLocation(dir), getTeam());
+        getRobotByID(robotID).setCooldownTurns(GameConstants.INITIAL_COOLDOWN_TURNS);
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SPAWN_UNIT, robotID);
     }
@@ -466,7 +473,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void mineSoup(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertCanMineSoup(dir);
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         MapLocation mineLoc = adjacentLocation(dir);
         int soupMined = Math.min(GameConstants.SOUP_MINING_RATE, Math.min(gameWorld.getSoup(mineLoc), getType().soupLimit - getSoupCarrying()));;
         this.gameWorld.removeSoup(adjacentLocation(dir), soupMined);
@@ -530,7 +537,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(dir);
         assertCanDepositSoup(dir);
         amount = Math.min(amount, this.getSoupCarrying());
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         this.robot.removeSoupCarrying(amount);
         InternalRobot refinery = this.gameWorld.getRobot(adjacentLocation(dir));
         refinery.addSoupCarrying(amount);
@@ -591,7 +598,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void digDirt(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertCanDigDirt(dir);
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         this.gameWorld.removeDirt(getID(), adjacentLocation(dir));
         this.robot.addDirtCarrying(1);
     }
@@ -645,7 +652,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void depositDirt(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertCanDepositDirt(dir);
-        this.robot.resetCooldownTurns();
+        this.robot.addCooldownTurns();
         this.robot.removeDirtCarrying(1);
         this.gameWorld.addDirt(getID(), adjacentLocation(dir), 1);
     }

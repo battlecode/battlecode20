@@ -21,7 +21,7 @@ if (!project.hasProperty("maps")) {
 
 if (project.hasProperty("release_version")) {
     if (!project.property("release_version").startsWith("2020")) {
-        throw new StopExecutionException("release versin must start with 2020!")
+        throw new StopExecutionException("release version must start with 2020!")
     }
 }
 
@@ -38,77 +38,6 @@ dependencies {
     scala group: 'org.scala-lang', name: 'scala-compiler', version: '2.11.7'
     scala group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'
 }
-/*
-publishing {
-  repositories {
-    maven {
-      url 's3://battlecode-maven'
-      credentials(AwsCredentials) {
-        accessKey '1RN2MW2K9ZG2GJ025Q82'
-        secretKey 'R3ays+cC5mug86MuFN84Um6H5RccoXXo7rybVuv/'
-      }
-    }
-  }
-
-  publications {
-    server(MavenPublication) {
-      groupId 'org.battlecode'
-      artifactId 'battlecode'
-      version project.findProperty('release_version') ?: 'NONSENSE'
-
-      artifact(release_main) {
-        classifier "src"
-      }
-      artifact release_docs {
-          classifier 'javadoc'
-      }
-      artifact release_sources {
-          classifier 'sources'
-      }
-    }
-
-    clientWin(MavenPublication) {
-      groupId 'org.battlecode'
-      artifactId 'battlecode-client-win'
-      version project.findProperty('release_version') ?: 'NONSENSE'
-
-      artifact releaseClientWin
-    }
-    
-    clientMac(MavenPublication) {
-      groupId 'org.battlecode'
-      artifactId 'battlecode-client-mac'
-      version project.findProperty('release_version') ?: 'NONSENSE'
-
-      artifact releaseClientMac
-    }
-
-    clientLinux(MavenPublication) {
-      groupId 'org.battlecode'
-      artifactId 'battlecode-client-linux'
-      version project.findProperty('release_version') ?: 'NONSENSE'
-
-      artifact releaseClientLinux
-    }
-
-    clientWin32(MavenPublication) {
-      groupId 'org.battlecode'
-      artifactId 'battlecode-client-win-32'
-      version project.findProperty('release_version') ?: 'NONSENSE'
-
-      artifact releaseClientWin32
-    }
-
-    clientLinux32(MavenPublication) {
-      groupId 'org.battlecode'
-      artifactId 'battlecode-client-linux-32'
-      version project.findProperty('release_version') ?: 'NONSENSE'
-
-      artifact releaseClientLinux32
-    }
-  }
-}
-*/
 
 def serverJar = new File(project(":engine").libsDir, "engine.jar")
 
@@ -263,38 +192,107 @@ task release_docs_zip(type: Zip, dependsOn: [':engine:javadoc']) {
 }
 
 task release_sources(type: Jar, dependsOn: classes) {
-    from sourceSets.main.allSource
+  from sourceSets.main.allSource
 }
 
 task prodClient {
-    doLast {
-        exec {
-          commandLine 'npm', 'install'
-          workingDir 'client'
-        }
-        exec {
-          commandLine 'npm', 'run', 'prod-electron'
-          workingDir 'client'
-        }
+  doLast {
+    exec {
+      commandLine 'npm', 'install'
+      workingDir 'client'
     }
+    exec {
+      commandLine 'npm', 'run', 'prod-electron-no-sign'
+      workingDir 'client'
+    }
+  }
 }
 
 task releaseClientWin(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/win-unpacked')
+  from fileTree('client/dist/win-unpacked')
 }
 
 task releaseClientMac(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/mac')
+  from fileTree('client/dist/mac')
 }
 
 task releaseClientLinux(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/linux-unpacked')
+  from fileTree('client/dist/linux-unpacked')
 }
 
 task releaseClientWin32(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/win-ia32-unpacked')
+  from fileTree('client/dist/win-ia32-unpacked')
 }
 
 task releaseClientLinux32(type: Zip, dependsOn: ['prodClient']) {
-    from fileTree('client/dist/linux-ia32-unpacked')
+  from fileTree('client/dist/linux-ia32-unpacked')
+}
+
+publishing {
+  repositories {
+    maven {
+      url = uri("https://maven.pkg.github.com/battlecode/battlecode20")
+      credentials {
+        username = project.findProperty("gpr.user") ?: System.getenv("BC20_GITUSERNAME")
+        password = project.findProperty("gpr.key") ?: System.getenv("BC20_GITKEY")
+      }
+    }
+  }
+
+  publications {
+    server(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact release_main
+      
+      artifact release_docs {
+        classifier 'javadoc'
+      }
+      artifact release_sources {
+        classifier 'sources'
+      }
+    }
+
+    clientWin(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-win'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact releaseClientWin
+    }
+    
+    clientMac(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-mac'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact releaseClientMac
+    }
+
+    clientLinux(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-linux'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact releaseClientLinux
+    }
+
+    clientWin32(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-win-32'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact releaseClientWin32
+    }
+
+    clientLinux32(MavenPublication) {
+      groupId 'org.battlecode'
+      artifactId 'battlecode-client-linux-32'
+      version project.findProperty('release_version') ?: 'NONSENSE'
+
+      artifact releaseClientLinux32
+    }
+  }
 }

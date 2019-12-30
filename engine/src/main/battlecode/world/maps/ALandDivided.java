@@ -10,7 +10,7 @@ import java.io.IOException;
 public class ALandDivided {
 
     // change this!!!
-    public static final String mapName = "FourLakeLand";
+    public static final String mapName = "ALandDivided";
 
     // don't change this!!
     public static final String outputDirectory = "engine/src/main/battlecode/world/resources/";
@@ -38,6 +38,13 @@ public class ALandDivided {
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.vertical);
         mapBuilder.addSymmetricHQ(5, 26);
 
+        addRectangleDirt(mapBuilder, 0, 0, 40,31,3);
+
+        // add one soup location
+        mapBuilder.setSymmetricSoup(5,5,100);
+        mapBuilder.setSymmetricSoup(6,5,100);
+        mapBuilder.setSymmetricSoup(5,6,100);
+        mapBuilder.setSymmetricSoup(6,6,100);
 
         // add a river to make things interesting
         addRectangleWater(mapBuilder, 19, 0, 21, 31, -10);
