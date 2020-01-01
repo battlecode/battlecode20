@@ -945,14 +945,14 @@ public final strictfp class RobotControllerImpl implements RobotController {
      */
     @Override
     public Transaction[] getBlock(int roundNumber) throws GameActionException {
-        if (roundNumber < 0)
+        if (roundNumber <= 0)
             throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
-                + "; in fact, no negative round numbers are allowed at all.");
+                + "; in fact, no non-positive round numbers are allowed at all.");
         if (roundNumber >= gameWorld.currentRound)
             throw new GameActionException(ROUND_OUT_OF_RANGE, "You cannot get the messages sent at round " + Integer.toString(roundNumber)
                 + "; you can only query previous rounds, and this is round " + Integer.toString(roundNumber) + ".");
         // just get it!
-        Transaction[] transactions = gameWorld.blockchain.get(roundNumber).toArray(new Transaction[0]);
+        Transaction[] transactions = gameWorld.blockchain.get(roundNumber-1).toArray(new Transaction[0]);
         return transactions;
     }
 
