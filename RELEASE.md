@@ -25,7 +25,7 @@
 - `./gradlew test`
 - RELEASE: `./gradlew publish -Prelease_version=$version` (but actually fill it in)
 - `python3 prepare_release.py $version` (but actually fill it in)
-  - This will update `frontend/public/version.txt` and `client/visualizer/config.ts` with version numbers.
+  - This will update `client/visualizer/config.ts` with the version number.
   - It will also generate the HTML version of the docs.
   - It will also build the client for the web.
 - Review the changes.

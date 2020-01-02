@@ -1,6 +1,5 @@
 """
 Here's what this script does:
-* Updates `frontend/public/version.txt` with a new version number.
 * Updates `client/visualizer/config.ts` with a new version number.
 * Converts `specs.md` into a fancy specs html document (`frontend/public/specs.html`).
 * Puts the javadoc in `frontend/public/javadoc/`.
@@ -13,7 +12,7 @@ import argparse
 import subprocess
 
 def main(version):
-    update_version_number(version)
+    update_client_version_number(version)
 
     fancy_specs()
 
@@ -21,11 +20,7 @@ def main(version):
 
     client()
 
-def update_version_number(version):
-
-    with open('frontend/public/version.txt', 'w') as f:
-        f.write(version)
-
+def update_client_version_number(version):
     with open('client/visualizer/config.ts', 'r') as f:
         client_config = f.read()
     config_lines = client_config.split('\n')
