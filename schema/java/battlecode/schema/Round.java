@@ -93,6 +93,9 @@ public final class Round extends Table {
    * The global pollution level
    */
   public int globalPollution() { int o = __offset(28); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  /**
+   * The local pollution infos
+   */
   public LocalPollutionTable localPollutions() { return localPollutions(new LocalPollutionTable()); }
   public LocalPollutionTable localPollutions(LocalPollutionTable obj) { int o = __offset(30); return o != 0 ? obj.__init(__indirect(o + bb_pos), bb) : null; }
   /**

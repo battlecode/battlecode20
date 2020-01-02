@@ -288,6 +288,7 @@ table Round {
 
     /// The global pollution level
     globalPollution: int;
+    /// The local pollution infos
     localPollutions: LocalPollutionTable;
 
     /// The indexes of the locations whose soup amount changed.
