@@ -10,6 +10,7 @@
     - Read https://help.apple.com/xcode/mac/current/#/dev154b28f09.
     - Create a `Developer ID Application` certificate by going to Xcode > Preferences > Accounts > Manage Certificates.
     - The signing procedure below will automatically find the certificate in your keychain.
+- Install `pandoc` (e.g. using Homebrew)
 
 
 ### Release Procedure
