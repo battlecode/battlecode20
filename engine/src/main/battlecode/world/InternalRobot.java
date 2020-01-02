@@ -292,6 +292,8 @@ public strictfp class InternalRobot {
             int soupProduced = Math.min(this.soupCarrying, this.type.maxSoupProduced);
             this.soupCarrying -= soupProduced;
             this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
+            // this is an action!
+            this.gameWorld.getMatchMaker().addAction(this.ID, Action.REFINE_SOUP, -1);
             shouldPollute = true;
         }
         // If vaporator, produces refined soup always
