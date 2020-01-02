@@ -38,7 +38,10 @@ def update_version_number(version):
         f.write(client_config)
     
 def fancy_specs():
-    pass
+    os.chdir('specs')
+    subprocess.call('pandoc specs.md -s --template template.html --toc -o specs.html --metadata pagetitle="Battlecode 2020 Specs"', shell=True)
+    os.chdir('..')
+    subprocess.call('cp specs/specs.html frontend/public/specs.html')
 
 def javadoc():
     """
