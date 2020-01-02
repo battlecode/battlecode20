@@ -264,7 +264,7 @@ public strictfp class GameMaker {
         TIntArrayList bodyTypeMetadataOffsets = new TIntArrayList();
 
         // Add robot metadata
-        for(RobotType type : RobotType.values()){
+        for (RobotType type : RobotType.values()) {
             BodyTypeMetadata.startBodyTypeMetadata(builder);
             BodyTypeMetadata.addType(builder, robotTypeToBodyType(type));
             BodyTypeMetadata.addSpawnSource(builder, robotTypeToBodyType(type.spawnSource));
@@ -272,9 +272,10 @@ public strictfp class GameMaker {
             BodyTypeMetadata.addDirtLimit(builder, type.dirtLimit);
             BodyTypeMetadata.addSoupLimit(builder, type.soupLimit);
             BodyTypeMetadata.addActionCooldown(builder, type.actionCooldown);
-            BodyTypeMetadata.addSensorRadius(builder, type.sensorRadiusSquared);
-            BodyTypeMetadata.addPollutionRadius(builder, type.pollutionRadiusSquared);
-            BodyTypeMetadata.addPollutionAmount(builder, 0);
+            BodyTypeMetadata.addSensorRadiusSquared(builder, type.sensorRadiusSquared);
+            BodyTypeMetadata.addPollutionRadiusSquared(builder, type.pollutionRadiusSquared);
+            BodyTypeMetadata.addLocalPollutionAdditiveEffect(builder, type.localPollutionAdditiveEffect);
+            BodyTypeMetadata.addLocalPollutionMultiplicativeEffect(builder, type.localPollutionMultiplicativeEffect);
             BodyTypeMetadata.addMaxSoupProduced(builder, type.maxSoupProduced);
             BodyTypeMetadata.addBytecodeLimit(builder, type.bytecodeLimit);
             bodyTypeMetadataOffsets.add(BodyTypeMetadata.endBodyTypeMetadata(builder));

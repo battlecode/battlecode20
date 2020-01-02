@@ -167,12 +167,14 @@ table BodyTypeMetadata {
     soupLimit: int;
     /// The number of cooldowns between every two actions, for pollution 0.
     actionCooldown: float;
-    /// The maximum distance this type can sense other robots.
-    sensorRadius: int;
-    /// The distance this type pollutes.
-    pollutionRadius: int;
-    /// The amount of pollution this type creates.
-    pollutionAmount: int;
+    /// The maximum distance squared this type can sense other robots.
+    sensorRadiusSquared: int;
+    /// The radius squared of local pollution effects.
+    pollutionRadiusSquared: int;
+    /// The amount of pollution created when refining soup locally.
+    localPollutionAdditiveEffect: int;
+    /// The fraction that the local pollution is multiplied by around vaporators.
+    localPollutionMultiplicativeEffect: float;
     /// The amount of global pollution this type creates.
     globalPollutionAmount: int;
     /// The maximum amount of soup this type processes every turn.
