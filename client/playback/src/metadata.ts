@@ -52,9 +52,10 @@ export default class Metadata {
         body.dirtLimit(),
         body.soupLimit(),
         body.actionCooldown(),
-        body.sensorRadius(),
-        body.pollutionRadius(),
-        body.pollutionAmount(),
+        body.sensorRadiusSquared(),
+        body.pollutionRadiusSquared(),
+        body.localPollutionAdditiveEffect(),
+        body.localPollutionMultiplicativeEffect(),
         body.maxSoupProduced(),
         body.bytecodeLimit()
       );
@@ -97,15 +98,17 @@ export class BodyType {
   dirtLimit: number;
   soupLimit: number;
   actionCooldown: number;
-  sensorRadius: number;
-  pollutionRadius: number;
-  pollutionAmount: number;
+  sensorRadiusSquared: number;
+  pollutionRadiusSquared: number;
+  localPollutionAdditiveEffect: number;
+  localPollutionMultiplicativeEffect: number;
   maxSoupProduced: number;
   bytecodeLimit: number;
   
   constructor(type: schema.BodyType, spawnSource: schema.BodyType, cost: number,
       soupLimit: number, dirtLimit: number, actionCooldown: number,
-      sensorRadius: number, pollutionRadius: number, pollutionAmount: number,
+      sensorRadiusSquared: number, pollutionRadiusSquared: number, 
+      localPollutionAdditiveEffect: number, localPollutionMultiplicativeEffect: number,
       maxSoupProduced: number, bytecodeLimit: number) {
 
     this.type = type;
@@ -114,9 +117,10 @@ export class BodyType {
     this.dirtLimit = dirtLimit;
     this.soupLimit = soupLimit;
     this.actionCooldown = actionCooldown;
-    this.sensorRadius = sensorRadius;
-    this.pollutionRadius = pollutionRadius;
-    this.pollutionAmount = pollutionAmount;
+    this.sensorRadiusSquared = sensorRadiusSquared;
+    this.pollutionRadiusSquared = pollutionRadiusSquared;
+    this.localPollutionAdditiveEffect = localPollutionAdditiveEffect;
+    this.localPollutionMultiplicativeEffect = localPollutionMultiplicativeEffect;
     this.maxSoupProduced = maxSoupProduced;
     this.bytecodeLimit = bytecodeLimit;
     Object.freeze(this);

@@ -1611,33 +1611,43 @@ actionCooldown():number {
 };
 
 /**
- * The maximum distance this type can sense other robots.
+ * The maximum distance squared this type can sense other robots.
  *
  * @returns number
  */
-sensorRadius():number {
+sensorRadiusSquared():number {
   var offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * The distance this type pollutes.
+ * The radius squared of local pollution effects.
  *
  * @returns number
  */
-pollutionRadius():number {
+pollutionRadiusSquared():number {
   var offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * The amount of pollution this type creates.
+ * The amount of pollution created when refining soup locally.
  *
  * @returns number
  */
-pollutionAmount():number {
+localPollutionAdditiveEffect():number {
   var offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * The fraction that the local pollution is multiplied by around vaporators.
+ *
+ * @returns number
+ */
+localPollutionMultiplicativeEffect():number {
+  var offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
@@ -1646,7 +1656,7 @@ pollutionAmount():number {
  * @returns number
  */
 globalPollutionAmount():number {
-  var offset = this.bb!.__offset(this.bb_pos, 22);
+  var offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -1656,7 +1666,7 @@ globalPollutionAmount():number {
  * @returns number
  */
 maxSoupProduced():number {
-  var offset = this.bb!.__offset(this.bb_pos, 24);
+  var offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -1666,7 +1676,7 @@ maxSoupProduced():number {
  * @returns number
  */
 bytecodeLimit():number {
-  var offset = this.bb!.__offset(this.bb_pos, 26);
+  var offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -1674,7 +1684,7 @@ bytecodeLimit():number {
  * @param flatbuffers.Builder builder
  */
 static startBodyTypeMetadata(builder:flatbuffers.Builder) {
-  builder.startObject(12);
+  builder.startObject(13);
 };
 
 /**
@@ -1727,26 +1737,34 @@ static addActionCooldown(builder:flatbuffers.Builder, actionCooldown:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number sensorRadius
+ * @param number sensorRadiusSquared
  */
-static addSensorRadius(builder:flatbuffers.Builder, sensorRadius:number) {
-  builder.addFieldInt32(6, sensorRadius, 0);
+static addSensorRadiusSquared(builder:flatbuffers.Builder, sensorRadiusSquared:number) {
+  builder.addFieldInt32(6, sensorRadiusSquared, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number pollutionRadius
+ * @param number pollutionRadiusSquared
  */
-static addPollutionRadius(builder:flatbuffers.Builder, pollutionRadius:number) {
-  builder.addFieldInt32(7, pollutionRadius, 0);
+static addPollutionRadiusSquared(builder:flatbuffers.Builder, pollutionRadiusSquared:number) {
+  builder.addFieldInt32(7, pollutionRadiusSquared, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number pollutionAmount
+ * @param number localPollutionAdditiveEffect
  */
-static addPollutionAmount(builder:flatbuffers.Builder, pollutionAmount:number) {
-  builder.addFieldInt32(8, pollutionAmount, 0);
+static addLocalPollutionAdditiveEffect(builder:flatbuffers.Builder, localPollutionAdditiveEffect:number) {
+  builder.addFieldInt32(8, localPollutionAdditiveEffect, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number localPollutionMultiplicativeEffect
+ */
+static addLocalPollutionMultiplicativeEffect(builder:flatbuffers.Builder, localPollutionMultiplicativeEffect:number) {
+  builder.addFieldFloat32(9, localPollutionMultiplicativeEffect, 0.0);
 };
 
 /**
@@ -1754,7 +1772,7 @@ static addPollutionAmount(builder:flatbuffers.Builder, pollutionAmount:number) {
  * @param number globalPollutionAmount
  */
 static addGlobalPollutionAmount(builder:flatbuffers.Builder, globalPollutionAmount:number) {
-  builder.addFieldInt32(9, globalPollutionAmount, 0);
+  builder.addFieldInt32(10, globalPollutionAmount, 0);
 };
 
 /**
@@ -1762,7 +1780,7 @@ static addGlobalPollutionAmount(builder:flatbuffers.Builder, globalPollutionAmou
  * @param number maxSoupProduced
  */
 static addMaxSoupProduced(builder:flatbuffers.Builder, maxSoupProduced:number) {
-  builder.addFieldInt32(10, maxSoupProduced, 0);
+  builder.addFieldInt32(11, maxSoupProduced, 0);
 };
 
 /**
@@ -1770,7 +1788,7 @@ static addMaxSoupProduced(builder:flatbuffers.Builder, maxSoupProduced:number) {
  * @param number bytecodeLimit
  */
 static addBytecodeLimit(builder:flatbuffers.Builder, bytecodeLimit:number) {
-  builder.addFieldInt32(11, bytecodeLimit, 0);
+  builder.addFieldInt32(12, bytecodeLimit, 0);
 };
 
 /**
@@ -1782,7 +1800,7 @@ static endBodyTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, cost:number, dirtLimit:number, soupLimit:number, actionCooldown:number, sensorRadius:number, pollutionRadius:number, pollutionAmount:number, globalPollutionAmount:number, maxSoupProduced:number, bytecodeLimit:number):flatbuffers.Offset {
+static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, cost:number, dirtLimit:number, soupLimit:number, actionCooldown:number, sensorRadiusSquared:number, pollutionRadiusSquared:number, localPollutionAdditiveEffect:number, localPollutionMultiplicativeEffect:number, globalPollutionAmount:number, maxSoupProduced:number, bytecodeLimit:number):flatbuffers.Offset {
   BodyTypeMetadata.startBodyTypeMetadata(builder);
   BodyTypeMetadata.addType(builder, type);
   BodyTypeMetadata.addSpawnSource(builder, spawnSource);
@@ -1790,9 +1808,10 @@ static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schem
   BodyTypeMetadata.addDirtLimit(builder, dirtLimit);
   BodyTypeMetadata.addSoupLimit(builder, soupLimit);
   BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
-  BodyTypeMetadata.addSensorRadius(builder, sensorRadius);
-  BodyTypeMetadata.addPollutionRadius(builder, pollutionRadius);
-  BodyTypeMetadata.addPollutionAmount(builder, pollutionAmount);
+  BodyTypeMetadata.addSensorRadiusSquared(builder, sensorRadiusSquared);
+  BodyTypeMetadata.addPollutionRadiusSquared(builder, pollutionRadiusSquared);
+  BodyTypeMetadata.addLocalPollutionAdditiveEffect(builder, localPollutionAdditiveEffect);
+  BodyTypeMetadata.addLocalPollutionMultiplicativeEffect(builder, localPollutionMultiplicativeEffect);
   BodyTypeMetadata.addGlobalPollutionAmount(builder, globalPollutionAmount);
   BodyTypeMetadata.addMaxSoupProduced(builder, maxSoupProduced);
   BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
@@ -2647,6 +2666,8 @@ globalPollution():number {
 };
 
 /**
+ * The local pollution infos
+ *
  * @param battlecode.schema.LocalPollutionTable= obj
  * @returns battlecode.schema.LocalPollutionTable|null
  */
