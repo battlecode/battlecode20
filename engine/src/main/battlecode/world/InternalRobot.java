@@ -2,7 +2,6 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.schema.Action;
-import java.util.*;
 
 /**
  * The representation of a robot used by the server.
@@ -26,7 +25,6 @@ public strictfp class InternalRobot {
     
     private float cooldownTurns;
 
-    private boolean producedSoup;
     private boolean currentlyHoldingUnit;
     private int idOfUnitCurrentlyHeld;
 
@@ -62,7 +60,6 @@ public strictfp class InternalRobot {
         
         this.cooldownTurns = 0;
 
-        this.producedSoup = false;
         this.currentlyHoldingUnit = false;
         this.idOfUnitCurrentlyHeld = -1;
 
@@ -279,34 +276,40 @@ public strictfp class InternalRobot {
     public void processBeginningOfTurn() {
         if (this.cooldownTurns > 0)
             this.cooldownTurns--;
-        this.producedSoup = false;
         this.currentBytecodeLimit = getType().bytecodeLimit;
     }
 
     public void processEndOfTurn() {
-        // if refinery/hq/vaporator, then reset current pollution level now
-        if (this.type.canRefine()) {
+        // REFINING AND POLLUTION
+        // if can produce pollution, reset it now
+        if (this.type.canAffectPollution()) {
             this.gameWorld.resetPollutionForRobot(this.ID);
         }
+        // whether the robot should pollute
+        boolean shouldPollute = false;
         // If refinery//hq, produces refined soup
         if (this.type.canRefine() && this.soupCarrying > 0) {
             int soupProduced = Math.min(this.soupCarrying, this.type.maxSoupProduced);
             this.soupCarrying -= soupProduced;
             this.gameWorld.getTeamInfo().adjustSoup(this.team, soupProduced);
-            this.producedSoup = true;
+            shouldPollute = true;
         }
         // If vaporator, produces refined soup always
         if (this.type == RobotType.VAPORATOR) {
             this.gameWorld.getTeamInfo().adjustSoup(this.team, this.type.maxSoupProduced);
-            this.producedSoup = true;
+            shouldPollute = true;
         }
-        // If refinery//hq/cow, produces pollution
-        if ((this.type.canRefine() && this.producedSoup) || (this.type == RobotType.COW)) {
+        // If cow, always pollute
+        if (this.type == RobotType.COW) {
+            shouldPollute = true;
+        }
+        if (this.type.canAffectPollution() && shouldPollute) {
             this.gameWorld.addGlobalPollution(this.type.globalPollutionAmount);
             // now add a local pollution
             this.gameWorld.addLocalPollution(this.ID, this.getLocation(), this.type.pollutionRadiusSquared, this.type.localPollutionAdditiveEffect, this.type.localPollutionMultiplicativeEffect);
         }
 
+        // bytecode stuff!
         this.gameWorld.getMatchMaker().addBytecodes(ID, this.bytecodesUsed);
         this.roundsAlive++;
     }

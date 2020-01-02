@@ -719,9 +719,8 @@ public strictfp class GameWorld {
         if (robot.getType().canDepositDirt() && robot.getDirtCarrying() > 0)
             addDirt(-1, robot.getLocation(), robot.getDirtCarrying());
 
-        // if hq/refinery/vaporator killed, remove its pollution
-        // also if it is a cow
-        if (robot.getType().canRefine() || robot.getType() == RobotType.COW)
+        // remove pollution if can pollute
+        if (robot.getType().canAffectPollution())
             this.resetPollutionForRobot(id);
 
         controlProvider.robotKilled(robot);

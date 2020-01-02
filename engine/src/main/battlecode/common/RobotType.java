@@ -144,12 +144,21 @@ public enum RobotType {
     }
 
     /**
-     * Returns whether the robot can produce soup.
+     * Returns whether the robot can refine crude soup into refined soup.
      *
-     * @return whether the robot can produce soup
+     * @return whether the robot can refine crude soup into refined soup
      */
     public boolean canRefine() {
-        return this == REFINERY || this == VAPORATOR || this == HQ;
+        return this == REFINERY || this == HQ;
+    }
+
+    /**
+     * Returns whether the robot can affect pollution.
+     *
+     * @return whether the robot can affect pollution
+     */
+    public boolean canAffectPollution() {
+        return this == REFINERY || this == VAPORATOR || this == HQ || this == COW;
     }
 
     /**
