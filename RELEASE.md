@@ -19,7 +19,7 @@
 - Make sure everything is installed:
     - `./install_all.sh`
 - Choose a version as $year.$release (e.g. 2020.1.32.2)
-- Update `specs.md` with the new version and a changelog.
+- Update `specs/specs.md` with the new version and a changelog.
 - Review the changes, and commit and push (message e.g. "preparing for release 2020.1.32.2").
 - `./gradlew clean`
 - `./gradlew test`
