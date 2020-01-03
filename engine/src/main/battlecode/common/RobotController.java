@@ -15,20 +15,10 @@ public strictfp interface RobotController {
     // *********************************
 
     /**
-     * Returns the number of rounds in the game. After this many rounds, if neither
-     * team has been destroyed, tiebreakers will be used.
-     *
-     * @return the number of rounds in the game.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getRoundLimit();
-
-    /**
-     * Returns the current round number, where round 0 is the first round of the
+     * Returns the current round number, where round 1 is the first round of the
      * match.
      *
-     * @return the current round number, where round 0 is the first round of the
+     * @return the current round number, where round 1 is the first round of the
      * match.
      *
      * @battlecode.doc.costlymethod
@@ -281,6 +271,8 @@ public strictfp interface RobotController {
      * @return the crude soup count at a given location, if the location is
      * within the sensor radius of the robot.
      *
+     * @throws GameActionException if robot cannot sense the given location
+     *
      * @battlecode.doc.costlymethod
      */
     int senseSoup(MapLocation loc) throws GameActionException;
@@ -292,6 +284,8 @@ public strictfp interface RobotController {
      * @param loc the given location
      * @return the pollution level at a given location, if the location is
      * within the sensor radius of the robot.
+     *
+     * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
@@ -305,6 +299,8 @@ public strictfp interface RobotController {
      * @return the elevation at a given location, if the location is
      * within the sensor radius of the robot.
      *
+     * @throws GameActionException if the robot cannot sense the given location
+     *
      * @battlecode.doc.costlymethod
      */
     int senseElevation(MapLocation loc) throws GameActionException;
@@ -316,6 +312,8 @@ public strictfp interface RobotController {
      * @param loc the given location
      * @return whether or not a given location is flooded, if the location is
      * within the sensor radius of the robot.
+     *
+     * @throws GameActionException if the robot cannot sense the given location
      *
      * @battlecode.doc.costlymethod
      */
@@ -463,7 +461,9 @@ public strictfp interface RobotController {
     boolean canMineSoup(Direction dir);
 
     /**
-     * Mines soup in the given direction.
+     * Mines soup in the given direction. Mines up to GameConstants.SOUP_MINING_RATE,
+     * limited by how much soup the miner can still carry and how much soup exists at
+     * the location.
      *
      * @param dir the direction to mine
      * @throws GameActionException if this robot is not a miner, if
@@ -474,29 +474,29 @@ public strictfp interface RobotController {
     void mineSoup(Direction dir) throws GameActionException;
 
     /**
-     * Tests whether the robot can refine soup in the given direction.
-     * Checks cooldown turns remaining, whether the robot can refine, whether
+     * Tests whether the robot can deposit soup in the given direction.
+     * Checks cooldown turns remaining, whether the robot can deposit soup, whether
      * the robot has crude soup, and that the given direction has a refinery.
      *
-     * @param dir the direction to refine
-     * @return whether it is possible to refine soup in the given direction.
+     * @param dir the direction to deposit soup
+     * @return whether it is possible to deposit soup in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canRefineSoup(Direction dir);
+    boolean canDepositSoup(Direction dir);
 
     /**
-     * Refines soup in the given direction (max up to specified amount).
+     * Deposits soup in the given direction (max up to specified amount).
      *
-     * @param dir the direction to refine
-     * @param amount the amount of soup to refine
+     * @param dir the direction to deposit soup
+     * @param amount the amount of soup to deposit
      * @throws GameActionException if this robot is not a miner, if
-     * the robot is still in cooldown, if there is no soup to refine,
+     * the robot is still in cooldown, if there is no soup to deposit,
      * or if there is no refinery.
      *
      * @battlecode.doc.costlymethod
      */
-    void refineSoup(Direction dir, int amount) throws GameActionException;
+    void depositSoup(Direction dir, int amount) throws GameActionException;
 
     // ***************************************
     // ********* LANDSCAPER METHODS **********
@@ -532,24 +532,22 @@ public strictfp interface RobotController {
      * and whether the robot has dirt.
      *
      * @param dir the direction to deposit
-     * @param amount the amount of dirt to deposit
      * @return whether it is possible to deposit dirt in the given direction.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canDepositDirt(Direction dir, int amount);
+    boolean canDepositDirt(Direction dir);
 
     /**
-     * Deposits dirt in the given direction (max up to specified amount).
+     * Deposits 1 unit of dirt in the given direction.
      *
      * @param dir the direction to deposit
-     * @param amount the amount of dirt to deposit
      * @throws GameActionException if this robot is not a landscaper, if
      * the robot is still in cooldown, if there is no dirt to deposit,
      *
      * @battlecode.doc.costlymethod
      */
-    void depositDirt(Direction dir, int amount) throws GameActionException;
+    void depositDirt(Direction dir) throws GameActionException;
 
     // ***************************************
     // ******* DELIVERY DRONE METHODS ********
@@ -565,6 +563,8 @@ public strictfp interface RobotController {
 
     /**
      * Picks up another unit.
+     *
+     * @param id the id of the robot to pick up
      *
      * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
      * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
@@ -582,6 +582,8 @@ public strictfp interface RobotController {
 
     /**
      * Drops the unit that is currently picked up.
+     *
+     * @param dir the direction to drop in
      *
      * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
      * holding a unit that it can drop.
@@ -602,6 +604,8 @@ public strictfp interface RobotController {
 
     /**
      * Shoots down another unit.
+     *
+     * @param id the id of the unit to shoot
      *
      * @throws GameActionException if the robot is not of type NET_GUN,
      *  or the robot's action cooldown is not ready, or if the unit to
@@ -637,6 +641,7 @@ public strictfp interface RobotController {
      *
      * @param message the list of ints to send.
      * @param cost the price that the unit is willing to pay for the message
+     * @return whether the transaction can be submitted or not
      */
     boolean canSubmitTransaction(int[] message, int cost);
 
@@ -645,7 +650,9 @@ public strictfp interface RobotController {
      * 
      * @param message the list of ints to send.
      * @param cost the price that the unit is willing to pay for the message
-     * 
+     *
+     * @throws GameActionException if the team does not have enough soup to cover the cost,
+     *  or if the message exceeds the allowed limit
      */
     void submitTransaction(int[] message, int cost) throws GameActionException;
 
@@ -655,6 +662,9 @@ public strictfp interface RobotController {
      * The block will contain a list of transactions.
      *
      * @param roundNumber the round index.
+     * @return an array of Transactions that were accepted into the blockchain
+     *  at the given round, in no particular order.
+     *
      * @throws GameActionException if the round is not available.
      */
     public Transaction[] getBlock(int roundNumber) throws GameActionException;

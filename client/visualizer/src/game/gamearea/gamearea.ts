@@ -96,7 +96,7 @@ export default class GameArea {
               newVersion.innerHTML = "New version available (download with <code>gradle build</code>): v" + latest;
               splashDiv.appendChild(newVersion);
             }
-            
+
           })
         });
       })(this.splashDiv, this.conf.gameVersion);

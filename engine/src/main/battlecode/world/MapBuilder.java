@@ -105,6 +105,7 @@ public class MapBuilder {
         this.dirtArray[locationToIndex(x, y)] = value;
     }
 
+    // The water level should always be set to 0!!
     public void setWaterLevel(int waterLevel) {
         this.waterLevel = waterLevel;
     }
@@ -180,7 +181,7 @@ public class MapBuilder {
 
 
     public LiveMap build() {
-        return new LiveMap(width, height, new MapLocation(0, 0), seed, GameConstants.GAME_DEFAULT_ROUNDS, name,
+        return new LiveMap(width, height, new MapLocation(0, 0), seed, GameConstants.GAME_MAX_NUMBER_OF_ROUNDS, name,
                 bodies.toArray(new RobotInfo[bodies.size()]), soupArray, pollutionArray, waterArray, dirtArray, waterLevel);
     }
 

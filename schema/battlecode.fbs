@@ -99,8 +99,11 @@ enum Action : byte {
     /// Mines a unit of soup (miners).
     /// Target: location.
     MINE_SOUP,
-    /// Refines a unit of soup (miners).
+    /// Deposits a unit of soup (miners).
     /// Target: refinery.
+    DEPOSIT_SOUP,
+    /// Refines a unit of soup (refinery).
+    /// Target: none.
     REFINE_SOUP,
     /// Digs a unit of dirt (landscapers).
     /// Target: location.

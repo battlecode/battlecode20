@@ -5,69 +5,69 @@ package battlecode.common;
  */
 public enum RobotType {
 
-    // spawnSource, soupCost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, maxSoupProduced, bytecodeLimit
+    // spawnSource, soupCost, dirtLimit, soupLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, globalPollutionAmount, bytecodeLimit
     /**
      * The base produces miners, is also a net gun and a refinery.
      * @battlecode.doc.robottype
      */
-    HQ                      (null,  0,  0,  0,  1,  7,  4,  1,  1,  10,  15000),
+    HQ                      (null,  0,  50,  0,  1,  48,  5,  10,  1,  20,  20000),
     //                       SS     C   DL  SL  AC  SR  PR  PA  GP  MS   BL
     /**
      * Miners extract crude soup and bring it to the refineries.
      *
      * @battlecode.doc.robottype
      */
-    MINER                   (HQ,  10,  0,  40,  1,  8,  0,  0,  0,  0,  15000), // chef?
+    MINER                   (HQ,  70,  0,  10,  1,  35,  0,  0,  0,  0,  10000),
     //                       SS   C    DL  SL   AC  SR  PR  PA  GP  MS  BL
     /**
      * Refineries turn crude soup into refined soup, and produce pollution.
      * @battlecode.doc.robottype
      */
-    REFINERY                (MINER,  20,  0,  0,  1,  5,  4,  1,  1,  10,  15000),
+    REFINERY                (MINER,  200,  15,  0,  1,  24,  5,  10,  1,  20,  5000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS   BL
     /**
      * Vaporators reduce pollution.
      * @battlecode.doc.robottype
      */
-    VAPORATOR               (MINER,  20,  0,  0,  1,  5,  4,  -1,  -1,  5,  15000),
-    //                       SS      C    DL  SL  AC  SR  PR  PA   GP   MS  BL
+    VAPORATOR               (MINER,  1000,  15,  0,  1,  24,  5,  -10,  -1,  7,  5000),
+    //                       SS      C     DL  SL  AC   SR  PR    PA    GP   MS   BL
     /**
      * Design schools create landscapers.
      * @battlecode.doc.robottype
      */
-    DESIGN_SCHOOL           (MINER,  20,  0,  0,  1,  5,  0,  0,  0,  0,  15000),
+    DESIGN_SCHOOL           (MINER,  150,  15,  0,  1,  24,  0,  0,  0,  0,  5000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Fulfillment centers create drones.
      * @battlecode.doc.robottype
      */
-    FULFILLMENT_CENTER      (MINER,  20,  0,  0,  1,  5,  0,  0,  0,  0,  15000),
+    FULFILLMENT_CENTER      (MINER,  150,  15,  0,  1,  24,  0,  0,  0,  0,  5000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
-     * Landscapers take dirt from adjacent (decreasing the elevation)
-     * squares or deposit dirt onto adjacent squares, including
+     * Landscapers take dirt from adjacent squares (decreasing the elevation)
+     * or deposit dirt onto adjacent squares, including
      * into water (increasing the elevation).
      * @battlecode.doc.robottype
      */
-    LANDSCAPER              (DESIGN_SCHOOL,  10,  40,  0,  1,  4,  0,  0,  0,  0,  15000),
+    LANDSCAPER              (DESIGN_SCHOOL,  150,  25,  0,  1,  24,  0,  0,  0,  0,  10000),
     //                       SS              C    DL   SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Drones pick up any unit and drop them somewhere else.
      * @battlecode.doc.robottype
      */
-    DELIVERY_DRONE          (FULFILLMENT_CENTER,  10,  0,  0,  1,  4,  0,  0,  0,  0,  15000),
+    DELIVERY_DRONE          (FULFILLMENT_CENTER,  150,  0,  0,  1.5f,  24,  0,  0,  0,  0,  10000),
     //                       SS                   C    DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Net guns shoot down drones.
      * @battlecode.doc.robottype
      */
-    NET_GUN                 (MINER,  7,  0,  0,  1,  6,  0,  0,  0,  0,  15000),
+    NET_GUN                 (MINER,  250,  15,  0,  1,  24,  0,  0,  0,  0,  7000),
     //                       SS      C   DL  SL  AC  SR  PR  PA  GP  MS  BL
     /**
      * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    COW                     (null,  0,  0,  0,  1,  8,  0,  0,  0,  0,  0),
+    COW                     (null,  0,  0,  0,  1,  1000,  16,  10,  0,  0,  0),
     //                       SS     C   DL  SL  AC  SR  PR  PA  GP  MS  BL
     ;
     
@@ -143,7 +143,7 @@ public enum RobotType {
      *
      * @return whether the robot can produce soup
      */
-    public boolean canProduceSoupAndPollution() {
+    public boolean canRefine() {
         return this == REFINERY || this == VAPORATOR || this == HQ;
     }
 
@@ -179,7 +179,7 @@ public enum RobotType {
      *
      * @return whether the robot can deposit dirt
      */
-    public boolean canDeposit() {
+    public boolean canDepositDirt() {
         return this == LANDSCAPER;
     }
 
@@ -193,11 +193,11 @@ public enum RobotType {
     }
 
     /**
-     * Returns whether the robot can refine.
+     * Returns whether the robot can deposit soup.
      *
-     * @return whether the robot can refine
+     * @return whether the robot can deposit soup
      */
-    public boolean canRefine() {
+    public boolean canDepositSoup() {
         return this == MINER;
     }
 

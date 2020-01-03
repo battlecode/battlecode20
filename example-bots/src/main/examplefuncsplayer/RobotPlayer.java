@@ -67,8 +67,8 @@ public strictfp class RobotPlayer {
         for (Direction dir : directions)
             tryBuild(RobotType.FULFILLMENT_CENTER, dir);
         for (Direction dir : directions)
-            if (tryRefine(dir))
-                System.out.println("I refined soup! " + rc.getTeamSoup());
+            if (tryDepositSoup(dir))
+                System.out.println("I deposited soup! " + rc.getTeamSoup());
         for (Direction dir : directions)
             if (tryMine(dir))
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
@@ -201,9 +201,9 @@ public strictfp class RobotPlayer {
      * @return true if a move was performed
      * @throws GameActionException
      */
-    static boolean tryRefine(Direction dir) throws GameActionException {
-        if (rc.isReady() && rc.canRefineSoup(dir)) {
-            rc.refineSoup(dir, rc.getSoupCarrying());
+    static boolean tryDepositSoup(Direction dir) throws GameActionException {
+        if (rc.isReady() && rc.canDepositSoup(dir)) {
+            rc.depositSoup(dir, rc.getSoupCarrying());
             return true;
         } else return false;
     }

@@ -99,9 +99,10 @@ export interface Config {
 export enum Mode {
   GAME,
   HELP,
-  MAPEDITOR,
+  LOGS,
   RUNNER,
-  QUEUE
+  QUEUE,
+  MAPEDITOR
 }
 
 /**

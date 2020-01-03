@@ -202,7 +202,7 @@ task prodClient {
       workingDir 'client'
     }
     exec {
-      commandLine 'npm', 'run', 'prod-electron-no-sign'
+      commandLine 'npm', 'run', 'prod-electron'
       workingDir 'client'
     }
   }

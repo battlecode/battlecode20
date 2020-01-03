@@ -1,7 +1,6 @@
 import {Config} from '../../config';
 import * as cst from '../../constants';
 import {AllImages} from '../../imageloader';
-import Console from './console'
 
 import {schema} from 'battlecode-playback';
 
@@ -16,7 +15,7 @@ export type StatBar = {
 };
 
 /**
-* Loads game stats: team name, victory points, bullets, robot count
+* Loads game stats: team name, soups, robot count
 * We make the distinction between:
 *    1) Team names - a global string identifier i.e. "Teh Devs"
 *    2) Team IDs - each Battlecode team has a unique numeric team ID i.e. 0
@@ -30,7 +29,7 @@ export default class Stats {
 
   // Key is the team ID
   private robotTds: Object = {}; // Secondary key is robot type
-  // private statBars: Map<number, { bullets: StatBar, vps: StatBar }>;q
+  private statBars: Map<number, { soups: StatBar }>;
   private statsTableElement: HTMLTableElement;
 
   private robotConsole: HTMLDivElement;
@@ -45,7 +44,7 @@ export default class Stats {
     cst.MINER, cst.LANDSCAPER, cst.DRONE, cst.NET_GUN, cst.REFINERY, cst.VAPORATOR, cst.HQ, cst.DESIGN_SCHOOL, cst.FULFILLMENT_CENTER
   ];
 
-  constructor(conf: Config, images: AllImages, robotConsole: Console) {
+  constructor(conf: Config, images: AllImages) {
     this.conf = conf;
     this.images = images;
     this.div = document.createElement("div");
@@ -53,7 +52,6 @@ export default class Stats {
     let teamNames: Array<string> = ["?????", "?????"];
     let teamIDs: Array<number> = [1, 2];
     this.statsTableElement = document.createElement("table");
-    this.robotConsole = robotConsole.div;
     this.initializeGame(teamNames, teamIDs);
   }
 
@@ -123,49 +121,44 @@ export default class Stats {
     bars.id = "stats-bars";
     table.setAttribute("align", "center");
 
-    // Add the bullet bars and labels
+    // Duplicate of the following, but left just in case
+    // teamIDs.forEach((id: number) => {
+    //   const bar = document.createElement("td");
+    //   bar.height = "150";
+    //   bar.vAlign = "bottom";
+    //   // TODO: figure out if statbars.get(id) can actually be null??
+    //   // bar.appendChild(this.statBars.get(id)!.bullets.bar);
+    //   bars.appendChild(bar);
+
+    //   const count = document.createElement("td");
+    //   // TODO: figure out if statbars.get(id) can actually be null??
+    //   // count.appendChild(this.statBars.get(id)!.bullets.label);
+    //   counts.appendChild(count);
+    // });
+
     teamIDs.forEach((id: number) => {
       const bar = document.createElement("td");
       bar.height = "150";
       bar.vAlign = "bottom";
       // TODO: figure out if statbars.get(id) can actually be null??
-      // bar.appendChild(this.statBars.get(id)!.bullets.bar);
+      bar.appendChild(this.statBars.get(id)!.soups.bar);
       bars.appendChild(bar);
 
       const count = document.createElement("td");
       // TODO: figure out if statbars.get(id) can actually be null??
-      // count.appendChild(this.statBars.get(id)!.bullets.label);
+      count.appendChild(this.statBars.get(id)!.soups.label);
       counts.appendChild(count);
     });
 
-    // Add the VP bars and labels
-    teamIDs.forEach((id: number) => {
-      const bar = document.createElement("td");
-      bar.height = "150";
-      bar.vAlign = "bottom";
-      // TODO: figure out if statbars.get(id) can actually be null??
-      // bar.appendChild(this.statBars.get(id)!.vps.bar);
-      bars.appendChild(bar);
-
-      const count = document.createElement("td");
-      // TODO: figure out if statbars.get(id) can actually be null??
-      // count.appendChild(this.statBars.get(id)!.vps.label);
-      counts.appendChild(count);
-    });
-
-    // Labels - "Bullets" and "Victory Points"
-    // const labelBullets = document.createElement("td");
-    // labelBullets.colSpan = 2;
-    // labelBullets.innerText = "Bullets";
-    // const labelVPs = document.createElement("td");
-    // labelVPs.colSpan = 2;
-    // labelVPs.innerText = "Victory Points";
+    // Label for soup
+    const labelSoups = document.createElement("td");
+    labelSoups.colSpan = 2;
+    labelSoups.innerText = "Soups";
 
     table.appendChild(bars);
     table.appendChild(counts);
     table.appendChild(labels);
-    // labels.appendChild(labelBullets);
-    // labels.appendChild(labelVPs);
+    labels.appendChild(labelSoups);
     return table;
   }
 
@@ -178,7 +171,7 @@ export default class Stats {
       this.div.removeChild(this.div.firstChild);
     }
     this.robotTds = {};
-    // this.statBars = new Map<number, { bullets: StatBar, vps: StatBar }>();
+    this.statBars = new Map<number, { soups: StatBar }>();
 
     // Add view toggles
     this.div.append(this.addViewOptions());
@@ -212,24 +205,20 @@ export default class Stats {
       // let bulletsSpan = document.createElement("span");
       // bulletsSpan.innerHTML = "0";
 
-      // Create the stat bar for victory points
-      let vps = document.createElement("div");
-      vps.className = "stat-bar";
-      vps.style.backgroundColor = hex[inGameID];
-      let vpsSpan = document.createElement("span");
-      vpsSpan.innerHTML = "0";
+      // Create the stat bar for Soups
+      let soups = document.createElement("div");
+      soups.className = "stat-bar";
+      soups.style.backgroundColor = hex[inGameID];
+      let soupsSpan = document.createElement("span");
+      soupsSpan.innerHTML = "0";
 
       // Store the stat bars
-      // this.statBars.set(teamID, {
-      //   bullets: {
-      //     bar: bullets,
-      //     label: bulletsSpan
-      //   },
-      //   vps: {
-      //     bar: vps,
-      //     label: vpsSpan
-      //   }
-      // });
+      this.statBars.set(teamID, {
+        soups: {
+          bar: soups,
+          label: soupsSpan
+        }
+      });
 
       // Add the team name banner and the robot count table
       teamDiv.appendChild(this.teamHeaderNode(teamName, inGameID));
@@ -244,10 +233,7 @@ export default class Stats {
     this.statsTableElement = this.statsTable(teamIDs);
     this.div.appendChild(this.statsTableElement);
     
-    // Add log console
-    let consoleDiv = document.createElement("div");
-    consoleDiv.append(this.robotConsole);
-    this.div.appendChild(consoleDiv);
+    this.div.appendChild(this.images.soup);
   }
 
   addViewOptions(){
@@ -320,23 +306,18 @@ export default class Stats {
   }
 
   /**
-   * Change the victory points of the given team
+   * Change the soups of the given team
    */
-  // setVPs(teamID: number, count: number) {
-  //   // TODO: figure out if statbars.get(id) can actually be null??
-  //   const statBar: StatBar = this.statBars.get(teamID)!.vps
-  //   statBar.label.innerText = String(count);
-  //   statBar.bar.style.height = `${100 * count / cst.VICTORY_POINT_THRESH}%`;
+  setSoups(teamID: number, count: number) {
+    // TODO: figure out if statbars.get(id) can actually be null??
+    const statBar: StatBar = this.statBars.get(teamID)!.soups;
+    statBar.label.innerText = String(count);
+    statBar.bar.style.height = `${Math.min(100 * count / 100, 100)}%`;
 
-  //   if (this.images.star.parentNode === statBar.bar) {
-  //     this.images.star.remove();
-  //   }
-
-  //   if (count >= cst.VICTORY_POINT_THRESH) {
-  //     this.images.star.id = "star";
-  //     statBar.bar.appendChild(this.images.star);
-  //   }
-  // }
+    if (this.images.star.parentNode === statBar.bar) {
+      this.images.star.remove();
+    }
+  }
 
   /**
    * Change the bullets of the given team

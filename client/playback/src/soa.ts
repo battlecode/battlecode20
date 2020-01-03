@@ -260,7 +260,7 @@ export default class StructOfArrays<Schema extends ValidSchema> {
    * or -1.
    */
   index(primary: number): number {
-    const index = this._primLookup[primary];
+    const index = this._primLookup.get(primary);
 
     return index === undefined? -1 : index;
   }

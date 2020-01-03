@@ -41,7 +41,6 @@ public class TeamInfo {
 
     public void adjustSoup(Team t, int amount) {
         this.teamSoup[t.ordinal()] += amount;
-        this.gameWorld.getMatchMaker().addTeamSoup(t, amount);
     }
 
     public boolean getDestroyedHQ(Team t) {

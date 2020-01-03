@@ -31,7 +31,7 @@ public strictfp class GameWorld {
     private int[] pollution;
     private int[] dirt;
     private int initialWaterLevel;
-    private int waterLevel;
+    private float waterLevel;
     private boolean[] flooded;
     private InternalRobot[][] robots;
     private final LiveMap gameMap;
@@ -222,10 +222,6 @@ public strictfp class GameWorld {
         return this.gameMap.onTheMap(loc) ? this.soup[locationToIndex(loc)] : 0;
     }
 
-    public void removeSoup(MapLocation loc) {
-        removeSoup(loc, 1);
-    }
-
     public void removeSoup(MapLocation loc, int amount) {
         if (this.gameMap.onTheMap(loc)) {
             int idx = locationToIndex(loc);
@@ -314,7 +310,7 @@ public strictfp class GameWorld {
      *  resurfaces a tile that has increased in elevation.
      * ALSO ADDS THE ACTION TO MATCHMAKER.
      * 
-     * @param robotID the id of the robot that initiated the action
+     * @param robotID the id of the robot that initiated the action, -1 if dead
      * @param loc the location
      * @param amount the amount of dirt to deposit
      */
@@ -381,7 +377,7 @@ public strictfp class GameWorld {
      * Updates the global water level according to an arbitrary function.
      */
     public void updateWaterLevel() {
-        this.waterLevel = (int) Math.floor(Math.pow(this.currentRound / 200.0, 2));
+        this.waterLevel = GameConstants.getWaterLevel(getCurrentRound());
     }
 
     // ***********************************
@@ -573,9 +569,8 @@ public strictfp class GameWorld {
                                 setWinnerArbitrary();
 
         // update the round statistics
-        // this is not actually needed b/c we added it in TeamInfo.java... but is there anything else?
-        // matchMaker.addTeamSoup(Team.A, teamInfo.getSoup(Team.A)); // TODO: change to soup
-        // matchMaker.addTeamSoup(Team.B, teamInfo.getSoup(Team.B));
+        matchMaker.addTeamSoup(Team.A, teamInfo.getSoup(Team.A));
+        matchMaker.addTeamSoup(Team.B, teamInfo.getSoup(Team.B));
 
         if (gameStats.getWinner() != null)
             running = false;
@@ -591,7 +586,7 @@ public strictfp class GameWorld {
             if (this.flooded[idx])
                 floodOrigins.add(indexToLocation(idx));
         for (MapLocation center : floodOrigins) {
-            for (Direction dir : Direction.values()) {
+            for (Direction dir : Direction.allDirections()) {
                 MapLocation targetLoc = center.add(dir);
                 if (!this.gameMap.onTheMap(targetLoc))
                     continue;
@@ -672,6 +667,10 @@ public strictfp class GameWorld {
             if (robot.getType().canDropOffUnits() && robot.isCurrentlyHoldingUnit())
                 robot.getController().dropUnit(null, false);
         } catch (GameActionException e) {}
+
+        // if a landscaper is killed, drop dirt at current location
+        if (robot.getType().canDepositDirt() && robot.getDirtCarrying() > 0)
+            addDirt(-1, robot.getLocation(), robot.getDirtCarrying());
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);

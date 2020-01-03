@@ -63,10 +63,6 @@ export default class Console {
   private basediv(): HTMLDivElement {
     let div = document.createElement("div");
 
-    const title = document.createElement('h3');
-    title.innerHTML = 'Logs';
-    div.appendChild(title);
-
     this.teamAInput = this.getHTMLCheckbox("A");
     this.teamBInput = this.getHTMLCheckbox("B");
     this.lengthInput = this.getHTMLInput();

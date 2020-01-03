@@ -82,76 +82,82 @@ export enum Action{
   MINE_SOUP= 0,
 
   /**
-   * Refines a unit of soup (miners).
+   * Deposits a unit of soup (miners).
    * Target: refinery.
    */
-  REFINE_SOUP= 1,
+  DEPOSIT_SOUP= 1,
+
+  /**
+   * Refines a unit of soup (refinery).
+   * Target: none.
+   */
+  REFINE_SOUP= 2,
 
   /**
    * Digs a unit of dirt (landscapers).
    * Target: location.
    */
-  DIG_DIRT= 2,
+  DIG_DIRT= 3,
 
   /**
    * Deposits a unit of dirt (landscapers).
    * Target: location.
    */
-  DEPOSIT_DIRT= 3,
+  DEPOSIT_DIRT= 4,
 
   /**
    * Picks up a unit (drones).
    * Target: unit picked up.
    */
-  PICK_UNIT= 4,
+  PICK_UNIT= 5,
 
   /**
    * Drops off a unit (drones).
    * Target: unit dropped off.
    */
-  DROP_UNIT= 5,
+  DROP_UNIT= 6,
 
   /**
    * Builds a unit.
    * Target: spawned unit
    */
-  SPAWN_UNIT= 6,
+  SPAWN_UNIT= 7,
 
   /**
    * Shoots a drone.
    * Target: drone shot.
    */
-  SHOOT= 7,
+  SHOOT= 8,
 
   /**
    * Dies from drowning.
    * Target: none.
    */
-  DIE_DROWN= 8,
+  DIE_DROWN= 9,
 
   /**
    * Dies from being shot (drones).
    * Target: drone.
    */
-  DIE_SHOT= 9,
+  DIE_SHOT= 10,
 
   /**
    * Dies due to having too much dirt on top (buildings).
    * Target: landscaper
    */
-  DIE_TOO_MUCH_DIRT= 10,
+  DIE_TOO_MUCH_DIRT= 11,
 
   /**
    * Dies from suicide.
    * Target: none.
    */
-  DIE_SUICIDE= 11,
+  DIE_SUICIDE= 12,
 
   /**
    * Dies due to an uncaught exception
    * Target: none
    */
-  DIE_EXCEPTION= 12
+  DIE_EXCEPTION= 13
 }};
 
 /**

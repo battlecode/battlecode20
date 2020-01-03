@@ -166,7 +166,7 @@ export default class Renderer {
       if (pollutionLayer) {
         // pollution should add a clouds that are black with some opacity
         this.ctx.fillStyle = 'black';
-        this.ctx.globalAlpha = map.pollution[idxVal] / 1000.0;
+        this.ctx.globalAlpha = map.pollution[idxVal] / 100000.0;
         this.ctx.fillRect(cx, cy, scale, scale);
       }
 
@@ -246,8 +246,6 @@ export default class Renderer {
 
     // Render the robots
     for (let i = 0; i < length; i++) {
-      // const radius = radii[i];
-      const radius = 1;
       const team = teams[i];
       const type = types[i];
       const x = realXs[i];
@@ -267,7 +265,7 @@ export default class Renderer {
         
         // Draw the sight radius if the robot is selected
         if (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID) {
-          this.drawSightRadii(x, y, type);
+          this.drawSightRadii(x, y, type, ids[i] === this.lastSelectedID);
         }
       }
     }
@@ -302,18 +300,20 @@ export default class Renderer {
    * Draws a circular outline representing the sight radius or bullet sight
    * radius of the given robot type, centered at (x, y)
    */
-  private drawSightRadii(x: number, y: number, type: schema.BodyType) {
+  private drawSightRadii(x: number, y: number, type: schema.BodyType, single?: Boolean) {
     if (type === cst.COW) {
       return; // cows can't see...
     }
 
-    if (this.conf.sightRadius) {
+    if (this.conf.sightRadius || single) {
       const sightRadius = this.metadata.types[type].sensorRadius;
       this.ctx.beginPath();
-      this.ctx.arc(x, y, sightRadius, 0, 2 * Math.PI);
+      this.ctx.arc(x+0.5, y+0.5, sightRadius, 0, 2 * Math.PI);
       this.ctx.strokeStyle = "#46ff00";
       this.ctx.lineWidth = cst.SIGHT_RADIUS_LINE_WIDTH;
       this.ctx.stroke();
+    } else {
+      // console.log("drawSightRadii called, but should not draw it");
     }
 
   }
@@ -345,14 +345,10 @@ export default class Renderer {
 
     this.canvas.onmousedown = (event: MouseEvent) => {
       const {x, y} = this.getIntegerLocation(event, world);
-      // console.log(x);
-      // console.log(y);
 
       // Get the ID of the selected robot
       let selectedRobotID;
       for (let i in ids) {
-        // TODO: hi
-        console.log(xs[i] + ',' + ys[i]);
         if (xs[i] == x && ys[i] == y) {
           selectedRobotID = ids[i];
           break;
