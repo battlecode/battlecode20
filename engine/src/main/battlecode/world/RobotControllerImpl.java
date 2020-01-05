@@ -501,7 +501,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
         if (adjacentRobot == null || !adjacentRobot.getType().canRefine())
             throw new GameActionException(CANT_DO_THAT,
-                    center + " does not have a refinery, vaporator, or HQ.");
+                    center + " does not have a refinery or HQ.");
         if (!isReady())
             throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");

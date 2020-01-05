@@ -138,7 +138,6 @@ export default class Renderer {
       return 'orange';
     }
 
-
     for (let i = 0; i < width; i++) for (let j = 0; j < height; j++){
       let idxVal = map.getIdx(i,j);
       let plotJ = height-j-1;
@@ -166,7 +165,8 @@ export default class Renderer {
       if (pollutionLayer) {
         // pollution should add a clouds that are black with some opacity
         this.ctx.fillStyle = 'black';
-        this.ctx.globalAlpha = map.pollution[idxVal] / 100000.0;
+        world.calculatePollutionIfNeeded();
+        this.ctx.globalAlpha = map.pollution[idxVal] / 10000.0;
         this.ctx.fillRect(cx, cy, scale, scale);
       }
 
@@ -251,7 +251,7 @@ export default class Renderer {
       const x = realXs[i];
       const y = realYs[i];
 
-      if (type !== cst.COW && type !== cst.NONE) {
+      if (type !== cst.COW) {
         let tmp = this.imgs.robot[cst.bodyTypeToString(type)];
         // TODO how to change drone?
         if(type == cst.DRONE){
@@ -306,7 +306,7 @@ export default class Renderer {
     }
 
     if (this.conf.sightRadius || single) {
-      const sightRadius = this.metadata.types[type].sensorRadius;
+      const sightRadius = this.metadata.types[type].sensorRadiusSquared;
       this.ctx.beginPath();
       this.ctx.arc(x+0.5, y+0.5, sightRadius, 0, 2 * Math.PI);
       this.ctx.strokeStyle = "#46ff00";
@@ -377,6 +377,7 @@ export default class Renderer {
       // Set the location of the mouseover
       const {x, y} = this.getIntegerLocation(event, world);
       const idx = world.mapStats.getIdx(x, y);
+      world.calculatePollutionIfNeeded();
       onMouseover(x, y, world.mapStats.dirt[idx], world.mapStats.flooded[idx], world.mapStats.pollution[idx], world.mapStats.soup[idx]);
     };
   }

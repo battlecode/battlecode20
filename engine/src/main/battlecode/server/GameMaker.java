@@ -10,6 +10,7 @@ import battlecode.util.TeamMapping;
 import battlecode.world.*;
 import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.list.array.TByteArrayList;
+import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.array.TCharArrayList;
 import org.apache.commons.io.FileUtils;
@@ -263,7 +264,7 @@ public strictfp class GameMaker {
         TIntArrayList bodyTypeMetadataOffsets = new TIntArrayList();
 
         // Add robot metadata
-        for(RobotType type : RobotType.values()){
+        for (RobotType type : RobotType.values()) {
             BodyTypeMetadata.startBodyTypeMetadata(builder);
             BodyTypeMetadata.addType(builder, robotTypeToBodyType(type));
             BodyTypeMetadata.addSpawnSource(builder, robotTypeToBodyType(type.spawnSource));
@@ -271,9 +272,10 @@ public strictfp class GameMaker {
             BodyTypeMetadata.addDirtLimit(builder, type.dirtLimit);
             BodyTypeMetadata.addSoupLimit(builder, type.soupLimit);
             BodyTypeMetadata.addActionCooldown(builder, type.actionCooldown);
-            BodyTypeMetadata.addSensorRadius(builder, type.sensorRadiusSquared);
-            BodyTypeMetadata.addPollutionRadius(builder, type.pollutionRadiusSquared);
-            BodyTypeMetadata.addPollutionAmount(builder, type.pollutionAmount);
+            BodyTypeMetadata.addSensorRadiusSquared(builder, type.sensorRadiusSquared);
+            BodyTypeMetadata.addPollutionRadiusSquared(builder, type.pollutionRadiusSquared);
+            BodyTypeMetadata.addLocalPollutionAdditiveEffect(builder, type.localPollutionAdditiveEffect);
+            BodyTypeMetadata.addLocalPollutionMultiplicativeEffect(builder, type.localPollutionMultiplicativeEffect);
             BodyTypeMetadata.addMaxSoupProduced(builder, type.maxSoupProduced);
             BodyTypeMetadata.addBytecodeLimit(builder, type.bytecodeLimit);
             bodyTypeMetadataOffsets.add(BodyTypeMetadata.endBodyTypeMetadata(builder));
@@ -338,9 +340,13 @@ public strictfp class GameMaker {
         private TIntArrayList waterChangedLocsXs; //For locs
         private TIntArrayList waterChangedLocsYs; //For locs
 
-        private TIntArrayList pollutionChangedLocsXs; //For locs
-        private TIntArrayList pollutionChangedLocsYs; //For locs
-        private TIntArrayList pollutionChanges; // ints
+        private int globalPollution;
+
+        private TIntArrayList pollutionLocsXs; //For locs
+        private TIntArrayList pollutionLocsYs; //For locs
+        private TIntArrayList pollutionRadiiSquared;
+        private TIntArrayList pollutionAdditiveEffects;
+        private TFloatArrayList pollutionMultiplicativeEffects;
 
         private TIntArrayList soupChangedLocsXs; //For locs
         private TIntArrayList soupChangedLocsYs; //For locs
@@ -399,9 +405,12 @@ public strictfp class GameMaker {
             this.dirtChanges = new TIntArrayList();
             this.waterChangedLocsXs = new TIntArrayList();
             this.waterChangedLocsYs = new TIntArrayList();
-            this.pollutionChangedLocsXs = new TIntArrayList();
-            this.pollutionChangedLocsYs = new TIntArrayList();
-            this.pollutionChanges = new TIntArrayList();
+            this.globalPollution = 0;
+            this.pollutionLocsXs = new TIntArrayList();
+            this.pollutionLocsYs = new TIntArrayList();
+            this.pollutionRadiiSquared = new TIntArrayList();
+            this.pollutionAdditiveEffects = new TIntArrayList();
+            this.pollutionMultiplicativeEffects = new TFloatArrayList();
             this.soupChangedLocsXs = new TIntArrayList();
             this.soupChangedLocsYs = new TIntArrayList();
             this.soupChanges = new TIntArrayList();
@@ -501,9 +510,17 @@ public strictfp class GameMaker {
                 // The water changes on locations
                 int waterChangedLocsP = createVecTable(builder, waterChangedLocsXs, waterChangedLocsYs);
 
-                // The pollution changes on locations
-                int pollutionChangedLocsP = createVecTable(builder, pollutionChangedLocsXs, pollutionChangedLocsYs);
-                int pollutionChangesP = intVector(builder, pollutionChanges, Round::startPollutionChangesVector);
+                // The local pollution
+                int pollutionLocationsP = createVecTable(builder, pollutionLocsXs, pollutionLocsYs);
+                int pollutionRadiiSquaredP = intVector(builder, pollutionRadiiSquared, LocalPollutionTable::startRadiiSquaredVector);
+                int pollutionAdditiveEffectsP = intVector(builder, pollutionAdditiveEffects, LocalPollutionTable::startAdditiveEffectsVector);
+                int pollutionMultiplicativeEffectsP = floatVector(builder, pollutionMultiplicativeEffects, LocalPollutionTable::startMultiplicativeEffectsVector);
+                LocalPollutionTable.startLocalPollutionTable(builder);
+                LocalPollutionTable.addLocations(builder, pollutionLocationsP);
+                LocalPollutionTable.addRadiiSquared(builder, pollutionRadiiSquaredP);
+                LocalPollutionTable.addAdditiveEffects(builder, pollutionAdditiveEffectsP);
+                LocalPollutionTable.addMultiplicativeEffects(builder, pollutionMultiplicativeEffectsP);
+                int localPollutionsP = LocalPollutionTable.endLocalPollutionTable(builder);
 
                 // The soup changes on locations
                 int soupChangedLocsP = createVecTable(builder, soupChangedLocsXs, soupChangedLocsYs);
@@ -547,8 +564,8 @@ public strictfp class GameMaker {
                 Round.addDirtChangedLocs(builder, dirtChangedLocsP);
                 Round.addDirtChanges(builder, dirtChangesP);
                 Round.addWaterChangedLocs(builder, waterChangedLocsP);
-                Round.addPollutionChangedLocs(builder, pollutionChangedLocsP);
-                Round.addPollutionChanges(builder, pollutionChangesP);
+                Round.addGlobalPollution(builder, globalPollution);
+                Round.addLocalPollutions(builder, localPollutionsP);
                 Round.addSoupChangedLocs(builder, soupChangedLocsP);
                 Round.addSoupChanges(builder, soupChangesP);
                 Round.addNewMessagesCosts(builder, newMessagesCostsP);
@@ -607,10 +624,16 @@ public strictfp class GameMaker {
             waterChangedLocsYs.add(loc.y);
         }
 
-        public void addPollutionChanged(MapLocation loc, int change) {
-            pollutionChangedLocsXs.add(loc.x);
-            pollutionChangedLocsYs.add(loc.y);
-            pollutionChanges.add(change);
+        public void setGlobalPollution(int globalPollution) {
+            this.globalPollution = globalPollution;
+        }
+
+        public void addLocalPollution(MapLocation loc, int radiusSquared, int additive, float multiplicative) {
+            pollutionLocsXs.add(loc.x);
+            pollutionLocsYs.add(loc.y);
+            pollutionRadiiSquared.add(radiusSquared);
+            pollutionAdditiveEffects.add(additive);
+            pollutionMultiplicativeEffects.add(multiplicative);
         }
 
         public void addSoupChanged(MapLocation loc, int change) {
@@ -689,9 +712,12 @@ public strictfp class GameMaker {
             dirtChanges.clear();
             waterChangedLocsXs.clear();
             waterChangedLocsYs.clear();
-            pollutionChangedLocsXs.clear();
-            pollutionChangedLocsYs.clear();
-            pollutionChanges.clear();
+            globalPollution = 0;
+            pollutionLocsXs.clear();
+            pollutionLocsYs.clear();
+            pollutionRadiiSquared.clear();
+            pollutionAdditiveEffects.clear();
+            pollutionMultiplicativeEffects.clear();
             soupChangedLocsXs.clear();
             soupChangedLocsYs.clear();
             soupChanges.clear();

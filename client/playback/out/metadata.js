@@ -22,7 +22,7 @@ class Metadata {
         const bodyCount = header.bodyTypeMetadataLength();
         for (let i = 0; i < bodyCount; i++) {
             const body = header.bodyTypeMetadata(i);
-            this.types[body.type()] = new BodyType(body.type(), body.spawnSource(), body.cost(), body.dirtLimit(), body.soupLimit(), body.actionCooldown(), body.sensorRadius(), body.pollutionRadius(), body.pollutionAmount(), body.maxSoupProduced(), body.bytecodeLimit());
+            this.types[body.type()] = new BodyType(body.type(), body.spawnSource(), body.cost(), body.dirtLimit(), body.soupLimit(), body.actionCooldown(), body.sensorRadiusSquared(), body.pollutionRadiusSquared(), body.localPollutionAdditiveEffect(), body.localPollutionMultiplicativeEffect(), body.maxSoupProduced(), body.bytecodeLimit());
         }
         // SAFE
         Object.freeze(this.types);
@@ -45,16 +45,17 @@ exports.Team = Team;
  * Information about a specific body type.
  */
 class BodyType {
-    constructor(type, spawnSource, cost, soupLimit, dirtLimit, actionCooldown, sensorRadius, pollutionRadius, pollutionAmount, maxSoupProduced, bytecodeLimit) {
+    constructor(type, spawnSource, cost, soupLimit, dirtLimit, actionCooldown, sensorRadiusSquared, pollutionRadiusSquared, localPollutionAdditiveEffect, localPollutionMultiplicativeEffect, maxSoupProduced, bytecodeLimit) {
         this.type = type;
         this.spawnSource = spawnSource;
         this.cost = cost;
         this.dirtLimit = dirtLimit;
         this.soupLimit = soupLimit;
         this.actionCooldown = actionCooldown;
-        this.sensorRadius = sensorRadius;
-        this.pollutionRadius = pollutionRadius;
-        this.pollutionAmount = pollutionAmount;
+        this.sensorRadiusSquared = sensorRadiusSquared;
+        this.pollutionRadiusSquared = pollutionRadiusSquared;
+        this.localPollutionAdditiveEffect = localPollutionAdditiveEffect;
+        this.localPollutionMultiplicativeEffect = localPollutionMultiplicativeEffect;
         this.maxSoupProduced = maxSoupProduced;
         this.bytecodeLimit = bytecodeLimit;
         Object.freeze(this);

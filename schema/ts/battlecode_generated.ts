@@ -49,7 +49,7 @@ export enum BodyType{
   /**
    * Drones pick up any unit and drop them somewhere else.
    */
-  DRONE= 7,
+  DELIVERY_DRONE= 7,
 
   /**
    * Net guns shoot down drones.
@@ -59,8 +59,7 @@ export enum BodyType{
   /**
    * Cows produce pollution.
    */
-  COW= 9,
-  NONE= 10
+  COW= 9
 }};
 
 /**
@@ -880,6 +879,248 @@ static createSpawnedBodyTable(builder:flatbuffers.Builder, robotIDsOffset:flatbu
 }
 }
 /**
+ * A table of pollution effects
+ * The pollution effect at a location is (global pollution + all additive effects) * all multiplicative effects
+ *
+ * @constructor
+ */
+export namespace battlecode.schema{
+export class LocalPollutionTable {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns LocalPollutionTable
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):LocalPollutionTable {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param LocalPollutionTable= obj
+ * @returns LocalPollutionTable
+ */
+static getRootAsLocalPollutionTable(bb:flatbuffers.ByteBuffer, obj?:LocalPollutionTable):LocalPollutionTable {
+  return (obj || new LocalPollutionTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * The origin and radius of the circle defining the pollution effect.
+ *
+ * @param battlecode.schema.VecTable= obj
+ * @returns battlecode.schema.VecTable|null
+ */
+locations(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+};
+
+/**
+ * @param number index
+ * @returns number
+ */
+radiiSquared(index: number):number|null {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns number
+ */
+radiiSquaredLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns Int32Array
+ */
+radiiSquaredArray():Int32Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * The additive amount of the pollution effect.
+ *
+ * @param number index
+ * @returns number
+ */
+additiveEffects(index: number):number|null {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns number
+ */
+additiveEffectsLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns Int32Array
+ */
+additiveEffectsArray():Int32Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * The multiplicative coefficient.
+ *
+ * @param number index
+ * @returns number
+ */
+multiplicativeEffects(index: number):number|null {
+  var offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readFloat32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns number
+ */
+multiplicativeEffectsLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns Float32Array
+ */
+multiplicativeEffectsArray():Float32Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? new Float32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static startLocalPollutionTable(builder:flatbuffers.Builder) {
+  builder.startObject(4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset locationsOffset
+ */
+static addLocations(builder:flatbuffers.Builder, locationsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, locationsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset radiiSquaredOffset
+ */
+static addRadiiSquared(builder:flatbuffers.Builder, radiiSquaredOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, radiiSquaredOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<number> data
+ * @returns flatbuffers.Offset
+ */
+static createRadiiSquaredVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startRadiiSquaredVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset additiveEffectsOffset
+ */
+static addAdditiveEffects(builder:flatbuffers.Builder, additiveEffectsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, additiveEffectsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<number> data
+ * @returns flatbuffers.Offset
+ */
+static createAdditiveEffectsVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startAdditiveEffectsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset multiplicativeEffectsOffset
+ */
+static addMultiplicativeEffects(builder:flatbuffers.Builder, multiplicativeEffectsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, multiplicativeEffectsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<number> data
+ * @returns flatbuffers.Offset
+ */
+static createMultiplicativeEffectsVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addFloat32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startMultiplicativeEffectsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endLocalPollutionTable(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+static createLocalPollutionTable(builder:flatbuffers.Builder, locationsOffset:flatbuffers.Offset, radiiSquaredOffset:flatbuffers.Offset, additiveEffectsOffset:flatbuffers.Offset, multiplicativeEffectsOffset:flatbuffers.Offset):flatbuffers.Offset {
+  LocalPollutionTable.startLocalPollutionTable(builder);
+  LocalPollutionTable.addLocations(builder, locationsOffset);
+  LocalPollutionTable.addRadiiSquared(builder, radiiSquaredOffset);
+  LocalPollutionTable.addAdditiveEffects(builder, additiveEffectsOffset);
+  LocalPollutionTable.addMultiplicativeEffects(builder, multiplicativeEffectsOffset);
+  return LocalPollutionTable.endLocalPollutionTable(builder);
+}
+}
+}
+/**
  * The map a round is played on.
  *
  * @constructor
@@ -1370,33 +1611,43 @@ actionCooldown():number {
 };
 
 /**
- * The maximum distance this type can sense other robots.
+ * The maximum distance squared this type can sense other robots.
  *
  * @returns number
  */
-sensorRadius():number {
+sensorRadiusSquared():number {
   var offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * The distance this type pollutes.
+ * The radius squared of local pollution effects.
  *
  * @returns number
  */
-pollutionRadius():number {
+pollutionRadiusSquared():number {
   var offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * The amount of pollution this type creates.
+ * The amount of pollution created when refining soup locally.
  *
  * @returns number
  */
-pollutionAmount():number {
+localPollutionAdditiveEffect():number {
   var offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * The fraction that the local pollution is multiplied by around vaporators.
+ *
+ * @returns number
+ */
+localPollutionMultiplicativeEffect():number {
+  var offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
@@ -1405,7 +1656,7 @@ pollutionAmount():number {
  * @returns number
  */
 globalPollutionAmount():number {
-  var offset = this.bb!.__offset(this.bb_pos, 22);
+  var offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -1415,7 +1666,7 @@ globalPollutionAmount():number {
  * @returns number
  */
 maxSoupProduced():number {
-  var offset = this.bb!.__offset(this.bb_pos, 24);
+  var offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -1425,7 +1676,7 @@ maxSoupProduced():number {
  * @returns number
  */
 bytecodeLimit():number {
-  var offset = this.bb!.__offset(this.bb_pos, 26);
+  var offset = this.bb!.__offset(this.bb_pos, 28);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
@@ -1433,7 +1684,7 @@ bytecodeLimit():number {
  * @param flatbuffers.Builder builder
  */
 static startBodyTypeMetadata(builder:flatbuffers.Builder) {
-  builder.startObject(12);
+  builder.startObject(13);
 };
 
 /**
@@ -1486,26 +1737,34 @@ static addActionCooldown(builder:flatbuffers.Builder, actionCooldown:number) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param number sensorRadius
+ * @param number sensorRadiusSquared
  */
-static addSensorRadius(builder:flatbuffers.Builder, sensorRadius:number) {
-  builder.addFieldInt32(6, sensorRadius, 0);
+static addSensorRadiusSquared(builder:flatbuffers.Builder, sensorRadiusSquared:number) {
+  builder.addFieldInt32(6, sensorRadiusSquared, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number pollutionRadius
+ * @param number pollutionRadiusSquared
  */
-static addPollutionRadius(builder:flatbuffers.Builder, pollutionRadius:number) {
-  builder.addFieldInt32(7, pollutionRadius, 0);
+static addPollutionRadiusSquared(builder:flatbuffers.Builder, pollutionRadiusSquared:number) {
+  builder.addFieldInt32(7, pollutionRadiusSquared, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param number pollutionAmount
+ * @param number localPollutionAdditiveEffect
  */
-static addPollutionAmount(builder:flatbuffers.Builder, pollutionAmount:number) {
-  builder.addFieldInt32(8, pollutionAmount, 0);
+static addLocalPollutionAdditiveEffect(builder:flatbuffers.Builder, localPollutionAdditiveEffect:number) {
+  builder.addFieldInt32(8, localPollutionAdditiveEffect, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number localPollutionMultiplicativeEffect
+ */
+static addLocalPollutionMultiplicativeEffect(builder:flatbuffers.Builder, localPollutionMultiplicativeEffect:number) {
+  builder.addFieldFloat32(9, localPollutionMultiplicativeEffect, 0.0);
 };
 
 /**
@@ -1513,7 +1772,7 @@ static addPollutionAmount(builder:flatbuffers.Builder, pollutionAmount:number) {
  * @param number globalPollutionAmount
  */
 static addGlobalPollutionAmount(builder:flatbuffers.Builder, globalPollutionAmount:number) {
-  builder.addFieldInt32(9, globalPollutionAmount, 0);
+  builder.addFieldInt32(10, globalPollutionAmount, 0);
 };
 
 /**
@@ -1521,7 +1780,7 @@ static addGlobalPollutionAmount(builder:flatbuffers.Builder, globalPollutionAmou
  * @param number maxSoupProduced
  */
 static addMaxSoupProduced(builder:flatbuffers.Builder, maxSoupProduced:number) {
-  builder.addFieldInt32(10, maxSoupProduced, 0);
+  builder.addFieldInt32(11, maxSoupProduced, 0);
 };
 
 /**
@@ -1529,7 +1788,7 @@ static addMaxSoupProduced(builder:flatbuffers.Builder, maxSoupProduced:number) {
  * @param number bytecodeLimit
  */
 static addBytecodeLimit(builder:flatbuffers.Builder, bytecodeLimit:number) {
-  builder.addFieldInt32(11, bytecodeLimit, 0);
+  builder.addFieldInt32(12, bytecodeLimit, 0);
 };
 
 /**
@@ -1541,7 +1800,7 @@ static endBodyTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, cost:number, dirtLimit:number, soupLimit:number, actionCooldown:number, sensorRadius:number, pollutionRadius:number, pollutionAmount:number, globalPollutionAmount:number, maxSoupProduced:number, bytecodeLimit:number):flatbuffers.Offset {
+static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, cost:number, dirtLimit:number, soupLimit:number, actionCooldown:number, sensorRadiusSquared:number, pollutionRadiusSquared:number, localPollutionAdditiveEffect:number, localPollutionMultiplicativeEffect:number, globalPollutionAmount:number, maxSoupProduced:number, bytecodeLimit:number):flatbuffers.Offset {
   BodyTypeMetadata.startBodyTypeMetadata(builder);
   BodyTypeMetadata.addType(builder, type);
   BodyTypeMetadata.addSpawnSource(builder, spawnSource);
@@ -1549,9 +1808,10 @@ static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schem
   BodyTypeMetadata.addDirtLimit(builder, dirtLimit);
   BodyTypeMetadata.addSoupLimit(builder, soupLimit);
   BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
-  BodyTypeMetadata.addSensorRadius(builder, sensorRadius);
-  BodyTypeMetadata.addPollutionRadius(builder, pollutionRadius);
-  BodyTypeMetadata.addPollutionAmount(builder, pollutionAmount);
+  BodyTypeMetadata.addSensorRadiusSquared(builder, sensorRadiusSquared);
+  BodyTypeMetadata.addPollutionRadiusSquared(builder, pollutionRadiusSquared);
+  BodyTypeMetadata.addLocalPollutionAdditiveEffect(builder, localPollutionAdditiveEffect);
+  BodyTypeMetadata.addLocalPollutionMultiplicativeEffect(builder, localPollutionMultiplicativeEffect);
   BodyTypeMetadata.addGlobalPollutionAmount(builder, globalPollutionAmount);
   BodyTypeMetadata.addMaxSoupProduced(builder, maxSoupProduced);
   BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
@@ -2396,41 +2656,24 @@ waterChangedLocs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|nul
 };
 
 /**
- * The indexes of the locations whose pollution amount changed.
+ * The global pollution level
  *
- * @param battlecode.schema.VecTable= obj
- * @returns battlecode.schema.VecTable|null
+ * @returns number
  */
-pollutionChangedLocs(obj?:battlecode.schema.VecTable):battlecode.schema.VecTable|null {
+globalPollution():number {
   var offset = this.bb!.__offset(this.bb_pos, 28);
-  return offset ? (obj || new battlecode.schema.VecTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * The amount the pollution changed by.
+ * The local pollution infos
  *
- * @param number index
- * @returns number
+ * @param battlecode.schema.LocalPollutionTable= obj
+ * @returns battlecode.schema.LocalPollutionTable|null
  */
-pollutionChanges(index: number):number|null {
+localPollutions(obj?:battlecode.schema.LocalPollutionTable):battlecode.schema.LocalPollutionTable|null {
   var offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
-};
-
-/**
- * @returns number
- */
-pollutionChangesLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns Int32Array
- */
-pollutionChangesArray():Int32Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 30);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
+  return offset ? (obj || new battlecode.schema.LocalPollutionTable).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 };
 
 /**
@@ -3048,39 +3291,18 @@ static addWaterChangedLocs(builder:flatbuffers.Builder, waterChangedLocsOffset:f
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset pollutionChangedLocsOffset
+ * @param number globalPollution
  */
-static addPollutionChangedLocs(builder:flatbuffers.Builder, pollutionChangedLocsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(12, pollutionChangedLocsOffset, 0);
+static addGlobalPollution(builder:flatbuffers.Builder, globalPollution:number) {
+  builder.addFieldInt32(12, globalPollution, 0);
 };
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset pollutionChangesOffset
+ * @param flatbuffers.Offset localPollutionsOffset
  */
-static addPollutionChanges(builder:flatbuffers.Builder, pollutionChangesOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(13, pollutionChangesOffset, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param Array.<number> data
- * @returns flatbuffers.Offset
- */
-static createPollutionChangesVector(builder:flatbuffers.Builder, data:number[] | Uint8Array):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number numElems
- */
-static startPollutionChangesVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
+static addLocalPollutions(builder:flatbuffers.Builder, localPollutionsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(13, localPollutionsOffset, 0);
 };
 
 /**
@@ -3417,7 +3639,7 @@ static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamSoupsOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, dirtChangedLocsOffset:flatbuffers.Offset, dirtChangesOffset:flatbuffers.Offset, waterChangedLocsOffset:flatbuffers.Offset, pollutionChangedLocsOffset:flatbuffers.Offset, pollutionChangesOffset:flatbuffers.Offset, soupChangedLocsOffset:flatbuffers.Offset, soupChangesOffset:flatbuffers.Offset, newMessagesCostsOffset:flatbuffers.Offset, newMessagesOffset:flatbuffers.Offset, broadcastedMessagesCostsOffset:flatbuffers.Offset, broadcastedMessagesOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, logsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamSoupsOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, dirtChangedLocsOffset:flatbuffers.Offset, dirtChangesOffset:flatbuffers.Offset, waterChangedLocsOffset:flatbuffers.Offset, globalPollution:number, localPollutionsOffset:flatbuffers.Offset, soupChangedLocsOffset:flatbuffers.Offset, soupChangesOffset:flatbuffers.Offset, newMessagesCostsOffset:flatbuffers.Offset, newMessagesOffset:flatbuffers.Offset, broadcastedMessagesCostsOffset:flatbuffers.Offset, broadcastedMessagesOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, logsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
   Round.startRound(builder);
   Round.addTeamIDs(builder, teamIDsOffset);
   Round.addTeamSoups(builder, teamSoupsOffset);
@@ -3431,8 +3653,8 @@ static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset
   Round.addDirtChangedLocs(builder, dirtChangedLocsOffset);
   Round.addDirtChanges(builder, dirtChangesOffset);
   Round.addWaterChangedLocs(builder, waterChangedLocsOffset);
-  Round.addPollutionChangedLocs(builder, pollutionChangedLocsOffset);
-  Round.addPollutionChanges(builder, pollutionChangesOffset);
+  Round.addGlobalPollution(builder, globalPollution);
+  Round.addLocalPollutions(builder, localPollutionsOffset);
   Round.addSoupChangedLocs(builder, soupChangedLocsOffset);
   Round.addSoupChanges(builder, soupChangesOffset);
   Round.addNewMessagesCosts(builder, newMessagesCostsOffset);
