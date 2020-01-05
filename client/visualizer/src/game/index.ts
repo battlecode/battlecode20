@@ -3,7 +3,8 @@ import Renderer from './gamearea/renderer';
 
 import Console from './sidebar/console';
 import MapFilter from './sidebar/mapfilter';
-import {MapType, MapSchema} from './sidebar/mapfilter';
+import {MapSchema} from './sidebar/mapfilter';
+import {MapType} from '../constants';
 import MatchQueue from './sidebar/matchqueue';
 import MatchRunner from './sidebar/matchrunner';
 import Stats from './sidebar/stats';

@@ -39,11 +39,20 @@ export const MAX_ROUND_NUM = 3000;
 // export const BULLET_THRESH = 10000;
 
 // Maps available in the server.
-export const SERVER_MAPS = [
-  "CentralLake",
-  "FourLakeLand",
-  "ALandDivided"
-];
+// The key is the map name and the value is the type
+export enum MapType {
+  DEFAULT,
+  SPRINT,
+  SEEDING,
+  QUALIFYING,
+  FINAL,
+  CUSTOM
+};
+export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
+  ["FourLakeLand", MapType.DEFAULT],
+  ["CentralLake", MapType.DEFAULT],
+  ["ALandDivided", MapType.DEFAULT]
+]);
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
   switch(bodyType) {

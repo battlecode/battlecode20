@@ -103,10 +103,10 @@ export default class ScaffoldCommunicator {
     fs.stat(this.mapPath, (err, stat) => {
       if (err != null) {
         // map path doesn't exist
-        return cb(null, new Set(SERVER_MAPS));
+        return cb(null, new Set(SERVER_MAPS.keys()));
       }
       if (!stat || !stat.isDirectory()) {
-        return cb(null, new Set(SERVER_MAPS));
+        return cb(null, new Set(SERVER_MAPS.keys()));
       }
 
       fs.readdir(this.mapPath, (err, files) => {
@@ -117,7 +117,7 @@ export default class ScaffoldCommunicator {
         // paths are relative for readdir
         return cb(null, new Set(files.filter((file) => file.endsWith('.map20'))
                   .map((file) => file.substring(0, file.length - 6))
-                  .concat(SERVER_MAPS)));
+                  .concat(Array.from(SERVER_MAPS.keys()))));
       });
     });
   }

@@ -1,13 +1,7 @@
 import ScaffoldCommunicator from '../../scaffold';
+import * as cst from '../../constants';
+import {MapType} from '../../constants';
 
-export enum MapType {
-  DEFAULT,
-  SPRINT,
-  SEEDING,
-  QUALIFYING,
-  FINAL,
-  CUSTOM
-};
 
 export type MapSchema = {
   name: string,
@@ -29,8 +23,7 @@ export default class MapFilter {
   private readonly filterType: Map<MapType, HTMLInputElement>;
 
   // Map types available (NOTE: Update after each tournament)
-  private readonly types: MapType[] = [MapType.DEFAULT, MapType.SPRINT,
-    MapType.SEEDING, MapType.CUSTOM];
+  private readonly types: MapType[] = [MapType.DEFAULT, MapType.CUSTOM];
 
   // All the maps displayed on the client
   private maps: Array<MapSchema>;
@@ -183,81 +176,11 @@ export default class MapFilter {
    * Helper method.
    */
   private mapNameToMapType(name: string): MapType {
-    // TODO: If someone names their map the same as a default map, things get
-    // messed up. We should just create a list of banned names in the editor.
-    switch(name) {
-      case "Barrier": return MapType.DEFAULT;
-      case "DenseForest": return MapType.DEFAULT;
-      case "Enclosure": return MapType.DEFAULT;
-      case "Hurdle": return MapType.DEFAULT;
-      case "LineOfFire": return MapType.DEFAULT;
-      case "MagicWood": return MapType.DEFAULT;
-      case "shrine": return MapType.DEFAULT;
-      case "SparseForest": return MapType.DEFAULT;
-      case "Arena": return MapType.SPRINT;
-      case "Barbell": return MapType.SPRINT;
-      case "Boxed": return MapType.SPRINT;
-      case "Bullseye": return MapType.SPRINT;
-      case "Chess": return MapType.SPRINT;
-      case "Clusters": return MapType.SPRINT;
-      case "Cramped": return MapType.SPRINT;
-      case "CrossFire": return MapType.SPRINT;
-      case "DigMeOut": return MapType.SPRINT;
-      case "GiantForest": return MapType.SPRINT;
-      case "LilForts": return MapType.SPRINT;
-      case "Maniple": return MapType.SPRINT;
-      case "MyFirstMap": return MapType.SPRINT;
-      case "OMGTree": return MapType.SPRINT;
-      case "PasscalsTriangles": return MapType.SPRINT;
-      case "Shrubbery": return MapType.SPRINT;
-      case "Sprinkles": return MapType.SPRINT;
-      case "Standoff": return MapType.SPRINT;
-      case "Waves": return MapType.SPRINT;
-      case "1337Tree": return MapType.SEEDING;
-      case "Aligned": return MapType.SEEDING;
-      case "Alone": return MapType.SEEDING;
-      case "Blitzkrieg": return MapType.SEEDING;
-      case "BugTrap": return MapType.SEEDING;
-      case "Captive": return MapType.SEEDING;
-      case "Caterpillar": return MapType.SEEDING;
-      case "Chevron": return MapType.SEEDING;
-      case "Conga": return MapType.SEEDING;
-      case "CropCircles": return MapType.SEEDING;
-      case "Croquembouche": return MapType.SEEDING;
-      case "DarkSide": return MapType.SEEDING;
-      case "DeathStar": return MapType.SEEDING;
-      case "Defenseless": return MapType.SEEDING;
-      case "Fancy": return MapType.SEEDING;
-      case "FlappyTree": return MapType.SEEDING;
-      case "Grass": return MapType.SEEDING;
-      case "GreatDekuTree": return MapType.SEEDING;
-      case "GreenHouse": return MapType.SEEDING;
-      case "HedgeMaze": return MapType.SEEDING;
-      case "HiddenTunnel": return MapType.SEEDING;
-      case "HouseDivided": return MapType.SEEDING;
-      case "Interference": return MapType.SEEDING;
-      case "Lanes": return MapType.SEEDING;
-      case "Levels": return MapType.SEEDING;
-      case "LilMaze": return MapType.SEEDING;
-      case "Misaligned": return MapType.SEEDING;
-      case "ModernArt": return MapType.SEEDING;
-      case "Ocean": return MapType.SEEDING;
-      case "Oxygen": return MapType.SEEDING;
-      case "PacMan": return MapType.SEEDING;
-      case "PeacefulEncounter": return MapType.SEEDING;
-      case "Planets": return MapType.SEEDING;
-      case "Present": return MapType.SEEDING;
-      case "PureImagination": return MapType.SEEDING;
-      case "Shortcut": return MapType.SEEDING;
-      case "Slant": return MapType.SEEDING;
-      case "Snowflake": return MapType.SEEDING;
-      case "TheOtherSide": return MapType.SEEDING;
-      case "TicTacToe": return MapType.SEEDING;
-      case "TreeFarm": return MapType.SEEDING;
-      case "Turtle": return MapType.SEEDING;
-      case "Whirligig": return MapType.SEEDING;
-      default: return MapType.CUSTOM;
+    if (cst.SERVER_MAPS.has(name)) {
+      return cst.SERVER_MAPS.get(name)!;
     }
+    console.log('not in server map???');
+    return MapType.CUSTOM;
   }
 
   /**
