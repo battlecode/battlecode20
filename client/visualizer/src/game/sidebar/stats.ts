@@ -153,7 +153,7 @@ export default class Stats {
     // Label for soup
     const labelSoups = document.createElement("td");
     labelSoups.colSpan = 2;
-    labelSoups.innerText = "Soups";
+    labelSoups.innerText = "Soup";
 
     table.appendChild(bars);
     table.appendChild(counts);
