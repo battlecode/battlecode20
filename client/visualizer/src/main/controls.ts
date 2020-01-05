@@ -260,7 +260,7 @@ export default class Controls {
     if (!this.isPaused() && pauseButton) {
       pauseButton.click();
     }
-    this.onSeek(1);
+    this.onSeek(0);
   }
 
   /**

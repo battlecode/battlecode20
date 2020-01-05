@@ -151,7 +151,7 @@ export default class MatchQueue {
             // if (match.lastTurn == null) {
             //   throw new Error('match.lastTurn is null. what is going on here???')
             // }
-            const rounds = match.lastTurn! + 1;
+            const rounds = match.lastTurn!;
             const active = gameIndex === activeGame && matchIndex === activeMatch;
             const cb = () => { this.gotoMatch(gameIndex, matchIndex) };
 
