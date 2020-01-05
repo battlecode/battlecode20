@@ -372,9 +372,11 @@ input {
 }
 
 #mapsDiv {
-    height: 200px;
-    overflow: scroll;
+    height: 190px;
+    /* overflow: scroll; */
     margin-top: 10px;
+    width: 200px;
+    font-size: 14px;
 }
 
 #runMatch {
@@ -382,8 +384,12 @@ input {
     font-size: 18px;
     padding: 8px 0px;
     margin: 8px 0px;
-    margin-top: 13px;
+    margin-top: 5px;
     margin-bottom: 5px;
+}
+
+.control-button {
+    background-color: #bbb !important;
 }
 
 #robotLogs {
@@ -441,22 +447,12 @@ input {
     cursor: pointer;
 }
 
-.map-label {
-    margin: 0px 36px;
-    font-size: 14px;
-    border: 1px solid #151515;
+#mapsDiv option {
     padding: 3px 10px;
-    text-align: left;
-    background-color: white;
 }
 
-.map-label:hover {
-    cursor: pointer;
-}
-
-.map-label.selected {
-    color: rgb(39, 39, 39);
-    background-color: #46ff00;
+#mapsDiv:focus {
+    outline: none;
 }
 
 #battlecode-splash {

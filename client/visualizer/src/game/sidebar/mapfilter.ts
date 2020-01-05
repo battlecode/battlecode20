@@ -6,9 +6,7 @@ import {MapType} from '../../constants';
 export type MapSchema = {
   name: string,
   type: MapType,
-  input: HTMLInputElement,
-  label: HTMLLabelElement,
-  div: HTMLDivElement
+  optionElement: HTMLOptionElement;
 };
 
 export default class MapFilter {
@@ -16,7 +14,7 @@ export default class MapFilter {
   // The public div and other HTML containers
   readonly div: HTMLDivElement;
   private readonly filterDiv: HTMLDivElement;
-  private readonly mapsDiv: HTMLDivElement;
+  private readonly mapsDiv: HTMLSelectElement;
 
   // Input to filter maps by name
   private readonly filterName: HTMLInputElement;
@@ -42,7 +40,7 @@ export default class MapFilter {
       // Re-index the maps
       this.indexMaps(maps);
       this.maps.forEach((map: MapSchema) => {
-        this.mapsDiv.appendChild(map.label);
+        this.mapsDiv.appendChild(map.optionElement);
       });
 
       // Refresh the UI
@@ -55,7 +53,8 @@ export default class MapFilter {
 
     // Create the HTML elements
     this.filterDiv = document.createElement("div");
-    this.mapsDiv = document.createElement("div");
+    this.mapsDiv = document.createElement("select");
+    this.mapsDiv.multiple = true;
     this.mapsDiv.id = "mapsDiv";
     this.filterName = document.createElement("input");
     this.filterType = new Map<MapType, HTMLInputElement>();
@@ -74,35 +73,17 @@ export default class MapFilter {
   private indexMaps(maps: Set<string>): void {
     this.maps = new Array();
     maps.forEach((map: string) => {
-      const checkbox = document.createElement("input");
-      const label = document.createElement("label");
-      const div = document.createElement("div");
+      const optionElement = document.createElement("option");
 
-      // Create a checkbox for each map...
-      checkbox.type = "checkbox";
-      checkbox.id = `${map}Map`;
-      checkbox.value = map;
-      checkbox.checked = false;
-      checkbox.style.display = "none";
-      checkbox.onchange = () => {
-        div.className = checkbox.checked ? "map-label selected" : "map-label";
-      }
-
-      // ...disguise the checkbox with a nice-looking label...
-      div.className = "map-label";
-      div.appendChild(checkbox);
-      div.appendChild(document.createTextNode(map));
-      label.setAttribute("for", checkbox.id);
-      label.appendChild(div);
-      label.style.display = "unset";
+      // add an option element for this map
+      optionElement.value = map;
+      optionElement.innerHTML = map;
 
       // ...and store it internally.
       this.maps.push({
         name: map,
         type: this.mapNameToMapType(map),
-        input: checkbox,
-        label: label,
-        div: div
+        optionElement: optionElement
       });
     });
 
@@ -179,7 +160,6 @@ export default class MapFilter {
     if (cst.SERVER_MAPS.has(name)) {
       return cst.SERVER_MAPS.get(name)!;
     }
-    console.log('not in server map???');
     return MapType.CUSTOM;
   }
 
@@ -216,7 +196,7 @@ export default class MapFilter {
       const matchedType: boolean = types.includes(map.type);
       const matchedName: boolean = regex === undefined ||
         map.name.toLowerCase().search(regex) !== -1;
-      map.label.style.display = matchedType && matchedName ? "unset" : "none";
+      map.optionElement.style.display = matchedType && matchedName ? "block" : "none";
     });
   }
 
@@ -239,34 +219,12 @@ export default class MapFilter {
   }
 
   /**
-   * Selects all visible maps
-   */
-  selectAll(): void {
-    this.maps.forEach((map: MapSchema) => {
-      if (map.label.style.display !== "none" && !map.input.checked) {
-        map.label.click();
-      }
-    });
-  }
-
-  /**
-   * Deselects all visible maps
-   */
-  deselectAll(): void {
-    this.maps.forEach((map: MapSchema) => {
-      if (map.label.style.display !== "none" && map.input.checked) {
-        map.label.click();
-      }
-    });
-  }
-
-  /**
    * @return the selected maps
    */
   getMaps(): string[] {
     const maps: string[] = new Array();
     this.maps.forEach((map: MapSchema) => {
-      if (map.input.checked) {
+      if (map.optionElement.selected) {
         maps.push(map.name);
       }
     });

@@ -70,7 +70,8 @@ export default class Console {
     // Add a tip
     const span = document.createElement("span");
     const p = document.createElement('p');
-    p.appendChild(document.createTextNode("(Tip: Click a robot to filter by robot ID.)"));
+    p.appendChild(document.createTextNode("(Click a robot to filter by robot ID.)"));
+    p.style.fontSize = "12px";
     span.appendChild(p);
     span.style.fontFamily = "Tahoma, sans-serif";
     div.appendChild(span);

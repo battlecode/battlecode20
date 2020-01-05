@@ -148,7 +148,7 @@ export default class Controls {
    */
   private createButton(buttonId: string) {
     let button = document.createElement("button");
-    button.setAttribute("class", "custom-button");
+    button.setAttribute("class", "custom-button control-button");
     button.setAttribute("type", "button");
     button.id = buttonId;
 

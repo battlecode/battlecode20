@@ -130,36 +130,43 @@ export default class MatchRunner {
 
     // Map selector
     div.appendChild(document.createElement("br"));
-    div.appendChild(document.createTextNode("Select a map: "));
+    div.appendChild(document.createTextNode("Select maps: "));
     div.appendChild(document.createElement("br"));
     this.maps = new MapFilter();
     div.appendChild(this.maps.div);
 
     // Select all maps button
-    this.selectAllMaps.type = "button";
-    this.selectAllMaps.className = "changebuttonbutton";
-    this.selectAllMaps.appendChild(document.createTextNode("Select All"));
-    this.selectAllMaps.onclick = () => {
-      this.maps.selectAll();
-    };
-    div.appendChild(this.selectAllMaps);
+    // this.selectAllMaps.type = "button";
+    // this.selectAllMaps.className = "changebuttonbutton";
+    // this.selectAllMaps.appendChild(document.createTextNode("Select All"));
+    // this.selectAllMaps.onclick = () => {
+    //   this.maps.selectAll();
+    // };
+    // div.appendChild(this.selectAllMaps);
 
     // Deselect all maps button
-    this.deselectAllMaps.type = "button";
-    this.deselectAllMaps.className = "changebuttonbutton";
-    this.deselectAllMaps.appendChild(document.createTextNode("Deselect All"));
-    this.deselectAllMaps.onclick = () => {
-      this.maps.deselectAll();
-    };
-    div.appendChild(this.deselectAllMaps);
+    // this.deselectAllMaps.type = "button";
+    // this.deselectAllMaps.className = "changebuttonbutton";
+    // this.deselectAllMaps.appendChild(document.createTextNode("Deselect All"));
+    // this.deselectAllMaps.onclick = () => {
+    //   this.maps.deselectAll();
+    // };
+    // div.appendChild(this.deselectAllMaps);
 
     // Refresh Button
-    this.refreshButton.type = "button";
-    this.refreshButton.className = "changebuttonbutton";
-    this.refreshButton.appendChild(document.createTextNode("Refresh"));
-    this.refreshButton.onclick = this.refresh;
-    div.appendChild(this.refreshButton);
-    div.appendChild(document.createElement("br"));
+    // this.refreshButton.type = "button";
+    // this.refreshButton.className = "changebuttonbutton";
+    // this.refreshButton.appendChild(document.createTextNode("Refresh"));
+    // this.refreshButton.onclick = this.refresh;
+    // div.appendChild(this.refreshButton);
+    // div.appendChild(document.createElement("br"));
+
+    // Add a tip
+    const p = document.createElement('p');
+    p.appendChild(document.createTextNode("(Ctrl- or command-click to select multiple maps.)"));
+    p.style.fontFamily = "Tahoma, sans-serif";
+    p.style.fontSize = "12px";
+    div.appendChild(p);
 
     // Run match button
     this.runMatch.type = "button";
