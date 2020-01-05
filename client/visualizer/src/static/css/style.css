@@ -18,11 +18,15 @@ background: rgb(39, 39, 39);
 
 .gameWrapper {
     background: #e0e0e0;
-    color: white;
+    color: #222;
     border-radius: 4px;
     padding: 8px;
     font-size: 12px;
     margin-top: 6px;
+}
+
+p {
+    font-size: 14px;
 }
 
 .gameTitle {
@@ -128,12 +132,14 @@ input[type='file'] {
     margin: .1rem;
     border: 1px solid transparent;
     border-radius: 5px;
-    background-color: #bdbdbd;
+    background-color: #777777;
     color: white;
+    font-size: 14px;
 }
 
-.uploadfilebutton {
-    color: white;
+.upload-button-div {
+    text-align: center;
+    width: 100%;
 }
 
 .custom-button:active, button:target {
@@ -186,7 +192,7 @@ input[type='file'] {
 label{
     display: inline-block;
     clear: left;
-    width: 80px;
+    /* width: 80px; */
     text-align: center;
 }
 
@@ -259,16 +265,17 @@ input {
     padding: 10px;
 }
 
-#sidebar button {
+.modebutton {
     border: none;
     color: white;
+    background-color: #777777;
     padding: 10px 10px;
     text-align: center;
     display: inline-block;
     font-size: 14px;
     cursor: pointer;
 }
-#sidebar button:focus {
+.modebutton:focus {
     outline: none;
 }
 
@@ -306,6 +313,11 @@ input {
     font-size: 12px;
     text-align: left;
     overflow: scroll;
+    margin-bottom: 20px;
+}
+
+.console p {
+    font-size: 12px;
 }
 
 .modepanel {
@@ -362,6 +374,7 @@ input {
 #mapsDiv {
     height: 200px;
     overflow: scroll;
+    margin-top: 10px;
 }
 
 #runMatch {
@@ -376,7 +389,22 @@ input {
 }
 
 #compileLogs {
-    height: 120px;
+    height: 500px;
+}
+
+.changebuttonbutton {
+    background-color: rgba(0,0,0,0);
+    text-decoration: underline;
+    color: black;
+    border: none;
+    padding: 10px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
+}
+.changebuttonbutton:focus {
+    outline: none;
 }
 
 .errorLog {
@@ -416,7 +444,7 @@ input {
     border: 1px solid #151515;
     padding: 3px 10px;
     text-align: left;
-    background-color: #555;
+    background-color: white;
 }
 
 .map-label:hover {

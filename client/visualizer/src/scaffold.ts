@@ -46,8 +46,10 @@ export default class ScaffoldCommunicator {
 
     const appPath = electron.remote.app.getAppPath();
 
-    // release/client
-    const fromDev = path.join(path.dirname(appPath), 'battlecode-scaffold-2017');
+    console.log('app path: ' + appPath);
+
+    // npm run electron in client, if battlecode20-scaffold is located in same level as battlecode20
+    const fromDev = path.join(path.dirname(path.dirname(path.dirname(appPath))), 'battlecode20-scaffold');
     // scaffold/client/Battlecode Client[.exe]
     // (May never happen?)
     const fromWin = path.dirname(path.dirname(appPath));
@@ -113,7 +115,7 @@ export default class ScaffoldCommunicator {
         }
 
         // paths are relative for readdir
-        return cb(null, new Set(files.filter((file) => file.endsWith('.map17'))
+        return cb(null, new Set(files.filter((file) => file.endsWith('.map20'))
                   .map((file) => file.substring(0, file.length - 6))
                   .concat(SERVER_MAPS)));
       });

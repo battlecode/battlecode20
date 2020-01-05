@@ -110,14 +110,8 @@ export default class MatchRunner {
     this.selectAllMaps = document.createElement("button");
     this.deselectAllMaps = document.createElement("button");
 
-    // Compile error log
-    this.compileLogs = document.createElement("div");
-    this.compileLogs.className = "console";
-    this.compileLogs.id = "compileLogs";
-    this.compileLogs.innerHTML = "Compile messages..."
-    div.appendChild(this.compileLogs);
-    div.appendChild(document.createElement("br"));
 
+    div.appendChild(document.createElement("br"));
     // Team A selector
     const divA = document.createElement("div");
     divA.appendChild(document.createTextNode("Team A: "));
@@ -141,6 +135,7 @@ export default class MatchRunner {
 
     // Select all maps button
     this.selectAllMaps.type = "button";
+    this.selectAllMaps.className = "changebuttonbutton";
     this.selectAllMaps.appendChild(document.createTextNode("Select All"));
     this.selectAllMaps.onclick = () => {
       this.maps.selectAll();
@@ -149,6 +144,7 @@ export default class MatchRunner {
 
     // Deselect all maps button
     this.deselectAllMaps.type = "button";
+    this.deselectAllMaps.className = "changebuttonbutton";
     this.deselectAllMaps.appendChild(document.createTextNode("Deselect All"));
     this.deselectAllMaps.onclick = () => {
       this.maps.deselectAll();
@@ -157,6 +153,7 @@ export default class MatchRunner {
 
     // Refresh Button
     this.refreshButton.type = "button";
+    this.refreshButton.className = "changebuttonbutton";
     this.refreshButton.appendChild(document.createTextNode("Refresh"));
     this.refreshButton.onclick = this.refresh;
     div.appendChild(this.refreshButton);
@@ -165,9 +162,18 @@ export default class MatchRunner {
     // Run match button
     this.runMatch.type = "button";
     this.runMatch.appendChild(document.createTextNode("Run Match"));
+    this.runMatch.className = 'custom-button';
     this.runMatch.id = "runMatch"
     this.runMatch.onclick = this.run;
     div.appendChild(this.runMatch);
+    div.appendChild(document.createElement("br"));
+
+    // Compile error log
+    this.compileLogs = document.createElement("div");
+    this.compileLogs.className = "console";
+    this.compileLogs.id = "compileLogs";
+    this.compileLogs.innerHTML = "Compile messages..."
+    div.appendChild(this.compileLogs);
 
     return div;
   }
@@ -178,7 +184,9 @@ export default class MatchRunner {
   private loadDivNoElectron(): HTMLDivElement {
     const div = document.createElement("div");
     div.style.display = "none";
-    div.appendChild(document.createTextNode(`If you run the client as an app, you can compile and run your bots here!`));
+    const p = document.createElement("p");
+    p.appendChild(document.createTextNode(`If you run the client as an app, you can compile and run your bots here!`));
+    div.appendChild(p);
     return div;
   }
 
@@ -188,13 +196,16 @@ export default class MatchRunner {
   private loadDivNoScaffold(): HTMLDivElement {
     const div = document.createElement("div");
     div.style.display = "none";
-    div.appendChild(document.createTextNode(`Please select your battlecode-scaffold
+    const p = document.createElement("p");
+    p.appendChild(document.createTextNode(`Please select your battlecode-scaffold
       directory (the one you downloaded that has all those files in it) to run
       matches directly from the client.`))
+    div.appendChild(p);
 
     // Add a button to load the directory
     const button = document.createElement("button");
     button.type = "button";
+    button.className = 'custom-button';
     button.appendChild(document.createTextNode("Find Directory"));
     div.appendChild(button);
 
