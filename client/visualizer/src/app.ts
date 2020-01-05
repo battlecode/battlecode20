@@ -535,6 +535,8 @@ export default class Client {
       interpGameTime = turn;
     };
 
+    this.controls.updatePlayPauseButton();
+
     // set key options
     const conf = this.conf;
     document.onkeydown = function(event) {

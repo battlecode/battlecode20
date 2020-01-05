@@ -99,7 +99,7 @@ export default class Controls {
 
     let halveButton = this.createButton('halveUPS');
     let goPreviousButton = this.createButton('goPrevious');
-    let pauseStartButton = this.createButton('playbackPause');
+    let pauseStartButton = this.createButton('playbackStart');
     let goNextButton = this.createButton('goNext');
     let doubleButton = this.createButton('doubleUPS');
 
@@ -235,14 +235,21 @@ export default class Controls {
   pause() {
     this.onTogglePause();
 
+    this.updatePlayPauseButton();
+  }
+  /**
+   * Update play/pause button.
+   */
+  updatePlayPauseButton() {
     // toggle the play/pause button
     if (this.isPaused()) {
-      this.buttons["playbackStart"].img.style.display = "none";
-      this.buttons["playbackPause"].img.style.display = "unset";
-    } else {
       this.buttons["playbackStart"].img.style.display = "unset";
       this.buttons["playbackPause"].img.style.display = "none";
+    } else {
+      this.buttons["playbackStart"].img.style.display = "none";
+      this.buttons["playbackPause"].img.style.display = "unset";
     }
+
   }
 
   /**
