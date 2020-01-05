@@ -308,7 +308,7 @@ export default class GameWorld {
     this.mapStats.dirt = Int32Array.from(map.dirtArray());
     this.mapStats.soup = Int32Array.from(map.soupArray());
     this.mapStats.pollution = Int32Array.from(map.pollutionArray());
-    this.pollutionNeedsUpdate = true;
+    this.pollutionNeedsUpdate = false;
 
     const width = (maxCorner.x() - minCorner.x());
     this.mapStats.getIdx = (x:number, y:number) => (

@@ -107,37 +107,34 @@ export default class Sidebar {
    */
   private initializeHelp(): HTMLDivElement {
     const innerHTML: string =
-    `This is the client for Battlecode 2020. If you run into any issues,
-    make a post in the <a href="http://www.battlecodeforum.org" target="_blank">Battlecode forum</a>.
-    Be sure to attach a screenshot of your console output (F12 in the app) and
-    any other relevant information.<br>
-    <br>
-    <b class="red">Keyboard Shortcuts</b><br>
+    `
+    <b class="red">Issues?</b>
+    <ol style="margin-left: -20px; margin-top: 0px;">
+    <li>Refresh (Ctrl-R or Command-R).</li>
+    <li>Search <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a>.</li>
+    <li>Ask on <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a> (attach a screenshot of console output using F12).</li>
+    </ol>
+    <b class="blue">Keyboard Shortcuts</b><br>
     LEFT - Step Back One Turn<br>
     RIGHT - Step Forward One Turn<br>
     P - Pause/Unpause<br>
     O - Stop<br>
-    H - Toggle Health Bars<br>
-    C - Toggle Circle Bots<br>
     V - Toggle Indicator Dots/Lines<br>
-    B - Toggle Interpolation<br>
+    G - Toggle Grid<br>
     N - Toggle Sight/Sensor Radius<br>
-    M - Toggle Bullet Sight Radius<br>
-    S - Add/Update (map editor mode)<br>
-    D - Delete (map editor mode)<br>
     <br>
-    <b class="blue">How to Play a Match</b><br>
-    <i>From the application:</i> Click <b>'Queue'</b> and follow the
+    <b class="red">How to Play a Match</b><br>
+    <i>From the application:</i> Click <b>'Runner'</b> and follow the
     instructions in the sidebar. Note that it may take a few seconds for
     matches to be displayed.<br>
     <i>From the web client:</i> If you are not running the client as a
     stand-alone application, you can always upload a <b>.bc20</b> file by
-    clicking the + button in the top-right corner.<br>
+    clicking upload button in the <b>'Queue'</b> section.<br>
     <br>
     Use the control buttons in <b>'Queue'</b> and the top of the screen to
     navigate the match.<br>
     <br>
-    <b class="red">How to Use the Console</b><br>
+    <b class="blue">How to Use the Console</b><br>
     The console displays all System.out.println() data up to the current round.
     You can filter teams by checking the boxes and robot IDs by clicking the
     robot. You can also change the maximum number of rounds displayed in the
