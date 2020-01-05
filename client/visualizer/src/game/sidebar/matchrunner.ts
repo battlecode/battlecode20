@@ -39,6 +39,7 @@ export default class MatchRunner {
   private deselectAllMaps: HTMLButtonElement;
   private runMatch: HTMLButtonElement;
   private refreshButton: HTMLButtonElement
+  private runMatchWithoutViewing: HTMLButtonElement;
 
   constructor(conf: Config, cb: () => void) {
     this.conf = conf;
@@ -109,6 +110,7 @@ export default class MatchRunner {
     this.refreshButton = document.createElement("button");
     this.selectAllMaps = document.createElement("button");
     this.deselectAllMaps = document.createElement("button");
+    this.runMatchWithoutViewing = document.createElement("button");
 
 
     div.appendChild(document.createElement("br"));
@@ -161,12 +163,21 @@ export default class MatchRunner {
 
     // Run match button
     this.runMatch.type = "button";
-    this.runMatch.appendChild(document.createTextNode("Run Match"));
+    this.runMatch.appendChild(document.createTextNode("Run Game"));
     this.runMatch.className = 'custom-button';
     this.runMatch.id = "runMatch"
     this.runMatch.onclick = this.run;
     div.appendChild(this.runMatch);
     div.appendChild(document.createElement("br"));
+
+    // Run match without viewing Button
+    this.runMatchWithoutViewing.type = "button";
+    this.runMatchWithoutViewing.className = "changebuttonbutton";
+    this.runMatchWithoutViewing.id = "runmatchwithoutviewing";
+    this.runMatchWithoutViewing.appendChild(document.createTextNode("Run Game Without Visualizing"));
+    this.runMatchWithoutViewing.onclick = this.run; // TODO: change this into runWithoutVisualization (which is surprisingly hard)
+    // div.appendChild(this.runMatchWithoutViewing); // TODO: uncomment this line
+    // div.appendChild(document.createElement("br")); // TODO: uncomment this line
 
     // Compile error log
     this.compileLogs = document.createElement("div");

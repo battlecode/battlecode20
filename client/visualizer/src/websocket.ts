@@ -63,6 +63,7 @@ export default class WebSocketListener {
 
       this.currentGame = new Game();
       this.onGameReceived(this.currentGame);
+      this.firstMatch = true;
       this.currentGame.applyEvent(event);
     } else {
       if (this.currentGame === null) {
@@ -71,6 +72,7 @@ export default class WebSocketListener {
       }
 
       this.currentGame.applyEvent(event);
+
 
       if (event.eType() === schema.Event.MatchHeader || event.eType() === schema.Event.MatchFooter) {
         
