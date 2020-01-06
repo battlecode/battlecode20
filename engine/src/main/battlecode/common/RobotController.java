@@ -100,9 +100,10 @@ public strictfp interface RobotController {
     MapLocation getLocation();
 
     /**
-     * Returns the amount of soup this robot is carrying.
+     * Returns the amount of crude soup this robot is carrying. Can be
+     * called on either a miner or refinery (or HQ).
      *
-     * @return the amount of soup this robot is carrying.
+     * @return the amount of crude soup this robot is carrying.
      *
      * @battlecode.doc.costlymethod
      */
