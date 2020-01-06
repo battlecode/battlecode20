@@ -614,16 +614,18 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Checks that the robot can submit a transaction to the blockchain at the indicated cost.
+     * Checks that the robot can submit a transaction
+     * to the blockchain at the indicated cost.
      *
-     * @param message the list of ints to send.
-     * @param cost the price that the unit is willing to pay for the message
+     * @param message the list of ints to send (at most of GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH many).
+     * @param cost the price that the unit is willing to pay for the message, in soup
+     *
      * @return whether the transaction can be submitted or not
      */
     boolean canSubmitTransaction(int[] message, int cost);
 
     /**
-     * Submits a transaction to the blockchain at the indicated cost.
+     * Submits a transaction to the transaction pool at the indicated cost.
      * 
      * @param message the list of ints to send.
      * @param cost the price that the unit is willing to pay for the message
@@ -644,7 +646,7 @@ public strictfp interface RobotController {
      *
      * @throws GameActionException if the round is not available.
      */
-    public Transaction[] getBlock(int roundNumber) throws GameActionException;
+    Transaction[] getBlock(int roundNumber) throws GameActionException;
 
     // ***********************************
     // ******** DEBUG METHODS ************
