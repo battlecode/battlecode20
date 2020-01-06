@@ -338,9 +338,10 @@ public strictfp interface RobotController {
     // ***********************************
     
     /**
-     * Returns whether the robot's action cooldown has expired.
+     * Tests whether the robot can perform an action. Returns
+     * <code>getCooldownTurns() < 1</code>.
      * 
-     * @return true if the robot's action cooldown has expired; false otherwise.
+     * @return true if the robot can perform an action.
      *
      * @battlecode.doc.costlymethod
      */
