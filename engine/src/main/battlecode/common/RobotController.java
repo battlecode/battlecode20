@@ -206,7 +206,7 @@ public strictfp interface RobotController {
      * @param id the ID of the robot to query
      * @return a RobotInfo object for the sensed robot.
      * @throws GameActionException if the robot cannot be sensed (for example,
-     * if it doesn't exist or is out of sight range).
+     * if it doesn't exist or is out of sensor range).
      *
      * @battlecode.doc.costlymethod
      */
