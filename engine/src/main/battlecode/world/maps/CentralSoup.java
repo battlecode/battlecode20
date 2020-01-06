@@ -38,8 +38,8 @@ public class CentralSoup {
         mapBuilder.setSymmetricSoup(6, 5, 400);
         mapBuilder.setSymmetricSoup(5, 5, 400);
 
-        for (int i = 22; i <= mapBuilder.width / 2; i++) {
-            for (int j = 22; j <= mapBuilder.height / 2; j++) {
+        for (int i = 22; i <= 25; i++) {
+            for (int j = 22; j <= 25; j++) {
                 mapBuilder.setSymmetricSoup(i, j, 800);
             }
         }
@@ -50,11 +50,11 @@ public class CentralSoup {
             }
         }
 
-        for (int i = 21; i <= 25; i++) {
+        for (int i = 21; i <= 26; i++) {
             mapBuilder.setSymmetricDirt(i, 21, 15);
-            mapBuilder.setSymmetricDirt(i, 27, 15);
+            mapBuilder.setSymmetricDirt(i, 26, 15);
             mapBuilder.setSymmetricDirt(21, i, 15);
-            mapBuilder.setSymmetricDirt(27, i, 15);
+            mapBuilder.setSymmetricDirt(26, i, 15);
         }
         
 
