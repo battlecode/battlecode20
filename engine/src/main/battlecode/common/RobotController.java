@@ -186,7 +186,7 @@ public strictfp interface RobotController {
     RobotInfo senseRobotAtLocation(MapLocation loc) throws GameActionException;
 
     /**
-     * Tests whether the given robot exists and any part of the given robot is
+     * Tests whether the given robot exists and if it is
      * within this robot's sensor range.
      *
      * @param id the ID of the robot to query
