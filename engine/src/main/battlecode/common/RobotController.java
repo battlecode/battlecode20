@@ -26,9 +26,9 @@ public strictfp interface RobotController {
     int getRoundNum();
 
     /**
-     * Returns the team's total victory points.
+     * Returns the team's total soup.
      *
-     * @return the team's total victory points.
+     * @return the team's total soup.
      *
      * @battlecode.doc.costlymethod
      */
