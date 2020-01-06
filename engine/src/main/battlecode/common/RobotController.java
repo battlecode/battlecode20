@@ -45,20 +45,6 @@ public strictfp interface RobotController {
      */
     int getRobotCount();
 
-    /**
-     * Returns a list of the INITIAL locations of the archons of a particular
-     * team. The locations will be sorted by increasing x, with ties broken by
-     * increasing y. Will return an empty list if you query for {@code Team.NEUTRAL}.
-     *
-     * @param t the team for which you want to query the initial archon
-     * locations. Will return an empty list if you query for Team.NEUTRAL
-     * @return a list of the INITIAL locations of the archons of that team, or
-     * an empty list for Team.NEUTRAL.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    // MapLocation[] getInitialArchonLocations(Team t);
-
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
@@ -128,7 +114,7 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    public boolean isCurrentlyHoldingUnit();
+    boolean isCurrentlyHoldingUnit();
 
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
@@ -534,6 +520,8 @@ public strictfp interface RobotController {
      *
      * @param id the id of the robot to pick up
      * @return true if robot with the id can be picked up, false otherwise
+     *
+     * @battlecode.doc.costlymethod
      */
     boolean canPickUpUnit(int id);
 
@@ -545,6 +533,8 @@ public strictfp interface RobotController {
      * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
      * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
      * of this robot.
+     *
+     * @battlecode.doc.costlymethod
      */
     void pickUpUnit(int id) throws GameActionException;
 
@@ -553,6 +543,8 @@ public strictfp interface RobotController {
      *
      * @param dir the specified direction
      * @return true if a robot can be dropped off, false otherwise
+     *
+     * @battlecode.doc.costlymethod
      */
     boolean canDropUnit(Direction dir);
 
@@ -563,6 +555,8 @@ public strictfp interface RobotController {
      *
      * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
      * holding a unit that it can drop.
+     *
+     * @battlecode.doc.costlymethod
      */
     void dropUnit(Direction dir) throws GameActionException;
 
@@ -575,6 +569,8 @@ public strictfp interface RobotController {
      *
      * @param id the id of the robot to shoot
      * @return true if robot with the id can be shot down, false otherwise
+     *
+     * @battlecode.doc.costlymethod
      */
     boolean canShootUnit(int id);
 
@@ -587,6 +583,8 @@ public strictfp interface RobotController {
      *  or the robot's action cooldown is not ready, or if the unit to
      *  shoot down is not in the radius of this robot, or if the unit
      *  cannot be shot down.
+     *
+     * @battlecode.doc.costlymethod
      */
     void shootUnit(int id) throws GameActionException;
 
@@ -613,6 +611,8 @@ public strictfp interface RobotController {
      * @param cost the price that the unit is willing to pay for the message, in soup
      *
      * @return whether the transaction can be submitted or not
+     *
+     * @battlecode.doc.costlymethod
      */
     boolean canSubmitTransaction(int[] message, int cost);
 
@@ -624,6 +624,8 @@ public strictfp interface RobotController {
      *
      * @throws GameActionException if the team does not have enough soup to cover the cost,
      *  or if the message exceeds the allowed limit
+     *
+     * @battlecode.doc.costlymethod
      */
     void submitTransaction(int[] message, int cost) throws GameActionException;
 
@@ -637,6 +639,8 @@ public strictfp interface RobotController {
      *  at the given round, in no particular order.
      *
      * @throws GameActionException if the round is not available.
+     *
+     * @battlecode.doc.costlymethod
      */
     Transaction[] getBlock(int roundNumber) throws GameActionException;
 
