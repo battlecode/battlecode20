@@ -312,7 +312,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.isFlooded(loc) && !getType().canFly())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type "  + getType() + " which cannot fly over water; " + loc + " is flooded.");
-        if (gameWorld.getDirtDifference(getLocation(), loc) > GameConstants.MAX_DIRT_DIFFERENCE)
+        if (gameWorld.getDirtDifference(getLocation(), loc) > GameConstants.MAX_DIRT_DIFFERENCE && !getType().canFly())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot fly, and the dirt difference to " + loc + " is " +
                     gameWorld.getDirtDifference(getLocation(), loc) + " which is higher than the limit of " +
