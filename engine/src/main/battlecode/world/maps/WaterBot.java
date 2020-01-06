@@ -7,10 +7,10 @@ import java.io.IOException;
 /**
  * Generate a map.
  */
-public class FourLakeLand {
+public class WaterBot {
 
     // change this!!!
-    public static final String mapName = "FourLakeLand";
+    public static final String mapName = "WaterBot";
 
     // don't change this!!
     public static final String outputDirectory = "engine/src/main/battlecode/world/resources/";
@@ -40,13 +40,14 @@ public class FourLakeLand {
 
 
         // add some nice central soup
-        addSoup(mapBuilder, 30, 20, 5, 10);
         // add some team soup
-        addSoup(mapBuilder, 10, 30, 4, 5);
+        addSoup(mapBuilder, 10, 20, 4, 5);
+        addSoup(mapBuilder, 20, 20, 4, 5);
+        addSoup(mapBuilder, 15, 20, 4, 5);
 
         for(int i = 0; i < mapBuilder.width; i++) {
             for (int j = 0; j < mapBuilder.height; j++) {
-                mapBuilder.setSymmetricDirt(i, j, (int) (Math.min(50, 3+2*Math.min(Math.min(j,height-j-1),Math.min(i,width-i-1)))*.15));
+                mapBuilder.setSymmetricDirt(i, j, (int) (Math.min(50, 3+2*Math.min(Math.max(j,height-j-1),Math.min(i,width-i-1)))*.18));
             }
         }
 
@@ -55,8 +56,11 @@ public class FourLakeLand {
 
         // create 4 nice lakes
         // order matters here!! we want water level to be at -1 here.
-        addLake(mapBuilder, 18, 20, 17, -1); // creates 2
+        addLake(mapBuilder, 10, 20, 17, -1); // creates 2
+        addLake(mapBuilder, 15, 25, 17, -1); // creates 2
+        addLake(mapBuilder, 25, 25, 17, -1); // creates 2
         addLake(mapBuilder, 30, 10, 17, -1);
+        addLake(mapBuilder, 30, 20, 17, -1);
         addLake(mapBuilder, 30, 30, 17, -1);
 
 

@@ -7,10 +7,10 @@ import java.io.IOException;
 /**
  * Generate a map.
  */
-public class FourLakeLand {
+public class TwoForOneAndTwoForAll {
 
     // change this!!!
-    public static final String mapName = "FourLakeLand";
+    public static final String mapName = "TwoForOneAndTwoForAll";
 
     // don't change this!!
     public static final String outputDirectory = "engine/src/main/battlecode/world/resources/";
@@ -31,34 +31,25 @@ public class FourLakeLand {
     }
 
     public static void makeSimple() throws IOException {
-        width = 61;
-        height = 41;
-        MapBuilder mapBuilder = new MapBuilder(mapName, width, height, 4444);
+        width = 41;
+        height = 32;
+        MapBuilder mapBuilder = new MapBuilder(mapName, width, height, 118811);
         mapBuilder.setWaterLevel(0);
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.vertical);
-        mapBuilder.addSymmetricHQ(10, 10);
+        mapBuilder.addSymmetricHQ(5, 26);
 
+        addRectangleDirt(mapBuilder, 0, 0, 40,31,3);
 
-        // add some nice central soup
-        addSoup(mapBuilder, 30, 20, 5, 10);
-        // add some team soup
-        addSoup(mapBuilder, 10, 30, 4, 5);
-
-        for(int i = 0; i < mapBuilder.width; i++) {
-            for (int j = 0; j < mapBuilder.height; j++) {
-                mapBuilder.setSymmetricDirt(i, j, (int) (Math.min(50, 3+2*Math.min(Math.min(j,height-j-1),Math.min(i,width-i-1)))*.15));
-            }
+        // add one soup location
+        for (int i = 5; i < width - 5; i++) {
+            if (i == 19 || i == 20 || i == 21 || i == 22 || i == 23) continue;
+            mapBuilder.setSymmetricSoup(i,5,50);
+            mapBuilder.setSymmetricSoup(i,6,100);
         }
 
         // add a river to make things interesting
-        addRectangleDirt(mapBuilder, 28, 30, 32, 40, 3);
-
-        // create 4 nice lakes
-        // order matters here!! we want water level to be at -1 here.
-        addLake(mapBuilder, 18, 20, 17, -1); // creates 2
-        addLake(mapBuilder, 30, 10, 17, -1);
-        addLake(mapBuilder, 30, 30, 17, -1);
-
+        addRectangleWater(mapBuilder, 0, 14, 31, 18, -10);
+        addRectangleDirt(mapBuilder, 19, 0, 21, 31, 15);
 
         mapBuilder.saveMap(outputDirectory);
 
@@ -68,6 +59,15 @@ public class FourLakeLand {
         for (int i = xl; i < xr+1; i++) {
             for (int j = yb; j < yt+1; j++) {
                 mapBuilder.setSymmetricDirt(i, j, v);
+            }
+        }
+    }
+
+    public static void addRectangleWater(MapBuilder mapBuilder, int xl, int yb, int xr, int yt, int v) {
+        for (int i = xl; i < xr+1; i++) {
+            for (int j = yb; j < yt+1; j++) {
+                mapBuilder.setSymmetricWater(i, j, true);
+                mapBuilder.setSymmetricDirt(i,j, v);
             }
         }
     }
