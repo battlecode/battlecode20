@@ -213,10 +213,10 @@ public strictfp interface RobotController {
     RobotInfo senseRobot(int id) throws GameActionException;
 
     /**
-     * Returns all robots within sense radius. The objects are returned in order of
-     * increasing distance from your robot.
+     * Returns all robots within sense radius. The objects are returned in no
+     * particular order.
      *
-     * @return sorted array of RobotInfo objects, which contain information about all
+     * @return array of RobotInfo objects, which contain information about all
      * the robots you sensed.
      *
      * @battlecode.doc.costlymethod
@@ -224,32 +224,30 @@ public strictfp interface RobotController {
     RobotInfo[] senseNearbyRobots();
 
     /**
-     * Returns all robots that can be sensed within a certain radius of this
-     * robot. The objects are returned in order of increasing distance from
-     * your robot.
+     * Returns all robots that can be sensed within a certain distance of this
+     * robot. The objects are returned in no particular order.
      *
-     * @param radius return robots this distance away from the center of
+     * @param radiusSquared return robots this distance away from the center of
      * this robot. If -1 is passed, all robots within sense radius are returned.
-     * @return sorted array of RobotInfo objects of all the robots you sensed.
+     * @return array of RobotInfo objects of all the robots you sensed.
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(int radius);
+    RobotInfo[] senseNearbyRobots(int radiusSquared);
 
     /**
      * Returns all robots of a given team that can be sensed within a certain
-     * radius of this robot. The objects are returned in order of increasing distance
-     * from your robot.
+     * distance of this robot. The objects are returned in no particular order.
      *
-     * @param radius return robots this distance away from the center of
+     * @param radiusSquared return robots this distance away from the center of
      * this robot. If -1 is passed, all robots within sense radius are returned
      * @param team filter game objects by the given team. If null is passed,
      * robots from any team are returned
-     * @return sorted array of RobotInfo objects of all the robots you sensed.
+     * @return array of RobotInfo objects of all the robots you sensed.
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(int radius, Team team);
+    RobotInfo[] senseNearbyRobots(int radiusSquared, Team team);
 
     /**
      * Returns all robots of a given team that can be sensed within a certain

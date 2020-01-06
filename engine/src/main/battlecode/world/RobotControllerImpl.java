@@ -199,20 +199,21 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radius) {
-        return senseNearbyRobots(radius, null);
+    public RobotInfo[] senseNearbyRobots(int radiusSquared) {
+        return senseNearbyRobots(radiusSquared, null);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radius, Team team) {
-        return senseNearbyRobots(getLocation(), radius, team);
+    public RobotInfo[] senseNearbyRobots(int radiusSquared, Team team) {
+        return senseNearbyRobots(getLocation(), radiusSquared, team);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team) {
+    public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) {
         assertNotNull(center);
+        int sensorRadiusSquaredUpperBound = (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared());
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center,
-                radius == -1 ? (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared()) : radius);
+                radiusSquared == -1 ? sensorRadiusSquaredUpperBound : Math.min(radiusSquared, sensorRadiusSquaredUpperBound));
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
             // check if this robot
