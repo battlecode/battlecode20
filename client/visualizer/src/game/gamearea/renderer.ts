@@ -133,8 +133,8 @@ export default class Renderer {
     
     const getSoupColor = (s: number): string => {
       // TODO is this in right dimention?
-      if (s <= 50)  return 'white';
-      if (s <= 100) return 'yellow';
+      if (s <= 1000)  return 'white';
+      if (s <= 10000) return 'yellow';
       return 'orange';
     }
 
