@@ -26,7 +26,7 @@ public enum RobotType {
     REFINERY                (MINER,  200,  15,  0,  1,  24,  5,  10,  1,  20,  5000),
     //                       SS      C    DL  SL  AC  SR  PR  PA  GP  MS   BL
     /**
-     * Vaporators reduce pollution.
+     * Vaporators condense soup from the air, reducing pollution.
      * @battlecode.doc.robottype
      */
     VAPORATOR               (MINER,  1000,  15,  0,  1,  24,  5,  -10,  -1,  7,  5000),
