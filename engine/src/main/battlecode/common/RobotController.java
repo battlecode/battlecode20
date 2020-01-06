@@ -122,7 +122,7 @@ public strictfp interface RobotController {
     int getDirtCarrying();
 
     /**
-     * Returns whether the robot is currently holding a unit
+     * Returns whether the robot is currently holding a unit (for delivery drones).
      *
      * @return true if the robot is currently holding another unit, false otherwise
      *
