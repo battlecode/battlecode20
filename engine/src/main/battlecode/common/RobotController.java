@@ -617,13 +617,6 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Kills your robot and ends the current round. Never fails.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    void disintegrate();
-
-    /**
      * Causes your team to lose the game. It's like typing "gg."
      *
      * @battlecode.doc.costlymethod

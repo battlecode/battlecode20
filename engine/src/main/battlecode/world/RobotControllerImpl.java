@@ -309,9 +309,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot move to an occupied location; " + loc + " is occupied.");
-        if (gameWorld.isFlooded(loc) && !getType().canFly())
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type "  + getType() + " which cannot fly over water; " + loc + " is flooded.");
         if (gameWorld.getDirtDifference(getLocation(), loc) > GameConstants.MAX_DIRT_DIFFERENCE && !getType().canFly())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot fly, and the dirt difference to " + loc + " is " +
@@ -344,6 +341,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(center);
         assertIsReady();
         assertCanMove(center);
+        // now check if the location is flooded and the robot can't fly
+        if (gameWorld.isFlooded(center) && !getType().canFly()) {
+            // kill itself
+            disintegrate();
+        }
         this.robot.addCooldownTurns();
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
@@ -878,8 +880,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** OTHER ACTION METHODS *******
     // ***********************************
 
-    @Override
-    public void disintegrate(){
+    /** This used to be public, but is not public in 2020 because
+     * a robot can simply instead walk into water, which is more fun.
+     */
+    private void disintegrate(){
         throw new RobotDeathException();
     }
 
