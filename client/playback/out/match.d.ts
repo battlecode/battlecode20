@@ -116,6 +116,7 @@ export default class Match {
     compute(timeGoal?: number): void;
     /**
      * Apply a delta to a GameWorld, based on world.turn.
+     * That is, go from world.turn to world.turn+1. In other words, this is computing the effects of world.turn+1.
      */
     private _processDelta;
 }

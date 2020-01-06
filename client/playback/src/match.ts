@@ -224,7 +224,7 @@ export default class Match {
     // this._farthest.turn: the last time we processed so far
     // this._seekTo: the time we want to be in
 
-    this._seekTo = Math.max(Math.min(this.deltas.length - 1, round), 1);
+    this._seekTo = Math.max(Math.min(this.deltas.length - 1, round), 0);
 
     if (this._seekTo >= this._farthest.turn) {
       // Go as far as we can
@@ -277,6 +277,7 @@ export default class Match {
 
   /**
    * Apply a delta to a GameWorld, based on world.turn.
+   * That is, go from world.turn to world.turn+1. In other words, this is computing the effects of world.turn+1.
    */
   private _processDelta(world: GameWorld) {
     if (world.turn + 1 >= this.deltas.length) {

@@ -1,20 +1,12 @@
 import ScaffoldCommunicator from '../../scaffold';
+import * as cst from '../../constants';
+import {MapType} from '../../constants';
 
-export enum MapType {
-  DEFAULT,
-  SPRINT,
-  SEEDING,
-  QUALIFYING,
-  FINAL,
-  CUSTOM
-};
 
 export type MapSchema = {
   name: string,
   type: MapType,
-  input: HTMLInputElement,
-  label: HTMLLabelElement,
-  div: HTMLDivElement
+  optionElement: HTMLOptionElement;
 };
 
 export default class MapFilter {
@@ -22,15 +14,14 @@ export default class MapFilter {
   // The public div and other HTML containers
   readonly div: HTMLDivElement;
   private readonly filterDiv: HTMLDivElement;
-  private readonly mapsDiv: HTMLDivElement;
+  private readonly mapsDiv: HTMLSelectElement;
 
   // Input to filter maps by name
   private readonly filterName: HTMLInputElement;
   private readonly filterType: Map<MapType, HTMLInputElement>;
 
   // Map types available (NOTE: Update after each tournament)
-  private readonly types: MapType[] = [MapType.DEFAULT, MapType.SPRINT,
-    MapType.SEEDING, MapType.CUSTOM];
+  private readonly types: MapType[] = [MapType.DEFAULT, MapType.CUSTOM];
 
   // All the maps displayed on the client
   private maps: Array<MapSchema>;
@@ -49,7 +40,7 @@ export default class MapFilter {
       // Re-index the maps
       this.indexMaps(maps);
       this.maps.forEach((map: MapSchema) => {
-        this.mapsDiv.appendChild(map.label);
+        this.mapsDiv.appendChild(map.optionElement);
       });
 
       // Refresh the UI
@@ -62,7 +53,8 @@ export default class MapFilter {
 
     // Create the HTML elements
     this.filterDiv = document.createElement("div");
-    this.mapsDiv = document.createElement("div");
+    this.mapsDiv = document.createElement("select");
+    this.mapsDiv.multiple = true;
     this.mapsDiv.id = "mapsDiv";
     this.filterName = document.createElement("input");
     this.filterType = new Map<MapType, HTMLInputElement>();
@@ -81,35 +73,17 @@ export default class MapFilter {
   private indexMaps(maps: Set<string>): void {
     this.maps = new Array();
     maps.forEach((map: string) => {
-      const checkbox = document.createElement("input");
-      const label = document.createElement("label");
-      const div = document.createElement("div");
+      const optionElement = document.createElement("option");
 
-      // Create a checkbox for each map...
-      checkbox.type = "checkbox";
-      checkbox.id = `${map}Map`;
-      checkbox.value = map;
-      checkbox.checked = false;
-      checkbox.style.display = "none";
-      checkbox.onchange = () => {
-        div.className = checkbox.checked ? "map-label selected" : "map-label";
-      }
-
-      // ...disguise the checkbox with a nice-looking label...
-      div.className = "map-label";
-      div.appendChild(checkbox);
-      div.appendChild(document.createTextNode(map));
-      label.setAttribute("for", checkbox.id);
-      label.appendChild(div);
-      label.style.display = "unset";
+      // add an option element for this map
+      optionElement.value = map;
+      optionElement.innerHTML = map;
 
       // ...and store it internally.
       this.maps.push({
         name: map,
         type: this.mapNameToMapType(map),
-        input: checkbox,
-        label: label,
-        div: div
+        optionElement: optionElement
       });
     });
 
@@ -183,81 +157,10 @@ export default class MapFilter {
    * Helper method.
    */
   private mapNameToMapType(name: string): MapType {
-    // TODO: If someone names their map the same as a default map, things get
-    // messed up. We should just create a list of banned names in the editor.
-    switch(name) {
-      case "Barrier": return MapType.DEFAULT;
-      case "DenseForest": return MapType.DEFAULT;
-      case "Enclosure": return MapType.DEFAULT;
-      case "Hurdle": return MapType.DEFAULT;
-      case "LineOfFire": return MapType.DEFAULT;
-      case "MagicWood": return MapType.DEFAULT;
-      case "shrine": return MapType.DEFAULT;
-      case "SparseForest": return MapType.DEFAULT;
-      case "Arena": return MapType.SPRINT;
-      case "Barbell": return MapType.SPRINT;
-      case "Boxed": return MapType.SPRINT;
-      case "Bullseye": return MapType.SPRINT;
-      case "Chess": return MapType.SPRINT;
-      case "Clusters": return MapType.SPRINT;
-      case "Cramped": return MapType.SPRINT;
-      case "CrossFire": return MapType.SPRINT;
-      case "DigMeOut": return MapType.SPRINT;
-      case "GiantForest": return MapType.SPRINT;
-      case "LilForts": return MapType.SPRINT;
-      case "Maniple": return MapType.SPRINT;
-      case "MyFirstMap": return MapType.SPRINT;
-      case "OMGTree": return MapType.SPRINT;
-      case "PasscalsTriangles": return MapType.SPRINT;
-      case "Shrubbery": return MapType.SPRINT;
-      case "Sprinkles": return MapType.SPRINT;
-      case "Standoff": return MapType.SPRINT;
-      case "Waves": return MapType.SPRINT;
-      case "1337Tree": return MapType.SEEDING;
-      case "Aligned": return MapType.SEEDING;
-      case "Alone": return MapType.SEEDING;
-      case "Blitzkrieg": return MapType.SEEDING;
-      case "BugTrap": return MapType.SEEDING;
-      case "Captive": return MapType.SEEDING;
-      case "Caterpillar": return MapType.SEEDING;
-      case "Chevron": return MapType.SEEDING;
-      case "Conga": return MapType.SEEDING;
-      case "CropCircles": return MapType.SEEDING;
-      case "Croquembouche": return MapType.SEEDING;
-      case "DarkSide": return MapType.SEEDING;
-      case "DeathStar": return MapType.SEEDING;
-      case "Defenseless": return MapType.SEEDING;
-      case "Fancy": return MapType.SEEDING;
-      case "FlappyTree": return MapType.SEEDING;
-      case "Grass": return MapType.SEEDING;
-      case "GreatDekuTree": return MapType.SEEDING;
-      case "GreenHouse": return MapType.SEEDING;
-      case "HedgeMaze": return MapType.SEEDING;
-      case "HiddenTunnel": return MapType.SEEDING;
-      case "HouseDivided": return MapType.SEEDING;
-      case "Interference": return MapType.SEEDING;
-      case "Lanes": return MapType.SEEDING;
-      case "Levels": return MapType.SEEDING;
-      case "LilMaze": return MapType.SEEDING;
-      case "Misaligned": return MapType.SEEDING;
-      case "ModernArt": return MapType.SEEDING;
-      case "Ocean": return MapType.SEEDING;
-      case "Oxygen": return MapType.SEEDING;
-      case "PacMan": return MapType.SEEDING;
-      case "PeacefulEncounter": return MapType.SEEDING;
-      case "Planets": return MapType.SEEDING;
-      case "Present": return MapType.SEEDING;
-      case "PureImagination": return MapType.SEEDING;
-      case "Shortcut": return MapType.SEEDING;
-      case "Slant": return MapType.SEEDING;
-      case "Snowflake": return MapType.SEEDING;
-      case "TheOtherSide": return MapType.SEEDING;
-      case "TicTacToe": return MapType.SEEDING;
-      case "TreeFarm": return MapType.SEEDING;
-      case "Turtle": return MapType.SEEDING;
-      case "Whirligig": return MapType.SEEDING;
-      default: return MapType.CUSTOM;
+    if (cst.SERVER_MAPS.has(name)) {
+      return cst.SERVER_MAPS.get(name)!;
     }
+    return MapType.CUSTOM;
   }
 
   /**
@@ -293,7 +196,7 @@ export default class MapFilter {
       const matchedType: boolean = types.includes(map.type);
       const matchedName: boolean = regex === undefined ||
         map.name.toLowerCase().search(regex) !== -1;
-      map.label.style.display = matchedType && matchedName ? "unset" : "none";
+      map.optionElement.style.display = matchedType && matchedName ? "block" : "none";
     });
   }
 
@@ -316,34 +219,12 @@ export default class MapFilter {
   }
 
   /**
-   * Selects all visible maps
-   */
-  selectAll(): void {
-    this.maps.forEach((map: MapSchema) => {
-      if (map.label.style.display !== "none" && !map.input.checked) {
-        map.label.click();
-      }
-    });
-  }
-
-  /**
-   * Deselects all visible maps
-   */
-  deselectAll(): void {
-    this.maps.forEach((map: MapSchema) => {
-      if (map.label.style.display !== "none" && map.input.checked) {
-        map.label.click();
-      }
-    });
-  }
-
-  /**
    * @return the selected maps
    */
   getMaps(): string[] {
     const maps: string[] = new Array();
     this.maps.forEach((map: MapSchema) => {
-      if (map.input.checked) {
+      if (map.optionElement.selected) {
         maps.push(map.name);
       }
     });

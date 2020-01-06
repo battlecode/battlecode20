@@ -36,10 +36,11 @@ export default class MatchQueue {
     div.id = "matchQueue";
 
     let uploadButton = this.addUploadButton();
-    div.appendChild(uploadButton);
+    let tempdiv = document.createElement("div");
+    tempdiv.className = "upload-button-div";
+    tempdiv.appendChild(uploadButton);
+    div.appendChild(tempdiv);
     
-    div.appendChild(document.createElement('br'));
-
     div.appendChild(document.createElement('br'));
 
     let title = document.createElement("b");
@@ -65,8 +66,8 @@ export default class MatchQueue {
 
     // Append all the HTML elements
     title.appendChild(this.gameNum);
-    title.appendChild(back);
-    title.appendChild(next);
+    // title.appendChild(back);
+    // title.appendChild(next);
     div.appendChild(title);
     div.appendChild(document.createElement("br"));
 
@@ -78,7 +79,7 @@ export default class MatchQueue {
     let uploadLabel = document.createElement("label");
     uploadLabel.setAttribute("for", "file-upload");
     uploadLabel.setAttribute("class", "custom-button");
-    uploadLabel.innerText = 'Upload';
+    uploadLabel.innerText = 'Upload a .bc20 replay file';
 
     // create the functional button
     let upload = document.createElement('input');
@@ -107,8 +108,9 @@ export default class MatchQueue {
   refreshGameList(gameList: Array<Game>, activeGame: number, activeMatch: number) {
 
     // Remove all games from the list
-    while (this.div.childNodes[2]) {
-      this.div.removeChild(this.div.childNodes[2]);
+    // TODO: this assumes there are exactly 3 HTML elements before the first match. that's bad
+    while (this.div.childNodes[3]) {
+      this.div.removeChild(this.div.childNodes[3]);
     }
 
     // Update the content of the active game tracker
@@ -149,7 +151,7 @@ export default class MatchQueue {
             // if (match.lastTurn == null) {
             //   throw new Error('match.lastTurn is null. what is going on here???')
             // }
-            const rounds = match.lastTurn! + 1;
+            const rounds = match.lastTurn!;
             const active = gameIndex === activeGame && matchIndex === activeMatch;
             const cb = () => { this.gotoMatch(gameIndex, matchIndex) };
 

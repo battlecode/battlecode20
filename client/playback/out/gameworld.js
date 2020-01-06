@@ -60,6 +60,8 @@ class GameWorld {
             randomSeed: 0,
             flooded: new Int8Array(0),
             dirt: new Int32Array(0),
+            globalPollution: 0,
+            localPollutions: new battlecode_schema_1.schema.LocalPollutionTable(),
             pollution: new Int32Array(0),
             soup: new Int32Array(0),
             getIdx: (x, y) => 0,
@@ -116,8 +118,9 @@ class GameWorld {
         this.mapStats.randomSeed = map.randomSeed();
         this.mapStats.flooded = Int8Array.from(map.waterArray());
         this.mapStats.dirt = Int32Array.from(map.dirtArray());
-        this.mapStats.pollution = Int32Array.from(map.pollutionArray());
         this.mapStats.soup = Int32Array.from(map.soupArray());
+        this.mapStats.pollution = Int32Array.from(map.pollutionArray());
+        this.pollutionNeedsUpdate = false;
         const width = (maxCorner.x() - minCorner.x());
         this.mapStats.getIdx = (x, y) => (Math.floor(y) * width + Math.floor(x));
         this.mapStats.getLoc = (idx) => (new Victor(idx % width, Math.floor(idx / width)));
@@ -269,12 +272,10 @@ class GameWorld {
             }
         }
         // Pollution changes on map
-        for (let i = 0; i < delta.pollutionChangesLength(); i++) {
-            const x = delta.pollutionChangedLocs().xs(i);
-            const y = delta.pollutionChangedLocs().ys(i);
-            const mapIdx = this.mapStats.getIdx(x, y);
-            this.mapStats.pollution[mapIdx] += delta.pollutionChanges(i);
-        }
+        // We don't calculate the pollution until it is actually needed. Lazy is always good.
+        this.mapStats.globalPollution = delta.globalPollution();
+        this.mapStats.localPollutions = delta.localPollutions(this._localPollutionsSlot);
+        this.pollutionNeedsUpdate = true;
         // Soup changes on map
         for (let i = 0; i < delta.soupChangesLength(); i++) {
             const x = delta.soupChangedLocs().xs(i);
@@ -298,6 +299,34 @@ class GameWorld {
                 bytecodesUsed: delta.bytecodesUsedArray()
             });
         }
+    }
+    distanceSquared(a, b, x, y) {
+        return (a - x) * (a - x) + (b - y) * (b - y);
+    }
+    calculatePollutionIfNeeded() {
+        if (!this.pollutionNeedsUpdate) {
+            return;
+        }
+        console.log("calculating pollution!!");
+        // calculates pollution based on pollution effects
+        // this has annoying time complexity but I think it'll be fine
+        let width = this.mapStats.maxCorner.x - this.mapStats.minCorner.x;
+        let height = this.mapStats.maxCorner.y - this.mapStats.minCorner.y;
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                let idx = this.mapStats.getIdx(x, y);
+                this.mapStats.pollution[idx] = this.mapStats.globalPollution;
+                let multiplier = 1;
+                for (let i = 0; i < this.mapStats.localPollutions.radiiSquaredLength(); i++) {
+                    if (this.distanceSquared(this.mapStats.localPollutions.locations().xsArray()[i], this.mapStats.localPollutions.locations().ysArray()[i], x, y) <= this.mapStats.localPollutions.radiiSquaredArray()[i]) {
+                        this.mapStats.pollution[idx] += this.mapStats.localPollutions.additiveEffectsArray()[i];
+                        multiplier *= this.mapStats.localPollutions.multiplicativeEffectsArray()[i];
+                    }
+                }
+                this.mapStats.pollution[idx] = Math.round(this.mapStats.pollution[idx] * multiplier);
+            }
+        }
+        this.pollutionNeedsUpdate = false;
     }
     insertDiedBodies(delta) {
         // Delete the died bodies from the previous round
