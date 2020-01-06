@@ -325,8 +325,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return canMove(adjacentLocation(dir));
     }
 
-    @Override
-    public boolean canMove(MapLocation location) {
+    private boolean canMove(MapLocation location) {
         try {
             assertNotNull(location);
             assertCanMove(location);

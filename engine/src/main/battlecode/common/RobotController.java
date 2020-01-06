@@ -372,21 +372,6 @@ public strictfp interface RobotController {
     boolean canMove(Direction dir);
     
     /**
-     * Tells whether this robot can move to the target location.
-     * Returns false if the robot is a building, if the target location
-     * is not on the map, if the target location is occupied, if it is
-     * flooded and this robot is not a drone, if the dirt difference is
-     * too high and this robot is not a drone, and if the robot is ready
-     * based on the cooldown.
-     *
-     * @param location the MapLocation to move to
-     * @return true if it is possible to call <code>move</code> without an exception
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMove(MapLocation location);
-    
-    /**
      * Moves one step in the given direction.
      *
      * @param dir the direction to move in
