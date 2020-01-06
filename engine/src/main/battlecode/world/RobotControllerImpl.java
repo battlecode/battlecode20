@@ -389,13 +389,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean hasRobotBuildRequirements(RobotType type) {
-        assertNotNull(type);
-        return getType().canBuild(type) &&
-               gameWorld.getTeamInfo().getSoup(getTeam()) >= type.cost;
-    }
-
-    @Override
     public boolean canBuildRobot(RobotType type, Direction dir) {
         try {
             assertNotNull(type);

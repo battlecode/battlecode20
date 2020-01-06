@@ -394,17 +394,6 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Tests whether you have the dependencies to build the given
-     * robot, and this robot is a valid builder for the target robot.
-     *
-     * @param type the type of robot to build
-     * @return true if the requirements to build the given robot are met; false otherwise.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean hasRobotBuildRequirements(RobotType type);
-
-    /**
      * Tests whether the robot can build a robot of the given type in the
      * given direction. Checks cooldown turns remaining,
      * whether the robot can build, and that the given direction is
