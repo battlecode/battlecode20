@@ -117,4 +117,22 @@ public enum Direction {
     public static Direction[] cardinalDirections() {
         return new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
     }
+
+    /**
+     * Returns the delta X of the direction.
+     *
+     * @return the delta X of the direction.
+     */
+    public int getDeltaX() {
+        return this.dx;
+    }
+
+    /**
+     * Returns the delta Y of the direction.
+     *
+     * @return the delta Y of the direction.
+     */
+    public int getDeltaY() {
+        return this.dy;
+    }
 }
