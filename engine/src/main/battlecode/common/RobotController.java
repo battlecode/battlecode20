@@ -82,7 +82,7 @@ public strictfp interface RobotController {
     Team getTeam();
 
     /**
-     * Returns this robot's type (SOLDIER, ARCHON, etc.).
+     * Returns this robot's type (MINER, HQ, etc.).
      *
      * @return this robot's type.
      *
