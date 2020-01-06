@@ -460,7 +460,7 @@ public strictfp interface RobotController {
     /**
      * Tests whether the robot can deposit soup in the given direction.
      * Checks cooldown turns remaining, whether the robot can deposit soup, whether
-     * the robot has crude soup, and that the given direction has a refinery.
+     * the robot has crude soup, and that the given direction has a refinery (or HQ).
      *
      * @param dir the direction to deposit soup
      * @return whether it is possible to deposit soup in the given direction.
@@ -475,8 +475,8 @@ public strictfp interface RobotController {
      * @param dir the direction to deposit soup
      * @param amount the amount of soup to deposit
      * @throws GameActionException if this robot is not a miner, if
-     * the robot is still in cooldown, if there is no soup to deposit,
-     * or if there is no refinery.
+     * the robot is still in cooldown, if there is no crude soup to deposit,
+     * or if there is no refinery (or HQ).
      *
      * @battlecode.doc.costlymethod
      */
