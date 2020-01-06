@@ -323,7 +323,7 @@ public strictfp interface RobotController {
     
     /**
      * Tests whether the robot can perform an action. Returns
-     * <code>getCooldownTurns() < 1</code>.
+     * <code>getCooldownTurns() &lt; 1</code>.
      * 
      * @return true if the robot can perform an action.
      *
@@ -366,7 +366,7 @@ public strictfp interface RobotController {
      *
      * @param dir the direction to move in
      * @throws GameActionException if the robot cannot move one step in this
-     * direction, such as cooldown being >= 1, the target location being
+     * direction, such as cooldown being &gt;= 1, the target location being
      * off the map, the target destination being occupied with either
      * another robot, and the robot attempting to climb too high or enter water.
      *

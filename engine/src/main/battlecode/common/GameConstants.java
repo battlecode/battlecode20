@@ -57,12 +57,18 @@ public class GameConstants {
     // ****** POLLUTION ****************
     // *********************************
 
-    /** The coefficient that the sensor radius will be multiplied by, as a function of pollution. */
+    /** The coefficient that the sensor radius squared will be multiplied by, as a function of pollution.
+     * @param pollution the pollution
+     * @return the sensor radius coefficient at the given pollution
+     * */
     public static float getSensorRadiusPollutionCoefficient(int pollution) {
         return (float) (1.0 / Math.pow((1.0 + pollution / 4000.0),2));
     }
 
-    /** The coefficient that the cooldown will be multiplied by, as a function of pollution. */
+    /** The coefficient that the cooldown will be multiplied by, as a function of pollution.
+     * @param pollution the pollution
+     * @return the cooldown coefficient at the given pollution
+     * */
     public static float getCooldownPollutionCoefficient(int pollution) {
         return (float) (1.0 + pollution / 2000.0);
     }
@@ -71,7 +77,10 @@ public class GameConstants {
     // ****** WATER ********************
     // *********************************
 
-    /** The function determining current water level as a function of the round number. */
+    /** The function determining current water level as a function of the round number.
+     * @param roundNumber the round number
+     * @return the water level at the given round
+     * */
     public static float getWaterLevel(int roundNumber) {
         double x = roundNumber;
         return (float) (Math.exp(0.0028*x-1.38*Math.sin(0.00157*x-1.73)+1.38*Math.sin(-1.73))-1);
