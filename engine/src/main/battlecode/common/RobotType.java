@@ -10,7 +10,7 @@ public enum RobotType {
      * The base produces miners, is also a net gun and a refinery.
      * @battlecode.doc.robottype
      */
-    HQ                      (null,  0,  50,  0,  1,  48,  35,  10,  1,  1,  20,  20000),
+    HQ                      (null,  0,  50,  0,  1,  48,  35,  500,  1,  1,  20,  20000),
     //                       SS     C   DL   SL  AC  SR   PR   PA   PM  GP  MS   BL
     /**
      * Miners extract crude soup and bring it to the refineries.
