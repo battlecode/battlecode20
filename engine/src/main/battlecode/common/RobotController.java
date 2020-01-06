@@ -420,8 +420,8 @@ public strictfp interface RobotController {
      *
      * @param dir the direction to spawn the unit
      * @param type the type of robot to build
-     * @throws GameActionException if you don't have enough currency, if
-     * the robot is still in build cooldown, if the direction is not a
+     * @throws GameActionException if you don't have enough soup, if
+     * the robot is still in cooldown, if the direction is not a
      * good build direction, or if this robot is not of an appropriate type.
      *
      * @battlecode.doc.costlymethod
