@@ -357,45 +357,43 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Tells whether this robot can move one stride in the given direction,
-     * without taking into account if they have already moved. Takes into account only
-     * the positions of other robots, and the edge of the
-     * game map. Does not take into account whether this robot is currently
-     * active. Note that one stride is equivalent to this robot's {@code strideRadius}.
+     * Tells whether this robot can move one step in the given direction.
+     * Returns false if the robot is a building, if the target location
+     * is not on the map, if the target location is occupied, if it is
+     * flooded and this robot is not a drone, if the dirt difference is
+     * too high and this robot is not a drone, and if the robot is ready
+     * based on the cooldown.
      *
      * @param dir the direction to move in
-     * @return true if there is no external obstruction to prevent this robot
-     * from moving one stride in the given direction; false otherwise.
+     * @return true if it is possible to call <code>move</code> without an exception
      *
      * @battlecode.doc.costlymethod
      */
     boolean canMove(Direction dir);
     
     /**
-     * Tests whether this robot can move to the target MapLocation. If
-     * the location is outside the robot's {@code strideRadius}, the location
-     * is rescaled to be at the {@code strideRadius}. Takes into account only
-     * the positions of other robots, and the edge of the game map. Does
-     * not take into account whether this robot is currently active.
-     * 
-     * @param center the MapLocation to move to
-     * @return true if there is no external obstruction to prevent this robot
-     * from moving to this MapLocation (or in the direction of this MapLocation
-     * if it is too far); false otherwise.
+     * Tells whether this robot can move to the target location.
+     * Returns false if the robot is a building, if the target location
+     * is not on the map, if the target location is occupied, if it is
+     * flooded and this robot is not a drone, if the dirt difference is
+     * too high and this robot is not a drone, and if the robot is ready
+     * based on the cooldown.
+     *
+     * @param location the MapLocation to move to
+     * @return true if it is possible to call <code>move</code> without an exception
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canMove(MapLocation center);
+    boolean canMove(MapLocation location);
     
     /**
-     * Moves one stride in the given direction. Note that one stride is equivalent
-     * to this robot's {@code strideRadius}.
+     * Moves one step in the given direction.
      *
      * @param dir the direction to move in
-     * @throws GameActionException if the robot cannot move one stride in this
-     * direction, such as already moved that turn, the target location being
-     * off the map, and the target destination being occupied with either
-     * another robot.
+     * @throws GameActionException if the robot cannot move one step in this
+     * direction, such as cooldown being >= 1, the target location being
+     * off the map, the target destination being occupied with either
+     * another robot, and the robot attempting to climb too high or enter water.
      *
      * @battlecode.doc.costlymethod
      */
