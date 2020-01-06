@@ -17,7 +17,7 @@ public enum RobotType {
      *
      * @battlecode.doc.robottype
      */
-    MINER                   (HQ,  70,  0,  10,  1,  35,  0,  0,  1,  0,  0,  10000),
+    MINER                   (HQ,  70,  0,  100,  1,  35,  0,  0,  1,  0,  0,  10000),
     //                       SS   C    DL  SL   AC  SR   PR  PA  PM  GP  MS  BL
     /**
      * Refineries turn crude soup into refined soup, and produce pollution.
