@@ -110,8 +110,7 @@ public class CowControlProvider implements RobotControlProvider {
         } else {
             // We're somehow controlling a non-zombie robot.
             // ...
-            // Kill it.
-            robot.getController().disintegrate();
+            // just do nothing lol, this will never happen
         }
     }
 

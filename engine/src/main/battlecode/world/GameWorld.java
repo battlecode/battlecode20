@@ -458,10 +458,11 @@ public strictfp class GameWorld {
 
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
         ArrayList<MapLocation> returnLocations = new ArrayList<MapLocation>();
-        int minX = Math.max(center.x - radiusSquared, 0);
-        int minY = Math.max(center.y - radiusSquared, 0);
-        int maxX = Math.min(center.x + radiusSquared, this.gameMap.getWidth() - 1);
-        int maxY = Math.min(center.y + radiusSquared, this.gameMap.getHeight() - 1);
+        int ceiledRadius = (int) Math.ceil(Math.sqrt(radiusSquared)) + 1; // add +1 just to be safe
+        int minX = Math.max(center.x - ceiledRadius, 0);
+        int minY = Math.max(center.y - ceiledRadius, 0);
+        int maxX = Math.min(center.x + ceiledRadius, this.gameMap.getWidth() - 1);
+        int maxY = Math.min(center.y + ceiledRadius, this.gameMap.getHeight() - 1);
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 MapLocation newLocation = new MapLocation(x, y);
