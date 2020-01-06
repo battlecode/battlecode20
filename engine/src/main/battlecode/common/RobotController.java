@@ -344,7 +344,8 @@ public strictfp interface RobotController {
 
     /**
      * Returns the number of cooldown turns remaining before this unit can act again.
-     * When this number is less than 1, isReady() is true.
+     * When this number is strictly less than 1, isReady() is true and the robot
+     * can perform actions again.
      *
      * @return the number of cooldown turns remaining before this unit can act again.
      *
