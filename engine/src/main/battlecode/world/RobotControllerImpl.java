@@ -610,7 +610,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Robot is of type " + getType() + " which cannot deposit dirt.");
         if (getDirtCarrying() < 1)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
-                    "Robot is carriying " + getDirtCarrying() + " units of dirt, and thus cannot deposit any dirt.");
+                    "Robot is carrying " + getDirtCarrying() + " units of dirt, and thus cannot deposit any dirt.");
         if (!onTheMap(center))
             throw new GameActionException(OUT_OF_RANGE,
                     "Can only deposit dirt to locations on the map; " + center + " is not on the map.");
