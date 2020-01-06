@@ -646,7 +646,7 @@ public strictfp interface RobotController {
     public Transaction[] getBlock(int roundNumber) throws GameActionException;
 
     // ***********************************
-    // **** INDICATOR STRING METHODS *****
+    // ******** DEBUG METHODS ************
     // ***********************************
 
     /**
@@ -674,19 +674,4 @@ public strictfp interface RobotController {
      */
     void setIndicatorLine(MapLocation startLoc, MapLocation endLoc, int red, int green, int blue);
 
-    // ***********************************
-    // ******** DEBUG METHODS ************
-    // ***********************************
-
-    /**
-     * Gets this robot's 'control bits' for debugging purposes. These bits can
-     * be set manually by the user, so a robot can respond to them. To set these
-     * bits, you must run the client in lockstep mode and right click the
-     * units.
-     *
-     * @return this robot's control bits.
-     *
-     * @battlecode.doc.costlymethod
-     */
-    long getControlBits();
 }

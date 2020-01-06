@@ -960,7 +960,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     // ***********************************
-    // **** INDICATOR STRING METHODS *****
+    // ******** DEBUG METHODS ************
     // ***********************************
 
     @Override
@@ -976,12 +976,4 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getMatchMaker().addIndicatorLine(getID(), startLoc, endLoc, red, green, blue);
     }
 
-    // ***********************************
-    // ******** DEBUG METHODS ************
-    // ***********************************
-
-    @Override
-    public long getControlBits() {
-        return robot.getControlBits();
-    }
 }
