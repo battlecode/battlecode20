@@ -97,6 +97,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return gameWorld.getGameMap().getHeight();
     }
 
+    @Override
+    public int getCurrentSensorRadiusSquared() {
+        return this.robot.getCurrentSensorRadiusSquared();
+    }
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
