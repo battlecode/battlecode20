@@ -523,14 +523,22 @@ export default class Client {
       this.setGame(game);
       this.setMatch(match);
     };
-    this.controls.canvas.onclick = function(event) {
+
+    function changeTime(dragEvent: MouseEvent) {
       // jump to a frame when clicking the controls timeline
       let width: number = (<HTMLCanvasElement>this).width;
-      let turn: number = event.offsetX / width * match['_farthest'].turn;
+      let turn: number = dragEvent.offsetX / width * match['_farthest'].turn;
       turn = Math.round(Math.min(match['_farthest'].turn, turn));
       externalSeek = true;
       match.seek(turn);
       interpGameTime = turn;
+    }
+
+    this.controls.canvas.onmousedown = function(mousedownevent) {
+      this.addEventListener('mousemove', changeTime);
+    };
+    this.controls.canvas.onmouseup = function(mouseupevent) {
+      this.removeEventListener('mousemove', changeTime);
     };
 
     this.controls.updatePlayPauseButton();
