@@ -44,5 +44,5 @@
 - Update the scrim/compile servers
     - TODO
 - `git push`
-- Update `battlecode20-scaffold/version.txt`.
+- Update `battlecode20-scaffold/version.txt` WITHOUT A NEWLINE!!! (don't update on github, don't use normal text editor, be super careful)
 - Go on Discord and wait for things to catch on fire
