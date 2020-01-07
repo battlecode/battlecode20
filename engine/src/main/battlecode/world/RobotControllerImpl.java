@@ -379,7 +379,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.isFlooded(spawnLoc) && type != RobotType.DELIVERY_DRONE)
             throw new GameActionException(CANT_DO_THAT,
                     "Can only spawn delivery drones to flooded locations; " + spawnLoc + " is flooded but " + type + " is not a delivery drone.");
-        if (gameWorld.getDirtDifference(getLocation(), spawnLoc) > GameConstants.MAX_DIRT_DIFFERENCE)
+        if (type != RobotType.DELIVERY_DRONE && gameWorld.getDirtDifference(getLocation(), spawnLoc) > GameConstants.MAX_DIRT_DIFFERENCE)
             throw new GameActionException(CANT_DO_THAT,
                     "Can only spawn delivery drones to locations with high dirt difference; " +
                     "the dirt difference to " + spawnLoc + " is " +
@@ -561,6 +561,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!onTheMap(center))
             throw new GameActionException(OUT_OF_RANGE,
                     "Can only dig dirt from locations on the map; " + center + " is not on the map.");
+        InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
+        if (adjacentRobot != null)
+            if (adjacentRobot.getType().isBuilding())
+                throw new GameActionException(CANT_DO_THAT,
+                        "Can't dig dirt from underneath buildings; " + center + " has a " + adjacentRobot.getType() + ".");
         if (!isReady())
             throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");
@@ -904,6 +909,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+        if (cost < 0)
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Can only submit transactions with non-negative cost!");
     }
 
     @Override
