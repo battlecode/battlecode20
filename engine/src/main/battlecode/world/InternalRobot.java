@@ -275,7 +275,7 @@ public strictfp class InternalRobot {
 
     public void processBeginningOfTurn() {
         if (this.cooldownTurns > 0)
-            this.cooldownTurns--;
+            this.cooldownTurns = Math.max(0, this.cooldownTurns-1);
         this.currentBytecodeLimit = getType().bytecodeLimit;
     }
 
