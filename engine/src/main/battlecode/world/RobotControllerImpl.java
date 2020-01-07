@@ -573,7 +573,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Can only dig dirt from locations on the map; " + center + " is not on the map.");
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
         if (adjacentRobot != null)
-            if (adjacentRobot.getType().isBuilding())
+            if (adjacentRobot.getType().isBuilding() && adjacentRobot.getDirtCarrying() <= 0)
                 throw new GameActionException(CANT_DO_THAT,
                         "Can't dig dirt from underneath buildings; " + center + " has a " + adjacentRobot.getType() + ".");
         if (!isReady())
