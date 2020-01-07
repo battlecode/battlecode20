@@ -70,12 +70,11 @@ export default class GameArea {
     this.splashDiv.appendChild(splashSubtitle);
     
     if (process.env.ELECTRON) {
-      // Set the version string from http://www.battlecode.org/contestants/latest/
       (async function (splashDiv, version) {
       
         var options = {
-          host: 'battlecode-maven.s3-website-us-east-1.amazonaws.com',
-          path: '/org/battlecode/battlecode/maven-metadata.xml'
+          host: '2020.battlecode.org',
+          path: '/version.txt'
         };
 
         var req = http.get(options, function(res) {
@@ -84,15 +83,11 @@ export default class GameArea {
             data += chunk
           }).on('end', function() {
             
-            var parser = new DOMParser();
-            var doc = parser.parseFromString(data, "application/xml");
-            var latest = doc.getElementsByTagName('release')[0].innerHTML;
+            var latest = data;
 
             if(latest.trim() != version.trim()) {
-              let newVersion = document.createElement("a");
+              let newVersion = document.createElement("p");
               newVersion.id = "splashNewVersion";
-              newVersion.href = "http://www.battlecode.org/contestants/releases/"
-              newVersion.target = "_blank";
               newVersion.innerHTML = "New version available (download with <code>gradle build</code>): v" + latest;
               splashDiv.appendChild(newVersion);
             }
