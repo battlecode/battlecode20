@@ -367,10 +367,11 @@ public strictfp interface RobotController {
     /**
      * Tells whether this robot can move one step in the given direction.
      * Returns false if the robot is a building, if the target location
-     * is not on the map, if the target location is occupied, if it is
-     * flooded and this robot is not a drone, if the dirt difference is
+     * is not on the map, if the target location is occupied,
+     * if the dirt difference is
      * too high and this robot is not a drone, and if the robot is ready
-     * based on the cooldown.
+     * based on the cooldown. Does not check if the location is flooded;
+     * suicide is permitted.
      *
      * @param dir the direction to move in
      * @return true if it is possible to call <code>move</code> without an exception
@@ -386,7 +387,7 @@ public strictfp interface RobotController {
      * @throws GameActionException if the robot cannot move one step in this
      * direction, such as cooldown being &gt;= 1, the target location being
      * off the map, the target destination being occupied with either
-     * another robot, and the robot attempting to climb too high or enter water.
+     * another robot, and the robot attempting to climb too high.
      *
      * @battlecode.doc.costlymethod
      */
