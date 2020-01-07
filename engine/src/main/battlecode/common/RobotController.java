@@ -134,6 +134,17 @@ public strictfp interface RobotController {
      */
     boolean isCurrentlyHoldingUnit();
 
+    /**
+     * Returns the robot's current sensor radius squared, which is affected
+     * by the current pollution level at the present location.
+     *
+     * @return an int, the current sensor radius squared
+     *
+     * @battlecode.doc.costlymethod
+     */
+     int getCurrentSensorRadiusSquared();
+
+
     // ***********************************
     // ****** GENERAL SENSOR METHODS *****
     // ***********************************

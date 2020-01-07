@@ -43,6 +43,7 @@ battlecode/common/RobotController/depositSoup	                    0     true
 battlecode/common/RobotController/dropUnit                          0     true
 battlecode/common/RobotController/getBlock                          100   true
 battlecode/common/RobotController/getCooldownTurns                  1     true
+battlecode/common/RobotController/getCurrentSensorRadiusSquared     1     true
 battlecode/common/RobotController/getDirtCarrying	                1     true
 battlecode/common/RobotController/getID                             1     true
 battlecode/common/RobotController/getLocation                       1     true
