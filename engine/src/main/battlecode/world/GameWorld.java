@@ -716,8 +716,8 @@ public strictfp class GameWorld {
                 robot.getController().dropUnit(null, false);
         } catch (GameActionException e) {}
 
-        // if a landscaper is killed, drop dirt at current location
-        if (robot.getType().canDepositDirt() && robot.getDirtCarrying() > 0)
+        // if a landscaper or a building is killed, drop dirt at current location
+        if (robot.getDirtCarrying() > 0)
             addDirt(-1, robot.getLocation(), robot.getDirtCarrying());
 
         // remove pollution if can pollute
