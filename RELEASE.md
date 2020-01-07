@@ -11,6 +11,7 @@
     - Create a `Developer ID Application` certificate by going to Xcode > Preferences > Accounts > Manage Certificates.
     - The signing procedure below will automatically find the certificate in your keychain.
 - Install `pandoc` (e.g. using Homebrew)
+- Make sure you have the correct `frontend/public/access.txt`. Ask someone.
 
 
 ### Release Procedure
