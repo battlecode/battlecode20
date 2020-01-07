@@ -45,6 +45,24 @@ public strictfp interface RobotController {
      */
     int getRobotCount();
 
+    /**
+     * Returns the width of the map.
+     *
+     * @return the width of the map.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getMapWidth();
+
+    /**
+     * Returns the height of the map.
+     *
+     * @return the height of the map.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getMapHeight();
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************

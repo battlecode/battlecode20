@@ -87,6 +87,16 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
+    @Override
+    public int getMapWidth() {
+        return gameWorld.getGameMap().getWidth();
+    }
+
+    @Override
+    public int getMapHeight() {
+        return gameWorld.getGameMap().getHeight();
+    }
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
