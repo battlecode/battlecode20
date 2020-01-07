@@ -248,7 +248,7 @@ public strictfp class InternalRobot {
      */
     public void addDirtCarrying(int amount) {
         this.dirtCarrying += amount;
-        if (getType().isBuilding() && this.dirtCarrying > getType().dirtLimit)
+        if (getType().isBuilding() && this.dirtCarrying >= getType().dirtLimit)
             this.gameWorld.destroyRobot(getID());
     }
 
