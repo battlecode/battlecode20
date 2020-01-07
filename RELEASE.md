@@ -12,6 +12,7 @@
     - The signing procedure below will automatically find the certificate in your keychain.
 - Install `pandoc` (e.g. using Homebrew)
 - Make sure you have the correct `frontend/public/access.txt`. Ask someone.
+- Add `BC20_GITUSERNAME` and `BC20_GITKEY` as environment variables.
 
 
 ### Release Procedure
@@ -29,7 +30,7 @@
 - `./gradlew clean`
 - `./gradlew test`
 - Review the changes.
-- RELEASE: `./gradlew publish -Prelease_version=$version` (but actually fill it in)
+- RELEASE: `./gradlew publish`
 - `python3 prepare_release.py $version` (but actually fill it in)
   - It will also generate the HTML version of the docs.
   - It will also build the client for the web.
