@@ -379,7 +379,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.isFlooded(spawnLoc) && type != RobotType.DELIVERY_DRONE)
             throw new GameActionException(CANT_DO_THAT,
                     "Can only spawn delivery drones to flooded locations; " + spawnLoc + " is flooded but " + type + " is not a delivery drone.");
-        if (gameWorld.getDirtDifference(getLocation(), spawnLoc) > GameConstants.MAX_DIRT_DIFFERENCE)
+        if (type != RobotType.DELIVERY_DRONE && gameWorld.getDirtDifference(getLocation(), spawnLoc) > GameConstants.MAX_DIRT_DIFFERENCE)
             throw new GameActionException(CANT_DO_THAT,
                     "Can only spawn delivery drones to locations with high dirt difference; " +
                     "the dirt difference to " + spawnLoc + " is " +
