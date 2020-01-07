@@ -46,6 +46,11 @@ task buildMap(type: JavaExec, dependsOn: [':engine:build']) {
     classpath = files(serverJar)
 }
 
+task buildMaps(type: JavaExec, dependsOn: [':engine:build']) {
+  main = 'battlecode.world.BuildMaps'
+  classpath = files(serverJar)
+}
+
 task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build']) {
   main = 'battlecode.server.Main'
   classpath = files(serverJar) + project(':example-bots').sourceSets.main.output + configurations.scala
