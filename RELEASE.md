@@ -14,7 +14,7 @@
 - Make sure you have the correct `frontend/public/access.txt`. Ask someone.
 - Add `BC20_GITUSERNAME` and `BC20_GITKEY` as environment variables.
 
-
+TODO: deploy BACKEND??????
 ### Release Procedure
 - Make sure everything is up to date:
     - `git pull`
@@ -24,7 +24,7 @@
 - Update `specs/specs.md` with the new version and a changelog.
 - Update `client/visualizer/src/config.ts` with the version number.
 - Update `gradle.properties` with the version number.
-- If new maps have been added, update `SERVER_MAPS` in `client/visualizer/constants.ts`.
+- If new maps have been added, update `SERVER_MAPS` in `client/visualizer/constants.ts` and in `backend/settings.py`.
   - (optional) If a new tournament has been released, also update `MapFilter.types` in `client/visualizer/game/sidebar/mapfilter.ts`.
 - Review the changes, and commit and push (message e.g. "preparing for release 2020.1.32.2").
 - `./gradlew clean`
