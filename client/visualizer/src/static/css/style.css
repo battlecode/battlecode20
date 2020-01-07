@@ -388,6 +388,11 @@ input {
     margin-bottom: 5px;
 }
 
+#updateText {
+    color: red;
+    font-weight: bold;
+}
+
 .control-button {
     background-color: #bbb !important;
 }

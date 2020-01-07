@@ -29,6 +29,9 @@ export default class MatchRunner {
   private scaffold: ScaffoldCommunicator;
   private cb: () => void; // callback for loading the scaffold
 
+  // Run callback
+  private runCb: () => void; // callback for running a game
+
   // The maps
   private maps: MapFilter;
 
@@ -41,9 +44,10 @@ export default class MatchRunner {
   private refreshButton: HTMLButtonElement
   private runMatchWithoutViewing: HTMLButtonElement;
 
-  constructor(conf: Config, cb: () => void) {
+  constructor(conf: Config, cb: () => void, runCb: () => void) {
     this.conf = conf;
     this.cb = cb;
+    this.runCb = runCb;
     this.isLoadingMatch = false;
 
     // The scaffold is loaded...
@@ -267,6 +271,8 @@ export default class MatchRunner {
     if (this.isLoadingMatch) {
       return;
     }
+
+    this.runCb();
 
     this.compileLogs.innerHTML = "";
     this.isLoadingMatch = true;

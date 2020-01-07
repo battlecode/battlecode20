@@ -88,7 +88,7 @@ export default class GameArea {
             if(latest.trim() != version.trim()) {
               let newVersion = document.createElement("p");
               newVersion.id = "splashNewVersion";
-              newVersion.innerHTML = "New version available (download with <code>gradle build</code>): v" + latest;
+              newVersion.innerHTML = "New version available (download with <code>gradle update</code> followed by <code>gradle build</code>, and then restart the client): v" + latest;
               splashDiv.appendChild(newVersion);
             }
 

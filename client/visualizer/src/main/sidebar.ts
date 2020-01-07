@@ -8,7 +8,8 @@ import MatchQueue from '../game/sidebar/matchqueue';
 import MapEditor from '../mapeditor/mapeditor';
 import ScaffoldCommunicator from '../scaffold';
 
-import {electron} from '../electron-modules';
+import {http,electron} from '../electron-modules';
+
 
 export default class Sidebar {
 
@@ -31,6 +32,9 @@ export default class Sidebar {
 
   // Scaffold
   private scaffold: ScaffoldCommunicator;
+
+  // Update texts
+  private updateText: HTMLDivElement;
 
   // onkeydown event that uses the controls depending on the game mode
   private readonly onkeydownControls: (event: KeyboardEvent) => void;
@@ -62,6 +66,9 @@ export default class Sidebar {
           console.log('No scaffold found or provided');
         }
       })
+    }, () => {
+      // set callback for running a game, which should trigger the update check
+      this.updateUpdate();
     });
     this.matchqueue = new MatchQueue(conf, images);
     this.help = this.initializeHelp();
@@ -70,6 +77,7 @@ export default class Sidebar {
 
     // Initialize div structure
     this.loadStyles();
+    this.div.appendChild(this.screamForUpdate());
     this.div.appendChild(this.battlecodeLogo());
     
     const modePanel = document.createElement('table');
@@ -175,6 +183,51 @@ export default class Sidebar {
 
     this.div.id = "sidebar";
 
+  }
+
+  /**
+   * Scream for update, if outdated.
+   */
+  private screamForUpdate(): HTMLDivElement {
+    this.updateText = document.createElement("div");
+    this.updateText.id = "updateText";
+
+    this.updateUpdate();
+    
+    return this.updateText;
+  }
+  private updateUpdate() {
+    this.updateText.style.display = "none";
+    if (process.env.ELECTRON) {
+      (async function (splashDiv, version) {
+      
+        var options = {
+          host: '2020.battlecode.org',
+          path: '/version.txt'
+        };
+
+        var req = http.get(options, function(res) {
+          let data = "";
+          res.on('data', function(chunk) {
+            data += chunk
+          }).on('end', function() {
+            
+            var latest = data;
+
+            if(latest.trim() != version.trim()) {
+              let newVersion = document.createElement("p");
+              newVersion.innerHTML = "NEW VERSION AVAILABLE!!!! (download with <code>gradle update</code> followed by <code>gradle build</code>, and then restart the client): v" + latest;
+              splashDiv.style.display = "unset";
+              while (splashDiv.firstChild) {
+                splashDiv.removeChild(splashDiv.firstChild);
+              }
+              splashDiv.appendChild(newVersion);
+            }
+
+          })
+        });
+      })(this.updateText, this.conf.gameVersion);
+    }
   }
 
   /**
