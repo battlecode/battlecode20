@@ -51,7 +51,11 @@ export enum MapType {
 export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["FourLakeLand", MapType.DEFAULT],
   ["CentralLake", MapType.DEFAULT],
-  ["ALandDivided", MapType.DEFAULT]
+  ["ALandDivided", MapType.DEFAULT],
+  ["SoupOnTheSide", MapType.DEFAULT],
+  ["TwoForOneAndTwoForAll", MapType.DEFAULT],
+  ["WaterBot", MapType.DEFAULT],
+  ["CentralSoup", MapType.DEFAULT]
 ]);
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
