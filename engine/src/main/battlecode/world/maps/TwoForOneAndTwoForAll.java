@@ -38,13 +38,25 @@ public class TwoForOneAndTwoForAll {
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.vertical);
         mapBuilder.addSymmetricHQ(5, 26);
 
+        // add HQ soup
+        mapBuilder.setSymmetricSoup(3, 25, 700);
+        mapBuilder.setSymmetricSoup(2, 25, 700);
+        mapBuilder.setSymmetricSoup(3, 23, 700);
+        mapBuilder.setSymmetricSoup(2, 23, 700);
+        addRectangleSoup(mapBuilder, 0, 19, 3, 31, 50);
+
+        mapBuilder.addSymmetricCow(5, 8);
+        mapBuilder.addSymmetricCow(6, 8);
+        mapBuilder.addSymmetricCow(7, 8);
+        mapBuilder.addSymmetricCow(8, 8);
+
         addRectangleDirt(mapBuilder, 0, 0, 40,31,3);
 
         // add one soup location
         for (int i = 5; i < width - 5; i++) {
             if (i == 19 || i == 20 || i == 21 || i == 22 || i == 23) continue;
-            mapBuilder.setSymmetricSoup(i,5,50);
-            mapBuilder.setSymmetricSoup(i,6,100);
+            mapBuilder.setSymmetricSoup(i,5,300);
+            mapBuilder.setSymmetricSoup(i,6,600);
         }
 
         // add a river to make things interesting
@@ -68,6 +80,13 @@ public class TwoForOneAndTwoForAll {
             for (int j = yb; j < yt+1; j++) {
                 mapBuilder.setSymmetricWater(i, j, true);
                 mapBuilder.setSymmetricDirt(i,j, v);
+            }
+        }
+    }
+    public static void addRectangleSoup(MapBuilder mapBuilder, int xl, int yb, int xr, int yt, int v) {
+        for (int i = xl; i < xr+1; i++) {
+            for (int j = yb; j < yt+1; j++) {
+                mapBuilder.setSymmetricSoup(i, j, v);
             }
         }
     }

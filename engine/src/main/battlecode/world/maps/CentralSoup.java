@@ -33,10 +33,11 @@ public class CentralSoup {
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.rotational);
         mapBuilder.addSymmetricHQ(10, 10);
 
-        mapBuilder.setSymmetricSoup(6, 6, 400);
-        mapBuilder.setSymmetricSoup(5, 6, 400);
-        mapBuilder.setSymmetricSoup(6, 5, 400);
-        mapBuilder.setSymmetricSoup(5, 5, 400);
+        addRectangleSoup(mapBuilder,2,2,6,6,100);
+
+
+        mapBuilder.setSymmetricSoup(23, 20, 2000);
+        mapBuilder.setSymmetricSoup(24, 20, 2000);
 
         for (int i = 22; i <= 25; i++) {
             for (int j = 22; j <= 25; j++) {
@@ -69,5 +70,13 @@ public class CentralSoup {
 
         mapBuilder.saveMap(outputDirectory);
 
+    }
+
+    public static void addRectangleSoup(MapBuilder mapBuilder, int xl, int yb, int xr, int yt, int v) {
+        for (int i = xl; i < xr+1; i++) {
+            for (int j = yb; j < yt+1; j++) {
+                mapBuilder.setSymmetricSoup(i, j, v);
+            }
+        }
     }
 }

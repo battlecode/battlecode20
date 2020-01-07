@@ -40,11 +40,20 @@ public class ALandDivided {
 
         addRectangleDirt(mapBuilder, 0, 0, 40,31,3);
 
+        // add soup near HQ
+        mapBuilder.setSymmetricSoup(7,28,500);
+        mapBuilder.setSymmetricSoup(8,28,1000);
+        mapBuilder.setSymmetricSoup(7,29,500);
+        mapBuilder.setSymmetricSoup(8,29,1000);
+
+        mapBuilder.addSymmetricCow(0,0);
+
+
         // add one soup location
-        mapBuilder.setSymmetricSoup(5,5,100);
-        mapBuilder.setSymmetricSoup(6,5,100);
-        mapBuilder.setSymmetricSoup(5,6,100);
-        mapBuilder.setSymmetricSoup(6,6,100);
+        mapBuilder.setSymmetricSoup(5,5,1000);
+        mapBuilder.setSymmetricSoup(6,5,1000);
+        mapBuilder.setSymmetricSoup(5,6,1000);
+        mapBuilder.setSymmetricSoup(6,6,1000);
 
         // add a river to make things interesting
         addRectangleWater(mapBuilder, 19, 0, 21, 31, -10);

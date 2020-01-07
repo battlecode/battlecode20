@@ -63,6 +63,12 @@ public class MapBuilder {
     }
 
     public void addRobot(int id, Team team, RobotType type, MapLocation loc){
+        // check if something already exists here, if so shout
+        for (RobotInfo r : bodies) {
+            if (r.location.equals(loc)) {
+                throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
+            }
+        }
         bodies.add(new RobotInfo(
                 id,
                 team,
@@ -175,6 +181,19 @@ public class MapBuilder {
         this.dirtArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
     }
 
+
+    // ********************
+    // INFORMATION
+    // ********************
+
+    public int getTotalSoup() {
+        int tot = 0;
+        for (int x = 0; x < width; x++)
+            for (int y=0;y<height;y++)
+                tot += this.soupArray[locationToIndex(x,y)];
+        return tot;
+    }
+
     // ********************
     // BUILDING AND SAVING
     // ********************
@@ -191,6 +210,7 @@ public class MapBuilder {
      * @throws IOException
      */
     public void saveMap(String pathname) throws IOException {
+        System.out.println("Saving " + this.name + ": has " + Integer.toString(getTotalSoup())+ " total soup.");
         GameMapIO.writeMap(this.build(), new File(pathname));
     }
 }

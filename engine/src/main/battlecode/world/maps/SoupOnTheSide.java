@@ -33,31 +33,33 @@ public class SoupOnTheSide {
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.rotational);
         mapBuilder.addSymmetricHQ(20, 20);
 
-        mapBuilder.setSymmetricSoup(15, 15, 400);
-        mapBuilder.setSymmetricSoup(16, 16, 400);
-        mapBuilder.setSymmetricSoup(15, 16, 400);
-        mapBuilder.setSymmetricSoup(16, 15, 400);
-        mapBuilder.setSymmetricSoup(13, 15, 400);
-        mapBuilder.setSymmetricSoup(13, 16, 400);
-        mapBuilder.setSymmetricSoup(14, 15, 400);
-        mapBuilder.setSymmetricSoup(14, 16, 400);
-        mapBuilder.setSymmetricSoup(15, 13, 400);
-        mapBuilder.setSymmetricSoup(16, 13, 400);
-        mapBuilder.setSymmetricSoup(15, 14, 400);
-        mapBuilder.setSymmetricSoup(16, 14, 400);
-        mapBuilder.setSymmetricSoup(11, 15, 400);
-        mapBuilder.setSymmetricSoup(11, 16, 400);
-        mapBuilder.setSymmetricSoup(12, 15, 400);
-        mapBuilder.setSymmetricSoup(12, 16, 400);
-        mapBuilder.setSymmetricSoup(15, 12, 400);
-        mapBuilder.setSymmetricSoup(16, 12, 400);
-        mapBuilder.setSymmetricSoup(15, 11, 400);
-        mapBuilder.setSymmetricSoup(16, 11, 400);
+        mapBuilder.setSymmetricSoup(15, 15, 600);
+        mapBuilder.setSymmetricSoup(16, 16, 600);
+        mapBuilder.setSymmetricSoup(15, 16, 600);
+        mapBuilder.setSymmetricSoup(16, 15, 600);
+        mapBuilder.setSymmetricSoup(13, 15, 600);
+        mapBuilder.setSymmetricSoup(13, 16, 600);
+        mapBuilder.setSymmetricSoup(14, 15, 600);
+        mapBuilder.setSymmetricSoup(14, 16, 600);
+        mapBuilder.setSymmetricSoup(15, 13, 600);
+        mapBuilder.setSymmetricSoup(16, 13, 600);
+        mapBuilder.setSymmetricSoup(15, 14, 600);
+        mapBuilder.setSymmetricSoup(16, 14, 600);
+        mapBuilder.setSymmetricSoup(11, 15, 600);
+        mapBuilder.setSymmetricSoup(11, 16, 600);
+        mapBuilder.setSymmetricSoup(12, 15, 600);
+        mapBuilder.setSymmetricSoup(12, 16, 600);
+        mapBuilder.setSymmetricSoup(15, 12, 600);
+        mapBuilder.setSymmetricSoup(16, 12, 600);
+        mapBuilder.setSymmetricSoup(15, 11, 600);
+        mapBuilder.setSymmetricSoup(16, 11, 600);
        /* mapBuilder.setSymmetricSoup(6, 6, 400);
         mapBuilder.setSymmetricSoup(5, 6, 400);
         mapBuilder.setSymmetricSoup(6, 5, 400);
         mapBuilder.setSymmetricSoup(5, 5, 400);*/
 
+        mapBuilder.setSymmetricSoup(17, 19, 1200);
+        mapBuilder.setSymmetricSoup(16, 20, 700);
 
 
         for(int i = 0; i < mapBuilder.width; i++) {

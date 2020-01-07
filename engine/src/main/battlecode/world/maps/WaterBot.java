@@ -38,18 +38,29 @@ public class WaterBot {
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.vertical);
         mapBuilder.addSymmetricHQ(10, 10);
 
+        // add HQ soup
+        mapBuilder.setSymmetricSoup(13, 8, 1000);
+        mapBuilder.setSymmetricSoup(13, 7, 100);
+        mapBuilder.setSymmetricSoup(12, 8, 1000);
+        mapBuilder.setSymmetricSoup(12, 7, 100);
 
         // add some nice central soup
         // add some team soup
-        addSoup(mapBuilder, 10, 20, 4, 5);
-        addSoup(mapBuilder, 20, 20, 4, 5);
-        addSoup(mapBuilder, 15, 20, 4, 5);
+        addSoup(mapBuilder, 10, 20, 4, 10);
+        addSoup(mapBuilder, 20, 20, 4, 15);
+        addSoup(mapBuilder, 15, 20, 4, 10);
+
+        addRectangleSoup(mapBuilder, 10, 34, 17, 40, 50);
 
         for(int i = 0; i < mapBuilder.width; i++) {
             for (int j = 0; j < mapBuilder.height; j++) {
                 mapBuilder.setSymmetricDirt(i, j, (int) (Math.min(50, 3+2*Math.min(Math.max(j,height-j-1),Math.min(i,width-i-1)))*.18));
             }
         }
+
+        mapBuilder.addSymmetricCow(11,40);
+        mapBuilder.addSymmetricCow(12,40);
+        mapBuilder.addSymmetricCow(13,40);
 
         // add a river to make things interesting
         addRectangleDirt(mapBuilder, 28, 30, 32, 40, 3);
@@ -72,6 +83,13 @@ public class WaterBot {
         for (int i = xl; i < xr+1; i++) {
             for (int j = yb; j < yt+1; j++) {
                 mapBuilder.setSymmetricDirt(i, j, v);
+            }
+        }
+    }
+    public static void addRectangleSoup(MapBuilder mapBuilder, int xl, int yb, int xr, int yt, int v) {
+        for (int i = xl; i < xr+1; i++) {
+            for (int j = yb; j < yt+1; j++) {
+                mapBuilder.setSymmetricSoup(i, j, v);
             }
         }
     }
