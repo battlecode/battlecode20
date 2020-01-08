@@ -39,10 +39,10 @@ public class RandomSoup1 {
         mapBuilder.addSymmetricHQ(20, 8);
 
 
-        // // add some nice central soup
-        // addSoup(mapBuilder, 30, 20, 5, 10);
-        // // add some team soup
-        // addSoup(mapBuilder, 10, 30, 4, 5);
+        // add some nice central soup
+        addSoup(mapBuilder, 30, 20, 5, 10);
+        // add some team soup
+        addSoup(mapBuilder, 10, 30, 4, 5);
 
 
         for(int i = 18; i < mapBuilder.width-10; i++) {
