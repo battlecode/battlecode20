@@ -51,6 +51,9 @@ public class CentralLake {
         for(int i = 10; i < mapBuilder.width-10; i++) {
             for (int j = 10; j < mapBuilder.height-10; j++) {
                 mapBuilder.setSymmetricWater(i,j,true);
+                if (i == mapBuilder.width / 2 && j == mapBuilder.height / 2) {
+                    mapBuilder.setSymmetricDirt(i,j,Integer.MIN_VALUE);
+                } 
             }
         }
 

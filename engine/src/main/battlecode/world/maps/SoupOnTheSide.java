@@ -85,7 +85,7 @@ public class SoupOnTheSide {
                 mapBuilder.setSymmetricWater(i,j,true);
             }
         }
-
+        mapBuilder.setSymmetricDirt(0, 0, Integer.MIN_VALUE);
         mapBuilder.addSymmetricCow(12, 14);
         mapBuilder.addSymmetricCow(8, 18);
 
