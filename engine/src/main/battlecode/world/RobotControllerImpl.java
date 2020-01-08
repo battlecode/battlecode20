@@ -812,8 +812,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
 
         gameWorld.getMatchMaker().addAction(getID(), Action.DROP_UNIT, id);
 
-        // unit is destroyed if dropped in Ocean, onto a building, or onto another unit
-        if (isLocationOccupied(targetLocation) || this.gameWorld.isFlooded(targetLocation))
+        // unit is destroyed if dropped in Ocean
+        if (this.gameWorld.isFlooded(targetLocation))
             this.gameWorld.destroyRobot(id);
     }
 
