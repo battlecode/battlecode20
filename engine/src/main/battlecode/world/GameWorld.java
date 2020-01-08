@@ -28,7 +28,24 @@ public strictfp class GameWorld {
     protected final GameStats gameStats;
     private final int[] initialSoup;
     private int[] soup;
+    private int globalPollution;
     private int[] pollution;
+    private boolean pollutionNeedsUpdate;
+    // the local pollution effects that are currently active, mapped from
+    // robot ID to pollution effect
+    private class LocalPollutionEffect {
+        MapLocation loc;
+        int radiusSquared;
+        int additiveEffect;
+        float multiplicativeEffect;
+        public LocalPollutionEffect(MapLocation l, int r, int a, float m) {
+            loc = l;
+            radiusSquared = r;
+            additiveEffect = a;
+            multiplicativeEffect = m;
+        }
+    }
+    HashMap<Integer, LocalPollutionEffect> localPollutions;
     private int[] dirt;
     private int initialWaterLevel;
     private float waterLevel;
@@ -52,7 +69,10 @@ public strictfp class GameWorld {
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         this.initialSoup = gm.getSoupArray();
         this.soup = gm.getSoupArray();
+        this.globalPollution = 0;
         this.pollution = gm.getPollutionArray();
+        this.pollutionNeedsUpdate = false;
+        this.localPollutions = new HashMap<>();
         this.dirt = gm.getDirtArray();
         this.initialWaterLevel = gm.getWaterLevel();
         this.waterLevel = this.initialWaterLevel;
@@ -236,23 +256,50 @@ public strictfp class GameWorld {
     // ***********************************
 
     public int getPollution(MapLocation loc) {
+        if (pollutionNeedsUpdate)
+            calculatePollution();
         return this.gameMap.onTheMap(loc) ? this.pollution[locationToIndex(loc)] : 0;
     }
 
-    public void adjustPollution(MapLocation loc, int amount) {
-        if (this.gameMap.onTheMap(loc))
-            adjustPollution(locationToIndex(loc), amount);
+    public void addLocalPollution(int robotID, MapLocation loc, int radiusSquared, int additive, float multiplicative) {
+        LocalPollutionEffect pE = new LocalPollutionEffect(loc, radiusSquared, additive, multiplicative);
+        localPollutions.put(robotID, pE);
+        getMatchMaker().addLocalPollution(loc, radiusSquared, additive, multiplicative);
+        pollutionNeedsUpdate = true;
     }
 
-    public void adjustPollution(int idx, int amount) {
-        int newPollution = Math.max(this.pollution[idx] + amount, 0);
-        getMatchMaker().addPollutionChanged(indexToLocation(idx), newPollution - this.pollution[idx]);
-        this.pollution[idx] = newPollution;
+    public void resetPollutionForRobot(int robotID) {
+        // reset the pollution caused by this robot
+        // i.e. remove it from the local pollution hash map
+        localPollutions.remove(robotID);
+        pollutionNeedsUpdate = true;
     }
 
-    public void globalPollution(int amount) {
-        for (int i = 0; i < this.pollution.length; i++)
-            adjustPollution(i, amount);
+    public void addGlobalPollution(int amount) {
+        this.globalPollution = Math.max(this.globalPollution + amount, 0);
+        getMatchMaker().setGlobalPollution(this.globalPollution);
+        pollutionNeedsUpdate = true;
+    }
+
+    private void calculatePollution() {
+        // calculates pollution based on pollution effects
+        // this has annoying time complexity but I think it'll be fine
+        for (int x = 0; x < this.gameMap.getWidth(); x++) {
+            for (int y = 0; y < this.gameMap.getHeight(); y++) {
+                MapLocation loc = new MapLocation(x, y);
+                int idx = locationToIndex(loc);
+                pollution[idx] = globalPollution;
+                float multiplier = 1;
+                for (LocalPollutionEffect localPollution : localPollutions.values()) {
+                    if (loc.isWithinDistanceSquared(localPollution.loc, localPollution.radiusSquared)) {
+                        pollution[idx] += localPollution.additiveEffect;
+                        multiplier *= localPollution.multiplicativeEffect;
+                    }
+                }
+                pollution[idx] = Math.round(pollution[idx] * multiplier);
+            }
+        }
+        pollutionNeedsUpdate = false;
     }
 
     // ***********************************
@@ -411,10 +458,11 @@ public strictfp class GameWorld {
 
     public MapLocation[] getAllLocationsWithinRadiusSquared(MapLocation center, int radiusSquared) {
         ArrayList<MapLocation> returnLocations = new ArrayList<MapLocation>();
-        int minX = Math.max(center.x - radiusSquared, 0);
-        int minY = Math.max(center.y - radiusSquared, 0);
-        int maxX = Math.min(center.x + radiusSquared, this.gameMap.getWidth() - 1);
-        int maxY = Math.min(center.y + radiusSquared, this.gameMap.getHeight() - 1);
+        int ceiledRadius = (int) Math.ceil(Math.sqrt(radiusSquared)) + 1; // add +1 just to be safe
+        int minX = Math.max(center.x - ceiledRadius, 0);
+        int minY = Math.max(center.y - ceiledRadius, 0);
+        int maxX = Math.min(center.x + ceiledRadius, this.gameMap.getWidth() - 1);
+        int maxY = Math.min(center.y + ceiledRadius, this.gameMap.getHeight() - 1);
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 MapLocation newLocation = new MapLocation(x, y);
@@ -668,9 +716,13 @@ public strictfp class GameWorld {
                 robot.getController().dropUnit(null, false);
         } catch (GameActionException e) {}
 
-        // if a landscaper is killed, drop dirt at current location
-        if (robot.getType().canDepositDirt() && robot.getDirtCarrying() > 0)
+        // if a landscaper or a building is killed, drop dirt at current location
+        if (robot.getDirtCarrying() > 0)
             addDirt(-1, robot.getLocation(), robot.getDirtCarrying());
+
+        // remove pollution if can pollute
+        if (robot.getType().canAffectPollution())
+            this.resetPollutionForRobot(id);
 
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);

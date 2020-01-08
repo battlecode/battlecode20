@@ -42,10 +42,11 @@ export declare class BodyType {
     dirtLimit: number;
     soupLimit: number;
     actionCooldown: number;
-    sensorRadius: number;
-    pollutionRadius: number;
-    pollutionAmount: number;
+    sensorRadiusSquared: number;
+    pollutionRadiusSquared: number;
+    localPollutionAdditiveEffect: number;
+    localPollutionMultiplicativeEffect: number;
     maxSoupProduced: number;
     bytecodeLimit: number;
-    constructor(type: schema.BodyType, spawnSource: schema.BodyType, cost: number, soupLimit: number, dirtLimit: number, actionCooldown: number, sensorRadius: number, pollutionRadius: number, pollutionAmount: number, maxSoupProduced: number, bytecodeLimit: number);
+    constructor(type: schema.BodyType, spawnSource: schema.BodyType, cost: number, soupLimit: number, dirtLimit: number, actionCooldown: number, sensorRadiusSquared: number, pollutionRadiusSquared: number, localPollutionAdditiveEffect: number, localPollutionMultiplicativeEffect: number, maxSoupProduced: number, bytecodeLimit: number);
 }

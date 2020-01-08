@@ -40,13 +40,17 @@ public class FourLakeLand {
 
 
         // add some nice central soup
-        addSoup(mapBuilder, 30, 20, 5, 10);
+        addSoup(mapBuilder, 30, 20, 5, 20);
         // add some team soup
-        addSoup(mapBuilder, 10, 30, 4, 5);
+        addSoup(mapBuilder, 10, 30, 4, 12);
+
+        // add some team soup
+        addSoup(mapBuilder, 16, 10, 1, 9);
+
 
         for(int i = 0; i < mapBuilder.width; i++) {
             for (int j = 0; j < mapBuilder.height; j++) {
-                mapBuilder.setSymmetricDirt(i, j, Math.min(50, 3+2*Math.min(Math.min(j,height-j-1),Math.min(i,width-i-1))));
+                mapBuilder.setSymmetricDirt(i, j, (int) (Math.min(50, 3+2*Math.min(Math.min(j,height-j-1),Math.min(i,width-i-1)))*.15));
             }
         }
 
@@ -68,6 +72,10 @@ public class FourLakeLand {
         for (int i = xl; i < xr+1; i++) {
             for (int j = yb; j < yt+1; j++) {
                 mapBuilder.setSymmetricDirt(i, j, v);
+                if (((i + j) % 10) == 0 && j >= 35)
+                    try {
+                        mapBuilder.addSymmetricCow(i, j);
+                    } catch (RuntimeException e) {}
             }
         }
     }

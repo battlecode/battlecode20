@@ -13,6 +13,7 @@ table VecTable {
     ys: [int];
 }
 
+
 /// A table of RGB values.
 table RGBTable {
     red: [int];
@@ -40,13 +41,11 @@ enum BodyType : byte {
     /// into water (increasing the elevation).
     LANDSCAPER,
     /// Drones pick up any unit and drop them somewhere else.
-    DRONE,
+    DELIVERY_DRONE,
     /// Net guns shoot down drones.
     NET_GUN,
     /// Cows produce pollution.
-    COW,
-    
-    NONE
+    COW
 }
 
 /// A list of new bodies to be placed on the map.
@@ -63,6 +62,18 @@ table SpawnedBodyTable {
     types: [BodyType];
     /// The locations of the bodies.
     locs: VecTable;
+}
+
+/// A table of pollution effects
+/// The pollution effect at a location is (global pollution + all additive effects) * all multiplicative effects
+table LocalPollutionTable {
+    /// The origin and radius of the circle defining the pollution effect.
+    locations: VecTable;
+    radiiSquared: [int];
+    /// The additive amount of the pollution effect.
+    additiveEffects: [int];
+    /// The multiplicative coefficient.
+    multiplicativeEffects: [float];
 }
 
 /// The map a round is played on.
@@ -156,12 +167,14 @@ table BodyTypeMetadata {
     soupLimit: int;
     /// The number of cooldowns between every two actions, for pollution 0.
     actionCooldown: float;
-    /// The maximum distance this type can sense other robots.
-    sensorRadius: int;
-    /// The distance this type pollutes.
-    pollutionRadius: int;
-    /// The amount of pollution this type creates.
-    pollutionAmount: int;
+    /// The maximum distance squared this type can sense other robots.
+    sensorRadiusSquared: int;
+    /// The radius squared of local pollution effects.
+    pollutionRadiusSquared: int;
+    /// The amount of pollution created when refining soup locally.
+    localPollutionAdditiveEffect: int;
+    /// The fraction that the local pollution is multiplied by around vaporators.
+    localPollutionMultiplicativeEffect: float;
     /// The amount of global pollution this type creates.
     globalPollutionAmount: int;
     /// The maximum amount of soup this type processes every turn.
@@ -273,10 +286,10 @@ table Round {
     /// The indexes of the locations whose flood situation changed.
     waterChangedLocs: VecTable;
 
-    /// The indexes of the locations whose pollution amount changed.
-    pollutionChangedLocs: VecTable;
-    /// The amount the pollution changed by.
-    pollutionChanges: [int];
+    /// The global pollution level
+    globalPollution: int;
+    /// The local pollution infos
+    localPollutions: LocalPollutionTable;
 
     /// The indexes of the locations whose soup amount changed.
     soupChangedLocs: VecTable;

@@ -6,6 +6,8 @@ node_modules
 venv/
 docker-compose.prod.yml
 
+access.txt
+
 ## Frontend
 frontend/build
 # the visualizer is copied from client into frontend, and should be ignored

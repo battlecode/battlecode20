@@ -8,7 +8,8 @@ import MatchQueue from '../game/sidebar/matchqueue';
 import MapEditor from '../mapeditor/mapeditor';
 import ScaffoldCommunicator from '../scaffold';
 
-import {electron} from '../electron-modules';
+import {http,electron} from '../electron-modules';
+
 
 export default class Sidebar {
 
@@ -31,6 +32,9 @@ export default class Sidebar {
 
   // Scaffold
   private scaffold: ScaffoldCommunicator;
+
+  // Update texts
+  private updateText: HTMLDivElement;
 
   // onkeydown event that uses the controls depending on the game mode
   private readonly onkeydownControls: (event: KeyboardEvent) => void;
@@ -62,6 +66,9 @@ export default class Sidebar {
           console.log('No scaffold found or provided');
         }
       })
+    }, () => {
+      // set callback for running a game, which should trigger the update check
+      this.updateUpdate();
     });
     this.matchqueue = new MatchQueue(conf, images);
     this.help = this.initializeHelp();
@@ -70,6 +77,7 @@ export default class Sidebar {
 
     // Initialize div structure
     this.loadStyles();
+    this.div.appendChild(this.screamForUpdate());
     this.div.appendChild(this.battlecodeLogo());
     
     const modePanel = document.createElement('table');
@@ -107,37 +115,34 @@ export default class Sidebar {
    */
   private initializeHelp(): HTMLDivElement {
     const innerHTML: string =
-    `This is the client for Battlecode 2020. If you run into any issues,
-    make a post in the <a href="http://www.battlecodeforum.org" target="_blank">Battlecode forum</a>.
-    Be sure to attach a screenshot of your console output (F12 in the app) and
-    any other relevant information.<br>
-    <br>
-    <b class="red">Keyboard Shortcuts</b><br>
+    `
+    <b class="red">Issues?</b>
+    <ol style="margin-left: -20px; margin-top: 0px;">
+    <li>Refresh (Ctrl-R or Command-R).</li>
+    <li>Search <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a>.</li>
+    <li>Ask on <a href="https://discordapp.com/channels/386965718572466197/401552673523892227">Discord</a> (attach a screenshot of console output using F12).</li>
+    </ol>
+    <b class="blue">Keyboard Shortcuts</b><br>
     LEFT - Step Back One Turn<br>
     RIGHT - Step Forward One Turn<br>
     P - Pause/Unpause<br>
     O - Stop<br>
-    H - Toggle Health Bars<br>
-    C - Toggle Circle Bots<br>
     V - Toggle Indicator Dots/Lines<br>
-    B - Toggle Interpolation<br>
+    G - Toggle Grid<br>
     N - Toggle Sight/Sensor Radius<br>
-    M - Toggle Bullet Sight Radius<br>
-    S - Add/Update (map editor mode)<br>
-    D - Delete (map editor mode)<br>
     <br>
-    <b class="blue">How to Play a Match</b><br>
-    <i>From the application:</i> Click <b>'Queue'</b> and follow the
+    <b class="red">How to Play a Match</b><br>
+    <i>From the application:</i> Click <b>'Runner'</b> and follow the
     instructions in the sidebar. Note that it may take a few seconds for
     matches to be displayed.<br>
     <i>From the web client:</i> If you are not running the client as a
     stand-alone application, you can always upload a <b>.bc20</b> file by
-    clicking the + button in the top-right corner.<br>
+    clicking upload button in the <b>'Queue'</b> section.<br>
     <br>
     Use the control buttons in <b>'Queue'</b> and the top of the screen to
     navigate the match.<br>
     <br>
-    <b class="red">How to Use the Console</b><br>
+    <b class="blue">How to Use the Console</b><br>
     The console displays all System.out.println() data up to the current round.
     You can filter teams by checking the boxes and robot IDs by clicking the
     robot. You can also change the maximum number of rounds displayed in the
@@ -178,6 +183,51 @@ export default class Sidebar {
 
     this.div.id = "sidebar";
 
+  }
+
+  /**
+   * Scream for update, if outdated.
+   */
+  private screamForUpdate(): HTMLDivElement {
+    this.updateText = document.createElement("div");
+    this.updateText.id = "updateText";
+
+    this.updateUpdate();
+    
+    return this.updateText;
+  }
+  private updateUpdate() {
+    this.updateText.style.display = "none";
+    if (process.env.ELECTRON) {
+      (async function (splashDiv, version) {
+      
+        var options = {
+          host: '2020.battlecode.org',
+          path: '/version.txt'
+        };
+
+        var req = http.get(options, function(res) {
+          let data = "";
+          res.on('data', function(chunk) {
+            data += chunk
+          }).on('end', function() {
+            
+            var latest = data;
+
+            if(latest.trim() != version.trim()) {
+              let newVersion = document.createElement("p");
+              newVersion.innerHTML = "NEW VERSION AVAILABLE!!!! (download with <code>gradle update</code> followed by <code>gradle build</code>, and then restart the client): v" + latest;
+              splashDiv.style.display = "unset";
+              while (splashDiv.firstChild) {
+                splashDiv.removeChild(splashDiv.firstChild);
+              }
+              splashDiv.appendChild(newVersion);
+            }
+
+          })
+        });
+      })(this.updateText, this.conf.gameVersion);
+    }
   }
 
   /**

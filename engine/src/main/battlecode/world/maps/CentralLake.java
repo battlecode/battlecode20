@@ -33,9 +33,18 @@ public class CentralLake {
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.rotational);
         mapBuilder.addSymmetricHQ(7, 7);
 
+        // add soup close to HQ
+        mapBuilder.setSymmetricSoup(9, 9, 1000);
+        mapBuilder.setSymmetricSoup(9, 8, 1000);
+        mapBuilder.setSymmetricSoup(8, 9, 1000);
+        mapBuilder.setSymmetricSoup(8, 8, 1000);
+
+        mapBuilder.addSymmetricCow(36,36);
+        mapBuilder.addSymmetricCow(35,35);
+
         for (int i = 17; i < mapBuilder.width-17; i++) {
             for (int j = 0; j < 3; j++) {
-                mapBuilder.setSymmetricSoup(i, j, j+1);
+                mapBuilder.setSymmetricSoup(i, j, 200*(j+1));
             }
         }
 
@@ -50,6 +59,10 @@ public class CentralLake {
                 mapBuilder.setSymmetricDirt(i, j,  3);
             }
         }
+        mapBuilder.setSymmetricDirt(9, 9, 2);
+        mapBuilder.setSymmetricDirt(9, 8, 2);
+        mapBuilder.setSymmetricDirt(8, 9, 2);
+        mapBuilder.setSymmetricDirt(8, 8, 2);
 
         mapBuilder.saveMap(outputDirectory);
 

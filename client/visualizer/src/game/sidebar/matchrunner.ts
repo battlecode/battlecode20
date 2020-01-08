@@ -29,6 +29,9 @@ export default class MatchRunner {
   private scaffold: ScaffoldCommunicator;
   private cb: () => void; // callback for loading the scaffold
 
+  // Run callback
+  private runCb: () => void; // callback for running a game
+
   // The maps
   private maps: MapFilter;
 
@@ -39,10 +42,12 @@ export default class MatchRunner {
   private deselectAllMaps: HTMLButtonElement;
   private runMatch: HTMLButtonElement;
   private refreshButton: HTMLButtonElement
+  private runMatchWithoutViewing: HTMLButtonElement;
 
-  constructor(conf: Config, cb: () => void) {
+  constructor(conf: Config, cb: () => void, runCb: () => void) {
     this.conf = conf;
     this.cb = cb;
+    this.runCb = runCb;
     this.isLoadingMatch = false;
 
     // The scaffold is loaded...
@@ -109,15 +114,10 @@ export default class MatchRunner {
     this.refreshButton = document.createElement("button");
     this.selectAllMaps = document.createElement("button");
     this.deselectAllMaps = document.createElement("button");
+    this.runMatchWithoutViewing = document.createElement("button");
 
-    // Compile error log
-    this.compileLogs = document.createElement("div");
-    this.compileLogs.className = "console";
-    this.compileLogs.id = "compileLogs";
-    this.compileLogs.innerHTML = "Compile messages..."
-    div.appendChild(this.compileLogs);
+
     div.appendChild(document.createElement("br"));
-
     // Team A selector
     const divA = document.createElement("div");
     divA.appendChild(document.createTextNode("Team A: "));
@@ -134,40 +134,68 @@ export default class MatchRunner {
 
     // Map selector
     div.appendChild(document.createElement("br"));
-    div.appendChild(document.createTextNode("Select a map: "));
+    div.appendChild(document.createTextNode("Select maps: "));
     div.appendChild(document.createElement("br"));
     this.maps = new MapFilter();
     div.appendChild(this.maps.div);
 
     // Select all maps button
-    this.selectAllMaps.type = "button";
-    this.selectAllMaps.appendChild(document.createTextNode("Select All"));
-    this.selectAllMaps.onclick = () => {
-      this.maps.selectAll();
-    };
-    div.appendChild(this.selectAllMaps);
+    // this.selectAllMaps.type = "button";
+    // this.selectAllMaps.className = "changebuttonbutton";
+    // this.selectAllMaps.appendChild(document.createTextNode("Select All"));
+    // this.selectAllMaps.onclick = () => {
+    //   this.maps.selectAll();
+    // };
+    // div.appendChild(this.selectAllMaps);
 
     // Deselect all maps button
-    this.deselectAllMaps.type = "button";
-    this.deselectAllMaps.appendChild(document.createTextNode("Deselect All"));
-    this.deselectAllMaps.onclick = () => {
-      this.maps.deselectAll();
-    };
-    div.appendChild(this.deselectAllMaps);
+    // this.deselectAllMaps.type = "button";
+    // this.deselectAllMaps.className = "changebuttonbutton";
+    // this.deselectAllMaps.appendChild(document.createTextNode("Deselect All"));
+    // this.deselectAllMaps.onclick = () => {
+    //   this.maps.deselectAll();
+    // };
+    // div.appendChild(this.deselectAllMaps);
 
     // Refresh Button
-    this.refreshButton.type = "button";
-    this.refreshButton.appendChild(document.createTextNode("Refresh"));
-    this.refreshButton.onclick = this.refresh;
-    div.appendChild(this.refreshButton);
-    div.appendChild(document.createElement("br"));
+    // this.refreshButton.type = "button";
+    // this.refreshButton.className = "changebuttonbutton";
+    // this.refreshButton.appendChild(document.createTextNode("Refresh"));
+    // this.refreshButton.onclick = this.refresh;
+    // div.appendChild(this.refreshButton);
+    // div.appendChild(document.createElement("br"));
+
+    // Add a tip
+    const p = document.createElement('p');
+    p.appendChild(document.createTextNode("(Ctrl- or command-click to select multiple maps.)"));
+    p.style.fontFamily = "Tahoma, sans-serif";
+    p.style.fontSize = "12px";
+    div.appendChild(p);
 
     // Run match button
     this.runMatch.type = "button";
-    this.runMatch.appendChild(document.createTextNode("Run Match"));
+    this.runMatch.appendChild(document.createTextNode("Run Game"));
+    this.runMatch.className = 'custom-button';
     this.runMatch.id = "runMatch"
     this.runMatch.onclick = this.run;
     div.appendChild(this.runMatch);
+    div.appendChild(document.createElement("br"));
+
+    // Run match without viewing Button
+    this.runMatchWithoutViewing.type = "button";
+    this.runMatchWithoutViewing.className = "changebuttonbutton";
+    this.runMatchWithoutViewing.id = "runmatchwithoutviewing";
+    this.runMatchWithoutViewing.appendChild(document.createTextNode("Run Game Without Visualizing"));
+    this.runMatchWithoutViewing.onclick = this.run; // TODO: change this into runWithoutVisualization (which is surprisingly hard)
+    // div.appendChild(this.runMatchWithoutViewing); // TODO: uncomment this line
+    // div.appendChild(document.createElement("br")); // TODO: uncomment this line
+
+    // Compile error log
+    this.compileLogs = document.createElement("div");
+    this.compileLogs.className = "console";
+    this.compileLogs.id = "compileLogs";
+    this.compileLogs.innerHTML = "Compile messages..."
+    div.appendChild(this.compileLogs);
 
     return div;
   }
@@ -178,7 +206,9 @@ export default class MatchRunner {
   private loadDivNoElectron(): HTMLDivElement {
     const div = document.createElement("div");
     div.style.display = "none";
-    div.appendChild(document.createTextNode(`If you run the client as an app, you can compile and run your bots here!`));
+    const p = document.createElement("p");
+    p.appendChild(document.createTextNode(`If you run the client as an app, you can compile and run your bots here!`));
+    div.appendChild(p);
     return div;
   }
 
@@ -188,13 +218,16 @@ export default class MatchRunner {
   private loadDivNoScaffold(): HTMLDivElement {
     const div = document.createElement("div");
     div.style.display = "none";
-    div.appendChild(document.createTextNode(`Please select your battlecode-scaffold
+    const p = document.createElement("p");
+    p.appendChild(document.createTextNode(`Please select your battlecode-scaffold
       directory (the one you downloaded that has all those files in it) to run
       matches directly from the client.`))
+    div.appendChild(p);
 
     // Add a button to load the directory
     const button = document.createElement("button");
     button.type = "button";
+    button.className = 'custom-button';
     button.appendChild(document.createTextNode("Find Directory"));
     div.appendChild(button);
 
@@ -238,6 +271,8 @@ export default class MatchRunner {
     if (this.isLoadingMatch) {
       return;
     }
+
+    this.runCb();
 
     this.compileLogs.innerHTML = "";
     this.isLoadingMatch = true;

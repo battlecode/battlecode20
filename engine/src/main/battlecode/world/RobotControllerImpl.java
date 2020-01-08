@@ -87,6 +87,21 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return gameWorld.getObjectInfo().getRobotCount(getTeam());
     }
 
+    @Override
+    public int getMapWidth() {
+        return gameWorld.getGameMap().getWidth();
+    }
+
+    @Override
+    public int getMapHeight() {
+        return gameWorld.getGameMap().getHeight();
+    }
+
+    @Override
+    public int getCurrentSensorRadiusSquared() {
+        return this.robot.getCurrentSensorRadiusSquared();
+    }
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
@@ -137,8 +152,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     @Override
-    public boolean onTheMap(MapLocation loc) {
+    public boolean onTheMap(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanSenseLocation(loc);
         return gameWorld.getGameMap().onTheMap(loc);
     }
 
@@ -198,20 +214,21 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radius) {
-        return senseNearbyRobots(radius, null);
+    public RobotInfo[] senseNearbyRobots(int radiusSquared) {
+        return senseNearbyRobots(radiusSquared, null);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(int radius, Team team) {
-        return senseNearbyRobots(getLocation(), radius, team);
+    public RobotInfo[] senseNearbyRobots(int radiusSquared, Team team) {
+        return senseNearbyRobots(getLocation(), radiusSquared, team);
     }
 
     @Override
-    public RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team) {
+    public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) {
         assertNotNull(center);
+        int sensorRadiusSquaredUpperBound = (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared());
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center,
-                radius == -1 ? (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared()) : radius);
+                radiusSquared == -1 ? sensorRadiusSquaredUpperBound : Math.min(radiusSquared, sensorRadiusSquaredUpperBound));
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
             // check if this robot
@@ -309,10 +326,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (isLocationOccupied(loc))
             throw new GameActionException(CANT_MOVE_THERE,
                     "Cannot move to an occupied location; " + loc + " is occupied.");
-        if (gameWorld.isFlooded(loc) && !getType().canFly())
-            throw new GameActionException(CANT_DO_THAT,
-                    "Robot is of type "  + getType() + " which cannot fly over water; " + loc + " is flooded.");
-        if (gameWorld.getDirtDifference(getLocation(), loc) > GameConstants.MAX_DIRT_DIFFERENCE)
+        if (gameWorld.getDirtDifference(getLocation(), loc) > GameConstants.MAX_DIRT_DIFFERENCE && !getType().canFly())
             throw new GameActionException(CANT_DO_THAT,
                     "Robot is of type " + getType() + " which cannot fly, and the dirt difference to " + loc + " is " +
                     gameWorld.getDirtDifference(getLocation(), loc) + " which is higher than the limit of " +
@@ -328,8 +342,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         return canMove(adjacentLocation(dir));
     }
 
-    @Override
-    public boolean canMove(MapLocation location) {
+    private boolean canMove(MapLocation location) {
         try {
             assertNotNull(location);
             assertCanMove(location);
@@ -344,6 +357,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         assertNotNull(center);
         assertIsReady();
         assertCanMove(center);
+        // now check if the location is flooded and the robot can't fly
+        if (gameWorld.isFlooded(center) && !getType().canFly()) {
+            // kill itself
+            disintegrate();
+        }
         this.robot.addCooldownTurns();
         this.gameWorld.moveRobot(getLocation(), center);
         this.robot.setLocation(center);
@@ -376,7 +394,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.isFlooded(spawnLoc) && type != RobotType.DELIVERY_DRONE)
             throw new GameActionException(CANT_DO_THAT,
                     "Can only spawn delivery drones to flooded locations; " + spawnLoc + " is flooded but " + type + " is not a delivery drone.");
-        if (gameWorld.getDirtDifference(getLocation(), spawnLoc) > GameConstants.MAX_DIRT_DIFFERENCE)
+        if (type != RobotType.DELIVERY_DRONE && gameWorld.getDirtDifference(getLocation(), spawnLoc) > GameConstants.MAX_DIRT_DIFFERENCE)
             throw new GameActionException(CANT_DO_THAT,
                     "Can only spawn delivery drones to locations with high dirt difference; " +
                     "the dirt difference to " + spawnLoc + " is " +
@@ -385,13 +403,6 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!isReady())
             throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");
-    }
-
-    @Override
-    public boolean hasRobotBuildRequirements(RobotType type) {
-        assertNotNull(type);
-        return getType().canBuild(type) &&
-               gameWorld.getTeamInfo().getSoup(getTeam()) >= type.cost;
     }
 
     @Override
@@ -501,7 +512,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
         if (adjacentRobot == null || !adjacentRobot.getType().canRefine())
             throw new GameActionException(CANT_DO_THAT,
-                    center + " does not have a refinery, vaporator, or HQ.");
+                    center + " does not have a refinery or HQ.");
         if (!isReady())
             throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");
@@ -565,6 +576,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (!onTheMap(center))
             throw new GameActionException(OUT_OF_RANGE,
                     "Can only dig dirt from locations on the map; " + center + " is not on the map.");
+        InternalRobot adjacentRobot = this.gameWorld.getRobot(center);
+        if (adjacentRobot != null)
+            if (adjacentRobot.getType().isBuilding() && adjacentRobot.getDirtCarrying() <= 0)
+                throw new GameActionException(CANT_DO_THAT,
+                        "Can't dig dirt from underneath buildings; " + center + " has a " + adjacentRobot.getType() + ".");
         if (!isReady())
             throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");
@@ -615,7 +631,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Robot is of type " + getType() + " which cannot deposit dirt.");
         if (getDirtCarrying() < 1)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
-                    "Robot is carriying " + getDirtCarrying() + " units of dirt, and thus cannot deposit any dirt.");
+                    "Robot is carrying " + getDirtCarrying() + " units of dirt, and thus cannot deposit any dirt.");
         if (!onTheMap(center))
             throw new GameActionException(OUT_OF_RANGE,
                     "Can only deposit dirt to locations on the map; " + center + " is not on the map.");
@@ -878,8 +894,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** OTHER ACTION METHODS *******
     // ***********************************
 
-    @Override
-    public void disintegrate(){
+    /** This used to be public, but is not public in 2020 because
+     * a robot can simply instead walk into water, which is more fun.
+     */
+    private void disintegrate(){
         throw new RobotDeathException();
     }
 
@@ -906,6 +924,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
+        if (cost < 0)
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Can only submit transactions with non-negative cost!");
     }
 
     @Override
@@ -957,7 +978,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     }
 
     // ***********************************
-    // **** INDICATOR STRING METHODS *****
+    // ******** DEBUG METHODS ************
     // ***********************************
 
     @Override
@@ -973,12 +994,4 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getMatchMaker().addIndicatorLine(getID(), startLoc, endLoc, red, green, blue);
     }
 
-    // ***********************************
-    // ******** DEBUG METHODS ************
-    // ***********************************
-
-    @Override
-    public long getControlBits() {
-        return robot.getControlBits();
-    }
 }

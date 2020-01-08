@@ -11,8 +11,10 @@
     - Create a `Developer ID Application` certificate by going to Xcode > Preferences > Accounts > Manage Certificates.
     - The signing procedure below will automatically find the certificate in your keychain.
 - Install `pandoc` (e.g. using Homebrew)
+- Make sure you have the correct `frontend/public/access.txt`. Ask someone.
+- Add `BC20_GITUSERNAME` and `BC20_GITKEY` as environment variables.
 
-
+TODO: deploy BACKEND??????
 ### Release Procedure
 - Make sure everything is up to date:
     - `git pull`
@@ -20,12 +22,16 @@
     - `./install_all.sh`
 - Choose a version as $year.$release (e.g. 2020.1.32.2)
 - Update `specs/specs.md` with the new version and a changelog.
+- Update `client/visualizer/src/config.ts` with the version number.
+- Update `gradle.properties` with the version number.
+- If new maps have been added, update `SERVER_MAPS` in `client/visualizer/constants.ts` and in `backend/settings.py`.
+  - (optional) If a new tournament has been released, also update `MapFilter.types` in `client/visualizer/game/sidebar/mapfilter.ts`.
 - Review the changes, and commit and push (message e.g. "preparing for release 2020.1.32.2").
 - `./gradlew clean`
 - `./gradlew test`
-- RELEASE: `./gradlew publish -Prelease_version=$version` (but actually fill it in)
+- Review the changes.
+- RELEASE: `./gradlew publish`
 - `python3 prepare_release.py $version` (but actually fill it in)
-  - This will update `client/visualizer/config.ts` with the version number.
   - It will also generate the HTML version of the docs.
   - It will also build the client for the web.
 - Review the changes.
@@ -38,4 +44,5 @@
 - Update the scrim/compile servers
     - TODO
 - `git push`
+- Update `battlecode20-scaffold/version.txt` WITHOUT A NEWLINE!!! (don't update on github, don't use normal text editor, be super careful)
 - Go on Discord and wait for things to catch on fire

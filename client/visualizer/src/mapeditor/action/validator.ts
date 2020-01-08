@@ -28,7 +28,7 @@ export default class MapValidator {
     let errors = new Array();
 
     // Map must not have the same name as a server map
-    if (cst.SERVER_MAPS.includes(map.name)) {
+    if (Array.from(cst.SERVER_MAPS.keys()).includes(map.name)) {
       errors.push(`The map cannot have the same name as a server map!`);
     }
 

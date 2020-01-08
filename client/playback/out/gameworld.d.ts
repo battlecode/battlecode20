@@ -27,6 +27,8 @@ export declare type MapStats = {
     randomSeed: number;
     dirt: Int32Array;
     flooded: Int8Array;
+    globalPollution: number;
+    localPollutions: schema.LocalPollutionTable;
     pollution: Int32Array;
     soup: Int32Array;
     getIdx: (x: number, y: number) => number;
@@ -83,6 +85,7 @@ export default class GameWorld {
     bodies: StructOfArrays<BodiesSchema>;
     teamStats: Map<number, TeamStats>;
     mapStats: MapStats;
+    pollutionNeedsUpdate: boolean;
     /**
      * Indicator dots.
      * {
@@ -130,6 +133,7 @@ export default class GameWorld {
      */
     meta: Metadata;
     private _bodiesSlot;
+    private _localPollutionsSlot;
     private _vecTableSlot1;
     private _vecTableSlot2;
     private _rgbTableSlot;
@@ -144,6 +148,8 @@ export default class GameWorld {
      * Process a set of changes.
      */
     processDelta(delta: schema.Round): void;
+    private distanceSquared;
+    calculatePollutionIfNeeded(): void;
     private insertDiedBodies;
     private insertIndicatorDots;
     private insertIndicatorLines;
