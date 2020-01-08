@@ -182,6 +182,61 @@ public class MapBuilder {
     }
 
 
+    public static void addRectangleDirt(int xl, int yb, int xr, int yt, int v) {
+        for (int i = xl; i < xr+1; i++) {
+            for (int j = yb; j < yt+1; j++) {
+                setSymmetricDirt(i, j, v);
+            }
+        }
+    }
+
+    public static void addRectangleWater(int xl, int yb, int xr, int yt, int v) {
+        for (int i = xl; i < xr+1; i++) {
+            for (int j = yb; j < yt+1; j++) {
+                setSymmetricWater(i, j, true);
+                setSymmetricDirt(i,j, v);
+            }
+        }
+        mapBuilder.setSymmetricDirt((xl + xr)/2, (yb + yt)/2, Integer.MIN_VALUE);
+    }
+    public static void addRectangleSoup(int xl, int yb, int xr, int yt, int v) {
+        for (int i = xl; i < xr+1; i++) {
+            for (int j = yb; j < yt+1; j++) {
+                setSymmetricSoup(i, j, v);
+            }
+        }
+    }
+
+
+    /*
+     * Add a nice circular lake centered at (x,y).
+     */
+    public static void addSoup(int x, int y, int r2, int v) {
+        for (int xx = 0; xx < width; xx++) {
+            for (int yy = 0; yy < height; yy++) {
+                int d = (xx-x)*(xx-x)/2 + (yy-y)*(yy-y);
+                if (d <= r2) {
+                    setSymmetricSoup(xx, yy, v*(d+v));
+                }
+            }
+        }
+    }
+
+    /*
+     * Add a nice circular lake centered at (x,y).
+     */
+    public static void addLake(int x, int y, int r2, int v) {
+        for (int xx = 0; xx < width; xx++) {
+            for (int yy = 0; yy < height; yy++) {
+                int d = (xx-x)*(xx-x) + (yy-y)*(yy-y);
+                if (d <= r2) {
+                    setSymmetricWater(xx, yy, true);
+                    setSymmetricDirt(xx, yy, v);
+                }
+            }
+        }
+    }
+
     // ********************
     // INFORMATION
     // ********************

@@ -120,10 +120,23 @@ export default class Renderer {
 
       const lo = [0,255,0], hi = [255,0,0];
 
-      // (-inf~inf) -> (0~1)
-      // TODO getting inputs for color transition?
-      const ex = Math.exp(x / 10);
-      const t = ex / (5 + ex);
+      
+
+      // // (-inf~inf) -> (0~1)
+      // // TODO getting inputs for color transition?
+      // const ex = Math.exp(x / 10);
+      // const t = ex / (5 + ex);
+
+      const mx = 20;
+      const mn = -3;
+      // convert -3 to 40 into a range, then truncate
+      let t = (x - mn) / (mx - mn);
+      if (x <= mn) {
+        t = 0;
+      }
+      if (x >= mx) {
+        t = 1;
+      }
 
       let now = [0,0,0];
       for(let i=0; i<3; i++) now[i] = (hi[i]-lo[i]) * t + lo[i];
