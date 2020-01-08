@@ -168,7 +168,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public boolean canSenseLocation(MapLocation loc) {
         assertNotNull(loc);
-        return this.robot.canSenseLocation(loc);
+        return this.robot.canSenseLocation(loc) && onTheMap(loc);
     }
 
     @Override
