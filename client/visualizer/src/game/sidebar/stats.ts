@@ -312,7 +312,8 @@ export default class Stats {
     // TODO: figure out if statbars.get(id) can actually be null??
     const statBar: StatBar = this.statBars.get(teamID)!.soups;
     statBar.label.innerText = String(count);
-    statBar.bar.style.height = `${Math.min(100 * count / 100, 100)}%`;
+    const maxSoup = 1000;
+    statBar.bar.style.height = `${Math.min(100 * count / maxSoup, 100)}%`;
 
     if (this.images.star.parentNode === statBar.bar) {
       this.images.star.remove();
