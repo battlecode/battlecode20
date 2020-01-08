@@ -175,7 +175,7 @@ public strictfp interface RobotController {
      * Senses whether a point at the given radius squared is within the robot's sensor range.
      *
      * @param radiusSquared the radius to check
-     * @return true if the given location is within the robot's sensor range; false otherwise.
+     * @return true if the given radius is within the robot's sensor range; false otherwise.
      *
      * @battlecode.doc.costlymethod
      */

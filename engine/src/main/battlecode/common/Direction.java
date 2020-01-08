@@ -3,7 +3,8 @@ package battlecode.common;
 /**
  * This enumeration represents a direction from one MapLocation to another.
  * There is a direction for each of the cardinals (north, south, east, west),
- * and each of diagonals (northwest, southwest, northeast, southeast).
+ * each of the diagonals (northwest, southwest, northeast, southeast), and
+ * no direction (center).
  * <p>
  * Since Direction is a Java 1.5 enum, you can use it in <code>switch</code>
  * statements, it has all the standard enum methods (<code>valueOf</code>,
@@ -103,7 +104,7 @@ public enum Direction {
      * Returns a list of all directions. This is equivalent to calling
      * Direction.values().
      *
-     * @return array of all cardinal directions.
+     * @return array of all directions.
      */
     public static Direction[] allDirections() {
         return Direction.values();
