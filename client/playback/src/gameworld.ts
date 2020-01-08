@@ -387,6 +387,7 @@ export default class GameWorld {
       var indices = this.bodies.lookupIndices(delta.diedIDsArray());
       for(let i = 0; i < delta.diedIDsLength(); i++) {
           let index = indices[i];
+          // console.log("robot died: " + this.bodies.arrays.id[index]);
           let team = this.bodies.arrays.team[index];
           let type = this.bodies.arrays.type[index];
           var statObj = this.teamStats.get(team);
@@ -437,12 +438,20 @@ export default class GameWorld {
             break;
 
           case schema.Action.PICK_UNIT:
+            // console.log('unit ' + robotID + " is picking " + target + " at location (" + this.bodies.lookup(robotID).x + "," + this.bodies.lookup(robotID).y + ")");
             this.bodies.alter({ id: robotID, cargo: target });
             this.bodies.alter({ id: target, isCarried: 1 });
             break;
           case schema.Action.DROP_UNIT:
-            this.bodies.alter({ id: robotID, cargo: 0 });
-            this.bodies.alter({ id: target, isCarried: 0 });
+            // this might be the result of a netgun shooting the drone, in which case robotID will have been deleted already
+            if (this.bodies.index(robotID) != -1) {
+              this.bodies.alter({ id: robotID, cargo: 0 });
+            }
+            // the drone might be dropping something into the water, in which case robotID already deleted
+            if (this.bodies.index(target) != -1) {
+              this.bodies.alter({ id: target, isCarried: 0 });
+            }
+            // console.log('attempting to drop ' + robotID);
             break;
           
           // spawnings are handled by spawnedBodies
@@ -451,6 +460,7 @@ export default class GameWorld {
           
           // deaths are handled by diedIDs
           case schema.Action.SHOOT:
+            // console.log('robot ' + robotID + ' is attempting to shoot ' + target);
             break;
           case schema.Action.DIE_DROWN:
             break;

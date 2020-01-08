@@ -183,6 +183,7 @@ class GameWorld {
             var indices = this.bodies.lookupIndices(delta.diedIDsArray());
             for (let i = 0; i < delta.diedIDsLength(); i++) {
                 let index = indices[i];
+                console.log("robot died: " + this.bodies.arrays.id[index]);
                 let team = this.bodies.arrays.team[index];
                 let type = this.bodies.arrays.type[index];
                 var statObj = this.teamStats.get(team);
@@ -225,18 +226,27 @@ class GameWorld {
                         // add onDirt of buildings?
                         break;
                     case battlecode_schema_1.schema.Action.PICK_UNIT:
+                        console.log('unit ' + robotID + " is picking " + target + " at location (" + this.bodies.lookup(robotID).x + "," + this.bodies.lookup(robotID).y + ")");
                         this.bodies.alter({ id: robotID, cargo: target });
                         this.bodies.alter({ id: target, isCarried: 1 });
                         break;
                     case battlecode_schema_1.schema.Action.DROP_UNIT:
-                        this.bodies.alter({ id: robotID, cargo: 0 });
-                        this.bodies.alter({ id: target, isCarried: 0 });
+                        // this might be the result of a netgun shooting the drone, in which case robotID will have been deleted already
+                        if (this.bodies.index(robotID) != -1) {
+                            this.bodies.alter({ id: robotID, cargo: 0 });
+                        }
+                        // the drone might be dropping something into the water, in which case robotID already deleted
+                        if (this.bodies.index(target) != -1) {
+                            this.bodies.alter({ id: target, isCarried: 0 });
+                        }
+                        console.log('attempting to drop ' + robotID);
                         break;
                     // spawnings are handled by spawnedBodies
                     case battlecode_schema_1.schema.Action.SPAWN_UNIT:
                         break;
                     // deaths are handled by diedIDs
                     case battlecode_schema_1.schema.Action.SHOOT:
+                        console.log('robot ' + robotID + ' is attempting to shoot ' + target);
                         break;
                     case battlecode_schema_1.schema.Action.DIE_DROWN:
                         break;

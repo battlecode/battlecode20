@@ -363,7 +363,7 @@ export default class Controls {
    */
   // TODO fix this (different stats)
   setInfoString(id, x: number, y: number, onDirt: number, carryDirt?: number, bytecodes?: number): void {
-    console.log(carryDirt);
+    // console.log(carryDirt);
     let infoString = `Robot ID ${id} <br>
       Location: (${x}, ${y})<br>
       Dirt on this: ${onDirt}`;
