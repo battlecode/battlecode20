@@ -104,7 +104,8 @@ public class FourLakeLand {
                 int d = (xx-x)*(xx-x) + (yy-y)*(yy-y);
                 if (d <= r2) {
                     mapBuilder.setSymmetricWater(xx, yy, true);
-                    mapBuilder.setSymmetricDirt(xx, yy, v);
+                    if (xx == width/2 && yy == height/2) mapBuilder.setSymmetricDirt(xx, yy, Integer.MIN_INT);
+                    else mapBuilder.setSymmetricDirt(xx, yy, v);
                 }
             }
         }

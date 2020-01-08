@@ -62,6 +62,7 @@ public class CentralSoup {
         for(int i = 0; i < mapBuilder.width; i++) {
             for (int j = 0; j < 1; j++) {
                 mapBuilder.setSymmetricWater(i,j,true);
+                if (i == mapBuilder.width/2) mapBuilder.setSymmetricDirt(i,j,Integer.MIN_VALUE);
             }
         }
 
