@@ -68,7 +68,7 @@ public class MapTestSmall {
             }
         }
 
-        mapBuilder.setSymmetricDirt(2, 2, Integer.MIN_INT);
+        mapBuilder.setSymmetricDirt(2, 2, Integer.MIN_VALUE);
         mapBuilder.saveMap(outputDirectory);
 
     }
