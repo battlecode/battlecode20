@@ -33,7 +33,7 @@ TODO: deploy BACKEND??????
 - `./gradlew headless` some good bots
 - Review the changes.
 - RELEASE: `./gradlew publish`
-- `./prepare_release.py`
+- `./post_release.py`
   - It will also generate the HTML version of the docs.
   - It will also build the client for the web.
 - Review the changes.
