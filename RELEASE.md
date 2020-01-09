@@ -29,6 +29,7 @@ TODO: deploy BACKEND??????
 - Review the changes, and commit and push (message e.g. "preparing for release 2020.1.32.2").
 - `./gradlew clean`
 - `./gradlew test`
+- `./gradlew headless` some good bots
 - Review the changes.
 - RELEASE: `./gradlew publish`
 - `python3 prepare_release.py $version` (but actually fill it in)
