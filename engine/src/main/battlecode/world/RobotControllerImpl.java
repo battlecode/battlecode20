@@ -807,6 +807,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         MapLocation targetLocation = dir == null ? getLocation() : adjacentLocation(dir);
 
         droppedRobot.unblockUnit();
+        movePickedUpUnit(targetLocation);
         this.robot.dropUnit();
         this.gameWorld.addRobot(targetLocation, droppedRobot);
 
