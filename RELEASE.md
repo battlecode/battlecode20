@@ -43,8 +43,6 @@ TODO: deploy BACKEND??????
   - `cd ..`
 - Commit and push (message e.g. "release 2020.1.32.2").
 - `git tag $version` (but actually fill it in)
-- Update the scrim/compile servers
-    - TODO
-- `git push`
+- `git push --tags`
 - Update `battlecode20-scaffold/version.txt` WITHOUT A NEWLINE!!! (don't update on github, don't use normal text editor, be super careful)
 - Go on Discord and wait for things to catch on fire
