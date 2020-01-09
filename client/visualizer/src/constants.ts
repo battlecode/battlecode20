@@ -17,8 +17,8 @@ export const FULFILLMENT_CENTER = schema.BodyType.FULFILLMENT_CENTER;
 
 // TODO: Old constants
 // Game canvas rendering sizes
-export const INDICATOR_DOT_SIZE = .5;
-export const INDICATOR_LINE_WIDTH = .4;
+export const INDICATOR_DOT_SIZE = .3;
+export const INDICATOR_LINE_WIDTH = .3;
 export const SIGHT_RADIUS_LINE_WIDTH = .15
 
 // Game canvas rendering parameters

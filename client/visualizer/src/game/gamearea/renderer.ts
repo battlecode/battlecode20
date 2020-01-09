@@ -434,7 +434,7 @@ export default class Renderer {
         const y = this.flip(dotsY[i], minY, maxY);
 
         this.ctx.beginPath();
-        this.ctx.arc(x, y, cst.INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false);
+        this.ctx.arc(x+0.5, y+0.5, cst.INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false);
         this.ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
         this.ctx.fill();
       }
@@ -456,10 +456,10 @@ export default class Renderer {
         const red = linesRed[i];
         const green = linesGreen[i];
         const blue = linesBlue[i];
-        const startX = linesStartX[i];
-        const startY = this.flip(linesStartY[i], minY, maxY);
-        const endX = linesEndX[i];
-        const endY = this.flip(linesEndY[i], minY, maxY);
+        const startX = linesStartX[i]+0.5;
+        const startY = this.flip(linesStartY[i], minY, maxY)+0.5;
+        const endX = linesEndX[i]+0.5;
+        const endY = this.flip(linesEndY[i], minY, maxY)+0.5;
 
         this.ctx.beginPath();
         this.ctx.moveTo(startX, startY);
