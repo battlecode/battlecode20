@@ -1,5 +1,7 @@
 package battlecode.world;
 
+import battlecode.world.maps.*;
+
 import java.io.IOException;
 
 /**
@@ -7,14 +9,6 @@ import java.io.IOException;
  */
 public class BuildMaps {
 
-    // change this!!!
-    public static final String[] mapNames = {"ALandDivided",
-    "CentralLake",
-    "CentralSoup",
-    "FourLakeLand",
-    "SoupOnTheSide",
-    "TwoForOneAndTwoForAll",
-    "WaterBot"};
 
     // don't change this!!
     public static final String outputDirectory = "engine/src/main/battlecode/world/resources/";
@@ -23,8 +17,14 @@ public class BuildMaps {
      * @param args unused
      */
     public static void main(String[] args) {
-        for (String mapName : mapNames)
-        System.out.println("Generated a map!");
+        ALandDivided.main(args);
+        CentralLake.main(args);
+        CentralSoup.main(args);
+        FourLakeLand.main(args);
+        MapTestSmall.main(args);
+        SoupOnTheSide.main(args);
+        TwoForOneAndTwoForAll.main(args);
+        WaterBot.main(args);
     }
 
 }

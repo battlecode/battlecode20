@@ -83,6 +83,7 @@ public class SoupOnTheSide {
         for(int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 mapBuilder.setSymmetricWater(i,j,true);
+                mapBuilder.setSymmetricDirt(i,j,-1000);
             }
         }
         mapBuilder.setSymmetricDirt(0, 0, Integer.MIN_VALUE);

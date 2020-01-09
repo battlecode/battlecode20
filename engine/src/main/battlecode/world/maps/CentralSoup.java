@@ -42,6 +42,7 @@ public class CentralSoup {
         for (int i = 22; i <= 25; i++) {
             for (int j = 22; j <= 25; j++) {
                 mapBuilder.setSymmetricSoup(i, j, 800);
+                mapBuilder.setSymmetricDirt(i, j, -1000);
             }
         }
 
@@ -62,6 +63,7 @@ public class CentralSoup {
         for(int i = 0; i < mapBuilder.width; i++) {
             for (int j = 0; j < 1; j++) {
                 mapBuilder.setSymmetricWater(i,j,true);
+                mapBuilder.setSymmetricDirt(i, j, -25);
                 if (i == mapBuilder.width/2) mapBuilder.setSymmetricDirt(i,j,Integer.MIN_VALUE);
             }
         }

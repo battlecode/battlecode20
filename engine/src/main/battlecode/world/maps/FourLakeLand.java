@@ -58,10 +58,10 @@ public class FourLakeLand {
         addRectangleDirt(mapBuilder, 28, 30, 32, 40, 3);
 
         // create 4 nice lakes
-        // order matters here!! we want water level to be at -1 here.
-        addLake(mapBuilder, 18, 20, 17, -1); // creates 2
-        addLake(mapBuilder, 30, 10, 17, -1);
-        addLake(mapBuilder, 30, 30, 17, -1);
+        // order matters here!! we want water level to be at -50 here.
+        addLake(mapBuilder, 18, 20, 17, -50); // creates 2
+        addLake(mapBuilder, 30, 10, 17, -50);
+        addLake(mapBuilder, 30, 30, 17, -50);
 
 
         mapBuilder.saveMap(outputDirectory);
@@ -104,10 +104,10 @@ public class FourLakeLand {
                 int d = (xx-x)*(xx-x) + (yy-y)*(yy-y);
                 if (d <= r2) {
                     mapBuilder.setSymmetricWater(xx, yy, true);
-                    if (xx == width/2 && yy == height/2) mapBuilder.setSymmetricDirt(xx, yy, Integer.MIN_VALUE);
-                    else mapBuilder.setSymmetricDirt(xx, yy, v);
+                    mapBuilder.setSymmetricDirt(xx, yy, v);
                 }
             }
         }
+        mapBuilder.setSymmetricDirt(x, y, Integer.MIN_VALUE);
     }
 }

@@ -60,8 +60,8 @@ public class TwoForOneAndTwoForAll {
         }
 
         // add a river to make things interesting
-        addRectangleWater(mapBuilder, 0, 14, 31, 18, -10);
         addRectangleDirt(mapBuilder, 19, 0, 21, 31, 15);
+        addRectangleWater(mapBuilder, 0, 14, 31, 18, -10);
 
         mapBuilder.saveMap(outputDirectory);
 
