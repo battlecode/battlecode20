@@ -8,6 +8,14 @@ export declare type Log = {
     round: number;
     text: string;
 };
+export declare type Transaction = {
+    cost: number;
+    message: Array<number>;
+};
+export declare type Block = {
+    messages: Array<Transaction>;
+    round: number;
+};
 /**
  * A timeline of a match. Allows you to see what the state of the match was,
  * at any particular time.
@@ -46,6 +54,10 @@ export default class Match {
      * The logs of this match, bucketed by round.
      */
     readonly logs: Array<Array<Log>>;
+    /**
+     * The blockchain, an array of blocks per round.
+     */
+    readonly blockchain: Array<Block>;
     /**
      * The current game world.
      * DO NOT CACHE this reference between calls to seek() and compute(), it may
@@ -93,6 +105,10 @@ export default class Match {
      * Store a schema.Round and the logs contained in it.
      */
     applyDelta(delta: schema.Round): void;
+    /**
+     * parses blockchain broadcasts
+     */
+    parseBlockchain(delta: schema.Round): void;
     /**
      * Parse logs for a round.
      */

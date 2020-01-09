@@ -1,6 +1,7 @@
 import {Config} from '../../config';
 import * as cst from '../../constants';
 import {AllImages} from '../../imageloader';
+import {Block,Transaction} from 'battlecode-playback';
 
 import {schema} from 'battlecode-playback';
 
@@ -33,6 +34,8 @@ export default class Stats {
   private statsTableElement: HTMLTableElement;
 
   private robotConsole: HTMLDivElement;
+
+  private blockchain: HTMLDivElement;
 
   private conf: Config;
 
@@ -233,7 +236,42 @@ export default class Stats {
     this.statsTableElement = this.statsTable(teamIDs);
     this.div.appendChild(this.statsTableElement);
     
-    this.div.appendChild(this.images.soup);
+    this.div.appendChild(document.createElement('br'));
+
+    const bl = document.createElement("span");
+    bl.innerText = "Blockchain";
+    this.div.appendChild(bl);
+    this.div.appendChild(document.createElement('br'));
+    this.div.appendChild(this.blockchainViewer());
+  }
+
+  blockchainViewer(): HTMLDivElement {
+    // create a blockchain
+    this.blockchain = document.createElement('div');
+
+    // make it a console
+    this.blockchain.id = "blockchain";
+    this.blockchain.className = "console";
+
+    return this.blockchain;
+  }
+
+  public showBlock(block: Block): void {
+    if (block !== undefined) {
+      const div = document.createElement("div");
+      // Replace \n with <br>
+      const span = document.createElement("span");
+      let text = "Block #" + String(block.round) + ":<br><br>";
+      block.messages.forEach(t => {
+          text += "cost: " + t.cost + "<br>message: " + t.message.join(', ') + "<br><br>";
+      });
+      span.innerHTML = text;
+      div.appendChild(span);
+      while (this.blockchain.firstChild) {
+        this.blockchain.removeChild(this.blockchain.firstChild);
+      }
+      this.blockchain.appendChild(div);
+    }
   }
 
   addViewOptions(){
