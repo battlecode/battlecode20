@@ -209,26 +209,42 @@ class GameWorld {
                     // TODO: vaporator things?
                     // Actions list from battlecode.fbs enum Action
                     case battlecode_schema_1.schema.Action.MINE_SOUP:
-                        arrays.cargo[robotID] += 1;
+                        // could have died
+                        // or actually probably not but let's be safe
+                        if (this.bodies.index(robotID) != -1) {
+                            arrays.cargo[robotID] += 1; // TODO: this assumes you can only always mine 1 soup
+                        }
                         break;
                     case battlecode_schema_1.schema.Action.REFINE_SOUP:
                         break;
                     case battlecode_schema_1.schema.Action.DEPOSIT_SOUP:
-                        arrays.cargo[robotID] -= 1;
+                        if (this.bodies.index(robotID) != -1) {
+                            arrays.cargo[robotID] -= 1; // TODO: this assumes you can only always deposit 1 soup
+                        }
                         break;
                     case battlecode_schema_1.schema.Action.DIG_DIRT:
                         // this.mapStats.dirt[target] -= 1; // this is done somewhere else
-                        arrays.carryDirt[robotID] += 1;
+                        if (this.bodies.index(robotID) != -1) {
+                            arrays.carryDirt[robotID] += 1;
+                        }
                         break;
                     case battlecode_schema_1.schema.Action.DEPOSIT_DIRT:
                         // this.mapStats.dirt[target] += 1; // this is done somewhere else
-                        arrays.carryDirt[robotID] -= 1;
+                        if (this.bodies.index(robotID) != -1) {
+                            arrays.carryDirt[robotID] -= 1;
+                        }
                         // add onDirt of buildings?
                         break;
                     case battlecode_schema_1.schema.Action.PICK_UNIT:
                         // console.log('unit ' + robotID + " is picking " + target + " at location (" + this.bodies.lookup(robotID).x + "," + this.bodies.lookup(robotID).y + ")");
-                        this.bodies.alter({ id: robotID, cargo: target });
-                        this.bodies.alter({ id: target, isCarried: 1 });
+                        // the drone might have been killed on the same round, after picking!
+                        if (this.bodies.index(robotID) != -1) {
+                            this.bodies.alter({ id: robotID, cargo: target });
+                        }
+                        // can this happen? unclear
+                        if (this.bodies.index(target) != -1) {
+                            this.bodies.alter({ id: target, isCarried: 1 });
+                        }
                         break;
                     case battlecode_schema_1.schema.Action.DROP_UNIT:
                         // this might be the result of a netgun shooting the drone, in which case robotID will have been deleted already
