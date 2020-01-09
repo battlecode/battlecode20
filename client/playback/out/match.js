@@ -32,6 +32,7 @@ class Match {
         this.snapshots.push(this._current.copy());
         this.deltas = new Array(1);
         this.logs = new Array(1);
+        this.blockchain = new Array(1);
         this.maxTurn = header.maxRounds();
         this._lastTurn = null;
         this._seekTo = 0;
@@ -76,6 +77,88 @@ class Match {
         if (delta.logs()) {
             this.parseLogs(delta.roundID(), delta.logs(battlecode_schema_1.flatbuffers.Encoding.UTF16_STRING));
         }
+        this.parseBlockchain(delta);
+    }
+    /**
+     * parses blockchain broadcasts
+     */
+    parseBlockchain(delta) {
+        let blockMessages = new Array();
+        // lol the schema format for this is real weird
+        // THIS IS THE HACKIEST SOLUTION MANKIND HAS EVER SEEN
+        // another option is actually changing the schema, but we can't remove parts of it
+        // so then we would need to add a new thing
+        // which would (1) break old replays and (2) have twice as big new replays
+        // sorry this is probably the best solution
+        // DO NOT COPY THIS CODE FOR FUTURE USE. MODIFY!!!
+        let j = 0;
+        let messageStringLen = delta.broadcastedMessagesLength();
+        for (let i = 0; i < delta.broadcastedMessagesCostsLength(); i++) {
+            let messageCost = delta.broadcastedMessagesCosts(i);
+            // console.log(messageCost);
+            // let x = delta.broadcastedMessages(j, flatbuffers.Encoding.UTF16_STRING);
+            // var offset = delta.bb!.__offset(delta.bb_pos, 42);
+            // var h = delta.bb!.__vector(delta.bb_pos + offset)
+            // console.log(h);
+            // var k = delta.bb!.readInt32(h);
+            // console.log(k);
+            // console.log(delta.bb!.readInt32(h+4));
+            // console.log(delta.bb!.readInt32(h+8));
+            // console.log(delta.bb!.readInt32(h+12));
+            // console.log(delta.bb!.readInt32(h+16));
+            let thisTransaction = "";
+            let offset = delta.bb.__offset(delta.bb_pos, 42);
+            let startPointer = delta.bb.__vector(delta.bb_pos + offset);
+            if (offset) {
+                // this is ascii
+                let x = String.fromCharCode(delta.bb.readInt32(startPointer + 4 * j));
+                while (x !== ' ') {
+                    // console.log(x);
+                    // this will be 
+                    thisTransaction += x;
+                    j += 1;
+                    if (j >= messageStringLen) {
+                        console.log("BLOCKCHAIN ERROR SHOULD NEVER HAPPEN");
+                        break;
+                    }
+                    x = String.fromCharCode(delta.bb.readInt32(startPointer + 4 * j));
+                }
+                j += 1;
+                // now split this transaction on _
+                let splitMessage = thisTransaction.split("_");
+                let messageArr = new Array();
+                for (let j = 0; j < splitMessage.length; j++) {
+                    messageArr.push(parseInt(splitMessage[j]));
+                }
+                blockMessages.push({
+                    cost: messageCost,
+                    message: messageArr
+                });
+            }
+            else {
+                console.log("couldn't display blockchain");
+            }
+        }
+        // console.log(blockMessages);
+        // for (let i = 0; i < delta.broadcastedMessagesCostsLength(); i++) {
+        // let messageString = delta.broadcastedMessages(i);
+        // let messageCost = delta.broadcastedMessagesCosts(i);
+        // console.log(messageString);
+        // // string is formatted as int_int_int
+        // let splitMessage = messageString.split("_");
+        // let messageArr = new Array<number>();
+        // for (let j = 0; j < splitMessage.length; j++) {
+        //   messageArr.push(parseInt(splitMessage[j]));
+        // }
+        // blockMessages.push({
+        //   cost: messageCost,
+        //   message: messageArr
+        // });
+        // }
+        this.blockchain.push({
+            messages: blockMessages,
+            round: delta.roundID()
+        });
     }
     /**
      * Parse logs for a round.

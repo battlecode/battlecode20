@@ -672,6 +672,7 @@ export default class Client {
       // @ts-ignore
       renderer.render(match.current, match.current.minCorner, match.current.maxCorner);
 
+      this.stats.showBlock(match.blockchain[match.current.turn]);
       this.updateStats(match.current, meta);
       this.loopID = window.requestAnimationFrame(loop);
 
