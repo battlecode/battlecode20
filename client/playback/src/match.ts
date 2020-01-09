@@ -146,7 +146,7 @@ export default class Match {
 
     // Regex
     let lines = logs.split(/\r?\n/);
-    let header = /^\[(A|B):(MINER|LANDSCAPER|DRONE|NET_GUN|REFINERY|VAPORATOR|HQ|DESIGN_SCHOOL|FULFILLMENT_CENTER)#(\d+)@(\d+)\] (.*)/;
+    let header = /^\[(A|B):(MINER|LANDSCAPER|DELIVERY_DRONE|NET_GUN|REFINERY|VAPORATOR|HQ|DESIGN_SCHOOL|FULFILLMENT_CENTER)#(\d+)@(\d+)\] (.*)/;
 
     let roundLogs = new Array<Log>();
 
