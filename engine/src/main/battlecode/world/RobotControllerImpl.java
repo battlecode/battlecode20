@@ -5,8 +5,8 @@ import static battlecode.common.GameActionExceptionType.*;
 import battlecode.instrumenter.RobotDeathException;
 import battlecode.schema.Action;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 
 /**
  * The actual implementation of RobotController. Its methods *must* be called
@@ -31,6 +31,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     private final InternalRobot robot;
 
     /**
+     * An rng based on the world seed.
+     */
+    private static Random random;
+
+    /**
      * Create a new RobotControllerImpl
      *
      * @param gameWorld the relevant world
@@ -39,6 +44,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public RobotControllerImpl(GameWorld gameWorld, InternalRobot robot) {
         this.gameWorld = gameWorld;
         this.robot = robot;
+
+        this.random = new Random(gameWorld.getMapSeed());
     }
 
     // *********************************
@@ -953,7 +960,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         // pay!
         gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
         // create a block chain entry
-        Transaction transaction = new Transaction(cost, message);
+        int id = random.nextInt();
+        Transaction transaction = new Transaction(cost, message, id);
         // add
         gameWorld.addTransaction(transaction);
     }
