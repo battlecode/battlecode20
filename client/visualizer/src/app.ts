@@ -655,8 +655,12 @@ export default class Client {
           let bytecodes = bodies.bytecodesUsed[index];
           if (type === cst.COW) {
             this.controls.setInfoString(id, x, y, on);
-          } else {
+          } 
+          else if (type === cst.LANDSCAPER) {
             this.controls.setInfoString(id, x, y, on, bodies.carryDirt[index], bytecodes);
+          } 
+          else {
+            this.controls.setInfoString(id, x, y, on, undefined, bytecodes);
           }
         }
       }
