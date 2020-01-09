@@ -962,7 +962,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         gameWorld.getTeamInfo().adjustSoup(getTeam(), -cost);
         // create a block chain entry
         int id = random.nextInt();
-        Transaction transaction = new Transaction(cost, message, id);
+        Transaction transaction = new Transaction(cost, message.clone(), id);
         // add
         gameWorld.addTransaction(transaction);
     }
