@@ -21,9 +21,10 @@ TODO: deploy BACKEND??????
 - Make sure everything is installed:
     - `./install_all.sh`
 - Choose a version as $year.$release (e.g. 2020.1.32.2)
-- Update `specs/specs.md` with the new version and a changelog.
-- Update `client/visualizer/src/config.ts` with the version number.
-- Update `gradle.properties` with the version number.
+- Run `./pre_release.py $version`.
+    - It will update `specs/specs.md` with version and changelog
+    - It will update `gradle.properties` with version
+    - It will update `client/visualizer/src/config.ts` with version
 - If new maps have been added, update `SERVER_MAPS` in `client/visualizer/constants.ts` and in `backend/settings.py`.
   - (optional) If a new tournament has been released, also update `MapFilter.types` in `client/visualizer/game/sidebar/mapfilter.ts`.
 - Review the changes, and commit and push (message e.g. "preparing for release 2020.1.32.2").
@@ -32,7 +33,7 @@ TODO: deploy BACKEND??????
 - `./gradlew headless` some good bots
 - Review the changes.
 - RELEASE: `./gradlew publish`
-- `python3 prepare_release.py $version` (but actually fill it in)
+- `./prepare_release.py`
   - It will also generate the HTML version of the docs.
   - It will also build the client for the web.
 - Review the changes.

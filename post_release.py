@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Here's what this script does:
 * Converts `specs.md` into a fancy specs html document (`frontend/public/specs.html`).
@@ -11,7 +13,7 @@ import argparse
 import subprocess
 import os
 
-def main(version):
+def main():
     fancy_specs()
 
     javadoc()
@@ -40,12 +42,4 @@ def client():
     os.chdir("../../frontend")
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument('version', help='Version number, e.g. 2020.0.1.1')
-
-    args = parser.parse_args()
-
-    main(args.version)
+    main()
