@@ -828,7 +828,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         int id = this.robot.getIdOfUnitCurrentlyHeld();
         getRobotByID(id).setLocation(center);
 
-        this.gameWorld.getMatchMaker().addMoved(id, getLocation());
+        this.gameWorld.getMatchMaker().addMoved(id, center);
     }
 
     // ***************************************
