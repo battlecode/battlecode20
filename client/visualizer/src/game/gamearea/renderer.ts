@@ -118,7 +118,7 @@ export default class Renderer {
       // -inf-> 'rgba(0,255,0,0.7)'
       // inf -> 'rgba(255,0,0,0.7)'
 
-      const lo = [0,255,0], hi = [0,0,0];
+      const lo = [0,255,0], hi = [255,0,0];
 
       
 
