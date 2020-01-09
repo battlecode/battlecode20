@@ -40,7 +40,7 @@ public class Transaction implements Comparable<Transaction> {
 
     public int[] getMessage()
     {
-        return this.message;
+        return this.message.clone();
     }
 
     public String getSerializedMessage()

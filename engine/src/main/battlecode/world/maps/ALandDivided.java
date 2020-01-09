@@ -56,8 +56,7 @@ public class ALandDivided {
         mapBuilder.setSymmetricSoup(6,6,1000);
 
         // add a river to make things interesting
-        addRectangleWater(mapBuilder, 19, 0, 21, 31, -10);
-
+        addRectangleWater(mapBuilder, 19, 0, 21, 31, -100);
         mapBuilder.saveMap(outputDirectory);
 
     }
@@ -77,6 +76,7 @@ public class ALandDivided {
                 mapBuilder.setSymmetricDirt(i,j, v);
             }
         }
+        mapBuilder.setSymmetricDirt((xl + xr)/2, (yb + yt)/2, Integer.MIN_VALUE);
     }
 
 

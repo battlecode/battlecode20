@@ -67,12 +67,12 @@ public class WaterBot {
 
         // create 4 nice lakes
         // order matters here!! we want water level to be at -1 here.
-        addLake(mapBuilder, 10, 20, 17, -1); // creates 2
-        addLake(mapBuilder, 15, 25, 17, -1); // creates 2
-        addLake(mapBuilder, 25, 25, 17, -1); // creates 2
-        addLake(mapBuilder, 30, 10, 17, -1);
-        addLake(mapBuilder, 30, 20, 17, -1);
-        addLake(mapBuilder, 30, 30, 17, -1);
+        addLake(mapBuilder, 10, 20, 17, -20); // creates 2
+        addLake(mapBuilder, 15, 25, 17, -20); // creates 2
+        addLake(mapBuilder, 25, 25, 17, -20); // creates 2
+        addLake(mapBuilder, 30, 10, 17, -20);
+        addLake(mapBuilder, 30, 20, 17, -20);
+        addLake(mapBuilder, 30, 30, 17, -20);
 
 
         mapBuilder.saveMap(outputDirectory);
@@ -119,6 +119,7 @@ public class WaterBot {
                 if (d <= r2) {
                     mapBuilder.setSymmetricWater(xx, yy, true);
                     mapBuilder.setSymmetricDirt(xx, yy, v);
+                    if (xx >= width/2 && xx <= width/2+1 && yy >= height/2 && yy <= height/2+1) mapBuilder.setSymmetricDirt(xx, yy, Integer.MIN_VALUE);
                 }
             }
         }

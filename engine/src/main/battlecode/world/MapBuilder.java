@@ -182,6 +182,61 @@ public class MapBuilder {
     }
 
 
+//    public void addRectangleDirt(int xl, int yb, int xr, int yt, int v) {
+//        for (int i = xl; i < xr+1; i++) {
+//            for (int j = yb; j < yt+1; j++) {
+//                setSymmetricDirt(i, j, v);
+//            }
+//        }
+//    }
+//
+//    public void addRectangleWater(int xl, int yb, int xr, int yt, int v) {
+//        for (int i = xl; i < xr+1; i++) {
+//            for (int j = yb; j < yt+1; j++) {
+//                setSymmetricWater(i, j, true);
+//                setSymmetricDirt(i,j, v);
+//            }
+//        }
+//        setSymmetricDirt((xl + xr)/2, (yb + yt)/2, Integer.MIN_VALUE);
+//    }
+//    public void addRectangleSoup(int xl, int yb, int xr, int yt, int v) {
+//        for (int i = xl; i < xr+1; i++) {
+//            for (int j = yb; j < yt+1; j++) {
+//                setSymmetricSoup(i, j, v);
+//            }
+//        }
+//    }
+//
+//
+//    /*
+//     * Add a nice circular lake centered at (x,y).
+//     */
+//    public static void addSoup(int x, int y, int r2, int v) {
+//        for (int xx = 0; xx < width; xx++) {
+//            for (int yy = 0; yy < height; yy++) {
+//                int d = (xx-x)*(xx-x)/2 + (yy-y)*(yy-y);
+//                if (d <= r2) {
+//                    setSymmetricSoup(xx, yy, v*(d+v));
+//                }
+//            }
+//        }
+//    }
+//
+//    /*
+//     * Add a nice circular lake centered at (x,y).
+//     */
+//    public static void addLake(int x, int y, int r2, int v) {
+//        for (int xx = 0; xx < width; xx++) {
+//            for (int yy = 0; yy < height; yy++) {
+//                int d = (xx-x)*(xx-x) + (yy-y)*(yy-y);
+//                if (d <= r2) {
+//                    setSymmetricWater(xx, yy, true);
+//                    setSymmetricDirt(xx, yy, v);
+//                }
+//            }
+//        }
+//    }
+
     // ********************
     // INFORMATION
     // ********************
@@ -210,7 +265,29 @@ public class MapBuilder {
      * @throws IOException
      */
     public void saveMap(String pathname) throws IOException {
+        // validate
+        if (!valid())
+            throw new RuntimeException("Map isn't valid.");
         System.out.println("Saving " + this.name + ": has " + Integer.toString(getTotalSoup())+ " total soup.");
         GameMapIO.writeMap(this.build(), new File(pathname));
+    }
+
+    /**
+     * Returns true if the map is valid.
+     *
+     * WARNING: DON'T TRUST THIS COMPLETELY.
+     * @return
+     */
+    public boolean valid() {
+        // check if there is a -inf water tile
+        boolean hasMinInfWater = false;
+        for (int x = 0; x < width; x++)
+            for (int y=0;y<height;y++)
+                if (waterArray[locationToIndex(x,y)] && dirtArray[locationToIndex(x,y)] <= -10000000) {
+                    hasMinInfWater = true;
+                }
+
+
+        return hasMinInfWater;
     }
 }

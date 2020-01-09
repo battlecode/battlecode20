@@ -60,8 +60,8 @@ public class TwoForOneAndTwoForAll {
         }
 
         // add a river to make things interesting
-        addRectangleWater(mapBuilder, 0, 14, 31, 18, -10);
         addRectangleDirt(mapBuilder, 19, 0, 21, 31, 15);
+        addRectangleWater(mapBuilder, 0, 14, 31, 18, -10);
 
         mapBuilder.saveMap(outputDirectory);
 
@@ -82,6 +82,7 @@ public class TwoForOneAndTwoForAll {
                 mapBuilder.setSymmetricDirt(i,j, v);
             }
         }
+        mapBuilder.setSymmetricDirt((xl + xr)/2, (yb + yt)/2, Integer.MIN_VALUE);
     }
     public static void addRectangleSoup(MapBuilder mapBuilder, int xl, int yb, int xr, int yt, int v) {
         for (int i = xl; i < xr+1; i++) {
