@@ -50,8 +50,7 @@ def subscribe(subscription_name, worker):
 
             # The process is finished
             else:
-                give_up = (int(time.time()) - message.message.publish_time.seconds) > 600
-                if process.exitcode == 0 or give_up:
+                if process.exitcode == 0:
                     # Success; acknowledge and return
                     client.acknowledge(subscription_path, [message.ack_id])
                     logging.info('Ending and acknowledged: {}'.format(message.message.data.decode()))
