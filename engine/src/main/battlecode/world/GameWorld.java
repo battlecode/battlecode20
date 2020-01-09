@@ -685,13 +685,13 @@ public strictfp class GameWorld {
         // process messages, take the K first ones!
         ArrayList<Transaction> block = new ArrayList<Transaction>();
         for (int i = 0; i < GameConstants.NUMBER_OF_TRANSACTIONS_PER_BLOCK; i++) {
-            if (blockchainQueue.size() > 0) {
-                Transaction transaction = blockchainQueue.poll();
-                // send this to match maker!
-                matchMaker.addBroadcastedMessage(transaction.getCost(), transaction.getSerializedMessage());
-                // also add it to this round's list of messages!
-                block.add(transaction);
-            }
+            if (blockchainQueue.size() == 0) { break; }
+
+            Transaction transaction = blockchainQueue.poll();
+            // send this to match maker!
+            matchMaker.addBroadcastedMessage(transaction.getCost(), transaction.getSerializedMessage());
+            // also add it to this round's list of messages!
+            block.add(transaction);
         }
         // add this to the blockchain!
         blockchain.add(block);
