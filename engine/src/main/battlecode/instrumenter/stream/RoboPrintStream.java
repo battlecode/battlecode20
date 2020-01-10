@@ -16,7 +16,7 @@ import java.io.UnsupportedEncodingException;
 @SuppressWarnings("unused")
 public class RoboPrintStream extends PrintStream {
 
-    private final PrintStream real;
+    private final LimitedPrintStream real;
 
     private boolean headerThisRound;
     private Team team;
@@ -26,9 +26,10 @@ public class RoboPrintStream extends PrintStream {
 
     private boolean writeToSystemOut;
 
-    public RoboPrintStream(OutputStream robotOut, boolean writeToSystemOut) throws UnsupportedEncodingException {
+    // if maxOutputBytes is -1, then it is treated as no limit
+    public RoboPrintStream(OutputStream robotOut, boolean writeToSystemOut, int maxOutputBytes) throws UnsupportedEncodingException {
         super(SilencedPrintStream.theInstance());
-        this.real = new PrintStream(robotOut, true, "UTF-8");
+        this.real = new LimitedPrintStream(robotOut, true, "UTF-8", maxOutputBytes);
         this.headerThisRound = false;
         this.writeToSystemOut = writeToSystemOut;
     }
@@ -234,11 +235,13 @@ public class RoboPrintStream extends PrintStream {
         this.id = id;
         this.round = round;
         this.headerThisRound = false;
+        this.real.setTeam(team);
     }
 
     private void maybePrintHeader() {
         if (!this.headerThisRound) {
             this.headerThisRound = true;
+            real.setByteCountingStatus(false);
             real.print('[');
             real.print(team);
             real.print(':');
@@ -248,6 +251,7 @@ public class RoboPrintStream extends PrintStream {
             real.print('@');
             real.print(round);
             real.print("] ");
+            real.setByteCountingStatus(true);
             if (this.writeToSystemOut) {
                 java.lang.System.out.print('[');
                 java.lang.System.out.print(team);
