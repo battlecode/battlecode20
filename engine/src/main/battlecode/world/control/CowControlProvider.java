@@ -105,7 +105,8 @@ public class CowControlProvider implements RobotControlProvider {
                 while (i-->0) { 
                     Direction dir = DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
                     MapLocation loc = cow.getLocation();
-                    if (cow.getId() % 2 == 1) dir = reverseDirection(dir);
+                    if (loc.x > symmetricX(loc.x, s)) dir = reverseDirection(dir);
+                    else if (loc.y > symmetricX(loc.y, s)) dir = reverseDirection(dir);
                     if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
                         rc.move(dir);
                         break;
@@ -119,7 +120,6 @@ public class CowControlProvider implements RobotControlProvider {
     }
 
     private Direction reverseDirection(Direction dir) {
-        //todo: reverse
         return dir;
     }
 
