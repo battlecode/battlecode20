@@ -24,9 +24,15 @@ public class LimitedPrintStream extends PrintStream {
     private Team team;
     private boolean byteCounting;
 
-    public LimitedPrintStream(OutputStream out, boolean autoFlush, String encoding) throws UnsupportedEncodingException {
+    public LimitedPrintStream(OutputStream out, boolean autoFlush, String encoding, int maxOutputBytes) throws UnsupportedEncodingException {
         super(out, autoFlush, encoding);
         byteCounting = true;
+        if (limit[0] == -1) // means it is not set yet
+            limit[0] = maxOutputBytes;
+        if (limit[1] == -1) // means it is not set yet
+            limit[1] = maxOutputBytes;
+        if (limit[2] == -1) // means it is not set yet
+            limit[2] = maxOutputBytes;
     }
 
     @Override
@@ -75,11 +81,6 @@ public class LimitedPrintStream extends PrintStream {
     public void setTeam(Team team) {
         this.team = team;
     }
-    public void setLimit(int maxOutputBytes) {
-        this.limit[0] = maxOutputBytes;
-        this.limit[1] = maxOutputBytes;
-        this.limit[2] = maxOutputBytes;
-    }
 
     public void setByteCountingStatus(boolean byteCounting) {
         this.byteCounting = byteCounting;
@@ -117,7 +118,7 @@ public class LimitedPrintStream extends PrintStream {
         if (limit[getArrayIndex()] == -1) {
             return;
         }
-        limit[getArrayIndex()] -= bytes;
+        limit[getArrayIndex()] = java.lang.Math.max(limit[getArrayIndex()]-bytes,0);
     }
 
     private void reportTruncation() {

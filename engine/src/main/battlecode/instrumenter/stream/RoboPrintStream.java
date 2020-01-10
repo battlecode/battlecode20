@@ -29,8 +29,7 @@ public class RoboPrintStream extends PrintStream {
     // if maxOutputBytes is -1, then it is treated as no limit
     public RoboPrintStream(OutputStream robotOut, boolean writeToSystemOut, int maxOutputBytes) throws UnsupportedEncodingException {
         super(SilencedPrintStream.theInstance());
-        this.real = new LimitedPrintStream(robotOut, true, "UTF-8");
-        this.real.setLimit(maxOutputBytes);
+        this.real = new LimitedPrintStream(robotOut, true, "UTF-8", maxOutputBytes);
         this.headerThisRound = false;
         this.writeToSystemOut = writeToSystemOut;
     }
