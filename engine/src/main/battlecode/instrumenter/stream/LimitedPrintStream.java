@@ -111,7 +111,10 @@ public class LimitedPrintStream extends PrintStream {
         int index = getArrayIndex();
         if (!reportedTruncation[index]) {
             reportedTruncation[index] = true;
-            out.write(TRUNCATION_MESSAGE.getBytes(), 0, TRUNCATION_MESSAGE.length);
+            try {
+                out.write(TRUNCATION_MESSAGE.getBytes(), 0, TRUNCATION_MESSAGE.length());
+            } catch (IOException e) {
+            }
         }
     }
 }
