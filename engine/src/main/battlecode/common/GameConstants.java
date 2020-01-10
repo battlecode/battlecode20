@@ -130,7 +130,4 @@ public class GameConstants {
 
     /** The maximum number of rounds in a game. In practice, this is not needed, because the water level at round 10,000 will be huge. **/
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 10000;
-
-    /** The maximum number of bytes of output per team that will be saved to replays. Any further output will go only to System.out. */
-    public static final int MAX_OUTPUT_BYTES = 1048576;
 }

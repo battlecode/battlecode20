@@ -37,6 +37,11 @@ public class Config {
         // Whether to write robot player output to System.out as well as match files.
         defaults.setProperty("bc.server.robot-player-to-system-out", "true");
 
+        // The max number of bytes to write to a replay file, per team
+        // -1 means infinity
+        // This does not affect output to stdout
+        defaults.setProperty("bc.server.robot-player-replay-file-per-team-limit-bytes","-1");
+
         defaults.setProperty("bc.server.save-file", "match.rms");
         defaults.setProperty("bc.server.transcribe-input", "match.rms");
         defaults.setProperty("bc.server.transcribe-output", "transcribed.txt");

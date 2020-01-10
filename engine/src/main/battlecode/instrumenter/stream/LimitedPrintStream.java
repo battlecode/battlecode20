@@ -18,7 +18,7 @@ import java.io.UnsupportedEncodingException;
 public class LimitedPrintStream extends PrintStream {
 
     private static final String TRUNCATION_MESSAGE = "[output truncated due to team output limit]\n";
-    private static int[] limit = {GameConstants.MAX_OUTPUT_BYTES, GameConstants.MAX_OUTPUT_BYTES, GameConstants.MAX_OUTPUT_BYTES};
+    private static int[] limit = {-1, -1, -1}; // -1 means no limit
     private static boolean[] reportedTruncation = {false, false, false};
 
     private Team team;
@@ -75,6 +75,11 @@ public class LimitedPrintStream extends PrintStream {
     public void setTeam(Team team) {
         this.team = team;
     }
+    public void setLimit(int maxOutputBytes) {
+        this.limit[0] = maxOutputBytes;
+        this.limit[1] = maxOutputBytes;
+        this.limit[2] = maxOutputBytes;
+    }
 
     public void setByteCountingStatus(boolean byteCounting) {
         this.byteCounting = byteCounting;
@@ -93,6 +98,10 @@ public class LimitedPrintStream extends PrintStream {
 
     private int getRemainingByteLimit() {
         int result = limit[getArrayIndex()];
+        // -1 is infinity
+        if (limit[getArrayIndex()] == -1) {
+            result = Integer.MAX_VALUE;
+        }
         // Even if we're not counting bytes, allow no headers to escape if completely exhausted
         if (!this.byteCounting && result > 0) {
             result = Integer.MAX_VALUE;
@@ -102,6 +111,10 @@ public class LimitedPrintStream extends PrintStream {
 
     private void subtractBytesFromLimit(int bytes) {
         if (!this.byteCounting) {
+            return;
+        }
+        // -1 is infinity
+        if (limit[getArrayIndex()] == -1) {
             return;
         }
         limit[getArrayIndex()] -= bytes;

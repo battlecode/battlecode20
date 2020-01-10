@@ -396,7 +396,7 @@ public class SandboxedRobotPlayer {
             try {
                 return new RoboPrintStream(wrapped, options.getBoolean(
                         "bc.server.robot-player-to-system-out"
-                ));
+                ), options.getInt("bc.server.robot-player-replay-file-per-team-limit-bytes"));
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException("UTF-8 isn't supported on this system??", e);
             }
