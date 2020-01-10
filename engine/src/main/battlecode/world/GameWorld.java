@@ -156,19 +156,24 @@ public strictfp class GameWorld {
     }
 
     private boolean updateRobot(InternalRobot robot) {
-        if (robot.isBlocked()) // blocked robots don't get a turn
+        if (robot.isBlocked()) {// blocked robots don't get a turn
+            // still reset pollution tho
+            if (robot.getType().canAffectPollution()) {
+                resetPollutionForRobot(robot.getID());
+            }
             return true;
+        } else {
+            robot.processBeginningOfTurn();
+            this.controlProvider.runRobot(robot);
+            robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
+            robot.processEndOfTurn();
 
-        robot.processBeginningOfTurn();
-        this.controlProvider.runRobot(robot);
-        robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
-        robot.processEndOfTurn();
-
-        // If the robot terminates but the death signal has not yet
-        // been visited:
-        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
-            destroyRobot(robot.getID());
-        return true;
+            // If the robot terminates but the death signal has not yet
+            // been visited:
+            if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
+                destroyRobot(robot.getID());
+            return true;
+        }
     }
 
     // *********************************

@@ -19,7 +19,7 @@ public strictfp class InternalRobot {
     private int currentBytecodeLimit;
     private int bytecodesUsed;
 
-    private int roundsAlive;
+    private int roundsAlive; // WILL NOT INCLUDE ROUNDS BLOCKED WHEN PICKED UP BY DRONE
     private int soupCarrying; // amount of soup the robot is carrying (miners and refineries)
     private int dirtCarrying; // amount of dirt the robot is carrying (landscapers and buildings)
     
