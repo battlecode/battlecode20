@@ -282,7 +282,6 @@ public strictfp class GameWorld {
 
     public void addGlobalPollution(int amount) {
         this.globalPollution = Math.max(this.globalPollution + amount, 0);
-        getMatchMaker().setGlobalPollution(this.globalPollution);
         pollutionNeedsUpdate = true;
     }
 
@@ -624,6 +623,7 @@ public strictfp class GameWorld {
         // update the round statistics
         matchMaker.addTeamSoup(Team.A, teamInfo.getSoup(Team.A));
         matchMaker.addTeamSoup(Team.B, teamInfo.getSoup(Team.B));
+        matchMaker.setGlobalPollution(this.globalPollution);
 
         if (gameStats.getWinner() != null)
             running = false;
