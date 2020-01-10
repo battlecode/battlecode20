@@ -741,6 +741,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         pickedUpRobot.blockUnit();
         gameWorld.removeRobot(pickedUpRobot.getLocation());
         this.robot.pickUpUnit(id);
+        this.robot.addCooldownTurns();
 
         gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UNIT, id);
     }
@@ -817,6 +818,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         movePickedUpUnit(targetLocation);
         this.robot.dropUnit();
         this.gameWorld.addRobot(targetLocation, droppedRobot);
+        this.robot.addCooldownTurns();
 
         gameWorld.getMatchMaker().addAction(getID(), Action.DROP_UNIT, id);
 
@@ -894,6 +896,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void shootUnit(int id) throws GameActionException {
         assertCanShootUnit(id);
         this.gameWorld.destroyRobot(id);
+        this.robot.addCooldownTurns();
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SHOOT, id);
     }
