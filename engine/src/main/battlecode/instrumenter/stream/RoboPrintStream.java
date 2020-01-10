@@ -240,6 +240,7 @@ public class RoboPrintStream extends PrintStream {
     private void maybePrintHeader() {
         if (!this.headerThisRound) {
             this.headerThisRound = true;
+            real.setByteCountingStatus(false);
             real.print('[');
             real.print(team);
             real.print(':');
@@ -249,6 +250,7 @@ public class RoboPrintStream extends PrintStream {
             real.print('@');
             real.print(round);
             real.print("] ");
+            real.setByteCountingStatus(true);
             if (this.writeToSystemOut) {
                 java.lang.System.out.print('[');
                 java.lang.System.out.print(team);

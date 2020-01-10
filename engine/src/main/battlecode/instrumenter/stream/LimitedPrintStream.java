@@ -19,9 +19,11 @@ public class LimitedPrintStream extends PrintStream {
 
     private static int[] limit = {GameConstants.MAX_OUTPUT_BYTES, GameConstants.MAX_OUTPUT_BYTES, GameConstants.MAX_OUTPUT_BYTES};
     private Team team;
+    private boolean byteCounting;
 
     public LimitedPrintStream(OutputStream out, boolean autoFlush, String encoding) throws UnsupportedEncodingException {
         super(out, autoFlush, encoding);
+        byteCounting = true;
     }
 
     @Override
@@ -66,7 +68,14 @@ public class LimitedPrintStream extends PrintStream {
         this.team = team;
     }
 
+    public void setByteCountingStatus(boolean byteCounting) {
+        this.byteCounting = byteCounting;
+    }
+
     private int getRemainingByteLimit() {
+        if (!this.byteCounting) {
+            return Integer.MAX_VALUE;
+        }
         switch (this.team) {
             case A:
                 return limit[0];
@@ -78,6 +87,9 @@ public class LimitedPrintStream extends PrintStream {
     }
 
     private void subtractBytesFromLimit(int bytes) {
+        if (!this.byteCounting) {
+            return;
+        }
         switch (this.team) {
             case A:
                 limit[0] -= bytes;
