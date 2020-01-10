@@ -512,7 +512,7 @@ public strictfp interface RobotController {
      * @param dir the direction to dig in
      * @throws GameActionException if this robot is not a landscaper, if
      * the robot is still in cooldown, the robot cannot carry more dirt,
-     * or the location is not valid (there is a robot/building).
+     * or the location is not valid.
      *
      * @battlecode.doc.costlymethod
      */
