@@ -575,6 +575,9 @@ public strictfp interface RobotController {
 
     /**
      * Tests whether a robot is able to drop a unit in a specified direction.
+     * Checks whether the robot is a drone that is currently holding a unit,
+     * that the target location is unoccupied and on the map, and that
+     * there are cooldown turns remaining.
      *
      * @param dir the specified direction
      * @return true if a robot can be dropped off, false otherwise
@@ -601,6 +604,9 @@ public strictfp interface RobotController {
 
     /**
      * Tests whether a robot is able to shoot down a specific unit.
+     * Checks whether the robot is a net gun (or HQ), whether the target
+     * robot exists, can be shot and is in the shoot radius, and whether
+     * there are cooldown turns remaining.
      *
      * @param id the id of the robot to shoot
      * @return true if robot with the id can be shot down, false otherwise
