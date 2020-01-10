@@ -647,7 +647,7 @@ public strictfp interface RobotController {
     /**
      * Tests if the robot can submit a transaction
      * to the blockchain at the indicated cost. Tests if the team has enough soup,
-     * that the provided cost is non-negative, and that the message doesn't exceed the limit.
+     * that the provided cost is positive, and that the message doesn't exceed the limit.
      *
      * @param message the list of ints to send (at most of GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH many).
      * @param cost the price that the unit is willing to pay for the message, in soup

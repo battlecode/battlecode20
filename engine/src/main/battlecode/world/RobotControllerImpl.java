@@ -939,9 +939,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
-        if (cost < 0)
+        if (cost <= 0)
             throw new GameActionException(OUT_OF_RANGE,
-                    "Can only submit transactions with non-negative cost!");
+                    "Can only submit transactions with positive cost!");
     }
 
     @Override
