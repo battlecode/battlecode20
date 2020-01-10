@@ -67,7 +67,7 @@ public enum RobotType {
      * Cows produce pollution (and they moo).
      * @battlecode.doc.robottype
      */
-    COW                     (null,  0,  0,  0,  2,  10000,  15,  2000,  1,  0,  0,  0),
+    COW                     (null,  0,  0,  0,  2,  1000,  15,  2000,  1,  0,  0,  0),
     //                       SS     C   DL  SL  AC  SR     PR   PA     PM  GP  MS  BL
     ;
     
