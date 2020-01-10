@@ -17,7 +17,10 @@ import java.io.UnsupportedEncodingException;
 @SuppressWarnings("unused")
 public class LimitedPrintStream extends PrintStream {
 
+    private static final String TRUNCATION_MESSAGE = "[output truncated due to team output limit]\n";
     private static int[] limit = {GameConstants.MAX_OUTPUT_BYTES, GameConstants.MAX_OUTPUT_BYTES, GameConstants.MAX_OUTPUT_BYTES};
+    private static boolean[] reportedTruncation = {false, false, false};
+
     private Team team;
     private boolean byteCounting;
 
@@ -29,38 +32,43 @@ public class LimitedPrintStream extends PrintStream {
     @Override
     public void write(byte[] b) {
         int printSize = java.lang.Math.min(b.length, getRemainingByteLimit());
-        if (printSize <= 0) {
-            return;
+        if (printSize > 0) {
+            subtractBytesFromLimit(printSize);
+            try {
+                out.write(b, 0, printSize);
+            } catch (IOException x) {
+            }
         }
-        subtractBytesFromLimit(printSize);
-        try {
-            out.write(b, 0, printSize);
-        } catch (IOException x) {
+        if (printSize < b.length) {
+            reportTruncation();
         }
     }
 
     @Override
     public void write(int b) {
-        if (getRemainingByteLimit() <= 0) {
-            return;
-        }
-        subtractBytesFromLimit(1);
-        try {
-            out.write(b);
-        } catch (IOException x) {
+        if (getRemainingByteLimit() > 0) {
+            subtractBytesFromLimit(1);
+            try {
+                out.write(b);
+            } catch (IOException x) {
+            }
+        } else {
+            reportTruncation();
         }
     }
 
     @Override
     public void write(byte[] b, int off, int len) {
         int printSize = java.lang.Math.min(len, getRemainingByteLimit());
-        if (printSize <= 0) {
-            return;
+        if (printSize > 0) {
+            subtractBytesFromLimit(printSize);
+            try {
+                out.write(b, off, printSize);
+            } catch (IOException x) {
+            }
         }
-        subtractBytesFromLimit(printSize);
-        try {
-            out.write(b, off, printSize);
-        } catch (IOException x) {
+        if (printSize < len) {
+            reportTruncation();
         }
     }
 
@@ -72,34 +80,38 @@ public class LimitedPrintStream extends PrintStream {
         this.byteCounting = byteCounting;
     }
 
-    private int getRemainingByteLimit() {
-        if (!this.byteCounting) {
-            return Integer.MAX_VALUE;
-        }
+    private int getArrayIndex() {
         switch (this.team) {
             case A:
-                return limit[0];
+                return 0;
             case B:
-                return limit[1];
+                return 1;
             default:
-                return limit[2];
+                return 2;
         }
+    }
+
+    private int getRemainingByteLimit() {
+        int result = limit[getArrayIndex()];
+        // Even if we're not counting bytes, allow no headers to escape if completely exhausted
+        if (!this.byteCounting && result > 0) {
+            result = Integer.MAX_VALUE;
+        }
+        return result;
     }
 
     private void subtractBytesFromLimit(int bytes) {
         if (!this.byteCounting) {
             return;
         }
-        switch (this.team) {
-            case A:
-                limit[0] -= bytes;
-                break;
-            case B:
-                limit[1] -= bytes;
-                break;
-            default:
-                limit[2] -= bytes;
-                break;
+        limit[getArrayIndex()] -= bytes;
+    }
+
+    private void reportTruncation() {
+        int index = getArrayIndex();
+        if (!reportedTruncation[index]) {
+            reportedTruncation[index] = true;
+            out.write(TRUNCATION_MESSAGE.getBytes(), 0, TRUNCATION_MESSAGE.length);
         }
     }
 }
