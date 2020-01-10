@@ -1,6 +1,6 @@
 package battlecode.instrumenter.stream;
 
-import battlecode.common.GameConstants.MAX_OUTPUT_BYTES;
+import battlecode.common.GameConstants;
 import battlecode.common.Team;
 
 import java.io.PrintStream;
@@ -17,7 +17,7 @@ import java.io.UnsupportedEncodingException;
 @SuppressWarnings("unused")
 public class LimitedPrintStream extends PrintStream {
 
-    private static int[] limit = {MAX_OUTPUT_BYTES, MAX_OUTPUT_BYTES, MAX_OUTPUT_BYTES};
+    private static int[] limit = {GameConstants.MAX_OUTPUT_BYTES, GameConstants.MAX_OUTPUT_BYTES, GameConstants.MAX_OUTPUT_BYTES};
     private Team team;
 
     public LimitedPrintStream(OutputStream out, boolean autoFlush, String encoding) throws UnsupportedEncodingException {
@@ -68,24 +68,24 @@ public class LimitedPrintStream extends PrintStream {
 
     private int getRemainingByteLimit() {
         switch (this.team) {
-            case Team.A:
+            case A:
                 return limit[0];
-            case TEAM.B:
+            case B:
                 return limit[1];
-            case TEAM.NEUTRAL:
+            default:
                 return limit[2];
         }
     }
 
     private void subtractBytesFromLimit(int bytes) {
         switch (this.team) {
-            case Team.A:
+            case A:
                 limit[0] -= bytes;
                 break;
-            case TEAM.B:
+            case B:
                 limit[1] -= bytes;
                 break;
-            case TEAM.NEUTRAL:
+            default:
                 limit[2] -= bytes;
                 break;
         }
