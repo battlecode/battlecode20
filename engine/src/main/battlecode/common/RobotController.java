@@ -546,7 +546,12 @@ public strictfp interface RobotController {
     // ***************************************
 
     /**
-     * Tests whether a robot is able to pick up a specific unit.
+     * Tests whether a robot is able to pick up a specific unit. Checks
+     * whether this robot is a delivery drone that is not holding anything right
+     * now, whether the robot it is trying to be picked up can be picked up
+     * (and that that robot is not currently held by another drone), that
+     * the robot is within the pickup radius, and that there are cooldown
+     * turns remaining.
      *
      * @param id the id of the robot to pick up
      * @return true if robot with the id can be picked up, false otherwise

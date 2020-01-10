@@ -707,6 +707,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Cannot pick up unit outside pickup radius; unit is " +
                     getRobotByID(id).getLocation().distanceSquaredTo(getLocation()) +
                             " squared distance away, but the pickup radius squared is " + GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED);
+        if (getRobotByID(id).isBlocked())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Cannot pick up a unit that is currently picked up by another drone, which " + id + " is.");
         if (!isReady())
             throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");
@@ -741,6 +744,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         pickedUpRobot.blockUnit();
         gameWorld.removeRobot(pickedUpRobot.getLocation());
         this.robot.pickUpUnit(id);
+        movePickedUpUnit(getLocation());
         this.robot.addCooldownTurns();
 
         gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UNIT, id);
