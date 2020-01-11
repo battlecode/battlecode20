@@ -60,7 +60,7 @@ public class CowControlProvider implements RobotControlProvider {
         this.world = world;
         this.random = new Random(world.getMapSeed());
         this.s = getSymmetry();
-        //System.out.println("symmetry is " + this.s + "!!!");
+        System.out.println("symmetry is " + this.s + "!!!");
     }
 
     @Override
@@ -105,7 +105,7 @@ public class CowControlProvider implements RobotControlProvider {
                 while (i-->0) { 
                     Direction dir = DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
                     MapLocation loc = cow.getLocation();
-                    if (cow.getId() % 2 == 1) dir = reverseDirection(dir);
+                    if (cow.getID() % 2 == 1) dir = reverseDirection(dir);
                     if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
                         rc.move(dir);
                         break;
@@ -119,8 +119,28 @@ public class CowControlProvider implements RobotControlProvider {
     }
 
     private Direction reverseDirection(Direction dir) {
-        //todo: reverse
-        return dir;
+        switch (s) {
+            case vertical:
+                if (dir == Direction.NORTHEAST) return Direction.SOUTHEAST;
+                if (dir == Direction.SOUTHEAST) return Direction.NORTHEAST;
+                if (dir == Direction.NORTH) return Direction.SOUTH;
+                if (dir == Direction.SOUTH) return Direction.NORTH;
+                if (dir == Direction.NORTHWEST) return Direction.SOUTHWEST;
+                if (dir == Direction.SOUTHWEST) return Direction.NORTHWEST;
+                return dir;
+            case horizontal:
+                if (dir == Direction.NORTHEAST) return Direction.NORTHWEST;
+                if (dir == Direction.SOUTHEAST) return Direction.SOUTHWEST;
+                if (dir == Direction.NORTHWEST) return Direction.NORTHEAST;
+                if (dir == Direction.SOUTHWEST) return Direction.SOUTHEAST;
+                if (dir == Direction.WEST) return Direction.EAST;
+                if (dir == Direction.EAST) return Direction.WEST;
+                return dir;
+            case rotational:
+                return dir.opposite();
+            default:
+                return dir;
+        }
     }
 
     private MapSymmetry getSymmetry() {
