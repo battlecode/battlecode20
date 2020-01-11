@@ -371,8 +371,8 @@ export default class Renderer {
         }
       }
 
-      // if there are two robots 
-      // if(possibleDroneID != undefined) selectedRobotID = possibleDroneID;
+      // if there are two robots in same cell, choose the drone
+      if(possibleDroneID != undefined) selectedRobotID = possibleDroneID;
       // Set the info string even if the robot is undefined
       this.lastSelectedID = selectedRobotID;
       onRobotSelected(selectedRobotID);

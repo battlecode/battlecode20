@@ -343,6 +343,8 @@ class GameWorld {
                 let idx = this.mapStats.getIdx(x, y);
                 this.mapStats.pollution[idx] = this.mapStats.globalPollution;
                 let multiplier = 1;
+                if (!this.mapStats.localPollutions)
+                    continue;
                 for (let i = 0; i < this.mapStats.localPollutions.radiiSquaredLength(); i++) {
                     if (this.distanceSquared(this.mapStats.localPollutions.locations().xsArray()[i], this.mapStats.localPollutions.locations().ysArray()[i], x, y) <= this.mapStats.localPollutions.radiiSquaredArray()[i]) {
                         this.mapStats.pollution[idx] += this.mapStats.localPollutions.additiveEffectsArray()[i];
