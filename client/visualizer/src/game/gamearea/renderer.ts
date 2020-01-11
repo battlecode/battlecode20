@@ -362,13 +362,17 @@ export default class Renderer {
 
       // Get the ID of the selected robot
       let selectedRobotID;
+      let possibleDroneID: number | undefined = undefined;
       for (let i in ids) {
         if (xs[i] == x && ys[i] == y) {
           selectedRobotID = ids[i];
-          break;
+          if(world.bodies.arrays.type[i] == cst.DRONE)
+            possibleDroneID = ids[i];
         }
       }
 
+      // if there are two robots 
+      // if(possibleDroneID != undefined) selectedRobotID = possibleDroneID;
       // Set the info string even if the robot is undefined
       this.lastSelectedID = selectedRobotID;
       onRobotSelected(selectedRobotID);
