@@ -202,8 +202,9 @@ public strictfp class Server implements Runnable {
             gameMaker.writeGame(currentGame.getSaveFile());
 
             if (profilerCollection != null) {
+                // TODO(jmerle): Check if this is still correct and/or make the path configurable
                 // Save profiling results to a json file next to the replays file
-                // Saving it in the replays file would blow up its file size making it nearly impossible to share
+                // Saving it in the replays file may blow up its file size making it harder to share
                 File outputFile = new File(currentGame.getSaveFile().getAbsolutePath() + ".json");
                 profilerCollection.writeToFile(outputFile);
             }

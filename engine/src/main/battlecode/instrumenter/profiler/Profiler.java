@@ -1,29 +1,39 @@
 package battlecode.instrumenter.profiler;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * The Profiler class profiles bytecode usage in a sandboxed robot player.
  * It is called by the instrumenter through RobotMonitor and only profiles
  * down to methods created by the player (e.g. it won't show the amount of
  * bytecode an ArrayList.add() call costs).
+ * <p>
+ * Data is stored in such a way that it is easy to convert it to a file
+ * compatible with speedscope (https://github.com/jlfwong/speedscope)
+ * which is used in the client to show the profiling data. See
+ * https://github.com/jlfwong/speedscope/wiki/Importing-from-custom-sources
+ * for more information on speedscope's file format.
  */
 public class Profiler {
     private String name;
 
-    private List<ProfilerRecord> rootRecords = new ArrayList<>();
+    private int bytecodeCounter = 0;
 
-    public Profiler(String name) {
+    private List<ProfilerEvent> events = new ArrayList<>();
+    private Function<String, Integer> frameIdProducer;
+
+    public Profiler(String name, Function<String, Integer> frameIdProducer) {
         this.name = name;
+        this.frameIdProducer = frameIdProducer;
     }
 
     public void incrementBytecodes(int amount) {
-        if (rootRecords.isEmpty()) {
-            return;
-        }
-
-        rootRecords.get(rootRecords.size() - 1).incrementBytecodes(amount);
+        bytecodeCounter += amount;
     }
 
     public void enterMethod(String methodName) {
@@ -31,29 +41,7 @@ public class Profiler {
             return;
         }
 
-        ProfilerRecord newRecord = new ProfilerRecord(methodName);
-        newRecord.enter();
-
-        ProfilerRecord lastOpenRecord = getLastOpenRecord();
-
-        // If there is no open record a new root has been entered
-        if (lastOpenRecord == null) {
-            rootRecords.add(newRecord);
-            return;
-        }
-
-        List<ProfilerRecord> children = lastOpenRecord.getChildren();
-
-        // Find a child with the same name and enter the already created child if it exists
-        for (ProfilerRecord child : children) {
-            if (child.getName().equals(methodName)) {
-                child.enter();
-                return;
-            }
-        }
-
-        // No child with same name found, create a new record
-        children.add(newRecord);
+        events.add(new ProfilerEvent(ProfilerEventType.OPEN, bytecodeCounter, frameIdProducer.apply(methodName)));
     }
 
     public void exitMethod(String methodName) {
@@ -61,39 +49,20 @@ public class Profiler {
             return;
         }
 
-        ProfilerRecord lastOpenRecord = getLastOpenRecord();
-        if (lastOpenRecord != null) {
-            lastOpenRecord.exit();
-        }
+        events.add(new ProfilerEvent(ProfilerEventType.CLOSE, bytecodeCounter, frameIdProducer.apply(methodName)));
     }
 
-    public void exitAllOpenMethods() {
-        while (true) {
-            ProfilerRecord lastOpenRecord = getLastOpenRecord();
+    public JSONObject toJSON() {
+        List<JSONObject> eventObjects = events.stream().map(ProfilerEvent::toJSON).collect(Collectors.toList());
 
-            if (lastOpenRecord == null) {
-                break;
-            }
+        JSONObject profileObject = new JSONObject();
+        profileObject.put("type", "evented");
+        profileObject.put("unit", "none");
+        profileObject.put("startValue", 0);
+        profileObject.put("endValue", bytecodeCounter);
+        profileObject.put("name", name);
+        profileObject.put("events", eventObjects);
 
-            lastOpenRecord.exit();
-        }
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    private ProfilerRecord getLastOpenRecord() {
-        if (rootRecords.isEmpty()) {
-            return null;
-        }
-
-        ProfilerRecord lastRootRecord = rootRecords.get(rootRecords.size() - 1);
-
-        if (!lastRootRecord.isOpen()) {
-            return null;
-        }
-
-        return lastRootRecord.getLastOpenRecord();
+        return profileObject;
     }
 }

@@ -209,7 +209,7 @@ public class SandboxedRobotPlayer {
                 // Tell the profiler the run(RobotController) method exited
                 // It cannot detect when the run(RobotController) method exits when a bot dies any other way
                 if (profiler != null) {
-                    profiler.exitAllOpenMethods();
+                    profiler.exitMethod(teamName + "." + PLAYER_CLASS_NAME + ".run");
                 }
 
                 // Unpause the main thread, which is waiting on the player thread.

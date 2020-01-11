@@ -60,7 +60,7 @@ public class PlayerControlProvider implements RobotControlProvider {
     /**
      * The match id of the current match. Incremented by one every time a new match starts.
      */
-    private int matchId = 0;
+    private int matchId = -1;
 
     /**
      * Create a new PlayerControlProvider.
@@ -101,7 +101,7 @@ public class PlayerControlProvider implements RobotControlProvider {
     public void robotSpawned(InternalRobot robot) {
         try {
             Profiler profiler = null;
-            if (profilerCollection != null) {
+            if (profilerCollection != null && robot.getTeam().isPlayer()) {
                 profiler = profilerCollection.createProfiler(matchId, robot.getTeam(), robot.getID(), robot.getType());
             }
 
