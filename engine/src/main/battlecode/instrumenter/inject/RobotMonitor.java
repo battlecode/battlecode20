@@ -1,6 +1,7 @@
 package battlecode.instrumenter.inject;
 
 import battlecode.instrumenter.SandboxedRobotPlayer;
+import battlecode.instrumenter.profiler.Profiler;
 import battlecode.server.ErrorReporter;
 
 import java.io.PrintStream;
@@ -29,6 +30,8 @@ public final class RobotMonitor {
     private static SandboxedRobotPlayer.Pauser pauser;
     private static SandboxedRobotPlayer.Killer killer;
 
+    private static Profiler profiler;
+
     // Methods called from SandboxedRobotPlayer
 
     /**
@@ -37,12 +40,16 @@ public final class RobotMonitor {
      *
      * Called in the robot thread from SandboxedRobotPlayer.
      *
-     * @param thePauser pauser to use to pause the thread
+     * @param thePauser   pauser to use to pause the thread
+     * @param theKiller   killer to use to kill the thread
+     * @param seed        seed to use for new Random instances
+     * @param theProfiler profiler to log bytecode usage per method to (profiling is disabled if null)
      */
     @SuppressWarnings("unused")
     public static void init(SandboxedRobotPlayer.Pauser thePauser,
                             SandboxedRobotPlayer.Killer theKiller,
-                            int seed) {
+                            int seed,
+                            Profiler theProfiler) {
         shouldDie = false;
         bytecodesLeft = 0;
         debugLevel = 0;
@@ -50,6 +57,8 @@ public final class RobotMonitor {
         randomSeed = seed;
         pauser = thePauser;
         killer = theKiller;
+
+        profiler = theProfiler;
     }
 
     /**
@@ -120,14 +129,18 @@ public final class RobotMonitor {
 
         if (debugLevel == 0) {
             bytecodesLeft -= numBytecodes;
-	    bytecodesLeft -= bytecodesToRemove;
+	        bytecodesLeft -= bytecodesToRemove;
+
+	        if (profiler != null) {
+	            profiler.incrementBytecodes(numBytecodes + bytecodesToRemove);
+            }
 
             while (bytecodesLeft <= 0) {
                 pause();
             }
         }
-	
-	bytecodesToRemove = 0;
+
+	    bytecodesToRemove = 0;
     }
 
     /**
@@ -223,6 +236,32 @@ public final class RobotMonitor {
      */
     public static long getRandomSeed() {
         return randomSeed;
+    }
+
+    /**
+     * Called at the start of a method. Used by the profiler.
+     *
+     * THIS METHOD IS CALLED BY THE INSTRUMENTER.
+     *
+     * @param name the name of the method that is being entered
+     */
+    public static void enterMethod(String name) {
+        if (debugLevel == 0 && profiler != null) {
+            profiler.enterMethod(name);
+        }
+    }
+
+    /**
+     * Called at all exit points of a method. Used by the profiler.
+     *
+     * THIS METHOD IS CALLED BY THE INSTRUMENTER.
+     *
+     * @param name the name of the method that is being exited
+     */
+    public static void exitMethod(String name) {
+        if (debugLevel == 0 && profiler != null) {
+            profiler.exitMethod(name);
+        }
     }
 
     /**

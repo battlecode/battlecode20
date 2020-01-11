@@ -1,13 +1,12 @@
 package battlecode.instrumenter.bytecode;
 
 import battlecode.common.GameConstants;
+import battlecode.instrumenter.InstrumentationException;
 import battlecode.instrumenter.TeamClassLoaderFactory;
 import battlecode.server.ErrorReporter;
-import battlecode.instrumenter.InstrumentationException;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -153,6 +152,9 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
 
         boolean anyTryCatch = tryCatchBlocks.size() > 0;
 
+        // must be called before addDebugHandler() so debug methods are profiled properly
+        addEnterMethodHandler();
+
         if (debugMethodsEnabled && name.startsWith(DEBUG_PREFIX) && desc.endsWith("V")) {
             addDebugHandler();
         }
@@ -183,6 +185,38 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
                 n.getType() == AbstractInsnNode.LABEL)
             n = n.getNext();
         return n;
+    }
+
+    private void addEnterMethodHandler() {
+        // call "enterMethod" at the beginning of the method
+        instructions.insertBefore(
+                nextInstruction(instructions.getFirst()),
+                new MethodInsnNode(
+                        INVOKESTATIC,
+                        "battlecode/instrumenter/inject/RobotMonitor",
+                        "enterMethod",
+                        "(" + Type.getDescriptor(String.class) + ")V",
+                        false
+                )
+        );
+        instructions.insertBefore(
+                nextInstruction(instructions.getFirst()),
+                new LdcInsnNode(className.replaceAll("/", ".") + "." + name)
+        );
+    }
+
+    private void addExitMethodHandler(AbstractInsnNode n) {
+        // call "exitMethod" at every exit point of a method (return and throw)
+        instructions.insertBefore(n, new LdcInsnNode(
+                className.replaceAll("/", ".") + "." + name
+        ));
+        instructions.insertBefore(n, new MethodInsnNode(
+                INVOKESTATIC,
+                "battlecode/instrumenter/inject/RobotMonitor",
+                "exitMethod",
+                "(" + Type.getDescriptor(String.class) + ")V",
+                false
+        ));
     }
 
     @SuppressWarnings("unchecked")
@@ -262,6 +296,7 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
             case ARETURN:
             case RETURN:
                 endOfBasicBlock(n);
+                addExitMethodHandler(n);
                 if (name.startsWith("debug_") && desc.endsWith("V")) {
                     instructions.insertBefore(n, new MethodInsnNode(
                             INVOKESTATIC,
@@ -273,6 +308,7 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
                 break;
             case ATHROW:
                 endOfBasicBlock(n);
+                addExitMethodHandler(n);
                 break;
             case MONITORENTER:
             case MONITOREXIT:

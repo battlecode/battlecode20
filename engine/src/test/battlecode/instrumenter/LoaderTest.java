@@ -1,5 +1,6 @@
 package battlecode.instrumenter;
 
+import battlecode.instrumenter.profiler.Profiler;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,8 +67,9 @@ public class LoaderTest {
         monitor1.getMethod("init",
                 SandboxedRobotPlayer.Pauser.class,
                 SandboxedRobotPlayer.Killer.class,
-                int.class)
-                .invoke(null, pauser, killer, 0);
+                int.class,
+                Profiler.class)
+                .invoke(null, pauser, killer, 0, null);
         monitor1.getMethod("setBytecodeLimit", int.class)
                 .invoke(null, Integer.MAX_VALUE);
 

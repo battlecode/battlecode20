@@ -1,9 +1,12 @@
 package battlecode.server;
 
-import battlecode.common.GameConstants;
 import battlecode.common.Team;
+import battlecode.instrumenter.profiler.ProfilerCollection;
 import battlecode.world.*;
-import battlecode.world.control.*;
+import battlecode.world.control.CowControlProvider;
+import battlecode.world.control.PlayerControlProvider;
+import battlecode.world.control.RobotControlProvider;
+import battlecode.world.control.TeamControlProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -151,8 +154,14 @@ public strictfp class Server implements Runnable {
 
             debug("Running: "+currentGame);
 
+            // Create a collection of profilers if profiling is enabled
+            ProfilerCollection profilerCollection = null;
+            if (options.getBoolean("bc.engine.enable-profiler")) {
+                profilerCollection = new ProfilerCollection();
+            }
+
             // Set up our control provider
-            final RobotControlProvider prov = createControlProvider(currentGame, gameMaker);
+            final RobotControlProvider prov = createControlProvider(currentGame, gameMaker, profilerCollection);
 
             // Count wins
             int aWins = 0, bWins = 0;
@@ -191,6 +200,13 @@ public strictfp class Server implements Runnable {
             Team winner = aWins >= bWins ? Team.A : Team.B;
             gameMaker.makeGameFooter(winner);
             gameMaker.writeGame(currentGame.getSaveFile());
+
+            if (profilerCollection != null) {
+                // Save profiling results to a json file next to the replays file
+                // Saving it in the replays file would blow up its file size making it nearly impossible to share
+                File outputFile = new File(currentGame.getSaveFile().getAbsolutePath() + ".json");
+                profilerCollection.writeToFile(outputFile);
+            }
         }
     }
 
@@ -275,10 +291,14 @@ public strictfp class Server implements Runnable {
     /**
      * Create a RobotControlProvider for a game.
      *
-     * @param game the game to provide control for
+     * @param game               the game to provide control for
+     * @param gameMaker          the game maker containing the output streams for robot logs
+     * @param profilerCollection the collection to add profilers to (profiling is disabled if null)
      * @return a fresh control provider for the game
      */
-    private RobotControlProvider createControlProvider(GameInfo game, GameMaker gameMaker) {
+    private RobotControlProvider createControlProvider(GameInfo game,
+                                                       GameMaker gameMaker,
+                                                       ProfilerCollection profilerCollection) {
         // Strictly speaking, this should probably be somewhere in battlecode.world
         // Whatever
 
@@ -286,11 +306,21 @@ public strictfp class Server implements Runnable {
 
         teamProvider.registerControlProvider(
                 Team.A,
-                new PlayerControlProvider(game.getTeamAPackage(), game.getTeamAURL(), gameMaker.getMatchMaker().getOut())
+                new PlayerControlProvider(
+                        game.getTeamAPackage(),
+                        game.getTeamAURL(),
+                        gameMaker.getMatchMaker().getOut(),
+                        profilerCollection
+                )
         );
         teamProvider.registerControlProvider(
                 Team.B,
-                new PlayerControlProvider(game.getTeamBPackage(), game.getTeamBURL(), gameMaker.getMatchMaker().getOut())
+                new PlayerControlProvider(
+                        game.getTeamBPackage(),
+                        game.getTeamBURL(),
+                        gameMaker.getMatchMaker().getOut(),
+                        profilerCollection
+                )
         );
         teamProvider.registerControlProvider(
                 Team.NEUTRAL,
