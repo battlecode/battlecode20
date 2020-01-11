@@ -206,10 +206,10 @@ public class SandboxedRobotPlayer {
                 // Ensure that we know we're terminated.
                 this.terminated = true;
 
-                // Tell the profiler it's the end
+                // Tell the profiler the run(RobotController) method exited
                 // It cannot detect when the run(RobotController) method exits when a bot dies any other way
                 if (profiler != null) {
-                    profiler.exitOpenMethods();
+                    profiler.exitAllOpenMethods();
                 }
 
                 // Unpause the main thread, which is waiting on the player thread.

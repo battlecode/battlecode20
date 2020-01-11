@@ -206,10 +206,8 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
     }
 
     private void addExitMethodHandler(AbstractInsnNode n) {
-        // call "exitMethod" at every exit point of a method (return and throw)
-        instructions.insertBefore(n, new LdcInsnNode(
-                className.replaceAll("/", ".") + "." + name
-        ));
+        // call "exitMethod" at every exit point of a method (return, implicit return and throw)
+        instructions.insertBefore(n, new LdcInsnNode(className.replaceAll("/", ".") + "." + name));
         instructions.insertBefore(n, new MethodInsnNode(
                 INVOKESTATIC,
                 "battlecode/instrumenter/inject/RobotMonitor",

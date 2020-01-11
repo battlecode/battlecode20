@@ -243,11 +243,11 @@ public final class RobotMonitor {
      *
      * THIS METHOD IS CALLED BY THE INSTRUMENTER.
      *
-     * @param name the name of the method that is being entered
+     * @param methodName the name of the method that is being entered
      */
-    public static void enterMethod(String name) {
+    public static void enterMethod(String methodName) {
         if (debugLevel == 0 && profiler != null) {
-            profiler.enterMethod(name);
+            profiler.enterMethod(methodName);
         }
     }
 
@@ -256,11 +256,11 @@ public final class RobotMonitor {
      *
      * THIS METHOD IS CALLED BY THE INSTRUMENTER.
      *
-     * @param name the name of the method that is being exited
+     * @param methodName the name of the method that is being exited
      */
-    public static void exitMethod(String name) {
+    public static void exitMethod(String methodName) {
         if (debugLevel == 0 && profiler != null) {
-            profiler.exitMethod(name);
+            profiler.exitMethod(methodName);
         }
     }
 
