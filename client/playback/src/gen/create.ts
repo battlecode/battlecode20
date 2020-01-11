@@ -11,7 +11,7 @@ const maxID = 4096;
 const bodyTypeList = [
   schema.BodyType.MINER,
   schema.BodyType.LANDSCAPER,
-  schema.BodyType.DRONE,
+  schema.BodyType.DELIVERY_DRONE,
   schema.BodyType.NET_GUN,
   schema.BodyType.COW,
   schema.BodyType.REFINERY,
@@ -19,7 +19,6 @@ const bodyTypeList = [
   schema.BodyType.HQ,
   schema.BodyType.DESIGN_SCHOOL,
   schema.BodyType.FULFILLMENT_CENTER,
-  schema.BodyType.NONE
 ];
 const bodyVariety = bodyTypeList.length;
 
@@ -207,9 +206,10 @@ function createGameHeader(builder: flatbuffers.Builder): flatbuffers.Offset {
     btmd.addDirtLimit(builder, 10);
     btmd.addSoupLimit(builder, 100);
     btmd.addActionCooldown(builder, 10.0);
-    btmd.addSensorRadius(builder, 3);
-    btmd.addPollutionRadius(builder, 3);
-    btmd.addPollutionAmount(builder, 1);
+    btmd.addSensorRadiusSquared(builder, 3);
+    btmd.addPollutionRadiusSquared(builder, 3);
+    btmd.addLocalPollutionAdditiveEffect(builder, 1);
+    btmd.addLocalPollutionMultiplicativeEffect(builder, 1);
     btmd.addMaxSoupProduced(builder, 0);
     btmd.addBytecodeLimit(builder, 1000);
     bodies.push(schema.BodyTypeMetadata.endBodyTypeMetadata(builder));
@@ -369,7 +369,7 @@ function createPickGame(turns: number) {
     teamIDs[i] = i%2+1; // 1 2 1 2 1 2 ...
 
     let type = Math.floor(i/2);
-    if(type>=bodyVariety) type = schema.BodyType.DRONE;
+    if(type>=bodyVariety) type = schema.BodyType.DELIVERY_DRONE;
     else type = bodyTypeList[type];
     types[i] = type;
 
