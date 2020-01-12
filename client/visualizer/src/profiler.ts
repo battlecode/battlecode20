@@ -7,12 +7,22 @@ function applyCSS(css: string): void {
   document.head.appendChild(style);
 }
 
-window.addEventListener('message', (event) => {
+window.addEventListener('message', event => {
   const data = event.data;
 
   switch (data.type) {
     case 'apply-css':
       applyCSS(data.payload);
       break;
+  }
+});
+
+// Make sure the "flamegraph" link on the homepage opens in a new tab instead of inside the iframe itself
+document.addEventListener('click', event => {
+  const target = event.target as HTMLElement;
+  if (target.tagName === 'A'
+    && target.getAttribute('href') === 'http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html') {
+    window.open('http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html', '_blank');
+    event.preventDefault();
   }
 });
