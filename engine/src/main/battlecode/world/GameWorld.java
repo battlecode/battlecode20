@@ -690,7 +690,7 @@ public strictfp class GameWorld {
         // process messages, take the K first ones!
         ArrayList<Transaction> block = new ArrayList<Transaction>();
         for (int i = 0; i < GameConstants.NUMBER_OF_TRANSACTIONS_PER_BLOCK; i++) {
-            if (blockchainQueue.size() == 0) { break; }
+            if (blockchainQueue.size() <= 0) { break; }
 
             Transaction transaction = blockchainQueue.poll();
             // send this to match maker!
