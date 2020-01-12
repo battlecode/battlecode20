@@ -156,20 +156,23 @@ public strictfp class GameWorld {
     }
 
     private boolean updateRobot(InternalRobot robot) {
-        if (robot.isBlocked()) // blocked robots don't get a turn
-            return true;
+        if (robot.isBlocked()) {// blocked robots don't get a turn
+            if (robot.getType().canAffectPollution()) { 
+                resetPollutionForRobot(robot.getID());  
+            }   
+            return true;    
+        } else {    
+            robot.processBeginningOfTurn(); 
+            this.controlProvider.runRobot(robot);   
+            robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));   
+            robot.processEndOfTurn();   
 
-        robot.processBeginningOfTurn();
-        this.controlProvider.runRobot(robot);
-        robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
-        robot.processEndOfTurn();
-
-        // If the robot terminates but the death signal has not yet
-        // been visited:
-        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
-            destroyRobot(robot.getID());
-        return true;
-    }
+            // If the robot terminates but the death signal has not yet 
+            // been visited:    
+            if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)    
+                destroyRobot(robot.getID());    
+            return true;                return true;
+        }
 
     // *********************************
     // ****** BASIC MAP METHODS ********
@@ -620,6 +623,7 @@ public strictfp class GameWorld {
         // update the round statistics
         matchMaker.addTeamSoup(Team.A, teamInfo.getSoup(Team.A));
         matchMaker.addTeamSoup(Team.B, teamInfo.getSoup(Team.B));
+        matchMaker.setGlobalPollution(this.globalPollution);
 
         if (gameStats.getWinner() != null)
             running = false;
