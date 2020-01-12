@@ -575,7 +575,7 @@ public strictfp class GameWorld {
     public boolean setWinnerHighestRobotID() {
         InternalRobot highestIDRobot = null;
         for (InternalRobot robot : objectInfo.robotsArray())
-            if (highestIDRobot == null || robot.getID() > highestIDRobot.getID())
+            if ((highestIDRobot == null || robot.getID() > highestIDRobot.getID()) && robot.getTeam() != Team.NEUTRAL)
                 highestIDRobot = robot;
         if (highestIDRobot == null)
             return false;
