@@ -56,7 +56,7 @@ public class CowControlProvider implements RobotControlProvider {
 
         this.world = world;
         this.s = getSymmetry();
-        System.out.println("symmetry is " + this.s + "!!!");
+        //System.out.println("symmetry is " + this.s + "!!!");
     }
 
     @Override
@@ -104,7 +104,7 @@ public class CowControlProvider implements RobotControlProvider {
             if (rc.isReady()) {
                 while (i-->0) { 
                     Direction dir = DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
-                    System.out.println("round: " + world.getCurrentRound() + "id: " + cow.getID() + "dir: " + dir);
+                    //System.out.println("round: " + world.getCurrentRound() + "id: " + cow.getID() + "dir: " + dir);
                     MapLocation loc = cow.getLocation();
                     if (cow.getID() % 2 == 1) dir = reverseDirection(dir);
                     if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
