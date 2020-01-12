@@ -95,7 +95,7 @@ public class CowControlProvider implements RobotControlProvider {
         try {
             if (rc.isReady()) {
                 int i = 4;
-                Random random = new Random(23 * world.getMapSeed() + 9 * world.getCurrentRound() + 33 * (cow.getID() / 2));
+                Random random = new Random(84307 * world.getMapSeed() + 12983 * world.getCurrentRound() + 20201 * (cow.getID() / 2));
                 while (i-->0) { 
                     Direction dir = DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
                     System.out.println("round: " + world.getCurrentRound() + "id: " + cow.getID() + "dir: " + dir);
