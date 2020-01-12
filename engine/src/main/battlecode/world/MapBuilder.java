@@ -274,7 +274,7 @@ public class MapBuilder {
     /**
      * Returns true if the map is valid.
      *
-     * WARNING: DON'T TRUST THIS COMPLETELY.
+     * WARNING: DON'T TRUST THIS COMPLETELY. THIS DOES NOT VERIFY SYMMETRY.
      * @return
      */
     public void assertIsValid() {
@@ -316,6 +316,17 @@ public class MapBuilder {
                     throw new RuntimeException("The HQ must not flood at an effective elevation between 2-5! It currently does not flood at 5.");
                 }
             }
+        }
+
+        // HQ will not start adjacent to deep water
+        // here we define deep water to be -10
+        for (MapLocation HQLoc : HQLocations) {
+            for (int x = 0; x < width; x++)
+                for (int y=0; y < height; y++) {
+                    if (HQLoc.isAdjacentTo(new MapLocation(x,y)) && waterArray[locationToIndex(x,y)] && dirtArray[locationToIndex(x,y)] < -10) {
+                        throw new RuntimeException("HQ may not start next to water that has elevation < -10 (position (" + x + "," + y + ")");
+                    }
+                }
         }
 
         // check if there is a -inf water tile
