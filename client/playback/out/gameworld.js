@@ -465,36 +465,6 @@ class GameWorld {
         initList.forEach((arr) => {
             soa_1.default.fill(arr, 0, startIndex, this.bodies.length);
         });
-        // StructOfArrays.fill(
-        //   this.bodies.arrays.onDirt,
-        //   0,
-        //   startIndex,
-        //   this.bodies.length
-        // );
-        // StructOfArrays.fill(
-        //   this.bodies.arrays.carryDirt,
-        //   0,
-        //   startIndex,
-        //   this.bodies.length
-        // );
-        // StructOfArrays.fill(
-        //   this.bodies.arrays.cargo,
-        //   0,
-        //   startIndex,
-        //   this.bodies.length
-        // );
-        // StructOfArrays.fill(
-        //   this.bodies.arrays.isCarried,
-        //   0,
-        //   startIndex,
-        //   this.bodies.length
-        // );
-        // StructOfArrays.fill(
-        //   this.bodies.arrays.bytecodesUsed,
-        //   0,
-        //   startIndex,
-        //   this.bodies.length
-        // );
     }
 }
 exports.default = GameWorld;
