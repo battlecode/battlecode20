@@ -69,7 +69,7 @@ public final strictfp class MapLocation implements Serializable, Comparable<MapL
      */
     @Override
     public int hashCode() {
-        return this.x * 13 + this.y * 23;
+        return (this.y + 0x8000) & 0xffff | (this.x << 16);
     }
 
     public static MapLocation valueOf(String s) {
