@@ -155,6 +155,17 @@ export default class Sidebar {
     input box. (WARNING: If you want to, say, suddenly display 3000 rounds
     of data on round 2999, pause the client first to prevent freezing.)<br>
     <br>
+    <b class="red">How to Use the Profiler</b><br>
+    The profiler can be used to find out which methods are using a lot of
+    bytecodes. To use it, tick the "Profiler enabled" checkbox in the
+    Runner before running the game. Make sure that the runFromClient
+    Gradle task sets bc.engine.enable-profiler to the value of the
+    "profilerEnabled" property, as can be seen in the
+    <a href="https://github.com/battlecode/battlecode20-scaffold/blob/master/build.gradle" target="_blank">scaffold player</a>.
+    Make sure to add the "profilerEnabled" property to your
+    <a href="https://github.com/battlecode/battlecode20-scaffold/blob/master/build.gradle" target="_blank">gradle.properties</a>
+    file as well.
+    <br>
     <!---
     <b class="blue">How to Use the Map Editor</b><br>
     Select the initial map settings: name, width, height, symmetry. Add trees

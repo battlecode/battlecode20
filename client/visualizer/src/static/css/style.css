@@ -53,6 +53,21 @@ p {
     font-family: Tahoma;
 }
 
+#profiler {
+    font-size: 16px;
+    padding: 10px;
+}
+
+#profiler span {
+    display: inline-block;
+    width: 55px;
+    text-align: left;
+}
+
+#profiler select {
+    width: 140px;
+}
+
 .removeButton {
     float: right;
 }
