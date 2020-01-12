@@ -13,12 +13,14 @@ public class TeamInfo {
     private GameWorld gameWorld;
     private int[] teamSoup;
     private boolean[] destroyedHQ;
+    private int[] blockchainsSent;
 
     public TeamInfo(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
         this.teamSoup = new int[2];
         Arrays.fill(teamSoup, GameConstants.INITIAL_SOUP);
         this.destroyedHQ = new boolean[2];
+        blockchainsSent = new int[2];
     }
 
     // *********************************
@@ -28,6 +30,10 @@ public class TeamInfo {
     // Breaks if t.ordinal() > 1 (Team NEUTRAL)
     public int getSoup(Team t) {
         return teamSoup[t.ordinal()];
+    }
+
+    public int getBlockchainsSent(Team t) {
+        return blockchainsSent[t.ordinal()];
     }
 
     // *********************************
@@ -49,5 +55,9 @@ public class TeamInfo {
 
     public void destroyHQ(Team t) {
         destroyedHQ[t.ordinal()] = true;
+    }
+
+    public void addBlockchainSent(Team t) {
+        blockchainsSent[t.ordinal()]++;
     }
 }
