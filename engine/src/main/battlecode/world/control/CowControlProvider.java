@@ -8,10 +8,6 @@ import battlecode.world.InternalRobot;
 
 import java.util.*;
 
-/**
- * TODO: either have cows increase pollution here, or have something global that increases pollution based on cows
- * in some other file
- */
 public class CowControlProvider implements RobotControlProvider {
 
     /**
@@ -38,11 +34,14 @@ public class CowControlProvider implements RobotControlProvider {
      */
     private GameWorld world;
 
+    private enum MapSymmetry {rotational, horizontal, vertical};
 
     /**
-     * An rng based on the world seed.
+     * The symmetry of the world.
      */
-    private static Random random;
+    private MapSymmetry s;
+
+    private HashMap<Integer, Random> idToRandom = new HashMap<Integer, Random>();
 
 
     /**
@@ -56,7 +55,8 @@ public class CowControlProvider implements RobotControlProvider {
         assert this.world == null;
 
         this.world = world;
-        this.random = new Random(world.getMapSeed());
+        this.s = getSymmetry();
+        //System.out.println("symmetry is " + this.s + "!!!");
     }
 
     @Override
@@ -64,8 +64,6 @@ public class CowControlProvider implements RobotControlProvider {
         assert this.world != null;
 
         this.world = null;
-        this.random = null;
-        //this.denQueues.clear();
     }
 
     @Override
@@ -97,10 +95,18 @@ public class CowControlProvider implements RobotControlProvider {
         final RobotController rc = cow.getController();
 
         try {
+            if (!idToRandom.containsKey(cow.getID())) {
+                Random newRandom = new Random(84307 * world.getMapSeed() + 20201 * (cow.getID() / 2));
+                idToRandom.put(cow.getID(), newRandom);
+            }
+            int i = 4;
+            Random random = idToRandom.get(cow.getID());
             if (rc.isReady()) {
-                int i = 4;
                 while (i-->0) { 
-                    Direction dir = randomDirection();
+                    Direction dir = DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
+                    //System.out.println("round: " + world.getCurrentRound() + "id: " + cow.getID() + "dir: " + dir);
+                    MapLocation loc = cow.getLocation();
+                    if (cow.getID() % 2 == 1) dir = reverseDirection(dir);
                     if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
                         rc.move(dir);
                         break;
@@ -108,13 +114,96 @@ public class CowControlProvider implements RobotControlProvider {
                 }
                 return;
             }
+            while (i-->0)
+                random.nextDouble();
         } catch (Exception e) {
             ErrorReporter.report(e, true);
         }
     }
 
-    Direction randomDirection() {
-        return DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
+    private Direction reverseDirection(Direction dir) {
+        switch (s) {
+            case horizontal:
+                if (dir == Direction.NORTHEAST) return Direction.SOUTHEAST;
+                if (dir == Direction.SOUTHEAST) return Direction.NORTHEAST;
+                if (dir == Direction.NORTH) return Direction.SOUTH;
+                if (dir == Direction.SOUTH) return Direction.NORTH;
+                if (dir == Direction.NORTHWEST) return Direction.SOUTHWEST;
+                if (dir == Direction.SOUTHWEST) return Direction.NORTHWEST;
+                return dir;
+            case vertical:
+                if (dir == Direction.NORTHEAST) return Direction.NORTHWEST;
+                if (dir == Direction.SOUTHEAST) return Direction.SOUTHWEST;
+                if (dir == Direction.NORTHWEST) return Direction.NORTHEAST;
+                if (dir == Direction.SOUTHWEST) return Direction.SOUTHEAST;
+                if (dir == Direction.WEST) return Direction.EAST;
+                if (dir == Direction.EAST) return Direction.WEST;
+                return dir;
+            case rotational:
+                return dir.opposite();
+            default:
+                return dir;
+        }
+    }
+
+    private MapSymmetry getSymmetry() {
+
+        ArrayList<MapSymmetry> possible = new ArrayList<MapSymmetry>();
+        possible.add(MapSymmetry.vertical); 
+        possible.add(MapSymmetry.horizontal);
+        possible.add(MapSymmetry.rotational);
+
+        for (int x = 0; x < world.getGameMap().getWidth(); x++) {
+            for (int y = 0; y < world.getGameMap().getHeight(); y++) {
+                MapLocation current = new MapLocation(x, y);
+                InternalRobot bot = world.getRobot(current);
+                RobotInfo cri = null;
+                if(bot != null)
+                    cri = bot.getRobotInfo();
+                for (int i = 2; i >= 0; i--) {
+                    MapSymmetry symmetry = possible.get(i);
+                    MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
+                    if (world.getSoup(current) != world.getSoup(symm)) possible.remove(symmetry);
+                    bot = world.getRobot(symm);
+                    RobotInfo sri = null;  
+                    if (bot != null) sri = bot.getRobotInfo();
+                    if (!(cri == null) || !(sri == null)) {
+                        if (cri == null && sri == null) {
+                            possible.remove(symmetry);
+                        };
+                        if (cri.getType() != sri.getType())
+                            possible.remove(symmetry);
+
+                    }
+                }
+                if (possible.size() == 1) break;
+            }
+            if (possible.size() == 1) break;
+        }
+
+        return possible.get(0);
+    }
+
+    public int symmetricY(int y, MapSymmetry symmetry) {
+        switch (symmetry) {
+            case vertical:
+                return y;
+            case horizontal:
+            case rotational:
+            default:
+                return world.getGameMap().getHeight() - 1 - y;
+        }
+    }
+
+    public int symmetricX(int x, MapSymmetry symmetry) {
+        switch (symmetry) {
+            case horizontal:
+                return x;
+            case vertical:
+            case rotational:
+            default:
+                return world.getGameMap().getWidth() - 1 - x;
+        }
     }
 
     @Override
