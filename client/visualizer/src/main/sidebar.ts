@@ -163,7 +163,7 @@ export default class Sidebar {
     "profilerEnabled" property, as can be seen in the
     <a href="https://github.com/battlecode/battlecode20-scaffold/blob/master/build.gradle" target="_blank">scaffold player</a>.
     Make sure to add the "profilerEnabled" property to your
-    <a href="https://github.com/battlecode/battlecode20-scaffold/blob/master/build.gradle" target="_blank">gradle.properties</a>
+    <a href="https://github.com/battlecode/battlecode20-scaffold/blob/master/gradle.properties" target="_blank">gradle.properties</a>
     file as well.
     <br>
     <!---
