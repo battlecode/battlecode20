@@ -75,34 +75,21 @@ export default class Profiler {
   private createIFrame(): HTMLIFrameElement {
     const frame = document.createElement('iframe');
 
-    frame.src = 'bc20/speedscope/index.html';
-    frame.onload = () => this.iframeOnLoad();
+    frame.src = 'bc20/speedscope/index.html#localProfilePath=../profiler.js';
+    frame.onload = () => {
+      // Hide the Export and Import buttons in the top-right corner and certain elements on the homepage
+      this.sendToIFrame('apply-css', `
+        body > div > div:nth-child(2) > div:last-child > div:not(:last-child),
+        body > div > div:nth-child(3) > div > div > p:nth-child(2),
+        body > div > div:nth-child(3) > div > div > p:last-child,
+        #file,
+        label[for="file"] {
+          display: none !important;
+        }
+      `);
+    };
 
     return frame;
-  }
-
-  private iframeOnLoad(): void {
-    const doc = this.iframe.contentDocument;
-
-    if (doc == null) {
-      return;
-    }
-
-    // Hide the Export and Import buttons in the top-right corner and certain elements on the homepage
-    const css = `
-      body > div > div:nth-child(2) > div:last-child > div:not(:last-child),
-      body > div > div:nth-child(3) > div > div > p:nth-child(2),
-      body > div > div:nth-child(3) > div > div > p:last-child,
-      #file,
-      label[for="file"] {
-        display: none !important;
-      }
-      
-    `;
-
-    const style = doc.createElement('style');
-    style.innerHTML = css;
-    doc.head.appendChild(style);
   }
 
   private addSelectOption(select: HTMLSelectElement, label: string, value: string = label): void {
@@ -131,5 +118,12 @@ export default class Profiler {
     console.log(`Changed robot to ${newRobotId}`);
 
     // TODO(jmerle): Load newRobotId's profiling results
+  }
+
+  private sendToIFrame(type: string, payload: string) {
+    const frame = this.iframe.contentWindow;
+    if (frame !== null) {
+      frame.postMessage({type, payload}, '*');
+    }
   }
 }

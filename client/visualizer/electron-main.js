@@ -49,6 +49,11 @@ function createWindow () {
   });
 }
 
+// This is needed so that the speedscope iframe on the Profiler tab does not throw cross-origin errors
+// The speedscope iframe loads speedscope using the file:// protocol which considers all URLs to have separate origins
+// The only way to get around this is to tell Chrome to allow it anyways
+electron.app.commandLine.appendSwitch('disable-site-isolation-trials');
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
