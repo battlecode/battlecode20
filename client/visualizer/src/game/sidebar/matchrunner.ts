@@ -41,7 +41,7 @@ export default class MatchRunner {
   private selectAllMaps: HTMLButtonElement;
   private deselectAllMaps: HTMLButtonElement;
   private runMatch: HTMLButtonElement;
-  private refreshButton: HTMLButtonElement
+  private refreshButton: HTMLButtonElement;
   private runMatchWithoutViewing: HTMLButtonElement;
 
   constructor(conf: Config, cb: () => void, runCb: () => void) {

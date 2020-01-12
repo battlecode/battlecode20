@@ -15,16 +15,18 @@ export default class GameArea {
   readonly splashDiv: HTMLDivElement;
   private readonly wrapper: HTMLDivElement;
   private readonly mapEditorCanvas: HTMLCanvasElement;
+  private readonly profilerIFrame: HTMLIFrameElement;
 
   // Options
-  private readonly conf: Config
+  private readonly conf: Config;
 
-  constructor(conf: Config, images: AllImages, mapEditorCanvas: HTMLCanvasElement) {
+  constructor(conf: Config, images: AllImages, mapEditorCanvas: HTMLCanvasElement, profilerIFrame: HTMLIFrameElement) {
     this.div = document.createElement("div");
     this.div.id = "gamearea";
     this.conf = conf;
     this.images = images;
     this.mapEditorCanvas = mapEditorCanvas;
+    this.profilerIFrame = profilerIFrame;
 
     // Create the canvas
     const wrapper: HTMLDivElement = document.createElement("div");
@@ -105,7 +107,7 @@ export default class GameArea {
   setCanvas() {
     var mode = this.conf.mode;
     // haHAA 
-    var splash = this.conf.splash && mode !== Mode.MAPEDITOR;
+    var splash = this.conf.splash && mode !== Mode.MAPEDITOR && mode !== Mode.PROFILER;
 
     // The canvas can be anything in help mode
     if (mode === Mode.HELP) return;
@@ -125,17 +127,22 @@ export default class GameArea {
       // Reset change listeners
       window.onresize = function() {};
     } else {
-      if (mode === Mode.MAPEDITOR) {
-        this.wrapper.appendChild(this.mapEditorCanvas);
-      } else {
-        this.wrapper.appendChild(this.canvas); // TODO: Only append if a game is available in client.games
-        console.log("Now a game");
+      switch (mode) {
+        case Mode.MAPEDITOR:
+          this.wrapper.appendChild(this.mapEditorCanvas);
+          break;
+        case Mode.PROFILER:
+          this.wrapper.appendChild(this.profilerIFrame);
+          break;
+        default:
+          this.wrapper.appendChild(this.canvas); // TODO: Only append if a game is available in client.games
+          console.log("Now a game");
       }
     }
     
     if(shouldListen) {
       window.onresize = function() {
-        var wrapper = <HTMLDivElement> document.getElementById("canvas-wrapper")
+        var wrapper = <HTMLDivElement> document.getElementById("canvas-wrapper");
         var splash = <HTMLDivElement> document.getElementById("battlecode-splash");
         if(wrapper.firstChild && splash) {
           var currentCanvas = <HTMLCanvasElement> wrapper.firstChild;

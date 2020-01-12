@@ -27,6 +27,18 @@ var conf = {
       { test: /\.css$/, loader: "style-loader!css-loader" }
     ]
   },
+  plugins: [
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, 'node_modules/speedscope/dist/release'),
+        to: path.resolve(__dirname, 'bc20/speedscope')
+      }
+    ])
+  ],
+  devServer: {
+    // Required to ensure the files copied by the CopyWebpackPlugin are copied when running the dev server
+    writeToDisk: true
+  },
   node: {
     fs: "empty"
   }

@@ -5,6 +5,7 @@ import Stats from '../game/sidebar/stats';
 import Console from '../game/sidebar/console';
 import MatchRunner from '../game/sidebar/matchrunner';
 import MatchQueue from '../game/sidebar/matchqueue';
+import Profiler from '../game/sidebar/profiler';
 import MapEditor from '../mapeditor/mapeditor';
 import ScaffoldCommunicator from '../scaffold';
 
@@ -25,6 +26,7 @@ export default class Sidebar {
   readonly mapeditor: MapEditor;
   readonly matchrunner: MatchRunner;
   readonly matchqueue: MatchQueue;
+  readonly profiler: Profiler;
   private readonly help: HTMLDivElement;
 
   // Options
@@ -71,15 +73,16 @@ export default class Sidebar {
       this.updateUpdate();
     });
     this.matchqueue = new MatchQueue(conf, images);
+    this.profiler = new Profiler();
     this.help = this.initializeHelp();
     this.conf = conf;
-    this.onkeydownControls = onkeydownControls
+    this.onkeydownControls = onkeydownControls;
 
     // Initialize div structure
     this.loadStyles();
     this.div.appendChild(this.screamForUpdate());
     this.div.appendChild(this.battlecodeLogo());
-    
+
     const modePanel = document.createElement('table');
     modePanel.className = 'modepanel';
     const modePanelRow = document.createElement('tr');
@@ -88,6 +91,7 @@ export default class Sidebar {
     modePanelRow.appendChild(this.modeButton(Mode.LOGS, "Logs"));
     modePanelRow.appendChild(this.modeButton(Mode.QUEUE, "Queue"));
     modePanelRow.appendChild(this.modeButton(Mode.RUNNER, "Runner"));
+    modePanelRow.appendChild(this.modeButton(Mode.PROFILER, "Profiler"));
     // modePanelRow.appendChild(this.modeButton(Mode.MAPEDITOR, "Map Editor"));
     modePanelRow.appendChild(this.modeButton(Mode.HELP, "Help"));
     modePanel.appendChild(modePanelRow);
@@ -125,8 +129,8 @@ export default class Sidebar {
     <b class="blue">Keyboard Shortcuts</b><br>
     LEFT - Step Back One Turn<br>
     RIGHT - Step Forward One Turn<br>
-    UP - Double the playback speed
-    DOWN - Halve the playback speed
+    UP - Double the playback speed<br>
+    DOWN - Halve the playback speed<br>
     P - Pause/Unpause<br>
     O - Stop<br>
     V - Toggle Indicator Dots/Lines<br>
@@ -195,14 +199,14 @@ export default class Sidebar {
     this.updateText.id = "updateText";
 
     this.updateUpdate();
-    
+
     return this.updateText;
   }
   private updateUpdate() {
     this.updateText.style.display = "none";
     if (process.env.ELECTRON) {
       (async function (splashDiv, version) {
-      
+
         var options = {
           host: '2020.battlecode.org',
           path: '/version.txt'
@@ -213,7 +217,7 @@ export default class Sidebar {
           res.on('data', function(chunk) {
             data += chunk
           }).on('end', function() {
-            
+
             var latest = data;
 
             if(latest.trim() != version.trim()) {
@@ -238,7 +242,7 @@ export default class Sidebar {
   private battlecodeLogo(): HTMLDivElement {
     let logo: HTMLDivElement = document.createElement("div");
     logo.id = "logo";
-    
+
     let boldText = document.createElement("b");
     boldText.innerHTML = "Battlecode 2020";
     logo.appendChild(boldText);
@@ -286,7 +290,7 @@ export default class Sidebar {
       case Mode.GAME:
         this.innerDiv.appendChild(this.stats.div);
         // Reset the onkeydown event listener
-        
+
         document.onkeydown = (event) => {
           this.onkeydownControls(event);
           // @ts-ignore
@@ -309,7 +313,7 @@ export default class Sidebar {
             }
           }
         };
-        
+
         break;
       case Mode.HELP:
         this.innerDiv.appendChild(this.help);
@@ -328,8 +332,13 @@ export default class Sidebar {
       case Mode.QUEUE:
         this.innerDiv.appendChild(this.matchqueue.div);
         break;
+      case Mode.PROFILER:
+        this.innerDiv.append(this.profiler.div);
+        break;
     }
 
-    // this.cb();
+    if (this.cb !== undefined) {
+      this.cb();
+    }
   }
 }

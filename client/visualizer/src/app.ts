@@ -8,7 +8,7 @@ import * as imageloader from './imageloader';
 import Sidebar from './main/sidebar';
 import Controls from './main/controls';
 
-import {Stats, Console, MatchQueue, GameArea, Renderer, NextStep, TickCounter} from './game/index';
+import {Stats, Console, MatchQueue, GameArea, Renderer, NextStep, TickCounter, Profiler} from './game/index';
 import {MapEditor} from './mapeditor/index';
 
 import WebSocketListener from './websocket';
@@ -65,6 +65,7 @@ export default class Client {
   mapeditor: MapEditor;
   gamearea: GameArea; // Inner game area
   console: Console; // Console to display logs
+  profiler: Profiler;
   gamecanvas: HTMLCanvasElement;
   mapcanvas: HTMLCanvasElement;
   matchqueue: MatchQueue; // Match queue
@@ -163,6 +164,7 @@ export default class Client {
     this.console = this.sidebar.console;
     this.mapeditor = this.sidebar.mapeditor;
     this.matchqueue = this.sidebar.matchqueue;
+    this.profiler = this.sidebar.profiler;
     return this.sidebar.div;
   }
 
@@ -170,7 +172,7 @@ export default class Client {
    * Loads canvas to display game world.
    */
   loadGameArea() {
-    this.gamearea = new GameArea(this.conf, this.imgs, this.mapeditor.canvas);
+    this.gamearea = new GameArea(this.conf, this.imgs, this.mapeditor.canvas, this.profiler.iframe);
     this.sidebar.cb = () => {
       this.gamearea.setCanvas();
       this.controls.setControls();
