@@ -297,15 +297,16 @@ public class MapBuilder {
                         q.add(locationToIndex(x,y));
             while (!q.isEmpty()) {
                 Integer f = q.poll();
-                waterTestArray[f] = true;
                 for (Direction d : Direction.allDirections()) {
                     if (!onTheMap(indexToLocation(f).add(d)))
                         continue;
                     int dd = locationToIndex(indexToLocation(f).add(d).x, indexToLocation(f).add(d).y);
                     if (dirtArray[dd] > waterLevel)
                         continue;
-                    if (!waterTestArray[dd])
+                    if (!waterTestArray[dd]) {
+                        waterTestArray[dd] = true;
                         q.add(dd);
+                    }
                 }
             }
             for (MapLocation HQLoc : HQLocations) {
