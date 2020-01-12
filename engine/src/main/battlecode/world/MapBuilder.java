@@ -266,8 +266,7 @@ public class MapBuilder {
      */
     public void saveMap(String pathname) throws IOException {
         // validate
-        if (!valid())
-            throw new RuntimeException("Map isn't valid.");
+        assertIsValid();
         System.out.println("Saving " + this.name + ": has " + Integer.toString(getTotalSoup())+ " total soup.");
         GameMapIO.writeMap(this.build(), new File(pathname));
     }
@@ -278,16 +277,30 @@ public class MapBuilder {
      * WARNING: DON'T TRUST THIS COMPLETELY.
      * @return
      */
-    public boolean valid() {
+    public void assertIsValid() {
+
+        if (width < 32 || height < 32 || width > 64 || height > 64)
+            throw new RuntimeException("The map size must be between 32x32 and 64x64, inclusive.");
+
+        // check HQ effective elevation
+        // just do floodfill
+
+
+
         // check if there is a -inf water tile
+        // note: we don't want to use Integer.MIN_VALUE because we then risk underflow
+        // we can never build higher than this
+        // A good option is Integer.MIN_VALUE / 2.
+        int impossibleHeight = 10000000;
         boolean hasMinInfWater = false;
         for (int x = 0; x < width; x++)
             for (int y=0;y<height;y++)
-                if (waterArray[locationToIndex(x,y)] && dirtArray[locationToIndex(x,y)] <= -10000000) {
+                if (waterArray[locationToIndex(x,y)] && dirtArray[locationToIndex(x,y)] <= -impossibleHeight && dirtArray[locationToIndex(x,y)] >= Integer.MIN_VALUE + impossibleHeight) {
                     hasMinInfWater = true;
                 }
+        if (!hasMinInfWater)
+            throw new RuntimeException("Every map is required to have a water tile with elevation between " + (Integer.MIN_VALUE + impossibleHeight) + " and " + (-impossibleHeight)
+                + ". This map does not have that. Consider using Integer.MIN_VALUE / 2.");
 
-
-        return hasMinInfWater;
     }
 }
