@@ -34,11 +34,6 @@ public class CowControlProvider implements RobotControlProvider {
      */
     private GameWorld world;
 
-    /**
-     * An rng based on the world seed.
-     */
-    private static Random random;
-
     private enum MapSymmetry {rotational, horizontal, vertical};
 
     /**
@@ -58,7 +53,6 @@ public class CowControlProvider implements RobotControlProvider {
         assert this.world == null;
 
         this.world = world;
-        this.random = new Random(world.getMapSeed());
         this.s = getSymmetry();
         System.out.println("symmetry is " + this.s + "!!!");
     }
@@ -68,7 +62,6 @@ public class CowControlProvider implements RobotControlProvider {
         assert this.world != null;
 
         this.world = null;
-        this.random = null;
     }
 
     @Override
@@ -103,7 +96,9 @@ public class CowControlProvider implements RobotControlProvider {
             if (rc.isReady()) {
                 int i = 4;
                 while (i-->0) { 
+                    Random random = new Random(23 * world.getMapSeed() + 9 * world.getCurrentRound() + 33 * (cow.getID() / 2));
                     Direction dir = DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
+                    System.out.println("round: " + world.getCurrentRound() + "id: " + cow.getID() + "dir: " + dir);
                     MapLocation loc = cow.getLocation();
                     if (cow.getID() % 2 == 1) dir = reverseDirection(dir);
                     if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
@@ -120,7 +115,7 @@ public class CowControlProvider implements RobotControlProvider {
 
     private Direction reverseDirection(Direction dir) {
         switch (s) {
-            case vertical:
+            case horizontal:
                 if (dir == Direction.NORTHEAST) return Direction.SOUTHEAST;
                 if (dir == Direction.SOUTHEAST) return Direction.NORTHEAST;
                 if (dir == Direction.NORTH) return Direction.SOUTH;
@@ -128,7 +123,7 @@ public class CowControlProvider implements RobotControlProvider {
                 if (dir == Direction.NORTHWEST) return Direction.SOUTHWEST;
                 if (dir == Direction.SOUTHWEST) return Direction.NORTHWEST;
                 return dir;
-            case horizontal:
+            case vertical:
                 if (dir == Direction.NORTHEAST) return Direction.NORTHWEST;
                 if (dir == Direction.SOUTHEAST) return Direction.SOUTHWEST;
                 if (dir == Direction.NORTHWEST) return Direction.NORTHEAST;
