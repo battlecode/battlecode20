@@ -971,6 +971,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Transaction transaction = new Transaction(cost, message.clone(), id);
         // add
         gameWorld.addTransaction(transaction);
+        gameWorld.associateTransaction(transaction, getTeam());
     }
 
     /**
