@@ -8,6 +8,8 @@ import battlecode.world.LiveMap;
 import battlecode.world.MapBuilder;
 import battlecode.world.TestMapBuilder;
 
+import battlecode.common.GameConstants;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -68,7 +70,7 @@ public class MapTestSmall {
             }
         }
 
-        mapBuilder.setSymmetricDirt(2, 2, Integer.MIN_VALUE);
+        mapBuilder.setSymmetricDirt(2, 2, GameConstants.MIN_WATER_ELEVATION);
         mapBuilder.saveMap(outputDirectory);
 
     }

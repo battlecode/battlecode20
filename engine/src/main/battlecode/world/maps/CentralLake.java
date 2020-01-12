@@ -2,6 +2,8 @@ package battlecode.world.maps;
 
 import battlecode.world.MapBuilder;
 
+import battlecode.common.GameConstants;
+
 import java.io.IOException;
 
 /**
@@ -66,7 +68,7 @@ public class CentralLake {
         mapBuilder.setSymmetricDirt(8, 9, 2);
         mapBuilder.setSymmetricDirt(8, 8, 2);
 
-        mapBuilder.setSymmetricDirt(20,20,Integer.MIN_VALUE);
+        mapBuilder.setSymmetricDirt(20,20,GameConstants.MIN_WATER_ELEVATION);
         mapBuilder.saveMap(outputDirectory);
 
     }
