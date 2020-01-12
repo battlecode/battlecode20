@@ -41,6 +41,8 @@ public class CowControlProvider implements RobotControlProvider {
      */
     private MapSymmetry s;
 
+    private HashMap<Integer, Random> idToRandom = new HashMap<Integer, Random>();
+
 
     /**
      * Create a CowControlProvider.
@@ -93,9 +95,13 @@ public class CowControlProvider implements RobotControlProvider {
         final RobotController rc = cow.getController();
 
         try {
+            if (!idToRandom.containsKey(cow.getID())) {
+                Random newRandom = new Random(84307 * world.getMapSeed() + 20201 * (cow.getID() / 2));
+                idToRandom.put(cow.getID(), newRandom);
+            }
+            int i = 4;
+            Random random = idToRandom.get(cow.getID());
             if (rc.isReady()) {
-                int i = 4;
-                Random random = new Random(84307 * world.getMapSeed() + 12983 * world.getCurrentRound() + 20201 * (cow.getID() / 2));
                 while (i-->0) { 
                     Direction dir = DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
                     System.out.println("round: " + world.getCurrentRound() + "id: " + cow.getID() + "dir: " + dir);
@@ -108,6 +114,8 @@ public class CowControlProvider implements RobotControlProvider {
                 }
                 return;
             }
+            while (i-->0)
+                random.nextDouble();
         } catch (Exception e) {
             ErrorReporter.report(e, true);
         }
