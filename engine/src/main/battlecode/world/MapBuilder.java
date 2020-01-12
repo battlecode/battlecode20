@@ -4,8 +4,7 @@ import battlecode.common.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Build and validate maps easily.
@@ -289,27 +288,28 @@ public class MapBuilder {
                 HQLocations.add(r.getLocation());
             }
         }
-        boolean[] waterTestArray = this.waterArray;
-        ArrayList<MapLocation> floodOrigins = new ArrayList<MapLocation>();
-        for (int i = 0; i < 5; i++) {
-            waterLevel++;
-            for (int idx = 0; idx < waterTestArray.length; idx++) {
-                if (waterTestArray[idx])
-                    floodOrigins.add(indexToLocation(idx));
-                for (MapLocation center : floodOrigins) {
-                    for (Direction dir : Direction.allDirections()) {
-                        MapLocation targetLoc = center.add(dir);
-                        if (!this.onTheMap(targetLoc))
-                            continue;
-                        int idx2 = locationToIndex(targetLoc.x, targetLoc.y);
-                        if (waterTestArray[idx2] || this.dirtArray[idx2] >= waterLevel)
-                            continue;
-                        waterTestArray[idx2] = true;
-                    }
+        for (int waterLevel = 0; waterLevel < 6; waterLevel++) {
+            boolean[] waterTestArray = waterArray.clone();
+            Queue<Integer> q = new LinkedList<Integer>();
+            for (int x = 0; x < width; x++)
+                for (int y = 0; y < height; y++)
+                    if (waterArray[locationToIndex(x,y)])
+                        q.add(locationToIndex(x,y));
+            while (!q.isEmpty()) {
+                Integer f = q.poll();
+                waterTestArray[f] = true;
+                for (Direction d : Direction.allDirections()) {
+                    if (!onTheMap(indexToLocation(f).add(d)))
+                        continue;
+                    int dd = locationToIndex(indexToLocation(f).add(d).x, indexToLocation(f).add(d).y);
+                    if (dirtArray[dd] > waterLevel)
+                        continue;
+                    if (!waterTestArray[dd])
+                        q.add(dd);
                 }
             }
             for (MapLocation HQLoc : HQLocations) {
-                if (waterLevel == 1 && waterTestArray[locationToIndex(HQLoc.x, HQLoc.y)]) {
+                if (waterLevel <= 1 && waterTestArray[locationToIndex(HQLoc.x, HQLoc.y)]) {
                     throw new RuntimeException("The HQ must not flood at an effective elevation of 1! It currently floods at 0 or 1.");
                 }
                 if (waterLevel == 5 && !waterTestArray[locationToIndex(HQLoc.x, HQLoc.y)]) {
