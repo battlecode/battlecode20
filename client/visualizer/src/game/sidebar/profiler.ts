@@ -92,6 +92,7 @@ export default class Profiler {
     const css = `
       body > div > div:nth-child(2) > div:last-child > div:not(:last-child),
       body > div > div:nth-child(3) > div > div > p:nth-child(2),
+      body > div > div:nth-child(3) > div > div > p:last-child,
       #file,
       label[for="file"] {
         display: none !important;
