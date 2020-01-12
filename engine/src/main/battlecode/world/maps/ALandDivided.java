@@ -2,6 +2,8 @@ package battlecode.world.maps;
 
 import battlecode.world.MapBuilder;
 
+import battlecode.common.GameConstants;
+
 import java.io.IOException;
 
 /**
@@ -76,7 +78,7 @@ public class ALandDivided {
                 mapBuilder.setSymmetricDirt(i,j, v);
             }
         }
-        mapBuilder.setSymmetricDirt((xl + xr)/2, (yb + yt)/2, Integer.MIN_VALUE);
+        mapBuilder.setSymmetricDirt((xl + xr)/2, (yb + yt)/2, GameConstants.MIN_WATER_ELEVATION);
     }
 
 

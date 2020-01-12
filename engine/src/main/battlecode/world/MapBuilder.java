@@ -282,10 +282,41 @@ public class MapBuilder {
         if (width < 32 || height < 32 || width > 64 || height > 64)
             throw new RuntimeException("The map size must be between 32x32 and 64x64, inclusive.");
 
-        // check HQ effective elevation
-        // just do floodfill
-
-
+        // check HQ effective elevation (floods between 1 and 5)
+        ArrayList<MapLocation> HQLocations = new ArrayList<MapLocation>();
+        for (RobotInfo r : bodies) {
+            if (r.getType() == RobotType.HQ) {
+                HQLocations.add(r.getLocation());
+            }
+        }
+        boolean[] waterTestArray = this.waterArray;
+        ArrayList<MapLocation> floodOrigins = new ArrayList<MapLocation>();
+        for (int i = 0; i < 5; i++) {
+            waterLevel++;
+            for (int idx = 0; idx < waterTestArray.length; idx++) {
+                if (waterTestArray[idx])
+                    floodOrigins.add(indexToLocation(idx));
+                for (MapLocation center : floodOrigins) {
+                    for (Direction dir : Direction.allDirections()) {
+                        MapLocation targetLoc = center.add(dir);
+                        if (!this.onTheMap(targetLoc))
+                            continue;
+                        int idx2 = locationToIndex(targetLoc.x, targetLoc.y);
+                        if (waterTestArray[idx2] || this.dirtArray[idx2] >= waterLevel)
+                            continue;
+                        waterTestArray[idx2] = true;
+                    }
+                }
+            }
+            for (MapLocation HQLoc : HQLocations) {
+                if (waterLevel == 1 && waterTestArray[locationToIndex(HQLoc.x, HQLoc.y)]) {
+                    throw new RuntimeException("The HQ must not flood at an effective elevation of 1! It currently floods at 0 or 1.");
+                }
+                if (waterLevel == 5 && !waterTestArray[locationToIndex(HQLoc.x, HQLoc.y)]) {
+                    throw new RuntimeException("The HQ must not flood at an effective elevation between 2-5! It currently does not flood at 5.");
+                }
+            }
+        }
 
         // check if there is a -inf water tile
         // note: we don't want to use Integer.MIN_VALUE because we then risk underflow
@@ -294,13 +325,19 @@ public class MapBuilder {
         int impossibleHeight = 10000000;
         boolean hasMinInfWater = false;
         for (int x = 0; x < width; x++)
-            for (int y=0;y<height;y++)
-                if (waterArray[locationToIndex(x,y)] && dirtArray[locationToIndex(x,y)] <= -impossibleHeight && dirtArray[locationToIndex(x,y)] >= Integer.MIN_VALUE + impossibleHeight) {
+            for (int y=0; y < height; y++)
+                if (waterArray[locationToIndex(x,y)] && dirtArray[locationToIndex(x,y)] == GameConstants.MIN_WATER_ELEVATION) {
                     hasMinInfWater = true;
                 }
         if (!hasMinInfWater)
-            throw new RuntimeException("Every map is required to have a water tile with elevation between " + (Integer.MIN_VALUE + impossibleHeight) + " and " + (-impossibleHeight)
-                + ". This map does not have that. Consider using Integer.MIN_VALUE / 2.");
+            throw new RuntimeException("Every map is required to have a water tile with elevation GameConstants.MIN_WATER_ELEVATION. This map does not have that.");
 
+    }
+    public boolean onTheMap(MapLocation loc) {
+        return loc.x >= 0 && loc.y >= 0 && loc.x < width && loc.y < height;
+    }
+    public MapLocation indexToLocation(int idx) {
+        return new MapLocation(idx % this.width,
+                               idx / this.width);
     }
 }

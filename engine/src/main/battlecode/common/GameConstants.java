@@ -27,6 +27,9 @@ public class GameConstants {
     /** The maximum possible map width. */
     public static final int MAP_MAX_WIDTH = 64;
 
+    /** The elevation of the lowest tile that has water in it on a map **/
+    public static final int MIN_WATER_ELEVATION = Integer.MIN_VALUE/2;
+
     // *********************************
     // ****** GAME PARAMETERS **********
     // *********************************
