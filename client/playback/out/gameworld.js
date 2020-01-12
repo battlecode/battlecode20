@@ -212,28 +212,42 @@ class GameWorld {
                         // could have died
                         // or actually probably not but let's be safe
                         if (this.bodies.index(robotID) != -1) {
-                            arrays.cargo[robotID] += 1; // TODO: this assumes you can only always mine 1 soup
+                            arrays.cargo[robotID] += 1; // TODO: this assumes you can only always mine 1 soup THIS IS ALSO WRONG FORMAT FOR CHANGING SOA; SEE DIG_DIRT
                         }
                         break;
                     case battlecode_schema_1.schema.Action.REFINE_SOUP:
                         break;
                     case battlecode_schema_1.schema.Action.DEPOSIT_SOUP:
                         if (this.bodies.index(robotID) != -1) {
-                            arrays.cargo[robotID] -= 1; // TODO: this assumes you can only always deposit 1 soup
+                            arrays.cargo[robotID] -= 1; // TODO: this assumes you can only always deposit 1 soup WRONG FORMAT FOR CHANGING SOA: SEE DIG_DIRT
                         }
                         break;
                     case battlecode_schema_1.schema.Action.DIG_DIRT:
                         // this.mapStats.dirt[target] -= 1; // this is done somewhere else
                         if (this.bodies.index(robotID) != -1) {
-                            arrays.carryDirt[robotID] += 1;
+                            this.bodies.alter({ id: robotID, carryDirt: this.bodies.arrays.carryDirt[this.bodies.index(robotID)] + 1 });
+                        }
+                        if (this.bodies.index(target) != -1) {
+                            // check if this is a building
+                            if (this.isBuilding(this.bodies.arrays.type[this.bodies.index(target)])) {
+                                // remove onDirt!
+                                console.log(this.bodies.arrays.onDirt[this.bodies.index(target)]);
+                                this.bodies.alter({ id: target, onDirt: this.bodies.arrays.onDirt[this.bodies.index(target)] - 1 });
+                            }
                         }
                         break;
                     case battlecode_schema_1.schema.Action.DEPOSIT_DIRT:
                         // this.mapStats.dirt[target] += 1; // this is done somewhere else
                         if (this.bodies.index(robotID) != -1) {
-                            arrays.carryDirt[robotID] -= 1;
+                            this.bodies.alter({ id: robotID, carryDirt: this.bodies.arrays.carryDirt[this.bodies.index(robotID)] - 1 });
                         }
-                        // add onDirt of buildings?
+                        if (this.bodies.index(target) != -1) {
+                            // check if this is a building
+                            if (this.isBuilding(this.bodies.arrays.type[this.bodies.index(target)])) {
+                                // add onDirt!
+                                this.bodies.alter({ id: target, onDirt: this.bodies.arrays.onDirt[this.bodies.index(target)] + 1 });
+                            }
+                        }
                         break;
                     case battlecode_schema_1.schema.Action.PICK_UNIT:
                         // console.log('unit ' + robotID + " is picking " + target + " at location (" + this.bodies.lookup(robotID).x + "," + this.bodies.lookup(robotID).y + ")");
@@ -411,6 +425,9 @@ class GameWorld {
             });
         }
     }
+    isBuilding(body) {
+        return body == battlecode_schema_1.schema.BodyType.DESIGN_SCHOOL || body == battlecode_schema_1.schema.BodyType.FULFILLMENT_CENTER || body == battlecode_schema_1.schema.BodyType.HQ || body == battlecode_schema_1.schema.BodyType.NET_GUN || body == battlecode_schema_1.schema.BodyType.REFINERY || body == battlecode_schema_1.schema.BodyType.VAPORATOR;
+    }
     insertBodies(bodies) {
         // Update spawn stats
         var teams = bodies.teamIDsArray();
@@ -448,6 +465,36 @@ class GameWorld {
         initList.forEach((arr) => {
             soa_1.default.fill(arr, 0, startIndex, this.bodies.length);
         });
+        // StructOfArrays.fill(
+        //   this.bodies.arrays.onDirt,
+        //   0,
+        //   startIndex,
+        //   this.bodies.length
+        // );
+        // StructOfArrays.fill(
+        //   this.bodies.arrays.carryDirt,
+        //   0,
+        //   startIndex,
+        //   this.bodies.length
+        // );
+        // StructOfArrays.fill(
+        //   this.bodies.arrays.cargo,
+        //   0,
+        //   startIndex,
+        //   this.bodies.length
+        // );
+        // StructOfArrays.fill(
+        //   this.bodies.arrays.isCarried,
+        //   0,
+        //   startIndex,
+        //   this.bodies.length
+        // );
+        // StructOfArrays.fill(
+        //   this.bodies.arrays.bytecodesUsed,
+        //   0,
+        //   startIndex,
+        //   this.bodies.length
+        // );
     }
 }
 exports.default = GameWorld;

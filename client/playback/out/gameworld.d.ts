@@ -153,5 +153,6 @@ export default class GameWorld {
     private insertDiedBodies;
     private insertIndicatorDots;
     private insertIndicatorLines;
+    private isBuilding;
     private insertBodies;
 }

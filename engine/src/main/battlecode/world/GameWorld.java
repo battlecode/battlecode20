@@ -160,20 +160,21 @@ public strictfp class GameWorld {
 
     private boolean updateRobot(InternalRobot robot) {
         if (robot.isBlocked()) {// blocked robots don't get a turn
-            if (robot.getType().canAffectPollution()) { 
-                resetPollutionForRobot(robot.getID());  
-            }   
-            return true;    
-        } else {    
-            robot.processBeginningOfTurn(); 
-            this.controlProvider.runRobot(robot);   
-            robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));   
-            robot.processEndOfTurn();   
+            // still reset pollution tho
+            if (robot.getType().canAffectPollution()) {
+                resetPollutionForRobot(robot.getID());
+            }
+            return true;
+        } else {
+            robot.processBeginningOfTurn();
+            this.controlProvider.runRobot(robot);
+            robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
+            robot.processEndOfTurn();
 
-            // If the robot terminates but the death signal has not yet 
-            // been visited:    
-            if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)    
-                destroyRobot(robot.getID());    
+            // If the robot terminates but the death signal has not yet
+            // been visited:
+            if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
+                destroyRobot(robot.getID());
             return true;
         }
     }
@@ -284,7 +285,6 @@ public strictfp class GameWorld {
 
     public void addGlobalPollution(int amount) {
         this.globalPollution = Math.max(this.globalPollution + amount, 0);
-        getMatchMaker().setGlobalPollution(this.globalPollution);
         pollutionNeedsUpdate = true;
     }
 
@@ -584,9 +584,8 @@ public strictfp class GameWorld {
     public boolean setWinnerHighestRobotID() {
         InternalRobot highestIDRobot = null;
         for (InternalRobot robot : objectInfo.robotsArray())
-            if ((highestIDRobot == null || robot.getID() > highestIDRobot.getID()) && robot.getTeam() != Team.NEUTRAL) {
+            if ((highestIDRobot == null || robot.getID() > highestIDRobot.getID()) && robot.getTeam() != Team.NEUTRAL)
                 highestIDRobot = robot;
-            }
         if (highestIDRobot == null)
             return false;
         setWinner(highestIDRobot.getTeam(), DominationFactor.HIGHBORN);
