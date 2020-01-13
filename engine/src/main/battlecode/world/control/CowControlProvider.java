@@ -74,6 +74,9 @@ public class CowControlProvider implements RobotControlProvider {
 
     @Override
     public void robotSpawned(InternalRobot robot) {
+        // we should update symmetry here. this ensures we account for all robots as well.
+        // we here use the convention that HQs are added before cows
+        this.s = getSymmetry();
     }
 
     @Override
@@ -102,11 +105,12 @@ public class CowControlProvider implements RobotControlProvider {
             int i = 4;
             Random random = idToRandom.get(cow.getID());
             if (rc.isReady()) {
-                while (i-->0) { 
-                    Direction dir = DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
-                    //System.out.println("round: " + world.getCurrentRound() + "id: " + cow.getID() + "dir: " + dir);
+                while (i-->0) {
+                    Direction dir = DIRECTIONS[(int) Math.floor(random.nextDouble() * (double) DIRECTIONS.length)];
+//                    System.out.println("round: " + world.getCurrentRound() + "id: " + cow.getID() + "dir: " + dir);
                     MapLocation loc = cow.getLocation();
                     if (cow.getID() % 2 == 1) dir = reverseDirection(dir);
+//                    System.out.println("final dir: " + dir);
                     if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
                         rc.move(dir);
                         break;
@@ -114,6 +118,7 @@ public class CowControlProvider implements RobotControlProvider {
                 }
                 return;
             }
+            // make sure we always call random.nextDouble four times
             while (i-->0)
                 random.nextDouble();
         } catch (Exception e) {
@@ -160,28 +165,30 @@ public class CowControlProvider implements RobotControlProvider {
                 RobotInfo cri = null;
                 if(bot != null)
                     cri = bot.getRobotInfo();
-                for (int i = 2; i >= 0; i--) {
+                for (int i = possible.size()-1; i >= 0; i--) { // iterating backwards so we can remove in the loop
                     MapSymmetry symmetry = possible.get(i);
                     MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
                     if (world.getSoup(current) != world.getSoup(symm)) possible.remove(symmetry);
+                    if (world.getDirt(current) != world.getDirt(symm)) possible.remove(symmetry);
                     bot = world.getRobot(symm);
                     RobotInfo sri = null;  
                     if (bot != null) sri = bot.getRobotInfo();
                     if (!(cri == null) || !(sri == null)) {
-                        if (cri == null && sri == null) {
+                        if (cri == null || sri == null) {
                             possible.remove(symmetry);
-                        };
-                        if (cri.getType() != sri.getType())
+                        } else if (cri.getType() != sri.getType()) {
                             possible.remove(symmetry);
-
+                        }
                     }
                 }
-                if (possible.size() == 1) break;
+                if (possible.size() <= 1) break;
             }
-            if (possible.size() == 1) break;
+            if (possible.size() <= 1) break;
         }
 
-        return possible.get(0);
+        if (possible.size() > 0)
+            return possible.get(0);
+        return MapSymmetry.rotational;
     }
 
     public int symmetricY(int y, MapSymmetry symmetry) {
