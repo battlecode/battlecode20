@@ -59,7 +59,6 @@
     "files": [
       "bc20/*",
       "index.html",
-      "icon.png",
       "electron-main.js",
       "node_modules/electron"
     ],
