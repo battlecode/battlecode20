@@ -150,16 +150,16 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Senses whether a MapLocation is on the map. The location does
-     * not need to be in the robot's sensor radius for this to return
-     * the correct answer.
+     * Senses whether a MapLocation is on the map. Will throw an exception if
+     * the location is not within the sensor range.
      *
      * @param loc the location to check
      * @return true if the location is on the map; false otherwise.
+     * @throws GameActionException if the location is not within sensor range.
      *
      * @battlecode.doc.costlymethod
      */
-    boolean onTheMap(MapLocation loc);
+    boolean onTheMap(MapLocation loc) throws GameActionException;
 
     /**
      * Senses whether the given location is within the robot's sensor range, and if it is on the map.

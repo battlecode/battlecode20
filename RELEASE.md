@@ -22,6 +22,7 @@ TODO: deploy BACKEND??????
     - `./install_all.sh`
 - Choose a version as $year.$release (e.g. 2020.1.32.2)
 - Run `./pre_release.py $version`.
+    - It will generate a comparison link where you can view the changes since the last version.
     - It will update `specs/specs.md` with version and changelog
     - It will update `gradle.properties` with version
     - It will update `client/visualizer/src/config.ts` with version

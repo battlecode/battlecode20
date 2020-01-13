@@ -286,39 +286,11 @@ export default class Sidebar {
     switch (this.conf.mode) {
       case Mode.GAME:
         this.innerDiv.appendChild(this.stats.div);
-        // Reset the onkeydown event listener
         
-        document.onkeydown = (event) => {
-          this.onkeydownControls(event);
-          // @ts-ignore
-          var input = document.activeElement.nodeName == "INPUT";
-          if(!input) {
-            console.log(input);
-            switch (event.keyCode) {
-              case 67: // "c" - Toggle Circle Bots
-                this.conf.circleBots = !this.conf.circleBots;
-                break;
-              case 86: // "v" - Toggle Indicator Dots and Lines
-                this.conf.indicators = !this.conf.indicators;
-                break;
-              case 66: // "b" - Toggle Interpolation
-                this.conf.interpolate = !this.conf.interpolate;
-                break;
-              case 78: // "n" - Toggle sight radius
-                this.conf.sightRadius = !this.conf.sightRadius;
-                break;
-            }
-          }
-        };
         
         break;
       case Mode.HELP:
         this.innerDiv.appendChild(this.help);
-        break;
-      case Mode.MAPEDITOR:
-        this.innerDiv.appendChild(this.mapeditor.div);
-        // Reset the onkeydown event listener
-        document.onkeydown = this.mapeditor.onkeydown();
         break;
       case Mode.LOGS:
         this.innerDiv.appendChild(this.console.div);

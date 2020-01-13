@@ -231,7 +231,7 @@ class GameWorld {
                             // check if this is a building
                             if (this.isBuilding(this.bodies.arrays.type[this.bodies.index(target)])) {
                                 // remove onDirt!
-                                console.log(this.bodies.arrays.onDirt[this.bodies.index(target)]);
+                                // console.log(this.bodies.arrays.onDirt[this.bodies.index(target)]);
                                 this.bodies.alter({ id: target, onDirt: this.bodies.arrays.onDirt[this.bodies.index(target)] - 1 });
                             }
                         }
