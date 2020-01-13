@@ -78,6 +78,11 @@ public class LimitedPrintStream extends PrintStream {
         }
     }
 
+    public void increaseByteLimit(int x) {
+        if (limit[getArrayIndex()] > 0)
+            limit[getArrayIndex()] += x;
+    }
+
     public void setTeam(Team team) {
         this.team = team;
     }
