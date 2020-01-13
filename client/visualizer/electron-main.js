@@ -15,10 +15,14 @@ var mainWindow;
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1600, height: 1000,
+  mainWindow = new BrowserWindow({
+    width: 1600,
+    height: 1000,
+    icon: path.resolve(__dirname, 'icon.png'),
     webPreferences: {
-    nodeIntegration: true
-    }});
+      nodeIntegration: true
+    }
+  });
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({

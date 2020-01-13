@@ -159,9 +159,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     @Override
-    public boolean onTheMap(MapLocation loc) throws GameActionException {
+    public boolean onTheMap(MapLocation loc) {
         assertNotNull(loc);
-        assertCanSenseLocation(loc);
         return gameWorld.getGameMap().onTheMap(loc);
     }
 
@@ -707,6 +706,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
                     "Cannot pick up unit outside pickup radius; unit is " +
                     getRobotByID(id).getLocation().distanceSquaredTo(getLocation()) +
                             " squared distance away, but the pickup radius squared is " + GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED);
+        if (getRobotByID(id).isBlocked())
+            throw new GameActionException(CANT_PICK_UP_UNIT,
+                    "Cannot pick up a unit that is currently picked up by another drone, which " + id + " is.");
         if (!isReady())
             throw new GameActionException(IS_NOT_READY,
                     "Robot is still cooling down! You need to wait before you can perform another action.");
@@ -741,6 +743,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
         pickedUpRobot.blockUnit();
         gameWorld.removeRobot(pickedUpRobot.getLocation());
         this.robot.pickUpUnit(id);
+        movePickedUpUnit(getLocation());
+        this.robot.addCooldownTurns();
 
         gameWorld.getMatchMaker().addAction(getID(), Action.PICK_UNIT, id);
     }
@@ -817,6 +821,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         movePickedUpUnit(targetLocation);
         this.robot.dropUnit();
         this.gameWorld.addRobot(targetLocation, droppedRobot);
+        this.robot.addCooldownTurns();
 
         gameWorld.getMatchMaker().addAction(getID(), Action.DROP_UNIT, id);
 
@@ -894,6 +899,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public void shootUnit(int id) throws GameActionException {
         assertCanShootUnit(id);
         this.gameWorld.destroyRobot(id);
+        this.robot.addCooldownTurns();
 
         gameWorld.getMatchMaker().addAction(getID(), Action.SHOOT, id);
     }
@@ -932,9 +938,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost)
             throw new GameActionException(NOT_ENOUGH_RESOURCE,
                     "Tried to pay " + Integer.toString(cost) + " units of soup for a message, only has " + Integer.toString(teamSoup) + ".");
-        if (cost < 0)
+        if (cost <= 0)
             throw new GameActionException(OUT_OF_RANGE,
-                    "Can only submit transactions with non-negative cost!");
+                    "Can only submit transactions with positive cost!");
     }
 
     @Override
@@ -965,6 +971,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         Transaction transaction = new Transaction(cost, message.clone(), id);
         // add
         gameWorld.addTransaction(transaction);
+        gameWorld.associateTransaction(transaction, getTeam());
     }
 
     /**

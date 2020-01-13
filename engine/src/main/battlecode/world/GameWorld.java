@@ -62,6 +62,8 @@ public strictfp class GameWorld {
     private PriorityQueue<Transaction> blockchainQueue;
     // the messages that have been broadcasted already
     public ArrayList<ArrayList<Transaction>> blockchain;
+    // associate all transactions with team IDs
+    private HashMap<Transaction, Team> transactionToTeam;
 
     private final GameMaker.MatchMaker matchMaker;
 
@@ -92,6 +94,7 @@ public strictfp class GameWorld {
 
         this.blockchainQueue = new PriorityQueue<Transaction>();
         this.blockchain = new ArrayList<ArrayList<Transaction>>();
+        this.transactionToTeam = new HashMap<Transaction, Team>();
 
         this.matchMaker = matchMaker;
 
@@ -156,19 +159,24 @@ public strictfp class GameWorld {
     }
 
     private boolean updateRobot(InternalRobot robot) {
-        if (robot.isBlocked()) // blocked robots don't get a turn
+        if (robot.isBlocked()) {// blocked robots don't get a turn
+            // still reset pollution tho
+            if (robot.getType().canAffectPollution()) {
+                resetPollutionForRobot(robot.getID());
+            }
             return true;
+        } else {
+            robot.processBeginningOfTurn();
+            this.controlProvider.runRobot(robot);
+            robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
+            robot.processEndOfTurn();
 
-        robot.processBeginningOfTurn();
-        this.controlProvider.runRobot(robot);
-        robot.setBytecodesUsed(this.controlProvider.getBytecodesUsed(robot));
-        robot.processEndOfTurn();
-
-        // If the robot terminates but the death signal has not yet
-        // been visited:
-        if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
-            destroyRobot(robot.getID());
-        return true;
+            // If the robot terminates but the death signal has not yet
+            // been visited:
+            if (this.controlProvider.getTerminated(robot) && objectInfo.getRobotByID(robot.getID()) != null)
+                destroyRobot(robot.getID());
+            return true;
+        }
     }
 
     // *********************************
@@ -277,7 +285,6 @@ public strictfp class GameWorld {
 
     public void addGlobalPollution(int amount) {
         this.globalPollution = Math.max(this.globalPollution + amount, 0);
-        getMatchMaker().setGlobalPollution(this.globalPollution);
         pollutionNeedsUpdate = true;
     }
 
@@ -561,8 +568,14 @@ public strictfp class GameWorld {
      * @return whether or not a winner was set
      */
     public boolean setWinnerIfMoreBroadcasts() {
-        // TODO!! GOSSIP_GIRL
-        return false;
+        if (teamInfo.getBlockchainsSent(Team.A) > teamInfo.getBlockchainsSent(Team.B)) {
+            setWinner(Team.A, DominationFactor.GOSSIP_GIRL);
+        }
+        else if (teamInfo.getBlockchainsSent(Team.A) < teamInfo.getBlockchainsSent(Team.B)) {
+            setWinner(Team.B, DominationFactor.GOSSIP_GIRL);
+        }
+        else return false;
+        return true;
     }
 
     /**
@@ -571,7 +584,7 @@ public strictfp class GameWorld {
     public boolean setWinnerHighestRobotID() {
         InternalRobot highestIDRobot = null;
         for (InternalRobot robot : objectInfo.robotsArray())
-            if (highestIDRobot == null || robot.getID() > highestIDRobot.getID())
+            if ((highestIDRobot == null || robot.getID() > highestIDRobot.getID()) && robot.getTeam() != Team.NEUTRAL)
                 highestIDRobot = robot;
         if (highestIDRobot == null)
             return false;
@@ -619,6 +632,7 @@ public strictfp class GameWorld {
         // update the round statistics
         matchMaker.addTeamSoup(Team.A, teamInfo.getSoup(Team.A));
         matchMaker.addTeamSoup(Team.B, teamInfo.getSoup(Team.B));
+        matchMaker.setGlobalPollution(this.globalPollution);
 
         if (gameStats.getWinner() != null)
             running = false;
@@ -681,17 +695,27 @@ public strictfp class GameWorld {
         blockchainQueue.add(transaction);
     }
 
+    /**
+     * Associate a transaction with a team.
+     * @param transaction The transaction to add.
+     * @param team The team to associate.
+     */
+    public void associateTransaction(Transaction transaction, Team team) {
+        transactionToTeam.put(transaction, team);
+    }
+
     private void processBlockchain() {
         // process messages, take the K first ones!
         ArrayList<Transaction> block = new ArrayList<Transaction>();
         for (int i = 0; i < GameConstants.NUMBER_OF_TRANSACTIONS_PER_BLOCK; i++) {
-            if (blockchainQueue.size() > 0) {
-                Transaction transaction = blockchainQueue.poll();
-                // send this to match maker!
-                matchMaker.addBroadcastedMessage(transaction.getCost(), transaction.getSerializedMessage());
-                // also add it to this round's list of messages!
-                block.add(transaction);
-            }
+            if (blockchainQueue.size() <= 0) { break; }
+
+            Transaction transaction = blockchainQueue.poll();
+            // send this to match maker!
+            matchMaker.addBroadcastedMessage(transaction.getCost(), transaction.getSerializedMessage());
+            // also add it to this round's list of messages!
+            block.add(transaction);
+            teamInfo.addBlockchainSent(transactionToTeam.get(transaction));
         }
         // add this to the blockchain!
         blockchain.add(block);

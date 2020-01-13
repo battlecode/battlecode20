@@ -419,7 +419,7 @@ export default class GameWorld {
             // could have died
             // or actually probably not but let's be safe
             if (this.bodies.index(robotID) != -1) {
-              arrays.cargo[robotID] += 1; // TODO: this assumes you can only always mine 1 soup
+              arrays.cargo[robotID] += 1; // TODO: this assumes you can only always mine 1 soup THIS IS ALSO WRONG FORMAT FOR CHANGING SOA; SEE DIG_DIRT
             }
             break;
 
@@ -428,7 +428,7 @@ export default class GameWorld {
           
           case schema.Action.DEPOSIT_SOUP:
             if (this.bodies.index(robotID) != -1) {
-              arrays.cargo[robotID] -= 1; // TODO: this assumes you can only always deposit 1 soup
+              arrays.cargo[robotID] -= 1; // TODO: this assumes you can only always deposit 1 soup WRONG FORMAT FOR CHANGING SOA: SEE DIG_DIRT
             }
             break;
 
@@ -436,15 +436,29 @@ export default class GameWorld {
           case schema.Action.DIG_DIRT:
             // this.mapStats.dirt[target] -= 1; // this is done somewhere else
             if (this.bodies.index(robotID) != -1) {
-              arrays.carryDirt[robotID] += 1;
+              this.bodies.alter({id: robotID, carryDirt: this.bodies.arrays.carryDirt[this.bodies.index(robotID)] + 1})
+            }
+            if (this.bodies.index(target) != -1) {
+              // check if this is a building
+              if (this.isBuilding(this.bodies.arrays.type[this.bodies.index(target)])) {
+                // remove onDirt!
+                console.log(this.bodies.arrays.onDirt[this.bodies.index(target)]);
+                this.bodies.alter({id: target, onDirt: this.bodies.arrays.onDirt[this.bodies.index(target)] - 1})
+              }
             }
             break;
           case schema.Action.DEPOSIT_DIRT:
             // this.mapStats.dirt[target] += 1; // this is done somewhere else
             if (this.bodies.index(robotID) != -1) {
-              arrays.carryDirt[robotID] -= 1;
+              this.bodies.alter({id: robotID, carryDirt: this.bodies.arrays.carryDirt[this.bodies.index(robotID)] - 1})
             }
-            // add onDirt of buildings?
+            if (this.bodies.index(target) != -1) {
+              // check if this is a building
+              if (this.isBuilding(this.bodies.arrays.type[this.bodies.index(target)])) {
+                // add onDirt!
+                this.bodies.alter({id: target, onDirt: this.bodies.arrays.onDirt[this.bodies.index(target)] + 1})
+              }
+            }
             break;
 
           case schema.Action.PICK_UNIT:
@@ -567,6 +581,7 @@ export default class GameWorld {
             let idx = this.mapStats.getIdx(x, y);
             this.mapStats.pollution[idx] = this.mapStats.globalPollution;
             let multiplier = 1;
+            if (!this.mapStats.localPollutions) continue;
             for (let i = 0; i < this.mapStats.localPollutions.radiiSquaredLength(); i++) {
                 if (this.distanceSquared(this.mapStats.localPollutions.locations().xsArray()[i], this.mapStats.localPollutions.locations().ysArray()[i], x, y) <= this.mapStats.localPollutions.radiiSquaredArray()[i]) {
                     this.mapStats.pollution[idx] += this.mapStats.localPollutions.additiveEffectsArray()[i];
@@ -641,6 +656,10 @@ export default class GameWorld {
     }
   }
 
+  private isBuilding(body: schema.BodyType) {
+    return body == schema.BodyType.DESIGN_SCHOOL || body == schema.BodyType.FULFILLMENT_CENTER || body == schema.BodyType.HQ || body == schema.BodyType.NET_GUN || body == schema.BodyType.REFINERY || body == schema.BodyType.VAPORATOR;
+  }
+
   private insertBodies(bodies: schema.SpawnedBodyTable) {
 
     // Update spawn stats
@@ -677,7 +696,7 @@ export default class GameWorld {
       arrays.isCarried,
       arrays.bytecodesUsed,
     ];
-    
+
     initList.forEach((arr) => {
       StructOfArrays.fill(
         arr,
