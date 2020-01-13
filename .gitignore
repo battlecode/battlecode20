@@ -12,8 +12,6 @@ access.txt
 
 ## Frontend
 frontend/build
-# the visualizer is copied from client into frontend, and should be ignored
-frontend/public/bc20 
 
 ### Gradle ###
 .gradle
