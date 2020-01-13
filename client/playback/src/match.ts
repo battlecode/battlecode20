@@ -241,6 +241,7 @@ export default class Match {
     });
   }
 
+
   /**
    * Parse logs for a round.
    */
@@ -270,13 +271,26 @@ export default class Match {
         throw new Error(`Wrong log format: ${line}`);
       }
 
+      let shortenRobot = new Map();
+      shortenRobot.set("MINER", "M");
+      shortenRobot.set("LANDSCAPER", "L");
+      shortenRobot.set("DELIVERY_DRONE", "DD");
+      shortenRobot.set("NET_GUN", "NG");
+      shortenRobot.set("REFINERY", "R");
+      shortenRobot.set("VAPORATOR", "V");
+      shortenRobot.set("HQ", "HQ");
+      shortenRobot.set("DESIGN_SCHOOL", "DS");
+      shortenRobot.set("FULFILLMENT_CENTER", "FC");
+
       // Get the matches
       let team = matches[1];
       let robotType = matches[2];
       let id = parseInt(matches[3]);
       let logRound = parseInt(matches[4]);
       let text = new Array<string>();
-      text.push(line);
+      let mText = "<span class='consolelogheader consolelogheader1'>[" + team + ":" + robotType + "#" + id + "@" + logRound + "]</span>";
+      let mText2 = "<span class='consolelogheader consolelogheader2'>[" + team + ":" + shortenRobot.get(robotType) + "#" + id + "@" + logRound + "]</span> ";
+      text.push(mText + mText2 + matches[5]);
       index += 1;
 
       // If there is additional non-header text in the following lines, add it

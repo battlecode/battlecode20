@@ -101,6 +101,7 @@ export default class Console {
     this.console.className = "console";
     div.appendChild(this.console);
 
+
     return div;
   }
 
@@ -214,9 +215,29 @@ export default class Console {
           this.pushLine(log);
         }
       });
+    this.updateLogHeader();
 
       // Update the scroll height
       this.console.scrollTop = this.console.scrollHeight;
+    }
+  }
+
+  /**
+   * Update log header using conf info
+   */
+  public updateLogHeader(): void {
+    var sheet = document.createElement('style')
+    sheet.innerHTML = ".consolelogheader1 {display: none;} .consolelogheader2 {display: unset;}";
+    sheet.id = 'consolelogheaderstylesheet';
+    var sheet2 = document.createElement('style')
+    sheet2.innerHTML = ".consolelogheader1 {display: unset;} .consolelogheader2 {display: none;}";
+    sheet2.id = 'consolelogheaderstylesheet';
+    let d = document.getElementById('consolelogheaderstylesheet');
+    d?.parentNode?.removeChild(d);
+    if (this.conf.shorterLogHeader) {
+      document.body.appendChild(sheet);
+    } else {
+      document.body.appendChild(sheet2);
     }
   }
 

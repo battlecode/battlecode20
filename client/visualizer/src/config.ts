@@ -90,6 +90,10 @@ export interface Config {
    */
   viewPoll: boolean;
 
+  /**
+   * Whether logs should show shorter header
+   */
+  shorterLogHeader: boolean;
   
 }
 
@@ -129,5 +133,6 @@ export function defaults(supplied?: any): Config {
     viewDirt: supplied.viewDirt || true,
     viewWater: supplied.viewDirt || true,
     viewPoll: supplied.viewDirt || true,
+    shorterLogHeader: supplied.shorterLogHeader || false,
   };
 }
