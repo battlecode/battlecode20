@@ -56,6 +56,9 @@ public class CowControlProvider implements RobotControlProvider {
 
         this.world = world;
         this.s = getSymmetry();
+        // clear out the idToRandom
+        // note that the control provider isn't reset on every game, so this is necessary
+        idToRandom.clear();
         //System.out.println("symmetry is " + this.s + "!!!");
     }
 
@@ -100,6 +103,7 @@ public class CowControlProvider implements RobotControlProvider {
         try {
             if (!idToRandom.containsKey(cow.getID())) {
                 Random newRandom = new Random(84307 * world.getMapSeed() + 20201 * (cow.getID() / 2));
+//                System.out.println("random seed: " + (84307*world.getMapSeed() + 20201*(cow.getID() / 2)));
                 idToRandom.put(cow.getID(), newRandom);
             }
             int i = 4;
