@@ -136,37 +136,6 @@ public class RobotControllerTest {
 
     }
     
-    @Test
-    public void testOnTheMap() throws GameActionException {
-        final int firstHq = 0;
-        final int sidelength = (int) Math.ceil(Math.sqrt(RobotType.HQ.sensorRadiusSquared) + 3);
-        LiveMap map = new TestMapBuilder("test", new MapLocation(0,0), sidelength, sidelength, 1337, 100, 5)
-            .addRobot(firstHq, Team.A, RobotType.HQ, new MapLocation(0, 0))
-            .addRobot(1, Team.B, RobotType.HQ, new MapLocation(0, 1))
-            .setSoup()
-            .setWater()
-            .setPollution()
-            .setDirt()
-            .build();
-
-        TestGame game = new TestGame(map);
-
-        game.round((id, rc) -> {
-            if (id == firstHq) {
-                // on map and visible
-                assertTrue(rc.onTheMap(new MapLocation(0, 0)));
-                // off of map and visible
-                assertFalse(rc.onTheMap(new MapLocation(-1, 0)));
-                assertFalse(rc.onTheMap(new MapLocation(0, -1)));
-                // on map but too far away to see
-                assertTrue(rc.onTheMap(new MapLocation(sidelength-1, 0)));
-                assertTrue(rc.onTheMap(new MapLocation(0, sidelength-1)));
-            }
-        });
-
-        game.waitRounds(1);
-    }
-
     /**
      * Ensure that actions take place immediately.
      */
