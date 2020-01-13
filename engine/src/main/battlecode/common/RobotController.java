@@ -410,9 +410,12 @@ public strictfp interface RobotController {
 
     /**
      * Tests whether the robot can build a robot of the given type in the
-     * given direction. Checks cooldown turns remaining,
-     * whether the robot can build, and that the given direction is
-     * not blocked.
+     * given direction. Checks that the robot can build the desired type,
+     * that the team has enough soup, that the target location is on the map,
+     * that the target location is not occupied, that the target location
+     * is not flooded (unless trying to build a drone), that the dirt
+     * difference is within <code>GameConstants.MAX_DIRT_DIFFERENCE</code>,
+     * and that there are cooldown turns remaining.
      *
      * @param dir the direction to build in
      * @param type the type of robot to build
@@ -428,9 +431,8 @@ public strictfp interface RobotController {
      *
      * @param dir the direction to spawn the unit
      * @param type the type of robot to build
-     * @throws GameActionException if you don't have enough soup, if
-     * the robot is still in cooldown, if the direction is not a
-     * good build direction, or if this robot is not of an appropriate type.
+     * @throws GameActionException if the conditions of <code>canBuildRobot</code>
+     * are not all satisfied.
      *
      * @battlecode.doc.costlymethod
      */
@@ -442,8 +444,10 @@ public strictfp interface RobotController {
 
     /**
      * Tests whether the robot can mine soup in the given direction.
-     * Checks cooldown turns remaining, whether the robot can mine,
-     * and that the given direction has soup.
+     * Checks that the robot is a miner, that it has not yet reached
+     * its soup limit, that the target location is on the map, that
+     * there is soup on the target location, and that there are cooldown
+     * turns remaining.
      *
      * @param dir the direction to mine
      * @return whether it is possible to mine soup in the given direction.
@@ -458,8 +462,8 @@ public strictfp interface RobotController {
      * the location.
      *
      * @param dir the direction to mine
-     * @throws GameActionException if this robot is not a miner, if
-     * the robot is still in cooldown, or if there is no soup to mine.
+     * @throws GameActionException if the conditions of <code>canMineSoup</code>
+     * are all satisfied.
      *
      * @battlecode.doc.costlymethod
      */
@@ -467,8 +471,9 @@ public strictfp interface RobotController {
 
     /**
      * Tests whether the robot can deposit soup in the given direction.
-     * Checks cooldown turns remaining, whether the robot can deposit soup, whether
-     * the robot has crude soup, and that the given direction has a refinery (or HQ).
+     * Checks that the robot is a miner, that it is carrying soup, that
+     * the target location is on the map, that there is a refinery (or HQ)
+     * on the target location, and that there are cooldown turns remaining.
      *
      * @param dir the direction to deposit soup
      * @return whether it is possible to deposit soup in the given direction.
@@ -482,9 +487,8 @@ public strictfp interface RobotController {
      *
      * @param dir the direction to deposit soup
      * @param amount the amount of soup to deposit
-     * @throws GameActionException if this robot is not a miner, if
-     * the robot is still in cooldown, if there is no crude soup to deposit,
-     * or if there is no refinery (or HQ).
+     * @throws GameActionException if the conditions of <code>canDepositSoup</code>
+     * are not all satisfied.
      *
      * @battlecode.doc.costlymethod
      */
@@ -496,8 +500,11 @@ public strictfp interface RobotController {
 
     /**
      * Tests whether the robot can dig dirt in the given direction.
-     * Checks cooldown turns remaining, whether the robot can dig,
-     * that the robot can carry more dirt, and that the location is valid.
+     * Checks that the robot is a landscaper, that it has not yet
+     * reached its dirt limit, that the target location is on the map,
+     * that it is not trying to dig underneath a building (that does
+     * not already have dirt on top of it), and that cooldown turns
+     * are remaining.
      *
      * @param dir the direction to dig in
      * @return whether it is possible to dig dirt from the given direction.
@@ -510,9 +517,8 @@ public strictfp interface RobotController {
      * Digs dirt in the given direction.
      *
      * @param dir the direction to dig in
-     * @throws GameActionException if this robot is not a landscaper, if
-     * the robot is still in cooldown, the robot cannot carry more dirt,
-     * or the location is not valid.
+     * @throws GameActionException if the conditions of <code>canDigDirt</code>
+     * are not all satisfied.
      *
      * @battlecode.doc.costlymethod
      */
@@ -520,8 +526,9 @@ public strictfp interface RobotController {
 
     /**
      * Tests whether the robot can deposit dirt in the given direction.
-     * Checks cooldown turns remaining, whether the robot can deposit dirt,
-     * and whether the robot has dirt.
+     * Checks that the robot is a landscaper, that it is carrying at
+     * least 1 unit of dirt, that the target location is on the map,
+     * and that cooldown turns are remaining.
      *
      * @param dir the direction to deposit
      * @return whether it is possible to deposit dirt in the given direction.
@@ -534,8 +541,8 @@ public strictfp interface RobotController {
      * Deposits 1 unit of dirt in the given direction.
      *
      * @param dir the direction to deposit
-     * @throws GameActionException if this robot is not a landscaper, if
-     * the robot is still in cooldown, if there is no dirt to deposit,
+     * @throws GameActionException if the conditions of <code>canDepositDirt</code>
+     * are not all satisfied.
      *
      * @battlecode.doc.costlymethod
      */
@@ -565,9 +572,8 @@ public strictfp interface RobotController {
      *
      * @param id the id of the robot to pick up
      *
-     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or cannot pick up
-     * a unit because it is already carrying a unit or if the unit to pick up is not in the radius
-     * of this robot.
+     * @throws GameActionException if the conditions of <code>canPickUpUnit</code>
+     * are not all satisfied.
      *
      * @battlecode.doc.costlymethod
      */
@@ -591,8 +597,8 @@ public strictfp interface RobotController {
      *
      * @param dir the direction to drop in
      *
-     * @throws GameActionException if the robot is not of type DELIVERY_DRONE or if the robot is not currently
-     * holding a unit that it can drop.
+     * @throws GameActionException if the conditions of <code>canDropUnit</code>
+     * are not all satisfied.
      *
      * @battlecode.doc.costlymethod
      */
@@ -620,10 +626,8 @@ public strictfp interface RobotController {
      *
      * @param id the id of the unit to shoot
      *
-     * @throws GameActionException if the robot is not of type NET_GUN,
-     *  or the robot's action cooldown is not ready, or if the unit to
-     *  shoot down is not in the radius of this robot, or if the unit
-     *  cannot be shot down.
+     * @throws GameActionException if the conditions of <code>canShootUnit</code>
+     * are not all satisfied.
      *
      * @battlecode.doc.costlymethod
      */
