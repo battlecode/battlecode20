@@ -159,8 +159,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     @Override
-    public boolean onTheMap(MapLocation loc) {
+    public boolean onTheMap(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
+        assertCanSenseLocation(loc);
         return gameWorld.getGameMap().onTheMap(loc);
     }
 
