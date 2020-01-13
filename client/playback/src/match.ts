@@ -286,7 +286,7 @@ export default class Match {
       }
 
       if (logRound != round) {
-        console.warn(`Log round mismatch: should be ${round}, is ${logRound}`);
+        console.warn(`Your computation got cut off while printing a log statement at round ${logRound}; the actual print happened at round ${round}`);
       }
 
       // Push the parsed log
