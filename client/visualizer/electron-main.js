@@ -18,7 +18,6 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
-    icon: path.resolve(__dirname, 'icon.png'),
     webPreferences: {
       nodeIntegration: true
     }
