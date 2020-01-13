@@ -115,7 +115,7 @@ export enum Mode {
 export function defaults(supplied?: any): Config {
   supplied = supplied || {};
   return {
-    gameVersion: supplied.gameVersion || "2020.1.0.10", //TODO: Change this on each release!
+    gameVersion: supplied.gameVersion || "2020.1.1.0", //TODO: Change this on each release!
     fullscreen: supplied.fullscreen || false,
     width: supplied.width || 600,
     height: supplied.height || 600,
