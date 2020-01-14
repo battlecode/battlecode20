@@ -1,6 +1,7 @@
 import {Config, Mode} from '../config';
 import * as imageloader from '../imageloader';
 import * as cst from '../constants';
+import {Game} from 'battlecode-playback';
 
 type ButtonInfo = {
   img: HTMLImageElement,
@@ -20,6 +21,8 @@ export default class Controls {
   readonly speedReadout: HTMLSpanElement;
   readonly tileInfo: Text;
   readonly infoString: HTMLTableDataCellElement;
+  
+  winnerDiv: HTMLDivElement;
 
   /**
    * Callbacks initialized from outside Controls
@@ -84,12 +87,15 @@ export default class Controls {
 
     // create the timeline
     let timeline = document.createElement("td");
+    timeline.style.width = '400px';
     timeline.appendChild(this.timeline());
+    this.winnerDiv = document.createElement("div");
+    timeline.append(this.winnerDiv);
     timeline.appendChild(document.createElement("br"));
     timeline.appendChild(this.timeReadout);
     timeline.appendChild(this.speedReadout);
 
-    this.curUPS = 16;
+    this.curUPS = 8; // for tournament!!!
 
     // create the button controls
     let buttons = document.createElement("td");
@@ -186,6 +192,7 @@ export default class Controls {
     this.ctx = canvas.getContext("2d");
     this.ctx.fillStyle = "white";
     this.canvas = canvas;
+    canvas.style.display = 'none';
     return canvas;
   }
 
@@ -283,7 +290,7 @@ export default class Controls {
   doubleUPS() {
     if (Math.abs(this.curUPS) < 128){
       this.curUPS = this.curUPS * 2;
-    }
+}
     this.onToggleUPS();
   }
 
@@ -308,8 +315,36 @@ export default class Controls {
   /**
    * When the match is finished, set UPS to 0.
    */
-  onFinish() {
+  onFinish(game: Game) {
     if (!this.isPaused()) this.pause();
+    // also update the winner text
+    this.setWinner(game);
+  }
+
+  setWinner(game: Game) {
+    console.log('winner: ' + game.getMatch(0).winner);
+    const matchWinner = this.winnerTeam(game.meta.teams, game.getMatch(0).winner);
+    while (this.winnerDiv.firstChild) {
+      this.winnerDiv.removeChild(this.winnerDiv.firstChild);
+    }
+    this.winnerDiv.appendChild(matchWinner);
+  }
+  private winnerTeam(teams, winnerID: number | null): HTMLSpanElement {
+    const span = document.createElement("span");
+    if (winnerID === null) {
+      return span;
+    } else {
+      // Find the winner
+      let teamNumber = 1;
+      for (let team in teams) {
+        if (teams[team].teamID === winnerID) {
+          span.className += team === "1" ? " red" : " blue";
+          span.innerHTML = teams[team].name + " wins!";
+          break;
+        }
+      }
+    }
+    return span;
   }
 
   /**
@@ -317,6 +352,11 @@ export default class Controls {
    */
   // TODO scale should be constant; should not depend on loadedTime
   setTime(time: number, loadedTime: number, ups: number, fps: number, lagging: Boolean) {
+    let speedText = (lagging ? '(Lagging) ' : '') + `UPS: ${ups | 0} FPS: ${fps | 0}`;
+    speedText = speedText.padStart(32);
+    this.speedReadout.textContent = speedText;
+    this.timeReadout.textContent = `Round: ${time}`;
+    return; // TOURNAMENT
     // Redraw the timeline
     const scale = this.canvas.width / loadedTime;
     // const scale = this.canvas.width / cst.MAX_ROUND_NUM;
@@ -332,11 +372,11 @@ export default class Controls {
     this.ctx.fillRect(time * scale, 0, 2, this.canvas.height);
 
     // Edit the text
-    this.timeReadout.textContent = `Round: ${time}/${loadedTime}`;
+    // this.timeReadout.textContent = `Round: ${time}/${loadedTime}`;
 
-    let speedText = (lagging ? '(Lagging) ' : '') + `UPS: ${ups | 0} FPS: ${fps | 0}`;
-    speedText = speedText.padStart(32);
-    this.speedReadout.textContent = speedText;
+    // let speedText = (lagging ? '(Lagging) ' : '') + `UPS: ${ups | 0} FPS: ${fps | 0}`;
+    // speedText = speedText.padStart(32);
+    // this.speedReadout.textContent = speedText;
   }
 
   /**

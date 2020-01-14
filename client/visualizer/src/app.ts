@@ -291,6 +291,13 @@ export default class Client {
 
       startGame();
     };
+    this.stats.onGameLoaded = (data: ArrayBuffer) => {
+      let lastGame = this.games.length
+      this.games[lastGame] = new Game();
+      this.games[lastGame].loadFullGameRaw(data);
+
+      startGame();
+    };
 
     if (this.listener != null) {
       this.listener.start(
@@ -407,7 +414,8 @@ export default class Client {
       this.conf, meta as Metadata, onRobotSelected, onMouseover);
 
     // How fast the simulation should progress
-    let goalUPS = this.controls.getUPS();
+    // let goalUPS = this.controls.getUPS();
+    let goalUPS = 0; // FOR TOURNAMENT
 
     // A variety of stuff to track how fast the simulation is going
     let rendersPerSecond = new TickCounter(.5, 100);
@@ -621,9 +629,13 @@ export default class Client {
 
         // tell the simulation to go to our time goal
         match.seek(interpGameTime | 0);
-      } if (match.current.turn == match.maxTurn){
+      } if (match['_farthest'].winner !== null && match.current.turn === match['_farthest'].turn && match.current.turn !== 0){
         // Match have ended
-        this.controls.onFinish();
+        console.log("finishing game!!1");
+        console.log(match.current.turn);
+        console.log(match['_farthest'].turn);
+        console.log("finishing game!!");
+        this.controls.onFinish(game);
       }
 
       // update fps

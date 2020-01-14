@@ -176,6 +176,13 @@ export default class Stats {
     this.robotTds = {};
     this.statBars = new Map<number, { soups: StatBar }>();
 
+    // FOR TOURNAMENT
+    let uploadButton = this.addUploadButton();
+    let tempdiv = document.createElement("div");
+    tempdiv.className = "upload-button-div";
+    tempdiv.appendChild(uploadButton);
+    this.div.appendChild(tempdiv);
+
     // Add view toggles
     this.div.append(this.addViewOptions());
     
@@ -333,6 +340,39 @@ export default class Stats {
     viewOptionForm.appendChild(dirtLabel);
 
     return viewOptionForm;
+  }
+
+
+  // FOR TOURNAMENT
+  onGameLoaded: (data: ArrayBuffer) => void;
+
+  addUploadButton(){
+    // disguise the default upload file button with a label
+    let uploadLabel = document.createElement("label");
+    uploadLabel.setAttribute("for", "file-upload");
+    uploadLabel.setAttribute("class", "custom-button");
+    uploadLabel.innerText = 'Upload a .bc20 replay file';
+
+    // create the functional button
+    let upload = document.createElement('input');
+    upload.textContent = 'upload';
+    upload.id = "file-upload";
+    upload.setAttribute('type', 'file');
+    upload.accept = '.bc20';
+    upload.onchange = () => this.loadMatch(upload.files as FileList);
+    uploadLabel.appendChild(upload);
+
+    return uploadLabel;
+  }
+
+  loadMatch(files: FileList) {
+    const file = files[0];
+    console.log(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.onGameLoaded(<ArrayBuffer>reader.result);
+    };
+    reader.readAsArrayBuffer(file);
   }
 
   /**
