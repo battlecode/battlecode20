@@ -1,7 +1,9 @@
 package battlecode.instrumenter.profiler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -47,6 +49,28 @@ public class Profiler {
         }
 
         events.add(new ProfilerEvent(ProfilerEventType.CLOSE, bytecodeCounter, frameIdProducer.apply(methodName)));
+    }
+
+    public void exitOpenMethods() {
+        Map<Integer, Integer> methodCounter = new HashMap<>(events.size());
+
+        for (ProfilerEvent event : events) {
+            if (event.getType() == ProfilerEventType.OPEN) {
+                if (!methodCounter.containsKey(event.getFrameId())) {
+                    methodCounter.put(event.getFrameId(), 0);
+                }
+
+                methodCounter.put(event.getFrameId(), methodCounter.get(event.getFrameId()) + 1);
+            } else {
+                methodCounter.put(event.getFrameId(), methodCounter.get(event.getFrameId()) - 1);
+            }
+        }
+
+        for (Map.Entry<Integer, Integer> entry : methodCounter.entrySet()) {
+            for (int i = 0, iMax = entry.getValue(); i < iMax; i++) {
+                events.add(new ProfilerEvent(ProfilerEventType.CLOSE, bytecodeCounter, entry.getKey()));
+            }
+        }
     }
 
     public String getName() {

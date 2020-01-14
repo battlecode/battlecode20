@@ -1,5 +1,5 @@
-import { Match } from "battlecode-playback";
-import { ProfilerFile } from "battlecode-playback/out/match";
+import { Match } from 'battlecode-playback';
+import { ProfilerFile } from 'battlecode-playback/out/match';
 
 enum Team {
   A, B
@@ -13,21 +13,30 @@ export default class Profiler {
   private robotSelector: HTMLSelectElement;
 
   private profilerFiles: ProfilerFile[];
-  private currentTeamIndex: number;
-  private currentRobotIndex: number;
+  private currentTeamIndex: number = -1;
+  private currentRobotIndex: number = -1;
 
   constructor() {
     this.div = this.createSidebarDiv();
     this.iframe = this.createIFrame();
   }
 
-  public load(match: Match): void {
-    this.profilerFiles = match.profilerFiles;
+  public load(match: Match | null): void {
+    this.profilerFiles = match !== null ? (match.profilerFiles || []) : [];
 
     this.clearSelect(this.teamSelector);
     this.clearSelect(this.robotSelector);
 
+    this.currentTeamIndex = -1;
+    this.currentRobotIndex = -1;
+
     if (this.profilerFiles.length == 0) {
+      // Reload the iframe to prevent old data from being displayed
+      const win = this.iframe.contentWindow;
+      if (win !== null) {
+        win.location.reload();
+      }
+
       return;
     }
 
@@ -96,6 +105,13 @@ export default class Profiler {
           display: none !important;
         }
       `);
+
+      if (this.currentTeamIndex > -1 && this.currentRobotIndex > -1) {
+        this.sendToIFrame('load', {
+          file: this.profilerFiles[this.currentTeamIndex],
+          robot: this.currentRobotIndex,
+        });
+      }
     };
 
     return frame;
@@ -129,13 +145,13 @@ export default class Profiler {
   private onRobotChange(newRobotId: number): void {
     this.currentRobotIndex = newRobotId;
 
-    const win = this.iframe.contentWindow;
-    if (win !== null) {
-      win.location.reload();
-    }
+    this.sendToIFrame('load', {
+      file: this.profilerFiles[this.currentTeamIndex],
+      robot: this.currentRobotIndex,
+    });
   }
 
-  private sendToIFrame(type: string, payload: string) {
+  private sendToIFrame(type: string, payload: any) {
     const frame = this.iframe.contentWindow;
     if (frame !== null) {
       frame.postMessage({ type, payload }, '*');
