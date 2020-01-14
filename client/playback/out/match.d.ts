@@ -16,6 +16,19 @@ export declare type Block = {
     messages: Array<Transaction>;
     round: number;
 };
+export declare type ProfilerEvent = {
+    type: string;
+    at: number;
+    frame: number;
+};
+export declare type ProfilerProfile = {
+    name: string;
+    events: Array<ProfilerEvent>;
+};
+export declare type ProfilerFile = {
+    frames: Array<string>;
+    profiles: Array<ProfilerProfile>;
+};
 /**
  * A timeline of a match. Allows you to see what the state of the match was,
  * at any particular time.
@@ -58,6 +71,11 @@ export default class Match {
      * The blockchain, an array of blocks per round.
      */
     readonly blockchain: Array<Block>;
+    /**
+     * The profiler files belong to this match.
+     * Contains 2 items (team A and team B) if profiling was enabled, empty otherwise.
+     */
+    readonly profilerFiles: Array<ProfilerFile>;
     /**
      * The current game world.
      * DO NOT CACHE this reference between calls to seek() and compute(), it may

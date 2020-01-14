@@ -471,8 +471,6 @@ public strictfp class GameMaker {
                     TIntArrayList frames = new TIntArrayList();
                     TIntArrayList profiles = new TIntArrayList();
 
-                    System.out.println(profilerCollection.getFrames().size());
-
                     for (String frame : profilerCollection.getFrames()) {
                         frames.add(builder.createString(frame));
                     }

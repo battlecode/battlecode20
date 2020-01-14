@@ -294,6 +294,7 @@ public strictfp class Server implements Runnable {
         teamProvider.registerControlProvider(
                 Team.A,
                 new PlayerControlProvider(
+                        Team.A,
                         game.getTeamAPackage(),
                         game.getTeamAURL(),
                         gameMaker.getMatchMaker().getOut(),
@@ -303,6 +304,7 @@ public strictfp class Server implements Runnable {
         teamProvider.registerControlProvider(
                 Team.B,
                 new PlayerControlProvider(
+                        Team.B,
                         game.getTeamBPackage(),
                         game.getTeamBURL(),
                         gameMaker.getMatchMaker().getOut(),

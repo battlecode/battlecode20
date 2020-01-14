@@ -769,8 +769,12 @@ public strictfp class GameWorld {
     // *******  PROFILER  **************
     // *********************************
 
-    public void setProfilerCollections(Map<Team, ProfilerCollection> profilerCollections) {
-        this.profilerCollections = profilerCollections;
+    public void setProfilerCollection(Team team, ProfilerCollection profilerCollection) {
+        if (profilerCollections == null) {
+            profilerCollections = new HashMap<>();
+        }
+
+        profilerCollections.put(team, profilerCollection);
     }
 }
 
