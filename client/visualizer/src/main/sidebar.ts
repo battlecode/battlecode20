@@ -72,8 +72,8 @@ export default class Sidebar {
       // set callback for running a game, which should trigger the update check
       this.updateUpdate();
     });
-    this.matchqueue = new MatchQueue(conf, images);
     this.profiler = new Profiler();
+    this.matchqueue = new MatchQueue(conf, images, this.profiler);
     this.help = this.initializeHelp();
     this.conf = conf;
     this.onkeydownControls = onkeydownControls;

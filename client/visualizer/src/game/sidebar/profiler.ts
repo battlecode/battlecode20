@@ -1,4 +1,5 @@
-import { schema } from "battlecode-playback";
+import { Match } from "battlecode-playback";
+import { ProfilerFile } from "battlecode-playback/out/match";
 
 enum Team {
   A, B
@@ -11,21 +12,29 @@ export default class Profiler {
   private teamSelector: HTMLSelectElement;
   private robotSelector: HTMLSelectElement;
 
+  private profilerFiles: ProfilerFile[];
+  private currentTeamIndex: number;
+  private currentRobotIndex: number;
+
   constructor() {
     this.div = this.createSidebarDiv();
     this.iframe = this.createIFrame();
   }
 
-  public load(match: schema.MatchFooter): void {
-    // TODO(jmerle): Make sure to call this with all the profiling data when a match has ended
+  public load(match: Match): void {
+    this.profilerFiles = match.profilerFiles;
 
     this.clearSelect(this.teamSelector);
     this.clearSelect(this.robotSelector);
 
-    this.addSelectOption(this.teamSelector, 'Team A (red)', 'A');
-    this.addSelectOption(this.teamSelector, 'Team B (blue)', 'B');
+    if (this.profilerFiles.length == 0) {
+      return;
+    }
 
-    this.onTeamChange(Team.A);
+    this.addSelectOption(this.teamSelector, 'Team A (red)', '0');
+    this.addSelectOption(this.teamSelector, 'Team B (blue)', '1');
+
+    this.onTeamChange(0);
   }
 
   private createSidebarDiv(): HTMLDivElement {
@@ -38,7 +47,7 @@ export default class Profiler {
     this.teamSelector.onchange = () => {
       const selectedIndex = this.teamSelector.selectedIndex;
       if (selectedIndex > -1) {
-        this.onTeamChange(this.teamSelector.options[selectedIndex].value === 'A' ? Team.A : Team.B);
+        this.onTeamChange(parseInt(this.teamSelector.options[selectedIndex].value, 10));
       }
     };
 
@@ -103,21 +112,27 @@ export default class Profiler {
     select.options.length = 0;
   }
 
-  private onTeamChange(newTeam: Team): void {
+  private onTeamChange(teamIndex: number): void {
+    this.currentTeamIndex = teamIndex;
+
     this.clearSelect(this.robotSelector);
 
-    this.addSelectOption(this.robotSelector, '#0 (HQ)', '0');
-    this.addSelectOption(this.robotSelector, '#1 (MINER)', '1');
+    for (let i = 0; i < this.profilerFiles[teamIndex].profiles.length; i++) {
+      const profile = this.profilerFiles[teamIndex].profiles[i];
+
+      this.addSelectOption(this.robotSelector, profile.name, `${i}`);
+    }
 
     this.onRobotChange(0);
-
-    // TODO(jmerle): Load robots from newTeam
   }
 
   private onRobotChange(newRobotId: number): void {
-    console.log(`Changed robot to ${newRobotId}`);
+    this.currentRobotIndex = newRobotId;
 
-    // TODO(jmerle): Load newRobotId's profiling results
+    const win = this.iframe.contentWindow;
+    if (win !== null) {
+      win.location.reload();
+    }
   }
 
   private sendToIFrame(type: string, payload: string) {

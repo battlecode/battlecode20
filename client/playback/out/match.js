@@ -257,7 +257,6 @@ class Match {
             }
             this.profilerFiles.push({ frames, profiles });
         }
-        console.log(this.profilerFiles);
     }
     /**
      * Attempt to set seekTo to a particular point.

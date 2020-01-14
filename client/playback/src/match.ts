@@ -380,8 +380,6 @@ export default class Match {
 
       this.profilerFiles.push({ frames, profiles });
     }
-
-    console.log(this.profilerFiles);
   }
 
   /**
