@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.zip.GZIPInputStream;
 
 import static org.junit.Assert.*;
@@ -47,7 +48,7 @@ public class GameMakerTest {
     public void testMatchStateExceptions() {
         GameMaker gm = new GameMaker(info, null);
         gm.makeGameHeader();
-        gm.getMatchMaker().makeMatchFooter(Team.A, 23);
+        gm.getMatchMaker().makeMatchFooter(Team.A, 23, new ArrayList<>());
     }
     @Test
     public void fullReasonableGame() throws Exception {
@@ -68,7 +69,7 @@ public class GameMakerTest {
         mm.makeRound(0);
         mm.addDied(0);
         mm.makeRound(1);
-        mm.makeMatchFooter(Team.B, 2);
+        mm.makeMatchFooter(Team.B, 2, new ArrayList<>());
 
         GameMaker.MatchMaker mm2 = gm.getMatchMaker();
         mm2.makeMatchHeader(new TestMapBuilder("argentina", 55, 3, 58, 50, 1337, 50, 0)
@@ -80,7 +81,7 @@ public class GameMakerTest {
                 .setDirt()
                 .build());
         mm2.makeRound(0);
-        mm2.makeMatchFooter(Team.A, 1);
+        mm2.makeMatchFooter(Team.A, 1, new ArrayList<>());
         gm.makeGameFooter(Team.A);
 
         byte[] gameBytes = ungzip(gm.toBytes());

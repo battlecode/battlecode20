@@ -1,5 +1,6 @@
 package battlecode.world.control;
 
+import battlecode.common.Team;
 import battlecode.instrumenter.InstrumentationException;
 import battlecode.instrumenter.SandboxedRobotPlayer;
 import battlecode.instrumenter.TeamClassLoaderFactory;
@@ -53,9 +54,10 @@ public class PlayerControlProvider implements RobotControlProvider {
     private final OutputStream robotOut;
 
     /**
-     * The collection of profilers used when creating new sandboxed robot players.
+     * The ProfilerCollection instances holding the profilers for each team.
+     * Empty if profiling is disabled.
      */
-    private final ProfilerCollection profilerCollection;
+    private final Map<Team, ProfilerCollection> profilerCollections;
 
     /**
      * The match id of the current match. Incremented by one every time a new match starts.
@@ -64,20 +66,26 @@ public class PlayerControlProvider implements RobotControlProvider {
 
     /**
      * Create a new PlayerControlProvider.
-     * @param teamPackage        the name / package of the team we're loading
-     * @param teamURL            the url of the classes for the team;
-     * @param robotOut           the output that robots should write to
-     * @param profilerCollection the collection to add new profilers too (profiling is disabled if null)
+     *
+     * @param teamPackage      the name / package of the team we're loading
+     * @param teamURL          the url of the classes for the team;
+     * @param robotOut         the output that robots should write to
+     * @param profilingEnabled whether profiling is enabled or not
      */
     public PlayerControlProvider(String teamPackage,
                                  String teamURL,
                                  OutputStream robotOut,
-                                 ProfilerCollection profilerCollection) {
+                                 boolean profilingEnabled) {
         this.teamPackage = teamPackage;
         this.sandboxes = new HashMap<>(); // GameWorld maintains order for us
         this.factory = new TeamClassLoaderFactory(teamURL);
         this.robotOut = robotOut;
-        this.profilerCollection = profilerCollection;
+
+        profilerCollections = new HashMap<>(2);
+        if (profilingEnabled) {
+            profilerCollections.put(Team.A, new ProfilerCollection());
+            profilerCollections.put(Team.B, new ProfilerCollection());
+        }
     }
 
     @Override
@@ -88,21 +96,29 @@ public class PlayerControlProvider implements RobotControlProvider {
 
     @Override
     public void matchEnded() {
+        gameWorld.setProfilerCollections(new HashMap<>(profilerCollections));
+
         for (final SandboxedRobotPlayer player : this.sandboxes.values()) {
            if (player != null && !player.getTerminated()) {
                player.terminate();
            }
         }
+
         this.sandboxes.clear();
         this.gameWorld = null;
+
+        if (!profilerCollections.isEmpty()) {
+            profilerCollections.put(Team.A, new ProfilerCollection());
+            profilerCollections.put(Team.B, new ProfilerCollection());
+        }
     }
 
     @Override
     public void robotSpawned(InternalRobot robot) {
         try {
             Profiler profiler = null;
-            if (profilerCollection != null && robot.getTeam().isPlayer()) {
-                profiler = profilerCollection.createProfiler(matchId, robot.getTeam(), robot.getID(), robot.getType());
+            if (profilerCollections.containsKey(robot.getTeam())) {
+                profiler = profilerCollections.get(robot.getTeam()).createProfiler(robot.getID(), robot.getType());
             }
 
             final SandboxedRobotPlayer player = new SandboxedRobotPlayer(

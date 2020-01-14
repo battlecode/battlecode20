@@ -1,11 +1,8 @@
 package battlecode.instrumenter.profiler;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * The Profiler class profiles bytecode usage in a sandboxed robot player.
@@ -52,17 +49,11 @@ public class Profiler {
         events.add(new ProfilerEvent(ProfilerEventType.CLOSE, bytecodeCounter, frameIdProducer.apply(methodName)));
     }
 
-    public JSONObject toJSON() {
-        List<JSONObject> eventObjects = events.stream().map(ProfilerEvent::toJSON).collect(Collectors.toList());
+    public String getName() {
+        return name;
+    }
 
-        JSONObject profileObject = new JSONObject();
-        profileObject.put("type", "evented");
-        profileObject.put("unit", "none");
-        profileObject.put("startValue", 0);
-        profileObject.put("endValue", bytecodeCounter);
-        profileObject.put("name", name);
-        profileObject.put("events", eventObjects);
-
-        return profileObject;
+    public List<ProfilerEvent> getEvents() {
+        return events;
     }
 }

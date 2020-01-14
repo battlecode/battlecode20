@@ -324,6 +324,8 @@ export default class Match {
     }
     this._lastTurn = footer.totalRounds();
     this._winner = footer.winner();
+
+    // TODO(jmerle): Load profiler data
   }
 
   /**

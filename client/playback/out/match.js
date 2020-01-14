@@ -231,6 +231,15 @@ class Match {
         }
         this._lastTurn = footer.totalRounds();
         this._winner = footer.winner();
+        // TODO(jmerle): load profiler files
+        for (let i = 0, iMax = footer.profilerFilesLength(); i < iMax; i++) {
+            const file = footer.profilerFiles(i);
+            const frames = [];
+            for (let j = 0, jMax = file.framesLength(); j < jMax; j++) {
+                frames.push(file.frames(j));
+            }
+            console.log(`Profiler file ${i} (${file.framesLength()} frames): ${frames.join(', ')}`);
+        }
     }
     /**
      * Attempt to set seekTo to a particular point.
