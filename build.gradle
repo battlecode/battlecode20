@@ -18,9 +18,6 @@ if (!project.hasProperty("teamB")) {
 if (!project.hasProperty("maps")) {
     ext.maps = "maptest"
 }
-if (!project.hasProperty("profilerEnabled")) {
-    ext.profilerEnabled = "false";
-}
 
 if (project.hasProperty("release_version")) {
     if (!project.property("release_version").startsWith("2020")) {
