@@ -90,6 +90,10 @@ export interface Config {
    */
   viewPoll: boolean;
 
+  /**
+   * Whether logs should show shorter header
+   */
+  shorterLogHeader: boolean;
   
 }
 
@@ -112,7 +116,7 @@ export enum Mode {
 export function defaults(supplied?: any): Config {
   supplied = supplied || {};
   return {
-    gameVersion: supplied.gameVersion || "2020.1.0.9", //TODO: Change this on each release!
+    gameVersion: supplied.gameVersion || "2020.1.1.1", //TODO: Change this on each release!
     fullscreen: supplied.fullscreen || false,
     width: supplied.width || 600,
     height: supplied.height || 600,
@@ -130,5 +134,6 @@ export function defaults(supplied?: any): Config {
     viewDirt: supplied.viewDirt || true,
     viewWater: supplied.viewDirt || true,
     viewPoll: supplied.viewDirt || true,
+    shorterLogHeader: supplied.shorterLogHeader || false,
   };
 }

@@ -2,6 +2,8 @@ package battlecode.world.maps;
 
 import battlecode.world.MapBuilder;
 
+import battlecode.common.GameConstants;
+
 import java.io.IOException;
 
 /**
@@ -64,7 +66,7 @@ public class CentralSoup {
             for (int j = 0; j < 1; j++) {
                 mapBuilder.setSymmetricWater(i,j,true);
                 mapBuilder.setSymmetricDirt(i, j, -25);
-                if (i == mapBuilder.width/2) mapBuilder.setSymmetricDirt(i,j,Integer.MIN_VALUE);
+                if (i == mapBuilder.width/2) mapBuilder.setSymmetricDirt(i,j,GameConstants.MIN_WATER_ELEVATION);
             }
         }
 

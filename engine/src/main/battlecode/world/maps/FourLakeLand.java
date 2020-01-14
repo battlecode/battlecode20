@@ -2,6 +2,8 @@ package battlecode.world.maps;
 
 import battlecode.world.MapBuilder;
 
+import battlecode.common.GameConstants;
+
 import java.io.IOException;
 
 /**
@@ -108,6 +110,6 @@ public class FourLakeLand {
                 }
             }
         }
-        mapBuilder.setSymmetricDirt(x, y, Integer.MIN_VALUE);
+        mapBuilder.setSymmetricDirt(x, y, GameConstants.MIN_WATER_ELEVATION);
     }
 }

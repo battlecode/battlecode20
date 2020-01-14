@@ -2,6 +2,8 @@ package battlecode.world.maps;
 
 import battlecode.world.MapBuilder;
 
+import battlecode.common.GameConstants;
+
 import java.io.IOException;
 
 /**
@@ -119,7 +121,7 @@ public class WaterBot {
                 if (d <= r2) {
                     mapBuilder.setSymmetricWater(xx, yy, true);
                     mapBuilder.setSymmetricDirt(xx, yy, v);
-                    if (xx >= width/2 && xx <= width/2+1 && yy >= height/2 && yy <= height/2+1) mapBuilder.setSymmetricDirt(xx, yy, Integer.MIN_VALUE);
+                    if (xx >= width/2 && xx <= width/2+1 && yy >= height/2 && yy <= height/2+1) mapBuilder.setSymmetricDirt(xx, yy, GameConstants.MIN_WATER_ELEVATION);
                 }
             }
         }

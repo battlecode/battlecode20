@@ -4,8 +4,7 @@ import battlecode.common.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Build and validate maps easily.
@@ -126,6 +125,13 @@ public class MapBuilder {
     // ********************
 
     public int symmetricY(int y) {
+        return symmetricY(y, symmetry);
+    }
+
+    public int symmetricX(int x) {
+        return symmetricX(x, symmetry);
+    }
+    public int symmetricY(int y, MapSymmetry symmetry) {
         switch (symmetry) {
             case vertical:
                 return y;
@@ -136,7 +142,7 @@ public class MapBuilder {
         }
     }
 
-    public int symmetricX(int x) {
+    public int symmetricX(int x, MapSymmetry symmetry) {
         switch (symmetry) {
             case horizontal:
                 return x;
@@ -145,6 +151,10 @@ public class MapBuilder {
             default:
                 return width - 1 - x;
         }
+    }
+
+    public MapLocation symmetryLocation(MapLocation p) {
+        return new MapLocation(symmetricX(p.x), symmetricY(p.y));
     }
 
     /**
@@ -266,8 +276,7 @@ public class MapBuilder {
      */
     public void saveMap(String pathname) throws IOException {
         // validate
-        if (!valid())
-            throw new RuntimeException("Map isn't valid.");
+        assertIsValid();
         System.out.println("Saving " + this.name + ": has " + Integer.toString(getTotalSoup())+ " total soup.");
         GameMapIO.writeMap(this.build(), new File(pathname));
     }
@@ -275,19 +284,156 @@ public class MapBuilder {
     /**
      * Returns true if the map is valid.
      *
-     * WARNING: DON'T TRUST THIS COMPLETELY.
+     * WARNING: DON'T TRUST THIS COMPLETELY. THIS DOES NOT VERIFY SYMMETRY.
      * @return
      */
-    public boolean valid() {
+    public void assertIsValid() {
+
+        System.out.println("Validating " + name + "...");
+
+        // get robots
+        RobotInfo[] robots = new RobotInfo[width*height];
+        for (RobotInfo r : bodies) {
+            assert robots[locationToIndex(r.location.x, r.location.y)] == null;
+            robots[locationToIndex(r.location.x, r.location.y)] = r;
+        }
+
+
+        if (width < 32 || height < 32 || width > 64 || height > 64)
+            throw new RuntimeException("The map size must be between 32x32 and 64x64, inclusive.");
+
+        // check HQ effective elevation (floods between 1 and 5)
+        ArrayList<MapLocation> HQLocations = new ArrayList<MapLocation>();
+        for (RobotInfo r : bodies) {
+            if (r.getType() == RobotType.HQ) {
+                HQLocations.add(r.getLocation());
+            }
+        }
+        for (int waterLevel = 0; waterLevel < 6; waterLevel++) {
+            boolean[] waterTestArray = waterArray.clone();
+            Queue<Integer> q = new LinkedList<Integer>();
+            for (int x = 0; x < width; x++)
+                for (int y = 0; y < height; y++)
+                    if (waterArray[locationToIndex(x,y)])
+                        q.add(locationToIndex(x,y));
+            while (!q.isEmpty()) {
+                Integer f = q.poll();
+                for (Direction d : Direction.allDirections()) {
+                    if (!onTheMap(indexToLocation(f).add(d)))
+                        continue;
+                    int dd = locationToIndex(indexToLocation(f).add(d).x, indexToLocation(f).add(d).y);
+                    if (dirtArray[dd] > waterLevel)
+                        continue;
+                    if (!waterTestArray[dd]) {
+                        waterTestArray[dd] = true;
+                        q.add(dd);
+                    }
+                }
+            }
+            for (MapLocation HQLoc : HQLocations) {
+                if (waterLevel <= 1 && waterTestArray[locationToIndex(HQLoc.x, HQLoc.y)]) {
+                    throw new RuntimeException("The HQ must not flood at an effective elevation of 1! It currently floods at 0 or 1.");
+                }
+                if (waterLevel == 5 && !waterTestArray[locationToIndex(HQLoc.x, HQLoc.y)]) {
+                    throw new RuntimeException("The HQ must not flood at an effective elevation between 2-5! It currently does not flood at 5.");
+                }
+            }
+        }
+
+        // HQ will not start adjacent to deep water
+        // here we define deep water to be -10
+        for (MapLocation HQLoc : HQLocations) {
+            for (int x = 0; x < width; x++)
+                for (int y=0; y < height; y++) {
+                    if (HQLoc.isAdjacentTo(new MapLocation(x,y)) && waterArray[locationToIndex(x,y)] && dirtArray[locationToIndex(x,y)] < -10) {
+                        throw new RuntimeException("HQ may not start next to water that has elevation < -10 (position (" + x + "," + y + ")");
+                    }
+                }
+        }
+
+        // HQ cannot be covered in water
+        for (MapLocation HQLoc : HQLocations) {
+            if (waterArray[locationToIndex(HQLoc.x, HQLoc.y)])
+                throw new RuntimeException("HQ may not be flooded at the start; but location " + HQLoc + " is.");
+        }
+
+        // assert soup and dirt symmetry
+        ArrayList<MapSymmetry> allMapSymmetries = getSymmetry(robots);
+        System.out.println("This map has the following symmetries: " + allMapSymmetries);
+        boolean doesContain = false;
+        for (MapSymmetry sss : allMapSymmetries) {
+            if (sss == symmetry) doesContain = true;
+        }
+        if (!doesContain) {
+            throw new RuntimeException("Soup, dirt and robots must be symmetric according to the given symmetry; they are not currently.");
+        }
+
+        // Corresponding cows must have IDs 2,3; 4,5; 6,7; etc
+        for (RobotInfo r : bodies) {
+            if (r.getType() == RobotType.COW) {
+                MapLocation s = symmetryLocation(r.location);
+                RobotInfo cr = robots[locationToIndex(s.x, s.y)];
+                if (cr.getType() != RobotType.COW)
+                    throw new RuntimeException("This should never happen, check getSymmetry function for correctness.");
+                if (cr.getID() / 2 != r.getID() / 2)
+                    throw new RuntimeException("Corresponding cows must have IDs that are the same / 2.");
+            }
+        }
+
+
         // check if there is a -inf water tile
+        // note: we don't want to use Integer.MIN_VALUE because we then risk underflow
+        // we can never build higher than this
+        // A good option is Integer.MIN_VALUE / 2.
+        int impossibleHeight = 10000000;
         boolean hasMinInfWater = false;
         for (int x = 0; x < width; x++)
-            for (int y=0;y<height;y++)
-                if (waterArray[locationToIndex(x,y)] && dirtArray[locationToIndex(x,y)] <= -10000000) {
+            for (int y=0; y < height; y++)
+                if (waterArray[locationToIndex(x,y)] && dirtArray[locationToIndex(x,y)] == GameConstants.MIN_WATER_ELEVATION) {
                     hasMinInfWater = true;
                 }
+        if (!hasMinInfWater)
+            throw new RuntimeException("Every map is required to have a water tile with elevation GameConstants.MIN_WATER_ELEVATION. This map does not have that.");
 
+    }
+    public boolean onTheMap(MapLocation loc) {
+        return loc.x >= 0 && loc.y >= 0 && loc.x < width && loc.y < height;
+    }
+    public MapLocation indexToLocation(int idx) {
+        return new MapLocation(idx % this.width,
+                               idx / this.width);
+    }
 
-        return hasMinInfWater;
+    private ArrayList<MapSymmetry> getSymmetry(RobotInfo[] robots) {
+
+        ArrayList<MapSymmetry> possible = new ArrayList<MapSymmetry>();
+        possible.add(MapSymmetry.vertical);
+        possible.add(MapSymmetry.horizontal);
+        possible.add(MapSymmetry.rotational);
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                MapLocation current = new MapLocation(x, y);
+                RobotInfo cri = robots[locationToIndex(current.x, current.y)];
+                for (int i = possible.size()-1; i >= 0; i--) { // iterating backwards so we can remove in the loop
+                    MapSymmetry symmetry = possible.get(i);
+                    MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
+                    if (soupArray[locationToIndex(current.x, current.y)] != soupArray[locationToIndex(symm.x, symm.y)]) possible.remove(symmetry);
+                    if (dirtArray[locationToIndex(current.x, current.y)] != dirtArray[locationToIndex(symm.x, symm.y)]) possible.remove(symmetry);
+                    RobotInfo sri = robots[locationToIndex(symm.x, symm.y)];
+                    if (!(cri == null) || !(sri == null)) {
+                        if (cri == null || sri == null) {
+                            possible.remove(symmetry);
+                        } else if (cri.getType() != sri.getType()) {
+                            possible.remove(symmetry);
+                        }
+                    }
+                }
+                if (possible.size() <= 1) break;
+            }
+            if (possible.size() <= 1) break;
+        }
+
+        return possible;
     }
 }
