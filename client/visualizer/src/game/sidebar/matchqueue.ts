@@ -115,7 +115,7 @@ export default class MatchQueue {
     if (gameList[activeGame]) {
       this.profiler.load(gameList[activeGame].getMatch(activeMatch));
     } else {
-      this.profiler.load(null);
+      this.profiler.load(undefined);
     }
 
     // Remove all games from the list

@@ -140,8 +140,8 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
                     endOfBasicBlock(node);
                     break;
                 case INT_INSN:
-		    visitIntInsnNode((IntInsnNode) node);
-		    break;
+                    visitIntInsnNode((IntInsnNode) node);
+                    break;
                 case IINC_INSN:
                     bytecodeCtr++;
                     break;

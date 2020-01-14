@@ -21,8 +21,8 @@ export default class Profiler {
     this.iframe = this.createIFrame();
   }
 
-  public load(match: Match | null): void {
-    this.profilerFiles = match !== null ? (match.profilerFiles || []) : [];
+  public load(match: Match | undefined): void {
+    this.profilerFiles = match !== undefined ? (match.profilerFiles || []) : [];
 
     this.clearSelect(this.teamSelector);
     this.clearSelect(this.robotSelector);
