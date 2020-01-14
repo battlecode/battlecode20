@@ -429,9 +429,9 @@ public class MapBuilder {
                         }
                     }
                 }
-                if (possible.size() <= 1) break;
+                if (possible.size() < 1) break;
             }
-            if (possible.size() <= 1) break;
+            if (possible.size() < 1) break;
         }
 
         return possible;
