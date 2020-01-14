@@ -297,7 +297,6 @@ class MatchmakingViewSet(viewsets.GenericViewSet):
         else:
             return Response({'message': 'make this request from server account'}, status.HTTP_401_UNAUTHORIZED)
 
-
 class UserTeamViewSet(viewsets.ReadOnlyModelViewSet):
     """
     list:
@@ -559,7 +558,7 @@ class SubmissionViewSet(viewsets.GenericViewSet,
     """
     queryset = Submission.objects.all().order_by('-submitted_at')
     serializer_class = SubmissionSerializer
-    permission_classes = (LeagueActiveOrSafeMethods, SubmissionsEnabledOrSafeMethods, IsAuthenticatedOnTeam, IsStaffOrGameReleased)
+    #permission_classes = (LeagueActiveOrSafeMethods, SubmissionsEnabledOrSafeMethods, IsAuthenticatedOnTeam, IsStaffOrGameReleased)
 
     def get_queryset(self):
         return super().get_queryset()
@@ -660,6 +659,19 @@ class SubmissionViewSet(viewsets.GenericViewSet,
                 return Response({'message': 'Unknown status. 0 = compiling, 1 = succeeded, 2 = failed'}, status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'message': 'Only superuser can update compilation status'}, status.HTTP_401_UNAUTHORIZED)
+
+    @action(methods=['post'], detail=False)
+    def get_tour_submissions(self, request, league_id):
+        is_admin = User.objects.all().get(username=request.user).is_superuser
+        if is_admin:
+            for team in TeamSubmission.objects.all():
+                if team.last_1_id != None:
+                    #change this to whatever tournames we want to transfer to. sorry it's a bit jank
+                    team.tour_sprint = Submission.objects.get(pk=team.last_1_id)
+                    team.save()
+            return Response({'message': 'Status updated'}, status.HTTP_200_OK)
+        else:  
+             return Response({'message': 'Only superuser can update compilation status'}, status.HTTP_401_UNAUTHORIZED)
 
 
 class TeamSubmissionViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
