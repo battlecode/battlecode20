@@ -21,7 +21,6 @@ public class BuildMaps {
         CentralLake.main(args);
         CentralSoup.main(args);
         FourLakeLand.main(args);
-        MapTestSmall.main(args);
         SoupOnTheSide.main(args);
         TwoForOneAndTwoForAll.main(args);
         WaterBot.main(args);

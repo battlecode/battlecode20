@@ -17,9 +17,15 @@ public class Transaction implements Comparable<Transaction> {
      */
     private final String serializedMessage;
 
-    public Transaction(int cost, int[] message) {
+    /**
+     * The randomly generated id associated with the transaction.
+     */
+    private final int id;
+
+    public Transaction(int cost, int[] message, int id) {
         this.cost = cost;
         this.message = message;
+        this.id = id;
 
         // Serialize the message
         String[] stringMessageArray = new String[message.length];
@@ -50,10 +56,17 @@ public class Transaction implements Comparable<Transaction> {
 
 
     /**
-     * Transactions with higher cost have higher priority.
+     * Transactions with higher cost have higher priority, then transactions with
+     * higher randomly generated id, then (if two transactions somehow collide in 
+     * randomly generated id) transaction that is lexicographically earlier.
      */
     @Override
     public int compareTo(Transaction other) {
-        return other.cost - this.cost;
+        if (other.cost != this.cost)
+            return other.cost - this.cost;
+        if (other.id != this.id) {
+            return other.id - this.id;
+        }
+        return serializedMessage.compareTo(other.serializedMessage);
     }
 }

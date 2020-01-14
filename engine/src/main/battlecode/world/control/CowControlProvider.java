@@ -8,10 +8,6 @@ import battlecode.world.InternalRobot;
 
 import java.util.*;
 
-/**
- * TODO: either have cows increase pollution here, or have something global that increases pollution based on cows
- * in some other file
- */
 public class CowControlProvider implements RobotControlProvider {
 
     /**
@@ -29,7 +25,7 @@ public class CowControlProvider implements RobotControlProvider {
     };
 
     /**
-     * The types & order to spawn zombie robots in.
+     * The types & order to spawn cows in.
      */
     private final RobotType COW_TYPE = RobotType.COW;
 
@@ -38,37 +34,32 @@ public class CowControlProvider implements RobotControlProvider {
      */
     private GameWorld world;
 
-    /**
-     * The queues of zombies to spawn for each den.
-     */
-    //private final Map<Integer, Map<RobotType, Integer>> denQueues;
+    private enum MapSymmetry {rotational, horizontal, vertical};
 
     /**
-     * An rng based on the world seed.
+     * The symmetry of the world.
      */
-    private static Random random;
+    private MapSymmetry s;
 
-    //private boolean disableSpawning;
+    private HashMap<Integer, Random> idToRandom = new HashMap<Integer, Random>();
+
 
     /**
      * Create a CowControlProvider.
      */
     public CowControlProvider() {
-        //this.disableSpawning = false;
-        //this.denQueues = new HashMap<>();
     }
-
-    /*public CowControlProvider(boolean disableSpawning) {
-        this.disableSpawning = disableSpawning;
-        //this.denQueues = new HashMap<>();
-    }*/
 
     @Override
     public void matchStarted(GameWorld world) {
         assert this.world == null;
 
         this.world = world;
-        this.random = new Random(world.getMapSeed());
+        this.s = getSymmetry();
+        // clear out the idToRandom
+        // note that the control provider isn't reset on every game, so this is necessary
+        idToRandom.clear();
+        //System.out.println("symmetry is " + this.s + "!!!");
     }
 
     @Override
@@ -76,8 +67,6 @@ public class CowControlProvider implements RobotControlProvider {
         assert this.world != null;
 
         this.world = null;
-        this.random = null;
-        //this.denQueues.clear();
     }
 
     @Override
@@ -88,16 +77,9 @@ public class CowControlProvider implements RobotControlProvider {
 
     @Override
     public void robotSpawned(InternalRobot robot) {
-        // if (robot.getType() == RobotType.ZOMBIEDEN) {
-        //     // Create the spawn queue for this robot
-        //     final Map<RobotType, Integer> spawnQueue = new HashMap<>();
-        //     // Initialize all zombie types in the queue to 0
-        //     for (RobotType type : ZOMBIE_TYPES) {
-        //         spawnQueue.put(type, 0);
-        //     }
-        //     // Store it in denQueues
-        //     denQueues.put(robot.getID(), spawnQueue);
-        // }
+        // we should update symmetry here. this ensures we account for all robots as well.
+        // we here use the convention that HQs are added before cows
+        this.s = getSymmetry();
     }
 
     @Override
@@ -108,102 +90,31 @@ public class CowControlProvider implements RobotControlProvider {
         if (robot.getType() == COW_TYPE) {
             processCow(robot);
         } else {
-            // We're somehow controlling a non-zombie robot.
+            // We're somehow controlling a non-cow robot.
             // ...
             // just do nothing lol, this will never happen
         }
     }
-
-    /**
-     * Run the logic for a zombie den.
-     *
-     * @param den the zombie den.
-     */
-   /* private void processZombieDen(InternalRobot den) {
-        assert den.getType() == RobotType.ZOMBIEDEN;
-
-        final RobotController rc = den.getController();
-        final Map<RobotType, Integer> spawnQueue = denQueues.get(rc.getID());
-        final ZombieSpawnSchedule zSchedule = world.getGameMap().getZombieSpawnSchedule(den.getLocation());
-        // Update the spawn queue with the values from this round.
-        for (ZombieCount count : zSchedule.getScheduleForRound(world.getCurrentRound())) {
-            final int currentCount = spawnQueue.get(count.getType());
-            spawnQueue.put(count.getType(), currentCount + count.getCount());
-        }
-        // Spawn as many available robots as possible
-        spawnAllPossible(rc, spawnQueue);
-        // Now we've tried every direction. If we still have things in queue, damage surrounding robots
-        RobotType next = null;
-        for (RobotType type : ZOMBIE_TYPES) {
-            if (spawnQueue.get(type) != 0) {
-                next = type;
-            }
-        }
-        if (next != null) {
-            // There are still things in queue, so attack all locations
-            for (int dirOffset = 0; dirOffset < DIRECTIONS.length; dirOffset++) {
-                final InternalRobot block = world.getObject(rc.getLocation().add(DIRECTIONS[dirOffset]));
-                if (block != null && block.getTeam() != Team.ZOMBIE) {
-                    block.takeDamage(GameConstants.DEN_SPAWN_PROXIMITY_DAMAGE);
-                }
-            }
-
-            // Now spawn in remaining locations
-            spawnAllPossible(rc, spawnQueue);
-        }
-    }*/
-
-    /**
-     * Spawn as of the queued robots as space allows
-     *
-     * @param rc a robotcontroller
-     * @param spawnQueue the queue of robots to be spawned
-     */
-    /*private void spawnAllPossible(RobotController rc, Map<RobotType, Integer> spawnQueue) {
-        // Walk around the den, attempting to spawn zombies.
-        // We choose a random direction to start spawning so that we don't prefer to spawn zombies
-        // to the north.
-        final int startingDirection = getSpawnDirection(rc.getLocation());
-        final int chirality = getSpawnChirality(rc.getLocation());
-
-        for (int dirOffset = 0; dirOffset < DIRECTIONS.length; dirOffset++) {
-            final Direction dir = DIRECTIONS[
-                    Math.floorMod(startingDirection + dirOffset*chirality, DIRECTIONS.length)
-            ];
-
-            // Pull the next zombie type to spawn from the queue
-            RobotType next = null;
-            for (RobotType type : ZOMBIE_TYPES) {
-                if (spawnQueue.get(type) != 0) {
-                    next = type;
-                }
-            }
-            if (next == null) {
-                break;
-            }
-
-            // Check if we can build in this location
-            if (rc.canBuild(dir, next)) {
-                try {
-                    // We can!
-                    rc.build(dir, next);
-                    spawnQueue.put(next, spawnQueue.get(next) - 1);
-                } catch (GameActionException e) {
-                    ErrorReporter.report(e, true);
-                }
-            }
-        }
-    }*/ //commented stuff out, preserving in case this is helpful for spawning cows
 
     private void processCow(InternalRobot cow) {
         assert cow.getType() == COW_TYPE;
         final RobotController rc = cow.getController();
 
         try {
+            if (!idToRandom.containsKey(cow.getID())) {
+                Random newRandom = new Random(84307 * world.getMapSeed() + 20201 * (cow.getID() / 2));
+//                System.out.println("random seed: " + (84307*world.getMapSeed() + 20201*(cow.getID() / 2)));
+                idToRandom.put(cow.getID(), newRandom);
+            }
+            int i = 4;
+            Random random = idToRandom.get(cow.getID());
             if (rc.isReady()) {
-                int i = 4;
-                while (i-->0) { 
-                    Direction dir = randomDirection();
+                while (i-->0) {
+                    Direction dir = DIRECTIONS[(int) Math.floor(random.nextDouble() * (double) DIRECTIONS.length)];
+//                    System.out.println("round: " + world.getCurrentRound() + "id: " + cow.getID() + "dir: " + dir);
+                    MapLocation loc = cow.getLocation();
+                    if (cow.getID() % 2 == 1) dir = reverseDirection(dir);
+//                    System.out.println("final dir: " + dir);
                     if (rc.canMove(dir) && !world.isFlooded(rc.adjacentLocation(dir))) {
                         rc.move(dir);
                         break;
@@ -211,13 +122,99 @@ public class CowControlProvider implements RobotControlProvider {
                 }
                 return;
             }
+            // make sure we always call random.nextDouble four times
+            while (i-->0)
+                random.nextDouble();
         } catch (Exception e) {
             ErrorReporter.report(e, true);
         }
     }
 
-    Direction randomDirection() {
-        return DIRECTIONS[(int) (random.nextDouble() * (double) DIRECTIONS.length)];
+    private Direction reverseDirection(Direction dir) {
+        switch (s) {
+            case horizontal:
+                if (dir == Direction.NORTHEAST) return Direction.SOUTHEAST;
+                if (dir == Direction.SOUTHEAST) return Direction.NORTHEAST;
+                if (dir == Direction.NORTH) return Direction.SOUTH;
+                if (dir == Direction.SOUTH) return Direction.NORTH;
+                if (dir == Direction.NORTHWEST) return Direction.SOUTHWEST;
+                if (dir == Direction.SOUTHWEST) return Direction.NORTHWEST;
+                return dir;
+            case vertical:
+                if (dir == Direction.NORTHEAST) return Direction.NORTHWEST;
+                if (dir == Direction.SOUTHEAST) return Direction.SOUTHWEST;
+                if (dir == Direction.NORTHWEST) return Direction.NORTHEAST;
+                if (dir == Direction.SOUTHWEST) return Direction.SOUTHEAST;
+                if (dir == Direction.WEST) return Direction.EAST;
+                if (dir == Direction.EAST) return Direction.WEST;
+                return dir;
+            case rotational:
+                return dir.opposite();
+            default:
+                return dir;
+        }
+    }
+
+    private MapSymmetry getSymmetry() {
+
+        ArrayList<MapSymmetry> possible = new ArrayList<MapSymmetry>();
+        possible.add(MapSymmetry.vertical); 
+        possible.add(MapSymmetry.horizontal);
+        possible.add(MapSymmetry.rotational);
+
+        for (int x = 0; x < world.getGameMap().getWidth(); x++) {
+            for (int y = 0; y < world.getGameMap().getHeight(); y++) {
+                MapLocation current = new MapLocation(x, y);
+                InternalRobot bot = world.getRobot(current);
+                RobotInfo cri = null;
+                if(bot != null)
+                    cri = bot.getRobotInfo();
+                for (int i = possible.size()-1; i >= 0; i--) { // iterating backwards so we can remove in the loop
+                    MapSymmetry symmetry = possible.get(i);
+                    MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
+                    if (world.getSoup(current) != world.getSoup(symm)) possible.remove(symmetry);
+                    if (world.getDirt(current) != world.getDirt(symm)) possible.remove(symmetry);
+                    bot = world.getRobot(symm);
+                    RobotInfo sri = null;  
+                    if (bot != null) sri = bot.getRobotInfo();
+                    if (!(cri == null) || !(sri == null)) {
+                        if (cri == null || sri == null) {
+                            possible.remove(symmetry);
+                        } else if (cri.getType() != sri.getType()) {
+                            possible.remove(symmetry);
+                        }
+                    }
+                }
+                if (possible.size() <= 1) break;
+            }
+            if (possible.size() <= 1) break;
+        }
+
+        if (possible.size() > 0)
+            return possible.get(0);
+        return MapSymmetry.rotational;
+    }
+
+    public int symmetricY(int y, MapSymmetry symmetry) {
+        switch (symmetry) {
+            case vertical:
+                return y;
+            case horizontal:
+            case rotational:
+            default:
+                return world.getGameMap().getHeight() - 1 - y;
+        }
+    }
+
+    public int symmetricX(int x, MapSymmetry symmetry) {
+        switch (symmetry) {
+            case horizontal:
+                return x;
+            case vertical:
+            case rotational:
+            default:
+                return world.getGameMap().getWidth() - 1 - x;
+        }
     }
 
     @Override

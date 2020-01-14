@@ -4,6 +4,8 @@ import battlecode.instrumenter.SandboxedRobotPlayer;
 import battlecode.server.ErrorReporter;
 
 import java.io.PrintStream;
+import java.lang.Math;
+import java.lang.Integer;
 
 /**
  * The class used to count bytecodes and debug levels at player runtime; calls to its methods are injected
@@ -119,15 +121,20 @@ public final class RobotMonitor {
         }
 
         if (debugLevel == 0) {
-            bytecodesLeft -= numBytecodes;
-	    bytecodesLeft -= bytecodesToRemove;
+            try {
+                // check for integer overflow exploits
+                bytecodesLeft = Math.subtractExact(bytecodesLeft, numBytecodes);
+                bytecodesLeft = Math.subtractExact(bytecodesLeft, bytecodesToRemove);
+            } catch (ArithmeticException e) {
+                bytecodesLeft = Integer.MIN_VALUE;
+            }
 
             while (bytecodesLeft <= 0) {
                 pause();
             }
         }
 	
-	bytecodesToRemove = 0;
+	    bytecodesToRemove = 0;
     }
 
     /**
@@ -144,8 +151,13 @@ public final class RobotMonitor {
     public static void incrementBytecodesWithoutInterrupt(int numBytecodes) {
         // Several potential exploits mean this argument may be passed a negative value.
         // It's easier to deal with this here than in the instrumenter.
-        if (numBytecodes > 0)
-            bytecodesToRemove += numBytecodes;
+        if (numBytecodes > 0) {
+            try {
+                bytecodesToRemove = Math.addExact(bytecodesToRemove, numBytecodes);  // to prevent integer overflow
+            } catch (ArithmeticException e) {
+                bytecodesToRemove = Integer.MAX_VALUE;
+            }
+        }
     }
 
     /**
@@ -180,10 +192,8 @@ public final class RobotMonitor {
     @SuppressWarnings("unused")
     public static int calculateMultiArrayCost(int[] dims) {
         int cost = 1;
-        for (int i = dims.length-1; i >= 0; i--) {
-            if (dims[i] == 0)
-                break;
-            cost *= dims[i];
+        for (int i = dims.length - 1; i >= 0; i--) {
+            cost *= Math.max(dims[i], 1);
         }
 
         return cost;

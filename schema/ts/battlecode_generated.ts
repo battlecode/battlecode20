@@ -283,6 +283,15 @@ static getRootAsVecTable(bb:flatbuffers.ByteBuffer, obj?:VecTable):VecTable {
 };
 
 /**
+ * @param flatbuffers.ByteBuffer bb
+ * @param VecTable= obj
+ * @returns VecTable
+ */
+static getSizePrefixedRootAsVecTable(bb:flatbuffers.ByteBuffer, obj?:VecTable):VecTable {
+  return (obj || new VecTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
  * @param number index
  * @returns number
  */
@@ -441,6 +450,15 @@ __init(i:number, bb:flatbuffers.ByteBuffer):RGBTable {
  * @returns RGBTable
  */
 static getRootAsRGBTable(bb:flatbuffers.ByteBuffer, obj?:RGBTable):RGBTable {
+  return (obj || new RGBTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param RGBTable= obj
+ * @returns RGBTable
+ */
+static getSizePrefixedRootAsRGBTable(bb:flatbuffers.ByteBuffer, obj?:RGBTable):RGBTable {
   return (obj || new RGBTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -658,6 +676,15 @@ __init(i:number, bb:flatbuffers.ByteBuffer):SpawnedBodyTable {
  * @returns SpawnedBodyTable
  */
 static getRootAsSpawnedBodyTable(bb:flatbuffers.ByteBuffer, obj?:SpawnedBodyTable):SpawnedBodyTable {
+  return (obj || new SpawnedBodyTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param SpawnedBodyTable= obj
+ * @returns SpawnedBodyTable
+ */
+static getSizePrefixedRootAsSpawnedBodyTable(bb:flatbuffers.ByteBuffer, obj?:SpawnedBodyTable):SpawnedBodyTable {
   return (obj || new SpawnedBodyTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -910,6 +937,15 @@ static getRootAsLocalPollutionTable(bb:flatbuffers.ByteBuffer, obj?:LocalPolluti
 };
 
 /**
+ * @param flatbuffers.ByteBuffer bb
+ * @param LocalPollutionTable= obj
+ * @returns LocalPollutionTable
+ */
+static getSizePrefixedRootAsLocalPollutionTable(bb:flatbuffers.ByteBuffer, obj?:LocalPollutionTable):LocalPollutionTable {
+  return (obj || new LocalPollutionTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
  * The origin and radius of the circle defining the pollution effect.
  *
  * @param battlecode.schema.VecTable= obj
@@ -1147,6 +1183,15 @@ __init(i:number, bb:flatbuffers.ByteBuffer):GameMap {
  * @returns GameMap
  */
 static getRootAsGameMap(bb:flatbuffers.ByteBuffer, obj?:GameMap):GameMap {
+  return (obj || new GameMap).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param GameMap= obj
+ * @returns GameMap
+ */
+static getSizePrefixedRootAsGameMap(bb:flatbuffers.ByteBuffer, obj?:GameMap):GameMap {
   return (obj || new GameMap).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -1551,6 +1596,15 @@ static getRootAsBodyTypeMetadata(bb:flatbuffers.ByteBuffer, obj?:BodyTypeMetadat
 };
 
 /**
+ * @param flatbuffers.ByteBuffer bb
+ * @param BodyTypeMetadata= obj
+ * @returns BodyTypeMetadata
+ */
+static getSizePrefixedRootAsBodyTypeMetadata(bb:flatbuffers.ByteBuffer, obj?:BodyTypeMetadata):BodyTypeMetadata {
+  return (obj || new BodyTypeMetadata).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
  * The relevant type.
  *
  * @returns battlecode.schema.BodyType
@@ -1850,6 +1904,15 @@ static getRootAsTeamData(bb:flatbuffers.ByteBuffer, obj?:TeamData):TeamData {
 };
 
 /**
+ * @param flatbuffers.ByteBuffer bb
+ * @param TeamData= obj
+ * @returns TeamData
+ */
+static getSizePrefixedRootAsTeamData(bb:flatbuffers.ByteBuffer, obj?:TeamData):TeamData {
+  return (obj || new TeamData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
  * The name of the team.
  *
  * @param flatbuffers.Encoding= optionalEncoding
@@ -1961,6 +2024,15 @@ __init(i:number, bb:flatbuffers.ByteBuffer):GameHeader {
  * @returns GameHeader
  */
 static getRootAsGameHeader(bb:flatbuffers.ByteBuffer, obj?:GameHeader):GameHeader {
+  return (obj || new GameHeader).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param GameHeader= obj
+ * @returns GameHeader
+ */
+static getSizePrefixedRootAsGameHeader(bb:flatbuffers.ByteBuffer, obj?:GameHeader):GameHeader {
   return (obj || new GameHeader).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2139,6 +2211,15 @@ static getRootAsGameFooter(bb:flatbuffers.ByteBuffer, obj?:GameFooter):GameFoote
 };
 
 /**
+ * @param flatbuffers.ByteBuffer bb
+ * @param GameFooter= obj
+ * @returns GameFooter
+ */
+static getSizePrefixedRootAsGameFooter(bb:flatbuffers.ByteBuffer, obj?:GameFooter):GameFooter {
+  return (obj || new GameFooter).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
  * The ID of the winning team of the game.
  *
  * @returns number
@@ -2206,6 +2287,15 @@ __init(i:number, bb:flatbuffers.ByteBuffer):MatchHeader {
  * @returns MatchHeader
  */
 static getRootAsMatchHeader(bb:flatbuffers.ByteBuffer, obj?:MatchHeader):MatchHeader {
+  return (obj || new MatchHeader).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param MatchHeader= obj
+ * @returns MatchHeader
+ */
+static getSizePrefixedRootAsMatchHeader(bb:flatbuffers.ByteBuffer, obj?:MatchHeader):MatchHeader {
   return (obj || new MatchHeader).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2301,6 +2391,15 @@ static getRootAsMatchFooter(bb:flatbuffers.ByteBuffer, obj?:MatchFooter):MatchFo
 };
 
 /**
+ * @param flatbuffers.ByteBuffer bb
+ * @param MatchFooter= obj
+ * @returns MatchFooter
+ */
+static getSizePrefixedRootAsMatchFooter(bb:flatbuffers.ByteBuffer, obj?:MatchFooter):MatchFooter {
+  return (obj || new MatchFooter).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
  * The ID of the winning team.
  *
  * @returns number
@@ -2390,6 +2489,15 @@ __init(i:number, bb:flatbuffers.ByteBuffer):Round {
  * @returns Round
  */
 static getRootAsRound(bb:flatbuffers.ByteBuffer, obj?:Round):Round {
+  return (obj || new Round).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param Round= obj
+ * @returns Round
+ */
+static getSizePrefixedRootAsRound(bb:flatbuffers.ByteBuffer, obj?:Round):Round {
   return (obj || new Round).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -3707,6 +3815,15 @@ static getRootAsEventWrapper(bb:flatbuffers.ByteBuffer, obj?:EventWrapper):Event
 };
 
 /**
+ * @param flatbuffers.ByteBuffer bb
+ * @param EventWrapper= obj
+ * @returns EventWrapper
+ */
+static getSizePrefixedRootAsEventWrapper(bb:flatbuffers.ByteBuffer, obj?:EventWrapper):EventWrapper {
+  return (obj || new EventWrapper).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
  * @returns battlecode.schema.Event
  */
 eType():battlecode.schema.Event {
@@ -3795,6 +3912,15 @@ __init(i:number, bb:flatbuffers.ByteBuffer):GameWrapper {
  * @returns GameWrapper
  */
 static getRootAsGameWrapper(bb:flatbuffers.ByteBuffer, obj?:GameWrapper):GameWrapper {
+  return (obj || new GameWrapper).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param GameWrapper= obj
+ * @returns GameWrapper
+ */
+static getSizePrefixedRootAsGameWrapper(bb:flatbuffers.ByteBuffer, obj?:GameWrapper):GameWrapper {
   return (obj || new GameWrapper).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 

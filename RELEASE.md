@@ -21,17 +21,20 @@ TODO: deploy BACKEND??????
 - Make sure everything is installed:
     - `./install_all.sh`
 - Choose a version as $year.$release (e.g. 2020.1.32.2)
-- Update `specs/specs.md` with the new version and a changelog.
-- Update `client/visualizer/src/config.ts` with the version number.
-- Update `gradle.properties` with the version number.
+- Run `./pre_release.py $version`.
+    - It will generate a comparison link where you can view the changes since the last version.
+    - It will update `specs/specs.md` with version and changelog
+    - It will update `gradle.properties` with version
+    - It will update `client/visualizer/src/config.ts` with version
 - If new maps have been added, update `SERVER_MAPS` in `client/visualizer/constants.ts` and in `backend/settings.py`.
   - (optional) If a new tournament has been released, also update `MapFilter.types` in `client/visualizer/game/sidebar/mapfilter.ts`.
 - Review the changes, and commit and push (message e.g. "preparing for release 2020.1.32.2").
 - `./gradlew clean`
 - `./gradlew test`
+- `./gradlew headless` some good bots
 - Review the changes.
 - RELEASE: `./gradlew publish`
-- `python3 prepare_release.py $version` (but actually fill it in)
+- `./post_release.py`
   - It will also generate the HTML version of the docs.
   - It will also build the client for the web.
 - Review the changes.
@@ -41,8 +44,6 @@ TODO: deploy BACKEND??????
   - `cd ..`
 - Commit and push (message e.g. "release 2020.1.32.2").
 - `git tag $version` (but actually fill it in)
-- Update the scrim/compile servers
-    - TODO
-- `git push`
+- `git push --tags`
 - Update `battlecode20-scaffold/version.txt` WITHOUT A NEWLINE!!! (don't update on github, don't use normal text editor, be super careful)
 - Go on Discord and wait for things to catch on fire

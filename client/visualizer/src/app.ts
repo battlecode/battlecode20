@@ -390,6 +390,7 @@ export default class Client {
 
     // Last selected robot ID to display extra info
     const controls = this.controls;
+    const cconsole = this.console;
     let lastSelectedID: number | undefined = undefined;
     const onRobotSelected = (id: number | undefined) => {
       lastSelectedID = id;
@@ -592,6 +593,10 @@ export default class Client {
           case 71: // "g" - Toogle grid view
             conf.showGrid = !conf.showGrid;
             break;
+          case 72: // "h" - Toggle short log header
+            conf.shorterLogHeader = !conf.shorterLogHeader;
+            cconsole.updateLogHeader();
+            break;
         }
       }
       
@@ -672,6 +677,7 @@ export default class Client {
       // @ts-ignore
       renderer.render(match.current, match.current.minCorner, match.current.maxCorner);
 
+      this.stats.showBlock(match.blockchain[match.current.turn]);
       this.updateStats(match.current, meta);
       this.loopID = window.requestAnimationFrame(loop);
 

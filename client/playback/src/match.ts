@@ -10,6 +10,16 @@ export type Log = {
   text: string
 };
 
+export type Transaction = {
+  cost: number,
+  message: Array<number>
+}
+
+export type Block = {
+  messages: Array<Transaction>,
+  round: number
+}
+
 // Return a timestamp representing the _current time in ms, not necessarily from
 // any particular epoch.
 const timeMS: () => number = typeof window !== 'undefined' && window.performance && window.performance.now?
@@ -56,6 +66,11 @@ export default class Match {
    * The logs of this match, bucketed by round.
    */
   readonly logs: Array<Array<Log>>;
+
+  /**
+   * The blockchain, an array of blocks per round.
+   */
+  readonly blockchain: Array<Block>;
 
   /**
    * The current game world.
@@ -118,6 +133,7 @@ export default class Match {
     this.snapshots.push(this._current.copy());
     this.deltas = new Array(1);
     this.logs = new Array(1);
+    this.blockchain = new Array(1);
     this.maxTurn = header.maxRounds();
     this._lastTurn = null;
     this._seekTo = 0;
@@ -136,7 +152,95 @@ export default class Match {
     if(delta.logs()){
       this.parseLogs(delta.roundID(), <string> delta.logs(flatbuffers.Encoding.UTF16_STRING));
     }
+    this.parseBlockchain(delta);
   }
+
+  /**
+   * parses blockchain broadcasts
+   */
+  parseBlockchain(delta: schema.Round) {
+    let blockMessages = new Array<Transaction>();
+
+    // lol the schema format for this is real weird
+    // THIS IS THE HACKIEST SOLUTION MANKIND HAS EVER SEEN
+    // another option is actually changing the schema, but we can't remove parts of it
+    // so then we would need to add a new thing
+    // which would (1) break old replays and (2) have twice as big new replays
+    // sorry this is probably the best solution
+    // DO NOT COPY THIS CODE FOR FUTURE USE. MODIFY!!!
+
+    let j = 0;
+    let messageStringLen = delta.broadcastedMessagesLength();
+    for (let i = 0; i < delta.broadcastedMessagesCostsLength(); i++) {
+      let messageCost = delta.broadcastedMessagesCosts(i);
+      // console.log(messageCost);
+      // let x = delta.broadcastedMessages(j, flatbuffers.Encoding.UTF16_STRING);
+      // var offset = delta.bb!.__offset(delta.bb_pos, 42);
+      // var h = delta.bb!.__vector(delta.bb_pos + offset)
+      // console.log(h);
+      // var k = delta.bb!.readInt32(h);
+      // console.log(k);
+      // console.log(delta.bb!.readInt32(h+4));
+      // console.log(delta.bb!.readInt32(h+8));
+      // console.log(delta.bb!.readInt32(h+12));
+      // console.log(delta.bb!.readInt32(h+16));
+      let thisTransaction = "";
+      let offset = delta.bb!.__offset(delta.bb_pos, 42);
+      let startPointer = delta.bb!.__vector(delta.bb_pos + offset);
+      if (offset) {
+        // this is ascii
+        let x = String.fromCharCode(delta.bb!.readInt32(startPointer + 4*j));
+        while (x !== ' ') {
+          // console.log(x);
+          // this will be 
+          thisTransaction += x;
+          j += 1;
+          if (j >= messageStringLen) {
+            console.log("BLOCKCHAIN ERROR SHOULD NEVER HAPPEN");
+            break;
+          }
+          x = String.fromCharCode(delta.bb!.readInt32(startPointer + 4*j));
+        }
+        j += 1;
+        // now split this transaction on _
+        let splitMessage = thisTransaction.split("_");
+        let messageArr = new Array<number>();
+        for (let j = 0; j < splitMessage.length; j++) {
+          messageArr.push(parseInt(splitMessage[j]));
+        }
+        blockMessages.push({
+          cost: messageCost,
+          message: messageArr
+        });
+      } else {
+        console.log("couldn't display blockchain");
+      }
+    }
+
+    // console.log(blockMessages);
+
+    // for (let i = 0; i < delta.broadcastedMessagesCostsLength(); i++) {
+      // let messageString = delta.broadcastedMessages(i);
+      // let messageCost = delta.broadcastedMessagesCosts(i);
+      // console.log(messageString);
+      // // string is formatted as int_int_int
+      // let splitMessage = messageString.split("_");
+      // let messageArr = new Array<number>();
+      // for (let j = 0; j < splitMessage.length; j++) {
+      //   messageArr.push(parseInt(splitMessage[j]));
+      // }
+      // blockMessages.push({
+      //   cost: messageCost,
+      //   message: messageArr
+      // });
+    // }
+
+    this.blockchain.push({
+      messages: blockMessages,
+      round: delta.roundID()
+    });
+  }
+
 
   /**
    * Parse logs for a round.
@@ -146,7 +250,7 @@ export default class Match {
 
     // Regex
     let lines = logs.split(/\r?\n/);
-    let header = /^\[(A|B):(MINER|LANDSCAPER|DRONE|NET_GUN|REFINERY|VAPORATOR|HQ|DESIGN_SCHOOL|FULFILLMENT_CENTER)#(\d+)@(\d+)\] (.*)/;
+    let header = /^\[(A|B):(MINER|LANDSCAPER|DELIVERY_DRONE|NET_GUN|REFINERY|VAPORATOR|HQ|DESIGN_SCHOOL|FULFILLMENT_CENTER)#(\d+)@(\d+)\] (.*)/;
 
     let roundLogs = new Array<Log>();
 
@@ -164,8 +268,22 @@ export default class Match {
 
       // The entire string and its 5 parenthesized substrings must be matched!
       if (matches === null || (matches && matches.length != 6)) {
-        throw new Error(`Wrong log format: ${line}`);
+        // throw new Error(`Wrong log format: ${line}`);
+        console.log(`Wrong log format: ${line}`);
+        console.log('Omitting logs');
+        return;
       }
+
+      let shortenRobot = new Map();
+      shortenRobot.set("MINER", "M");
+      shortenRobot.set("LANDSCAPER", "L");
+      shortenRobot.set("DELIVERY_DRONE", "DD");
+      shortenRobot.set("NET_GUN", "NG");
+      shortenRobot.set("REFINERY", "R");
+      shortenRobot.set("VAPORATOR", "V");
+      shortenRobot.set("HQ", "HQ");
+      shortenRobot.set("DESIGN_SCHOOL", "DS");
+      shortenRobot.set("FULFILLMENT_CENTER", "FC");
 
       // Get the matches
       let team = matches[1];
@@ -173,7 +291,9 @@ export default class Match {
       let id = parseInt(matches[3]);
       let logRound = parseInt(matches[4]);
       let text = new Array<string>();
-      text.push(line);
+      let mText = "<span class='consolelogheader consolelogheader1'>[" + team + ":" + robotType + "#" + id + "@" + logRound + "]</span>";
+      let mText2 = "<span class='consolelogheader consolelogheader2'>[" + team + ":" + shortenRobot.get(robotType) + "#" + id + "@" + logRound + "]</span> ";
+      text.push(mText + mText2 + matches[5]);
       index += 1;
 
       // If there is additional non-header text in the following lines, add it
@@ -183,7 +303,7 @@ export default class Match {
       }
 
       if (logRound != round) {
-        console.warn(`Log round mismatch: should be ${round}, is ${logRound}`);
+        console.warn(`Your computation got cut off while printing a log statement at round ${logRound}; the actual print happened at round ${round}`);
       }
 
       // Push the parsed log
