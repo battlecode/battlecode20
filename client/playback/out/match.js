@@ -181,7 +181,10 @@ class Match {
             }
             // The entire string and its 5 parenthesized substrings must be matched!
             if (matches === null || (matches && matches.length != 6)) {
-                throw new Error(`Wrong log format: ${line}`);
+                // throw new Error(`Wrong log format: ${line}`);
+                console.log(`Wrong log format: ${line}`);
+                console.log('Omitting logs');
+                return;
             }
             let shortenRobot = new Map();
             shortenRobot.set("MINER", "M");
