@@ -558,7 +558,7 @@ class SubmissionViewSet(viewsets.GenericViewSet,
     """
     queryset = Submission.objects.all().order_by('-submitted_at')
     serializer_class = SubmissionSerializer
-    #permission_classes = (LeagueActiveOrSafeMethods, SubmissionsEnabledOrSafeMethods, IsAuthenticatedOnTeam, IsStaffOrGameReleased)
+    permission_classes = (LeagueActiveOrSafeMethods, SubmissionsEnabledOrSafeMethods, IsAuthenticatedOnTeam, IsStaffOrGameReleased)
 
     def get_queryset(self):
         return super().get_queryset()
