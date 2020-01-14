@@ -1,4 +1,4 @@
-import {Game} from "battlecode-playback";
+import { schema } from "battlecode-playback";
 
 enum Team {
   A, B
@@ -16,7 +16,7 @@ export default class Profiler {
     this.iframe = this.createIFrame();
   }
 
-  public load(game: Game, match: number): void {
+  public load(match: schema.MatchFooter): void {
     // TODO(jmerle): Make sure to call this with all the profiling data when a match has ended
 
     this.clearSelect(this.teamSelector);
@@ -123,7 +123,7 @@ export default class Profiler {
   private sendToIFrame(type: string, payload: string) {
     const frame = this.iframe.contentWindow;
     if (frame !== null) {
-      frame.postMessage({type, payload}, '*');
+      frame.postMessage({ type, payload }, '*');
     }
   }
 }

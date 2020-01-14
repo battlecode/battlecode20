@@ -5,7 +5,7 @@ import { flatbuffers } from "flatbuffers"
  * The possible types of things that can exist.
  * Note that bullets are not treated as bodies.
  *
- * @enum {number}
+ * @enum
  */
 export namespace battlecode.schema{
 export enum BodyType{
@@ -70,7 +70,7 @@ export enum BodyType{
  * Actions may have 'targets', which are the units on which
  * the actions were performed.
  *
- * @enum {number}
+ * @enum
  */
 export namespace battlecode.schema{
 export enum Action{
@@ -168,7 +168,7 @@ export enum Action{
  * rounds, and is played on a single map. Each round is a single simulation
  * step.
  *
- * @enum {number}
+ * @enum
  */
 export namespace battlecode.schema{
 export enum Event{
@@ -279,15 +279,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):VecTable {
  * @returns VecTable
  */
 static getRootAsVecTable(bb:flatbuffers.ByteBuffer, obj?:VecTable):VecTable {
-  return (obj || new VecTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param VecTable= obj
- * @returns VecTable
- */
-static getSizePrefixedRootAsVecTable(bb:flatbuffers.ByteBuffer, obj?:VecTable):VecTable {
   return (obj || new VecTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -415,12 +406,6 @@ static endVecTable(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createVecTable(builder:flatbuffers.Builder, xsOffset:flatbuffers.Offset, ysOffset:flatbuffers.Offset):flatbuffers.Offset {
-  VecTable.startVecTable(builder);
-  VecTable.addXs(builder, xsOffset);
-  VecTable.addYs(builder, ysOffset);
-  return VecTable.endVecTable(builder);
-}
 }
 }
 /**
@@ -450,15 +435,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):RGBTable {
  * @returns RGBTable
  */
 static getRootAsRGBTable(bb:flatbuffers.ByteBuffer, obj?:RGBTable):RGBTable {
-  return (obj || new RGBTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param RGBTable= obj
- * @returns RGBTable
- */
-static getSizePrefixedRootAsRGBTable(bb:flatbuffers.ByteBuffer, obj?:RGBTable):RGBTable {
   return (obj || new RGBTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -640,13 +616,6 @@ static endRGBTable(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createRGBTable(builder:flatbuffers.Builder, redOffset:flatbuffers.Offset, greenOffset:flatbuffers.Offset, blueOffset:flatbuffers.Offset):flatbuffers.Offset {
-  RGBTable.startRGBTable(builder);
-  RGBTable.addRed(builder, redOffset);
-  RGBTable.addGreen(builder, greenOffset);
-  RGBTable.addBlue(builder, blueOffset);
-  return RGBTable.endRGBTable(builder);
-}
 }
 }
 /**
@@ -676,15 +645,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):SpawnedBodyTable {
  * @returns SpawnedBodyTable
  */
 static getRootAsSpawnedBodyTable(bb:flatbuffers.ByteBuffer, obj?:SpawnedBodyTable):SpawnedBodyTable {
-  return (obj || new SpawnedBodyTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param SpawnedBodyTable= obj
- * @returns SpawnedBodyTable
- */
-static getSizePrefixedRootAsSpawnedBodyTable(bb:flatbuffers.ByteBuffer, obj?:SpawnedBodyTable):SpawnedBodyTable {
   return (obj || new SpawnedBodyTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -895,14 +855,6 @@ static endSpawnedBodyTable(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createSpawnedBodyTable(builder:flatbuffers.Builder, robotIDsOffset:flatbuffers.Offset, teamIDsOffset:flatbuffers.Offset, typesOffset:flatbuffers.Offset, locsOffset:flatbuffers.Offset):flatbuffers.Offset {
-  SpawnedBodyTable.startSpawnedBodyTable(builder);
-  SpawnedBodyTable.addRobotIDs(builder, robotIDsOffset);
-  SpawnedBodyTable.addTeamIDs(builder, teamIDsOffset);
-  SpawnedBodyTable.addTypes(builder, typesOffset);
-  SpawnedBodyTable.addLocs(builder, locsOffset);
-  return SpawnedBodyTable.endSpawnedBodyTable(builder);
-}
 }
 }
 /**
@@ -933,15 +885,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):LocalPollutionTable {
  * @returns LocalPollutionTable
  */
 static getRootAsLocalPollutionTable(bb:flatbuffers.ByteBuffer, obj?:LocalPollutionTable):LocalPollutionTable {
-  return (obj || new LocalPollutionTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param LocalPollutionTable= obj
- * @returns LocalPollutionTable
- */
-static getSizePrefixedRootAsLocalPollutionTable(bb:flatbuffers.ByteBuffer, obj?:LocalPollutionTable):LocalPollutionTable {
   return (obj || new LocalPollutionTable).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -1146,14 +1089,6 @@ static endLocalPollutionTable(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createLocalPollutionTable(builder:flatbuffers.Builder, locationsOffset:flatbuffers.Offset, radiiSquaredOffset:flatbuffers.Offset, additiveEffectsOffset:flatbuffers.Offset, multiplicativeEffectsOffset:flatbuffers.Offset):flatbuffers.Offset {
-  LocalPollutionTable.startLocalPollutionTable(builder);
-  LocalPollutionTable.addLocations(builder, locationsOffset);
-  LocalPollutionTable.addRadiiSquared(builder, radiiSquaredOffset);
-  LocalPollutionTable.addAdditiveEffects(builder, additiveEffectsOffset);
-  LocalPollutionTable.addMultiplicativeEffects(builder, multiplicativeEffectsOffset);
-  return LocalPollutionTable.endLocalPollutionTable(builder);
-}
 }
 }
 /**
@@ -1183,15 +1118,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):GameMap {
  * @returns GameMap
  */
 static getRootAsGameMap(bb:flatbuffers.ByteBuffer, obj?:GameMap):GameMap {
-  return (obj || new GameMap).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param GameMap= obj
- * @returns GameMap
- */
-static getSizePrefixedRootAsGameMap(bb:flatbuffers.ByteBuffer, obj?:GameMap):GameMap {
   return (obj || new GameMap).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -1549,20 +1475,6 @@ static endGameMap(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createGameMap(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, minCornerOffset:flatbuffers.Offset, maxCornerOffset:flatbuffers.Offset, bodiesOffset:flatbuffers.Offset, randomSeed:number, dirtOffset:flatbuffers.Offset, waterOffset:flatbuffers.Offset, pollutionOffset:flatbuffers.Offset, soupOffset:flatbuffers.Offset, initialWater:number):flatbuffers.Offset {
-  GameMap.startGameMap(builder);
-  GameMap.addName(builder, nameOffset);
-  GameMap.addMinCorner(builder, minCornerOffset);
-  GameMap.addMaxCorner(builder, maxCornerOffset);
-  GameMap.addBodies(builder, bodiesOffset);
-  GameMap.addRandomSeed(builder, randomSeed);
-  GameMap.addDirt(builder, dirtOffset);
-  GameMap.addWater(builder, waterOffset);
-  GameMap.addPollution(builder, pollutionOffset);
-  GameMap.addSoup(builder, soupOffset);
-  GameMap.addInitialWater(builder, initialWater);
-  return GameMap.endGameMap(builder);
-}
 }
 }
 /**
@@ -1592,15 +1504,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):BodyTypeMetadata {
  * @returns BodyTypeMetadata
  */
 static getRootAsBodyTypeMetadata(bb:flatbuffers.ByteBuffer, obj?:BodyTypeMetadata):BodyTypeMetadata {
-  return (obj || new BodyTypeMetadata).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param BodyTypeMetadata= obj
- * @returns BodyTypeMetadata
- */
-static getSizePrefixedRootAsBodyTypeMetadata(bb:flatbuffers.ByteBuffer, obj?:BodyTypeMetadata):BodyTypeMetadata {
   return (obj || new BodyTypeMetadata).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -1854,23 +1757,6 @@ static endBodyTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createBodyTypeMetadata(builder:flatbuffers.Builder, type:battlecode.schema.BodyType, spawnSource:battlecode.schema.BodyType, cost:number, dirtLimit:number, soupLimit:number, actionCooldown:number, sensorRadiusSquared:number, pollutionRadiusSquared:number, localPollutionAdditiveEffect:number, localPollutionMultiplicativeEffect:number, globalPollutionAmount:number, maxSoupProduced:number, bytecodeLimit:number):flatbuffers.Offset {
-  BodyTypeMetadata.startBodyTypeMetadata(builder);
-  BodyTypeMetadata.addType(builder, type);
-  BodyTypeMetadata.addSpawnSource(builder, spawnSource);
-  BodyTypeMetadata.addCost(builder, cost);
-  BodyTypeMetadata.addDirtLimit(builder, dirtLimit);
-  BodyTypeMetadata.addSoupLimit(builder, soupLimit);
-  BodyTypeMetadata.addActionCooldown(builder, actionCooldown);
-  BodyTypeMetadata.addSensorRadiusSquared(builder, sensorRadiusSquared);
-  BodyTypeMetadata.addPollutionRadiusSquared(builder, pollutionRadiusSquared);
-  BodyTypeMetadata.addLocalPollutionAdditiveEffect(builder, localPollutionAdditiveEffect);
-  BodyTypeMetadata.addLocalPollutionMultiplicativeEffect(builder, localPollutionMultiplicativeEffect);
-  BodyTypeMetadata.addGlobalPollutionAmount(builder, globalPollutionAmount);
-  BodyTypeMetadata.addMaxSoupProduced(builder, maxSoupProduced);
-  BodyTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
-  return BodyTypeMetadata.endBodyTypeMetadata(builder);
-}
 }
 }
 /**
@@ -1900,15 +1786,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):TeamData {
  * @returns TeamData
  */
 static getRootAsTeamData(bb:flatbuffers.ByteBuffer, obj?:TeamData):TeamData {
-  return (obj || new TeamData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param TeamData= obj
- * @returns TeamData
- */
-static getSizePrefixedRootAsTeamData(bb:flatbuffers.ByteBuffer, obj?:TeamData):TeamData {
   return (obj || new TeamData).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -1988,13 +1865,379 @@ static endTeamData(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createTeamData(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, packageNameOffset:flatbuffers.Offset, teamID:number):flatbuffers.Offset {
-  TeamData.startTeamData(builder);
-  TeamData.addName(builder, nameOffset);
-  TeamData.addPackageName(builder, packageNameOffset);
-  TeamData.addTeamID(builder, teamID);
-  return TeamData.endTeamData(builder);
 }
+}
+/**
+ * These tables are set-up so that they match closely with speedscope's file format documented at
+ * https://github.com/jlfwong/speedscope/wiki/Importing-from-custom-sources.
+ * The client uses speedscope to show the recorded data in an interactive interface.
+ * A single event in a profile. Represents either an open event (meaning a
+ * method has been entered) or a close event (meaning the method was exited).
+ *
+ * @constructor
+ */
+export namespace battlecode.schema{
+export class ProfilerEvent {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns ProfilerEvent
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):ProfilerEvent {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param ProfilerEvent= obj
+ * @returns ProfilerEvent
+ */
+static getRootAsProfilerEvent(bb:flatbuffers.ByteBuffer, obj?:ProfilerEvent):ProfilerEvent {
+  return (obj || new ProfilerEvent).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * Whether this is an open event (true) or a close event (false).
+ *
+ * @returns boolean
+ */
+isOpen():boolean {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * The bytecode counter at the time the event occurred.
+ *
+ * @returns number
+ */
+at():number {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * The index of the method name in the ProfilerFile.frames array.
+ *
+ * @returns number
+ */
+frame():number {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static startProfilerEvent(builder:flatbuffers.Builder) {
+  builder.startObject(3);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param boolean isOpen
+ */
+static addIsOpen(builder:flatbuffers.Builder, isOpen:boolean) {
+  builder.addFieldInt8(0, +isOpen, +false);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number at
+ */
+static addAt(builder:flatbuffers.Builder, at:number) {
+  builder.addFieldInt32(1, at, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number frame
+ */
+static addFrame(builder:flatbuffers.Builder, frame:number) {
+  builder.addFieldInt32(2, frame, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endProfilerEvent(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+}
+}
+/**
+ * A profile contains all events and is labeled with a name.
+ *
+ * @constructor
+ */
+export namespace battlecode.schema{
+export class ProfilerProfile {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns ProfilerProfile
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):ProfilerProfile {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param ProfilerProfile= obj
+ * @returns ProfilerProfile
+ */
+static getRootAsProfilerProfile(bb:flatbuffers.ByteBuffer, obj?:ProfilerProfile):ProfilerProfile {
+  return (obj || new ProfilerProfile).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * The display-friendly name of the profile.
+ *
+ * @param flatbuffers.Encoding= optionalEncoding
+ * @returns string|Uint8Array|null
+ */
+name():string|null
+name(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+name(optionalEncoding?:any):string|Uint8Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * The events that occurred in the profile.
+ *
+ * @param number index
+ * @param battlecode.schema.ProfilerEvent= obj
+ * @returns battlecode.schema.ProfilerEvent
+ */
+events(index: number, obj?:battlecode.schema.ProfilerEvent):battlecode.schema.ProfilerEvent|null {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new battlecode.schema.ProfilerEvent).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+};
+
+/**
+ * @returns number
+ */
+eventsLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static startProfilerProfile(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset nameOffset
+ */
+static addName(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, nameOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset eventsOffset
+ */
+static addEvents(builder:flatbuffers.Builder, eventsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, eventsOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<flatbuffers.Offset> data
+ * @returns flatbuffers.Offset
+ */
+static createEventsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startEventsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endProfilerProfile(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+}
+}
+/**
+ * A profiler file is a collection of profiles.
+ * When profiling is enabled there is one of these per team per match.
+ *
+ * @constructor
+ */
+export namespace battlecode.schema{
+export class ProfilerFile {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns ProfilerFile
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):ProfilerFile {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param ProfilerFile= obj
+ * @returns ProfilerFile
+ */
+static getRootAsProfilerFile(bb:flatbuffers.ByteBuffer, obj?:ProfilerFile):ProfilerFile {
+  return (obj || new ProfilerFile).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * The method names that are referred to in the events.
+ *
+ * @param number index
+ * @param flatbuffers.Encoding= optionalEncoding
+ * @returns string|Uint8Array
+ */
+frames(index: number):string
+frames(index: number,optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+frames(index: number,optionalEncoding?:any):string|Uint8Array|null {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__string(this.bb!.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns number
+ */
+framesLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * The recorded profiles, one per robot.
+ *
+ * @param number index
+ * @param battlecode.schema.ProfilerProfile= obj
+ * @returns battlecode.schema.ProfilerProfile
+ */
+profiles(index: number, obj?:battlecode.schema.ProfilerProfile):battlecode.schema.ProfilerProfile|null {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new battlecode.schema.ProfilerProfile).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+};
+
+/**
+ * @returns number
+ */
+profilesLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static startProfilerFile(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset framesOffset
+ */
+static addFrames(builder:flatbuffers.Builder, framesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, framesOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<flatbuffers.Offset> data
+ * @returns flatbuffers.Offset
+ */
+static createFramesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startFramesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset profilesOffset
+ */
+static addProfiles(builder:flatbuffers.Builder, profilesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, profilesOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<flatbuffers.Offset> data
+ * @returns flatbuffers.Offset
+ */
+static createProfilesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startProfilesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endProfilerFile(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
 }
 }
 /**
@@ -2024,15 +2267,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):GameHeader {
  * @returns GameHeader
  */
 static getRootAsGameHeader(bb:flatbuffers.ByteBuffer, obj?:GameHeader):GameHeader {
-  return (obj || new GameHeader).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param GameHeader= obj
- * @returns GameHeader
- */
-static getSizePrefixedRootAsGameHeader(bb:flatbuffers.ByteBuffer, obj?:GameHeader):GameHeader {
   return (obj || new GameHeader).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2171,13 +2405,6 @@ static endGameHeader(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createGameHeader(builder:flatbuffers.Builder, specVersionOffset:flatbuffers.Offset, teamsOffset:flatbuffers.Offset, bodyTypeMetadataOffset:flatbuffers.Offset):flatbuffers.Offset {
-  GameHeader.startGameHeader(builder);
-  GameHeader.addSpecVersion(builder, specVersionOffset);
-  GameHeader.addTeams(builder, teamsOffset);
-  GameHeader.addBodyTypeMetadata(builder, bodyTypeMetadataOffset);
-  return GameHeader.endGameHeader(builder);
-}
 }
 }
 /**
@@ -2207,15 +2434,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):GameFooter {
  * @returns GameFooter
  */
 static getRootAsGameFooter(bb:flatbuffers.ByteBuffer, obj?:GameFooter):GameFooter {
-  return (obj || new GameFooter).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param GameFooter= obj
- * @returns GameFooter
- */
-static getSizePrefixedRootAsGameFooter(bb:flatbuffers.ByteBuffer, obj?:GameFooter):GameFooter {
   return (obj || new GameFooter).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2253,11 +2471,6 @@ static endGameFooter(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createGameFooter(builder:flatbuffers.Builder, winner:number):flatbuffers.Offset {
-  GameFooter.startGameFooter(builder);
-  GameFooter.addWinner(builder, winner);
-  return GameFooter.endGameFooter(builder);
-}
 }
 }
 /**
@@ -2287,15 +2500,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):MatchHeader {
  * @returns MatchHeader
  */
 static getRootAsMatchHeader(bb:flatbuffers.ByteBuffer, obj?:MatchHeader):MatchHeader {
-  return (obj || new MatchHeader).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param MatchHeader= obj
- * @returns MatchHeader
- */
-static getSizePrefixedRootAsMatchHeader(bb:flatbuffers.ByteBuffer, obj?:MatchHeader):MatchHeader {
   return (obj || new MatchHeader).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -2352,12 +2556,6 @@ static endMatchHeader(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createMatchHeader(builder:flatbuffers.Builder, mapOffset:flatbuffers.Offset, maxRounds:number):flatbuffers.Offset {
-  MatchHeader.startMatchHeader(builder);
-  MatchHeader.addMap(builder, mapOffset);
-  MatchHeader.addMaxRounds(builder, maxRounds);
-  return MatchHeader.endMatchHeader(builder);
-}
 }
 }
 /**
@@ -2391,15 +2589,6 @@ static getRootAsMatchFooter(bb:flatbuffers.ByteBuffer, obj?:MatchFooter):MatchFo
 };
 
 /**
- * @param flatbuffers.ByteBuffer bb
- * @param MatchFooter= obj
- * @returns MatchFooter
- */
-static getSizePrefixedRootAsMatchFooter(bb:flatbuffers.ByteBuffer, obj?:MatchFooter):MatchFooter {
-  return (obj || new MatchFooter).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
  * The ID of the winning team.
  *
  * @returns number
@@ -2420,10 +2609,30 @@ totalRounds():number {
 };
 
 /**
+ * Profiler data for team A and B if profiling is enabled
+ *
+ * @param number index
+ * @param battlecode.schema.ProfilerFile= obj
+ * @returns battlecode.schema.ProfilerFile
+ */
+profilerFiles(index: number, obj?:battlecode.schema.ProfilerFile):battlecode.schema.ProfilerFile|null {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? (obj || new battlecode.schema.ProfilerFile).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+};
+
+/**
+ * @returns number
+ */
+profilerFilesLength():number {
+  var offset = this.bb!.__offset(this.bb_pos, 8);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param flatbuffers.Builder builder
  */
 static startMatchFooter(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 };
 
 /**
@@ -2444,6 +2653,35 @@ static addTotalRounds(builder:flatbuffers.Builder, totalRounds:number) {
 
 /**
  * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset profilerFilesOffset
+ */
+static addProfilerFiles(builder:flatbuffers.Builder, profilerFilesOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, profilerFilesOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param Array.<flatbuffers.Offset> data
+ * @returns flatbuffers.Offset
+ */
+static createProfilerFilesVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param number numElems
+ */
+static startProfilerFilesVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param flatbuffers.Builder builder
  * @returns flatbuffers.Offset
  */
 static endMatchFooter(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -2451,12 +2689,6 @@ static endMatchFooter(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createMatchFooter(builder:flatbuffers.Builder, winner:number, totalRounds:number):flatbuffers.Offset {
-  MatchFooter.startMatchFooter(builder);
-  MatchFooter.addWinner(builder, winner);
-  MatchFooter.addTotalRounds(builder, totalRounds);
-  return MatchFooter.endMatchFooter(builder);
-}
 }
 }
 /**
@@ -2489,15 +2721,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):Round {
  * @returns Round
  */
 static getRootAsRound(bb:flatbuffers.ByteBuffer, obj?:Round):Round {
-  return (obj || new Round).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param Round= obj
- * @returns Round
- */
-static getSizePrefixedRootAsRound(bb:flatbuffers.ByteBuffer, obj?:Round):Round {
   return (obj || new Round).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -3747,41 +3970,6 @@ static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createRound(builder:flatbuffers.Builder, teamIDsOffset:flatbuffers.Offset, teamSoupsOffset:flatbuffers.Offset, movedIDsOffset:flatbuffers.Offset, movedLocsOffset:flatbuffers.Offset, spawnedBodiesOffset:flatbuffers.Offset, diedIDsOffset:flatbuffers.Offset, actionIDsOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, actionTargetsOffset:flatbuffers.Offset, dirtChangedLocsOffset:flatbuffers.Offset, dirtChangesOffset:flatbuffers.Offset, waterChangedLocsOffset:flatbuffers.Offset, globalPollution:number, localPollutionsOffset:flatbuffers.Offset, soupChangedLocsOffset:flatbuffers.Offset, soupChangesOffset:flatbuffers.Offset, newMessagesCostsOffset:flatbuffers.Offset, newMessagesOffset:flatbuffers.Offset, broadcastedMessagesCostsOffset:flatbuffers.Offset, broadcastedMessagesOffset:flatbuffers.Offset, indicatorDotIDsOffset:flatbuffers.Offset, indicatorDotLocsOffset:flatbuffers.Offset, indicatorDotRGBsOffset:flatbuffers.Offset, indicatorLineIDsOffset:flatbuffers.Offset, indicatorLineStartLocsOffset:flatbuffers.Offset, indicatorLineEndLocsOffset:flatbuffers.Offset, indicatorLineRGBsOffset:flatbuffers.Offset, logsOffset:flatbuffers.Offset, roundID:number, bytecodeIDsOffset:flatbuffers.Offset, bytecodesUsedOffset:flatbuffers.Offset):flatbuffers.Offset {
-  Round.startRound(builder);
-  Round.addTeamIDs(builder, teamIDsOffset);
-  Round.addTeamSoups(builder, teamSoupsOffset);
-  Round.addMovedIDs(builder, movedIDsOffset);
-  Round.addMovedLocs(builder, movedLocsOffset);
-  Round.addSpawnedBodies(builder, spawnedBodiesOffset);
-  Round.addDiedIDs(builder, diedIDsOffset);
-  Round.addActionIDs(builder, actionIDsOffset);
-  Round.addActions(builder, actionsOffset);
-  Round.addActionTargets(builder, actionTargetsOffset);
-  Round.addDirtChangedLocs(builder, dirtChangedLocsOffset);
-  Round.addDirtChanges(builder, dirtChangesOffset);
-  Round.addWaterChangedLocs(builder, waterChangedLocsOffset);
-  Round.addGlobalPollution(builder, globalPollution);
-  Round.addLocalPollutions(builder, localPollutionsOffset);
-  Round.addSoupChangedLocs(builder, soupChangedLocsOffset);
-  Round.addSoupChanges(builder, soupChangesOffset);
-  Round.addNewMessagesCosts(builder, newMessagesCostsOffset);
-  Round.addNewMessages(builder, newMessagesOffset);
-  Round.addBroadcastedMessagesCosts(builder, broadcastedMessagesCostsOffset);
-  Round.addBroadcastedMessages(builder, broadcastedMessagesOffset);
-  Round.addIndicatorDotIDs(builder, indicatorDotIDsOffset);
-  Round.addIndicatorDotLocs(builder, indicatorDotLocsOffset);
-  Round.addIndicatorDotRGBs(builder, indicatorDotRGBsOffset);
-  Round.addIndicatorLineIDs(builder, indicatorLineIDsOffset);
-  Round.addIndicatorLineStartLocs(builder, indicatorLineStartLocsOffset);
-  Round.addIndicatorLineEndLocs(builder, indicatorLineEndLocsOffset);
-  Round.addIndicatorLineRGBs(builder, indicatorLineRGBsOffset);
-  Round.addLogs(builder, logsOffset);
-  Round.addRoundID(builder, roundID);
-  Round.addBytecodeIDs(builder, bytecodeIDsOffset);
-  Round.addBytecodesUsed(builder, bytecodesUsedOffset);
-  return Round.endRound(builder);
-}
 }
 }
 /**
@@ -3811,15 +3999,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):EventWrapper {
  * @returns EventWrapper
  */
 static getRootAsEventWrapper(bb:flatbuffers.ByteBuffer, obj?:EventWrapper):EventWrapper {
-  return (obj || new EventWrapper).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param EventWrapper= obj
- * @returns EventWrapper
- */
-static getSizePrefixedRootAsEventWrapper(bb:flatbuffers.ByteBuffer, obj?:EventWrapper):EventWrapper {
   return (obj || new EventWrapper).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -3872,12 +4051,6 @@ static endEventWrapper(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createEventWrapper(builder:flatbuffers.Builder, eType:battlecode.schema.Event, eOffset:flatbuffers.Offset):flatbuffers.Offset {
-  EventWrapper.startEventWrapper(builder);
-  EventWrapper.addEType(builder, eType);
-  EventWrapper.addE(builder, eOffset);
-  return EventWrapper.endEventWrapper(builder);
-}
 }
 }
 /**
@@ -3912,15 +4085,6 @@ __init(i:number, bb:flatbuffers.ByteBuffer):GameWrapper {
  * @returns GameWrapper
  */
 static getRootAsGameWrapper(bb:flatbuffers.ByteBuffer, obj?:GameWrapper):GameWrapper {
-  return (obj || new GameWrapper).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param flatbuffers.ByteBuffer bb
- * @param GameWrapper= obj
- * @returns GameWrapper
- */
-static getSizePrefixedRootAsGameWrapper(bb:flatbuffers.ByteBuffer, obj?:GameWrapper):GameWrapper {
   return (obj || new GameWrapper).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
@@ -4101,12 +4265,5 @@ static endGameWrapper(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 };
 
-static createGameWrapper(builder:flatbuffers.Builder, eventsOffset:flatbuffers.Offset, matchHeadersOffset:flatbuffers.Offset, matchFootersOffset:flatbuffers.Offset):flatbuffers.Offset {
-  GameWrapper.startGameWrapper(builder);
-  GameWrapper.addEvents(builder, eventsOffset);
-  GameWrapper.addMatchHeaders(builder, matchHeadersOffset);
-  GameWrapper.addMatchFooters(builder, matchFootersOffset);
-  return GameWrapper.endGameWrapper(builder);
-}
 }
 }

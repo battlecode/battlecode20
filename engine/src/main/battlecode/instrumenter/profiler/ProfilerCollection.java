@@ -20,9 +20,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * A ProfilerCollection is created by the Server and contains all Profiler instances for both
  * player teams for all matches that are being ran. It serves as a factory to create new
- * profilers and contains a writeToFile() method that converts all profiling data including the
- * metadata needed for the client to properly visualize the results into a single JSON object and
- * save it to a file.
+ * profilers.
  */
 public class ProfilerCollection {
     /**

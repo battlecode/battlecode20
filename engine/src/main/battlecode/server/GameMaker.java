@@ -458,7 +458,8 @@ public strictfp class GameMaker {
             changeState(State.IN_MATCH, State.IN_GAME);
 
             createEvent((builder) -> EventWrapper.createEventWrapper(builder, Event.MatchFooter,
-                    MatchFooter.createMatchFooter(builder, TeamMapping.id(winTeam), totalRounds)));
+                    MatchFooter.createMatchFooter(builder, TeamMapping.id(winTeam), totalRounds, 0)));
+            // TODO(jmerle): Figure out how to add profiler files to byte buffer
 
             matchFooters.add(events.size() - 1);
         }
