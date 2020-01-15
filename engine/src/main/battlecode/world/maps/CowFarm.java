@@ -1,4 +1,4 @@
-package maps;
+package battlecode.world.maps;
 
 import battlecode.world.MapBuilder;
 
@@ -15,7 +15,7 @@ public class CowFarm {
     public static final String mapName = "CowFarm";
 
     // don't change this!!
-    public static final String outputDirectory = "maps/";
+    public static final String outputDirectory = "engine/src/main/battlecode/world/resources/";
 
     private static int width;
     private static int height;

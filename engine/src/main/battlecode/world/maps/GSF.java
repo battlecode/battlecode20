@@ -1,4 +1,4 @@
-package maps;
+package battlecode.world.maps;
 
 import battlecode.common.GameConstants;
 import battlecode.world.MapBuilder;
@@ -17,7 +17,7 @@ public class GSF {
     public static final String mapName = "GSF";
 
     // don't change this!!
-    public static final String outputDirectory = "maps/";
+    public static final String outputDirectory = "engine/src/main/battlecode/world/resources/";
 
     private static int width;
     private static int height;
