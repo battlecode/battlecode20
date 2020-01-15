@@ -138,9 +138,10 @@ public final class RobotMonitor {
                 bytecodesLeft = Integer.MIN_VALUE;
             }
 
-            // the profiler isn't enabled in ranked matches, so the integer overflow isn't really a problem
             if (profiler != null) {
-                profiler.incrementBytecodes(numBytecodes + bytecodesToRemove);
+                // profiler.incrementBytecodes uses Math.addExact to prevent against integer overflow
+                profiler.incrementBytecodes(numBytecodes);
+                profiler.incrementBytecodes(bytecodesToRemove);
             }
 
             while (bytecodesLeft <= 0) {
