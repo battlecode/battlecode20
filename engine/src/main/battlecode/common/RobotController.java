@@ -35,17 +35,6 @@ public strictfp interface RobotController {
     int getTeamSoup();
 
     /**
-     * Returns the number of robots on your team (including your HQ).
-     * If this number ever reaches zero, the opposing team will automatically
-     * win by destruction (because your HQ is dead).
-     *
-     * @return the number of robots on your team
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getRobotCount();
-
-    /**
      * Returns the width of the map.
      *
      * @return the width of the map.
