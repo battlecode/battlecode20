@@ -35,17 +35,6 @@ public strictfp interface RobotController {
     int getTeamSoup();
 
     /**
-     * Returns the number of robots on your team (including your HQ).
-     * If this number ever reaches zero, the opposing team will automatically
-     * win by destruction (because your HQ is dead).
-     *
-     * @return the number of robots on your team
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getRobotCount();
-
-    /**
      * Returns the width of the map.
      *
      * @return the width of the map.
@@ -636,6 +625,13 @@ public strictfp interface RobotController {
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************
+
+    /** 
+     * Causes the robot to die.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void disintegrate() throws GameActionException;
 
     /**
      * Causes your team to lose the game. It's like typing "gg."
