@@ -29,7 +29,7 @@ public enum RobotType {
      * Vaporators condense soup from the air, reducing pollution.
      * @battlecode.doc.robottype
      */
-    VAPORATOR               (MINER,  1000,  15,  0,  1,  24,  35,  0,  0.67f,  -1,  7,  5000),
+    VAPORATOR               (MINER,  500,  15,  0,  1,  24,  35,  0,  0.80f,  -1,  2,  5000),
     //                       SS      C      DL   SL  AC  SR   PR   PA  PM      GP   MS   BL
     /**
      * Design schools create landscapers.
