@@ -528,10 +528,10 @@ public strictfp class GameWorld {
     public boolean setWinnerIfQuantity() {
         int robotCountA = objectInfo.getRobotCount(Team.A);
         int robotCountB = objectInfo.getRobotCount(Team.B);
-        if (robotCountA == 0 && robotCountB > 0) {
+        if (robotCountB > robotCountA) {
             setWinner(Team.B, DominationFactor.QUANTITY_OVER_QUALITY);
             return true;
-        } else if (robotCountB == 0 && robotCountA > 0) {
+        } else if (robotCountA > robotCountB) {
             setWinner(Team.A, DominationFactor.QUANTITY_OVER_QUALITY);
             return true;
         }
@@ -570,12 +570,13 @@ public strictfp class GameWorld {
     public boolean setWinnerIfMoreBroadcasts() {
         if (teamInfo.getBlockchainsSent(Team.A) > teamInfo.getBlockchainsSent(Team.B)) {
             setWinner(Team.A, DominationFactor.GOSSIP_GIRL);
+            return true;
         }
         else if (teamInfo.getBlockchainsSent(Team.A) < teamInfo.getBlockchainsSent(Team.B)) {
             setWinner(Team.B, DominationFactor.GOSSIP_GIRL);
+            return true;
         }
-        else return false;
-        return true;
+        return false;
     }
 
     /**
