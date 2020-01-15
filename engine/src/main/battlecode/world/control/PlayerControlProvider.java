@@ -130,7 +130,7 @@ public class PlayerControlProvider implements RobotControlProvider {
                     teamPackage,
                     robot.getController(),
                     robot.getID(),
-                    factory.createLoader(),
+                    factory.createLoader(profiler != null),
                     robotOut,
                     profiler
             );

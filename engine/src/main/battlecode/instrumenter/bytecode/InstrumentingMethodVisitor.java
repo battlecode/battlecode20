@@ -30,6 +30,7 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
     private final String className;    // the class to which this method belongs
     private final boolean checkDisallowed;
     private final boolean debugMethodsEnabled;
+    private final boolean profilerEnabled;
 
     // used to load other class files
     private final TeamClassLoaderFactory.Loader loader;
@@ -63,7 +64,8 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
                                       final String[] exceptions,
                                       boolean silenced,
                                       boolean checkDisallowed,
-                                      boolean debugMethodsEnabled) {
+                                      boolean debugMethodsEnabled,
+                                      boolean profilerEnabled) {
         super(ASM5, access, methodName, methodDesc, signature, exceptions);
         this.methodWriter = mv;
 
@@ -71,6 +73,7 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
         this.className = className;
         this.checkDisallowed = checkDisallowed;
         this.debugMethodsEnabled = debugMethodsEnabled;
+        this.profilerEnabled = profilerEnabled;
     }
 
     protected String classReference(String name) {
@@ -152,8 +155,10 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
 
         boolean anyTryCatch = tryCatchBlocks.size() > 0;
 
-        // must be called before addDebugHandler() so debug methods are profiled properly
-        addEnterMethodHandler();
+        if (profilerEnabled) {
+            // must be called before addDebugHandler() so debug methods are profiled properly
+            addEnterMethodHandler();
+        }
 
         if (debugMethodsEnabled && name.startsWith(DEBUG_PREFIX) && desc.endsWith("V")) {
             addDebugHandler();
@@ -206,6 +211,10 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
     }
 
     private void addExitMethodHandler(AbstractInsnNode n) {
+        if (!profilerEnabled) {
+            return;
+        }
+
         // call "exitMethod" at every exit point of a method (return, implicit return and throw)
         instructions.insertBefore(n, new LdcInsnNode(className.replaceAll("/", ".") + "." + name));
         instructions.insertBefore(n, new MethodInsnNode(

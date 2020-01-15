@@ -54,7 +54,7 @@ public class LoaderTest {
     }
 
     public TeamClassLoaderFactory.Loader setupLoader(TeamClassLoaderFactory cache) throws Exception {
-        TeamClassLoaderFactory.Loader result = cache.createLoader();
+        TeamClassLoaderFactory.Loader result = cache.createLoader(false);
 
         // Set up noop RobotMonitors.
         // Necessary for... reasons.

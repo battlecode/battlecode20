@@ -33,7 +33,7 @@ public class Profiler {
 
     public void incrementBytecodes(int amount) {
         try {
-            bytecodeCounter += Math.addExact(bytecodeCounter, amount);
+            bytecodeCounter = Math.addExact(bytecodeCounter, amount);
         } catch (ArithmeticException e) {
             bytecodeCounter = Integer.MAX_VALUE;
         }
