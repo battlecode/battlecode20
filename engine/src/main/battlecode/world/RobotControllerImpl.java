@@ -909,11 +909,10 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** OTHER ACTION METHODS *******
     // ***********************************
 
-    /** 
-     * This is public again. Allows a robot to commit suicide.
+    /** This used to be public, but is not public in 2020 because
+     * a robot can simply instead walk into water, which is more fun.
      */
-    @Override
-    public void disintegrate(){
+    private void disintegrate(){
         throw new RobotDeathException();
     }
 
