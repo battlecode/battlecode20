@@ -55,7 +55,23 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["SoupOnTheSide", MapType.DEFAULT],
   ["TwoForOneAndTwoForAll", MapType.DEFAULT],
   ["WaterBot", MapType.DEFAULT],
-  ["CentralSoup", MapType.DEFAULT]
+  ["CentralSoup", MapType.DEFAULT],
+  ["ChristmasInJuly", MapType.SPRINT],
+  ["ClearlyTwelveHorsesInASalad", MapType.SPRINT],
+  ["CowFarm", MapType.SPRINT],
+  ["DidAMonkeyMakeThis", MapType.SPRINT],
+  ["GSF", MapType.SPRINT],
+  ["Hills", MapType.SPRINT],
+  ["InADitch", MapType.SPRINT],
+  ["Islands", MapType.SPRINT],
+  ["IsThisProcedural", MapType.SPRINT],
+  ["OmgThisIsProcedural", MapType.SPRINT],
+  ["ProceduralConfirmed", MapType.SPRINT],
+  ["RandomSoup1", MapType.SPRINT],
+  ["RandomSoup2", MapType.SPRINT],
+  ["Soup", MapType.SPRINT],
+  ["Volcano", MapType.SPRINT],
+  ["WateredDown", MapType.SPRINT]
 ]);
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
