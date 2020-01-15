@@ -257,6 +257,7 @@ public final class RobotMonitor {
      *
      * @param methodName the name of the method that is being entered
      */
+    @SuppressWarnings("unused")
     public static void enterMethod(String methodName) {
         if (debugLevel == 0 && profiler != null) {
             profiler.enterMethod(methodName);
@@ -270,6 +271,7 @@ public final class RobotMonitor {
      *
      * @param methodName the name of the method that is being exited
      */
+    @SuppressWarnings("unused")
     public static void exitMethod(String methodName) {
         if (debugLevel == 0 && profiler != null) {
             profiler.exitMethod(methodName);
