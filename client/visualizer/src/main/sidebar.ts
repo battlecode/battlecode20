@@ -129,13 +129,8 @@ export default class Sidebar {
     <b class="blue">Keyboard Shortcuts</b><br>
     LEFT - Step Back One Turn<br>
     RIGHT - Step Forward One Turn<br>
-<<<<<<< HEAD
-    UP - Double the playback speed<br>
-    DOWN - Halve the playback speed<br>
-=======
     UP - Double Playback Speed<br>
     DOWN - Halve Playback Speed<br>
->>>>>>> master
     P - Pause/Unpause<br>
     O - Stop<br>
     V - Toggle Indicator Dots/Lines<br>
