@@ -62,8 +62,8 @@ public class GSF {
                 "1\t1\t1\t1\ts\t1\t1\ts\t1\ts\ts\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
                 "1\t1\t1\t1\t1\ts\t1\t1\t1\t1\ts\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
                 "1\t1\t1\t1\t1\t1\t1\ts\ts\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t0\t0\t1\t4\t4\t1\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
-                "1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t0\t0\t4\t4\t4\t4\t4\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
-                "1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\ts\t0\t4\t4\t4\t4\t4\t4\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
+                "1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\ts\t0\t4\t4\t4\t4\t4\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
+                "1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\ts\ts\t4\t4\t4\t4\t4\t4\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
                 "2\t2\t2\t2\t2\t2\t2\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\ts\ts\t4\t4\t4\t4\t4\t4\t4\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
                 "3\t3\t3\t3\t3\t3\t2\t2\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\ts\t4\t4\th4\t4\t4\t4\t4\t4\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
                 "1\t1\t1\t1\t1\t3\t3\t2\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\t1\ts\t4\t4\t4\t4\t4\t4\t4\t1\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\tx\n" +
@@ -133,7 +133,7 @@ public class GSF {
                     continue;
                 }
                 if (dirtGrid[idx].equals("s")) {
-                    mapBuilder.setSymmetricDirt(x,y,1);
+                    mapBuilder.setSymmetricDirt(x,y,0);
                     mapBuilder.setSymmetricSoup(x,y,100);
                     continue;
                 }
