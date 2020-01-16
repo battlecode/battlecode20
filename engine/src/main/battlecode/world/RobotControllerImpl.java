@@ -927,9 +927,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     private void assertCanSubmitTransaction(int[] message, int cost) throws GameActionException {
-        if (message.length > GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH)
-            throw new GameActionException(TOO_LONG_BLOCKCHAIN_TRANSACTION,
-                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH) +
+        if (message.length != GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH)
+            throw new GameActionException(INCORRECT_BLOCKCHAIN_TRANSACTION_LENGTH,
+                    "Must send exactly " + Integer.toString(GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH) +
                             " integers in one message, not " + Integer.toString(message.length) + ".");
         int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
         if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost)
