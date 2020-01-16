@@ -88,12 +88,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
     public int getTeamSoup() {
         return gameWorld.getTeamInfo().getSoup(getTeam());
     }
-
-    @Override
-    public int getRobotCount() {
-        return gameWorld.getObjectInfo().getRobotCount(getTeam());
-    }
-
+    
     @Override
     public int getMapWidth() {
         return gameWorld.getGameMap().getWidth();
@@ -159,9 +154,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     @Override
-    public boolean onTheMap(MapLocation loc) throws GameActionException {
+    public boolean onTheMap(MapLocation loc) {
         assertNotNull(loc);
-        assertCanSenseLocation(loc);
         return gameWorld.getGameMap().onTheMap(loc);
     }
 
@@ -233,9 +227,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) {
         assertNotNull(center);
-        int sensorRadiusSquaredUpperBound = (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared());
-        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center,
-                radiusSquared == -1 ? sensorRadiusSquaredUpperBound : Math.min(radiusSquared, sensorRadiusSquaredUpperBound));
+        if (radiusSquared == -1) radiusSquared = (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared());
+        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, radiusSquared);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
             // check if this robot
@@ -250,6 +243,34 @@ public final strictfp class RobotControllerImpl implements RobotController {
             validSensedRobots.add(sensedRobot.getRobotInfo());
         }
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
+    }
+
+    @Override
+    public MapLocation[] senseNearbySoup() {
+        return senseNearbySoup(-1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbySoup(int radiusSquared) {
+        return senseNearbySoup(getLocation(), radiusSquared);
+    }
+
+    @Override
+    public MapLocation[] senseNearbySoup(MapLocation center, int radiusSquared) {
+        assertNotNull(center);
+        if (radiusSquared == -1) radiusSquared = (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared());
+        MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared);
+        List<MapLocation> soupLocations = new ArrayList<MapLocation>();
+        for(MapLocation loc : allSensedLocs){
+            // check if can sense
+            if (!canSenseLocation(loc))
+                continue;
+            // check if there is soup
+            if (gameWorld.getSoup(loc) <= 0)
+                continue;
+            soupLocations.add(loc);
+        }
+        return soupLocations.toArray(new MapLocation[soupLocations.size()]);
     }
 
     @Override
@@ -909,10 +930,11 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ****** OTHER ACTION METHODS *******
     // ***********************************
 
-    /** This used to be public, but is not public in 2020 because
-     * a robot can simply instead walk into water, which is more fun.
+    /** 
+     * This is public again. Allows a robot to commit suicide.
      */
-    private void disintegrate(){
+    @Override
+    public void disintegrate(){
         throw new RobotDeathException();
     }
 
@@ -931,9 +953,9 @@ public final strictfp class RobotControllerImpl implements RobotController {
     // ***********************************
 
     private void assertCanSubmitTransaction(int[] message, int cost) throws GameActionException {
-        if (message.length > GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH)
-            throw new GameActionException(TOO_LONG_BLOCKCHAIN_TRANSACTION,
-                    "Can only send " + Integer.toString(GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH) +
+        if (message.length != GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH)
+            throw new GameActionException(INCORRECT_BLOCKCHAIN_TRANSACTION_LENGTH,
+                    "Must send exactly " + Integer.toString(GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH) +
                             " integers in one message, not " + Integer.toString(message.length) + ".");
         int teamSoup = gameWorld.getTeamInfo().getSoup(getTeam());
         if (gameWorld.getTeamInfo().getSoup(getTeam()) < cost)
