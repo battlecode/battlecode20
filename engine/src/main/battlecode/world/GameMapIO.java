@@ -338,7 +338,10 @@ public final strictfp class GameMapIO {
                 int bodyY = locs.ys(i);
                 Team bodyTeam = TeamMapping.team(bodyTable.teamIDs(i));
                 if (bodyType != null)
-                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, new MapLocation(bodyX, bodyY)));
+                    initialBodies.add(new RobotInfo(bodyID, bodyTeam, bodyType, 0,
+                            false, -1, 0, GameConstants.INITIAL_COOLDOWN_TURNS,
+                            new MapLocation(bodyX, bodyY)));
+                    // ^^ note that only id, team, type and loc will be used when creating real robots
             }
         }
     }
