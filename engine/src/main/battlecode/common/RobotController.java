@@ -664,11 +664,11 @@ public strictfp interface RobotController {
     // ***********************************
 
     /** 
-     * Causes the robot to die.
+     * Causes the robot to die. Never fails.
      *
      * @battlecode.doc.costlymethod
      */
-    void disintegrate() throws GameActionException;
+    void disintegrate();
 
     /**
      * Causes your team to lose the game. It's like typing "gg."
