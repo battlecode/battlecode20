@@ -344,6 +344,7 @@ class GameWorld {
         return (a - x) * (a - x) + (b - y) * (b - y);
     }
     calculatePollutionIfNeeded() {
+        return;
         if (!this.pollutionNeedsUpdate) {
             return;
         }
