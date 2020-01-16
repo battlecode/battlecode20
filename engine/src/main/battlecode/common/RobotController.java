@@ -259,7 +259,7 @@ public strictfp interface RobotController {
      * increasing distance from the specified center.
      *
      * @param center center of the given search radius
-     * @param radius return robots this distance away from the given center
+     * @param radiusSquared return robots this distance squared away from the given center
      * location. If -1 is passed, all robots within sense radius are returned
      * @param team filter game objects by the given team. If null is passed,
      * objects from all teams are returned
@@ -267,7 +267,45 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
+    RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team);
+
+    /**
+     * Returns all map locations containing soup within sense radius. The
+     * locations are returned in no particular order.
+     *
+     * @return array of map locations that can be sensed containing soup
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbySoup();
+
+    /**
+     * Returns all map locations that can be sensed containing soup within
+     * specified radius. The locations are returned in no particular order.
+     *
+     * @param radiusSquared return soup locations this distance away from the center of
+     * this robot. If -1 is passed, all locations with soup within sense radius are returned
+     * @return array of map locations that can be sensed within the
+     * specified radius containing soup
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbySoup(int radiusSquared);
+
+    /**
+     * Returns all map locations that can be sensed containing soup within
+     * specified radius of specified location. The locations are returned in no
+     * particular order.
+     *
+     * @param center center of the given search radius
+     * @param radiusSquared return soup locations this distance away from the center of
+     * this robot. If -1 is passed, all locations with soup within sense radius are returned
+     * @return array of map locations that can be sensed within the
+     * specified radius containing soup
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbySoup(MapLocation center, int radiusSquared);
 
     /**
      * Returns the crude soup count at a given location, if the location is

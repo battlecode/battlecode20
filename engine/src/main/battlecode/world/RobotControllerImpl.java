@@ -228,9 +228,8 @@ public final strictfp class RobotControllerImpl implements RobotController {
     @Override
     public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) {
         assertNotNull(center);
-        int sensorRadiusSquaredUpperBound = (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared());
-        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center,
-                radiusSquared == -1 ? sensorRadiusSquaredUpperBound : Math.min(radiusSquared, sensorRadiusSquaredUpperBound));
+        if (radiusSquared == -1) radiusSquared = (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared());
+        InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, radiusSquared);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for(InternalRobot sensedRobot : allSensedRobots){
             // check if this robot
@@ -245,6 +244,34 @@ public final strictfp class RobotControllerImpl implements RobotController {
             validSensedRobots.add(sensedRobot.getRobotInfo());
         }
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
+    }
+
+    @Override
+    public MapLocation[] senseNearbySoup() {
+        return senseNearbySoup(-1);
+    }
+
+    @Override
+    public MapLocation[] senseNearbySoup(int radiusSquared) {
+        return senseNearbySoup(getLocation(), radiusSquared);
+    }
+
+    @Override
+    public MapLocation[] senseNearbySoup(MapLocation center, int radiusSquared) {
+        assertNotNull(center);
+        if (radiusSquared == -1) radiusSquared = (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared());
+        MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared);
+        List<MapLocation> soupLocations = new ArrayList<MapLocation>();
+        for(MapLocation loc : soupLocations){
+            // check if can sense
+            if (!canSenseLocation(loc))
+                continue;
+            // check if there is soup
+            if (gameWorld.getSoup(loc) <= 0)
+                continue;
+            soupLocations.add(loc);
+        }
+        return soupLocations.toArray(new MapLocation[soupLocations.size()]);
     }
 
     @Override
