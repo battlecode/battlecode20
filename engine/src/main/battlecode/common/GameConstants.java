@@ -112,7 +112,7 @@ public class GameConstants {
     // *********************************
 
     /** The maximum number of integers that can be sent in one message. */
-    public static final int MAX_BLOCKCHAIN_TRANSACTION_LENGTH = 7;
+    public static final int BLOCKCHAIN_TRANSACTION_LENGTH = 7;
 
     /** The number of transactions that get broadcasted every round. */
     public static final int NUMBER_OF_TRANSACTIONS_PER_BLOCK = 7;

@@ -35,17 +35,6 @@ public strictfp interface RobotController {
     int getTeamSoup();
 
     /**
-     * Returns the number of robots on your team (including your HQ).
-     * If this number ever reaches zero, the opposing team will automatically
-     * win by destruction (because your HQ is dead).
-     *
-     * @return the number of robots on your team
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getRobotCount();
-
-    /**
      * Returns the width of the map.
      *
      * @return the width of the map.
@@ -270,7 +259,7 @@ public strictfp interface RobotController {
      * increasing distance from the specified center.
      *
      * @param center center of the given search radius
-     * @param radius return robots this distance away from the given center
+     * @param radiusSquared return robots this distance squared away from the given center
      * location. If -1 is passed, all robots within sense radius are returned
      * @param team filter game objects by the given team. If null is passed,
      * objects from all teams are returned
@@ -278,7 +267,45 @@ public strictfp interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    RobotInfo[] senseNearbyRobots(MapLocation center, int radius, Team team);
+    RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team);
+
+    /**
+     * Returns all map locations containing soup within sense radius. The
+     * locations are returned in no particular order.
+     *
+     * @return array of map locations that can be sensed containing soup
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbySoup();
+
+    /**
+     * Returns all map locations that can be sensed containing soup within
+     * specified radius. The locations are returned in no particular order.
+     *
+     * @param radiusSquared return soup locations this distance away from the center of
+     * this robot. If -1 is passed, all locations with soup within sense radius are returned
+     * @return array of map locations that can be sensed within the
+     * specified radius containing soup
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbySoup(int radiusSquared);
+
+    /**
+     * Returns all map locations that can be sensed containing soup within
+     * specified radius of specified location. The locations are returned in no
+     * particular order.
+     *
+     * @param center center of the given search radius
+     * @param radiusSquared return soup locations this distance away from the center of
+     * this robot. If -1 is passed, all locations with soup within sense radius are returned
+     * @return array of map locations that can be sensed within the
+     * specified radius containing soup
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] senseNearbySoup(MapLocation center, int radiusSquared);
 
     /**
      * Returns the crude soup count at a given location, if the location is
@@ -637,6 +664,13 @@ public strictfp interface RobotController {
     // ****** OTHER ACTION METHODS *******
     // ***********************************
 
+    /** 
+     * Causes the robot to die.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    void disintegrate() throws GameActionException;
+
     /**
      * Causes your team to lose the game. It's like typing "gg."
      *
@@ -649,11 +683,11 @@ public strictfp interface RobotController {
     // ***********************************
 
     /**
-     * Tests if the robot can submit a transaction
+     * Checks that the robot can submit a transaction
      * to the blockchain at the indicated cost. Tests if the team has enough soup,
-     * that the provided cost is positive, and that the message doesn't exceed the limit.
+     * that the provided cost is positive, and that the message contains exactly 7 integers.
      *
-     * @param message the list of ints to send (at most of GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH many).
+     * @param message the list of ints to send (exactly GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH of them).
      * @param cost the price that the unit is willing to pay for the message, in soup
      *
      * @return whether the transaction can be submitted or not
@@ -664,12 +698,13 @@ public strictfp interface RobotController {
 
     /**
      * Submits a transaction to the transaction pool at the indicated cost.
+     * The transaction messages needs to be exactly 7 integers.
      * 
      * @param message the list of ints to send.
      * @param cost the price that the unit is willing to pay for the message
      *
      * @throws GameActionException if the team does not have enough soup to cover the cost,
-     *  if the message exceeds the allowed limit, or if the cost is negative
+     *  if the message is not of the right size, or if the cost is negative
      *
      * @battlecode.doc.costlymethod
      */
@@ -678,7 +713,8 @@ public strictfp interface RobotController {
 
     /**
      * Get the block of messages that was approved at a given round.
-     * The block will contain a list of transactions.
+     * The block will contain a list of transactions, and each transaction
+     * message will have exactly 7 integers.
      *
      * @param roundNumber the round index.
      * @return an array of Transactions that were accepted into the blockchain
