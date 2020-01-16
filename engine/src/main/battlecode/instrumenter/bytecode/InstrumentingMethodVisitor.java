@@ -40,12 +40,21 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
     private final Set<LabelNode> tryCatchStarts = new HashSet<>();
 
     private static final Set<String> instrumentedStringFuncs = new HashSet<>();
+    private static final Set<String> instrumentedStringBufferFuncs = new HashSet<>();
+    private static final Set<String> instrumentedStringBuilderFuncs = new HashSet<>();
 
     static {
         instrumentedStringFuncs.add("matches");
         instrumentedStringFuncs.add("replaceAll");
         instrumentedStringFuncs.add("replaceFirst");
         instrumentedStringFuncs.add("split");
+
+        instrumentedStringFuncs.add("indexOf");
+        instrumentedStringFuncs.add("lastIndexOf");
+        instrumentedStringBufferFuncs.add("indexOf");
+        instrumentedStringBufferFuncs.add("lastIndexOf");
+        instrumentedStringBuilderFuncs.add("indexOf");
+        instrumentedStringBuilderFuncs.add("lastIndexOf");
     }
 
     private LabelNode startLabel;
@@ -321,7 +330,9 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
                         || (h.getOwner().equals("java/lang/String") && ((h.getName().equals("<init>") && h.getDesc().equals("([B)V"))
                             || (h.getName().equals("<init>") && h.getDesc().equals("([BII)V"))
                             || (h.getName().equals("getBytes") && h.getDesc().equals("()[B"))
-                            || instrumentedStringFuncs.contains(h.getName())))
+                            || instrumentedStringFuncs.contains(h.getName())
+                            || instrumentedStringBufferFuncs.contains(h.getName())
+                            || instrumentedStringBuilderFuncs.contains(h.getName())))
                         || ((h.getOwner().equals("java/lang/Math") || h.getOwner().equals("java/lang/StrictMath"))
                             && h.getName().equals("random"))
                         || (h.getName().equals("printStackTrace") && h.getDesc().equals("()V") &&
@@ -413,6 +424,14 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
         if (n.owner.equals("java/lang/String") && instrumentedStringFuncs.contains(n.name)) {
             n.setOpcode(INVOKESTATIC);
             n.desc = "(Ljava/lang/String;" + n.desc.substring(1);
+            n.owner = "instrumented/battlecode/instrumenter/inject/InstrumentableFunctions";
+        } else if (n.owner.equals("java/lang/StringBuffer") && instrumentedStringBufferFuncs.contains(n.name)) {  // instrument stringbuffer functions
+            n.setOpcode(INVOKESTATIC);
+            n.desc = "(Ljava/lang/StringBuffer;" + n.desc.substring(1);
+            n.owner = "instrumented/battlecode/instrumenter/inject/InstrumentableFunctions";
+        } else if (n.owner.equals("java/lang/StringBuilder") && instrumentedStringBuilderFuncs.contains(n.name)) {  // instrument stringbuilder functions
+            n.setOpcode(INVOKESTATIC);
+            n.desc = "(Ljava/lang/StringBuilder;" + n.desc.substring(1);
             n.owner = "instrumented/battlecode/instrumenter/inject/InstrumentableFunctions";
         } else if ((n.owner.equals("java/lang/Math") || n.owner.equals("java/lang/StrictMath"))
                 && n.name.equals("random")) {
