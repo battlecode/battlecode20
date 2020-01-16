@@ -49,7 +49,6 @@ battlecode/common/RobotController/getID                             1     true
 battlecode/common/RobotController/getLocation                       1     true
 battlecode/common/RobotController/getMapWidth                       1     true
 battlecode/common/RobotController/getMapHeight                      1     true
-battlecode/common/RobotController/getRobotCount                     20    true
 battlecode/common/RobotController/getRoundNum                       1     true
 battlecode/common/RobotController/getTeam                           1     true
 battlecode/common/RobotController/getTeamSoup	                    1     true
