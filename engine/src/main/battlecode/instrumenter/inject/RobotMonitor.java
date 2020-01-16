@@ -192,10 +192,13 @@ public final class RobotMonitor {
     @SuppressWarnings("unused")
     public static int calculateMultiArrayCost(int[] dims) {
         int cost = 1;
-        for (int i = dims.length - 1; i >= 0; i--) {
-            cost *= Math.max(dims[i], 1);
+        try {
+            for (int i = dims.length - 1; i >= 0; i--) {
+                cost = Math.multiplyExact(cost, Math.max(dims[i], 1));  // to prevent integer overflow
+            }
+        } catch (ArithmeticException e) {
+            cost = Integer.MAX_VALUE;
         }
-
         return cost;
     }
 
