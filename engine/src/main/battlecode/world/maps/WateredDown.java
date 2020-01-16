@@ -51,7 +51,7 @@ public class WateredDown {
 
     public static void makeSimple() throws IOException {
 
-        String ds = "32 32  h   100 300                                                                                                         \n"+
+        String ds = "32 32  h   200 300                                                                                                         \n"+
 "2   2   2   4   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   4\n"+
 "2   2   3   5   3   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2\n"+
 "2   2   3   c4  3   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   2   ws-4    ws-4    ws-4    2   2   c3  2   2   2\n"+
