@@ -344,11 +344,9 @@ class GameWorld {
         return (a - x) * (a - x) + (b - y) * (b - y);
     }
     calculatePollutionIfNeeded() {
-        return;
         if (!this.pollutionNeedsUpdate) {
             return;
         }
-        console.log("calculating pollution!!");
         // calculates pollution based on pollution effects
         // this has annoying time complexity but I think it'll be fine
         let width = this.mapStats.maxCorner.x - this.mapStats.minCorner.x;
