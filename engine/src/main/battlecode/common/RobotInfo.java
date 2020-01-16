@@ -168,7 +168,7 @@ public class RobotInfo {
         if (currentlyHoldingUnit != robotInfo.currentlyHoldingUnit) return false;
         if (heldUnitID != robotInfo.heldUnitID) return false;
         if (soupCarrying != robotInfo.soupCarrying) return false;
-        if (Math.abs(cooldownTurns - robotInfo.cooldownTurns) < 0.000001) return false;
+        if (Math.abs(cooldownTurns - robotInfo.cooldownTurns) > 0.000001) return false;
         return location.equals(robotInfo.location);
 
     }
