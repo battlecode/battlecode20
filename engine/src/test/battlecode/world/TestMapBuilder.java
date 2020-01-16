@@ -37,13 +37,9 @@ public class TestMapBuilder {
     }
 
     public TestMapBuilder addRobot(int id, Team team, RobotType type, MapLocation loc){
-        bodies.add(new RobotInfo(
-                id,
-                team,
-                type,
-                loc
-        ));
-
+        bodies.add(new RobotInfo(id, team, type, 0, false, -1,
+                0, GameConstants.INITIAL_COOLDOWN_TURNS, loc));
+        // ^^ note that only id, team, type and loc will be saved in the actual map file
         return this;
     }
     
