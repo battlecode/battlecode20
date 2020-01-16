@@ -23,6 +23,7 @@ public class BuildMaps {
         CentralSoup.main(args);
         ChristmasInJuly.main(args);
         ClearlyTwelveHorsesInASalad.main(args);
+        CosmicBackgroundRadiation.main(args);
         CowFarm.main(args);
         DidAMonkeyMakeThis.main(args);
         FourLakeLand.main(args);
