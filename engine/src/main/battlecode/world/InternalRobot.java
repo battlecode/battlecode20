@@ -31,11 +31,6 @@ public strictfp class InternalRobot {
     private boolean blocked;  // when picked up by a delivery drone
 
     /**
-     * Used to avoid recreating the same RobotInfo object over and over.
-     */
-    private RobotInfo cachedRobotInfo;
-
-    /**
      * Create a new internal representation of a robot
      *
      * @param gw the world the robot exists in
@@ -134,15 +129,8 @@ public strictfp class InternalRobot {
     }
 
     public RobotInfo getRobotInfo() {
-        if (this.cachedRobotInfo != null
-                && this.cachedRobotInfo.ID == ID
-                && this.cachedRobotInfo.team == team
-                && this.cachedRobotInfo.type == type
-                && this.cachedRobotInfo.location.equals(location)) {
-            return this.cachedRobotInfo;
-        }
-        return this.cachedRobotInfo = new RobotInfo(
-                ID, team, type, location);
+        return new RobotInfo(ID, team, type, dirtCarrying, currentlyHoldingUnit, idOfUnitCurrentlyHeld,
+                soupCarrying, cooldownTurns, location);
     }
 
     public void pickUpUnit(int id) {
