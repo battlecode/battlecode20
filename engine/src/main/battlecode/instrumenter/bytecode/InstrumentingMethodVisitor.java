@@ -48,11 +48,13 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
         instrumentedStringFuncs.add("replaceAll");
         instrumentedStringFuncs.add("replaceFirst");
         instrumentedStringFuncs.add("split");
-
         instrumentedStringFuncs.add("indexOf");
         instrumentedStringFuncs.add("lastIndexOf");
+        instrumentedStringFuncs.add("contains");
+
         instrumentedStringBufferFuncs.add("indexOf");
         instrumentedStringBufferFuncs.add("lastIndexOf");
+
         instrumentedStringBuilderFuncs.add("indexOf");
         instrumentedStringBuilderFuncs.add("lastIndexOf");
     }
