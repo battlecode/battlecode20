@@ -261,7 +261,7 @@ public final strictfp class RobotControllerImpl implements RobotController {
         if (radiusSquared == -1) radiusSquared = (int) Math.ceil(this.robot.getCurrentSensorRadiusSquared());
         MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center, radiusSquared);
         List<MapLocation> soupLocations = new ArrayList<MapLocation>();
-        for(MapLocation loc : soupLocations){
+        for(MapLocation loc : allSensedLocs){
             // check if can sense
             if (!canSenseLocation(loc))
                 continue;
