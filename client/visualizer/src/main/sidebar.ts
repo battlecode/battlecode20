@@ -137,6 +137,7 @@ export default class Sidebar {
     G - Toggle Grid<br>
     N - Toggle Sight/Sensor Radius<br>
     H - Toggle Shorter Log Headers<br>
+    B - Toggle Interpolation<br>
     <br>
     <b class="red">How to Play a Match</b><br>
     <i>From the application:</i> Click <b>'Runner'</b> and follow the
