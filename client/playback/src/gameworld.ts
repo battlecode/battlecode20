@@ -75,6 +75,14 @@ export type IndicatorLinesSchema = {
   blue: Int32Array
 }
 
+export type NetGunShotSchema = {
+  id: Int32Array,
+  startX: Int32Array,
+  startY: Int32Array,
+  endX: Int32Array,
+  endY: Int32Array
+}
+
 /**
  * A frozen image of the game world.
  *
@@ -146,6 +154,11 @@ export default class GameWorld {
    * }
    */
   indicatorLines: StructOfArrays<IndicatorLinesSchema>;
+
+  /**
+   * Net gun shots. Just an indicator line actually.
+   */
+  netGunShots: StructOfArrays<NetGunShotSchema>;
 
   /**
    * The current turn.
@@ -265,6 +278,14 @@ export default class GameWorld {
       blue: new Int32Array(0)
     }, 'id');
 
+    this.netGunShots = new StructOfArrays({
+      id: new Int32Array(0),
+      startX: new Int32Array(0),
+      startY: new Int32Array(0),
+      endX: new Int32Array(0),
+      endY: new Int32Array(0)
+    }, 'id');
+
     this.turn = 0;
     this.minCorner = new Victor(0, 0);
     this.maxCorner = new Victor(0, 0);
@@ -339,6 +360,7 @@ export default class GameWorld {
     this.bodies.copyFrom(source.bodies);
     this.indicatorDots.copyFrom(source.indicatorDots);
     this.indicatorLines.copyFrom(source.indicatorLines);
+    this.netGunShots.copyFrom(source.netGunShots);
     this.teamStats = new Map<number, TeamStats>();
     source.teamStats.forEach((value: TeamStats, key: number) => {
       this.teamStats.set(key, deepcopy(value));
@@ -380,28 +402,12 @@ export default class GameWorld {
       this.insertBodies(bodies);
     }
 
-    // Died bodies
-    if (delta.diedIDsLength() > 0) {
 
-      // Update team stats
-      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
-      for(let i = 0; i < delta.diedIDsLength(); i++) {
-          let index = indices[i];
-          // console.log("robot died: " + this.bodies.arrays.id[index]);
-          let team = this.bodies.arrays.team[index];
-          let type = this.bodies.arrays.type[index];
-          var statObj = this.teamStats.get(team);
-          if(!statObj) {continue;} // In case this is a neutral bot
-          statObj.robots[type] -= 1;
-          this.teamStats.set(team, statObj);
-      }
+    
 
-      // Update bodies soa
-      this.insertDiedBodies(delta);
-
-      this.bodies.deleteBulk(delta.diedIDsArray());
-    }
-
+    // clear net gun
+    this.netGunShots.clear();
+    let shootID = 0;
     // Action
     if(delta.actionsLength() > 0){
       const arrays = this.bodies.arrays;
@@ -490,6 +496,15 @@ export default class GameWorld {
           
           // deaths are handled by diedIDs
           case schema.Action.SHOOT:
+            if (this.bodies.index(robotID) !== -1 && this.bodies.index(target) !== -1) {
+              this.netGunShots.insert({
+                id: shootID++,
+                startX: this.bodies.lookup(robotID).x,
+                startY: this.bodies.lookup(robotID).y,
+                endX: this.bodies.lookup(target).x,
+                endY: this.bodies.lookup(target).y
+              })
+            }
             // console.log('robot ' + robotID + ' is attempting to shoot ' + target);
             break;
           case schema.Action.DIE_DROWN:
@@ -512,6 +527,29 @@ export default class GameWorld {
       }
     }
     
+    // Died bodies
+    if (delta.diedIDsLength() > 0) {
+
+      // Update team stats
+      var indices = this.bodies.lookupIndices(delta.diedIDsArray());
+      for(let i = 0; i < delta.diedIDsLength(); i++) {
+          let index = indices[i];
+          // console.log("robot died: " + this.bodies.arrays.id[index]);
+          let team = this.bodies.arrays.team[index];
+          let type = this.bodies.arrays.type[index];
+          var statObj = this.teamStats.get(team);
+          if(!statObj) {continue;} // In case this is a neutral bot
+          statObj.robots[type] -= 1;
+          this.teamStats.set(team, statObj);
+      }
+
+      // Update bodies soa
+      this.insertDiedBodies(delta);
+
+      this.bodies.deleteBulk(delta.diedIDsArray());
+    }
+
+
     // Dirt changes on map
     for(let i = 0; i<delta.dirtChangesLength(); i++){
       const x = delta.dirtChangedLocs().xs(i);

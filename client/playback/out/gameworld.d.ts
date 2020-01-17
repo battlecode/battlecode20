@@ -56,6 +56,13 @@ export declare type IndicatorLinesSchema = {
     green: Int32Array;
     blue: Int32Array;
 };
+export declare type NetGunShotSchema = {
+    id: Int32Array;
+    startX: Int32Array;
+    startY: Int32Array;
+    endX: Int32Array;
+    endY: Int32Array;
+};
 /**
  * A frozen image of the game world.
  *
@@ -112,6 +119,10 @@ export default class GameWorld {
      * }
      */
     indicatorLines: StructOfArrays<IndicatorLinesSchema>;
+    /**
+     * Net gun shots. Just an indicator line actually.
+     */
+    netGunShots: StructOfArrays<NetGunShotSchema>;
     /**
      * The current turn.
      */

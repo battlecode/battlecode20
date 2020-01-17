@@ -68,6 +68,7 @@ export default class Renderer {
     this.renderBodies(world, nextStep, lerpAmount);
 
     this.renderIndicatorDotsLines(world);
+    this.renderNetGunShots(world);
     this.setMouseoverEvent(world);
 
     // restore default rendering
@@ -426,6 +427,34 @@ export default class Renderer {
     const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
     const y = this.flip(_y, minY, maxY)
     return {x: Math.floor(x), y: Math.floor(y+1)};
+  }
+
+  private renderNetGunShots(world: GameWorld) {
+    const lines = world.netGunShots;
+    const minY = world.minCorner.y;
+    const maxY = world.maxCorner.y - 1;
+    
+    const linesID = lines.arrays.id;
+    const linesStartX = lines.arrays.startX;
+    const linesStartY = lines.arrays.startY;
+    const linesEndX = lines.arrays.endX;
+    const linesEndY = lines.arrays.endY;
+    this.ctx.lineWidth = 0.2;
+
+    for (let i = 0; i < lines.length; i++) {
+      if (this.lastSelectedID === undefined || linesID[i] === this.lastSelectedID) {
+        const startX = linesStartX[i]+0.5;
+        const startY = this.flip(linesStartY[i], minY, maxY)+0.5;
+        const endX = linesEndX[i]+0.5;
+        const endY = this.flip(linesEndY[i], minY, maxY)+0.5;
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(startX, startY);
+        this.ctx.lineTo(endX, endY);
+        this.ctx.strokeStyle = `rgb(0,247,255)`;
+        this.ctx.stroke();
+      }
+    }
   }
 
   private renderIndicatorDotsLines(world: GameWorld) {
