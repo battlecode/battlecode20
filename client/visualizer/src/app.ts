@@ -679,7 +679,28 @@ export default class Client {
       lastTurn = match.current.turn;
 
       // @ts-ignore
+      // renderer.render(match.current, match.current.minCorner, match.current.maxCorner);
+      if (this.conf.interpolate &&
+        match.current.turn + 1 < match.deltas.length &&
+        goalUPS < rendersPerSecond.tps) {
+
+          console.log('interpolating!!');
+
+      nextStep.loadNextStep(
+        match.current,
+        match.deltas[match.current.turn + 1]
+      );
+
+      let lerp = Math.min(interpGameTime - match.current.turn, 1);
+
+      // @ts-ignore
+      renderer.render(match.current, match.current.minCorner, match.current.maxCorner, nextStep, lerp);
+    } else {
+          console.log('not interpolating!!');
+      // interpGameTime might be incorrect if we haven't computed fast enough
+      // @ts-ignore
       renderer.render(match.current, match.current.minCorner, match.current.maxCorner);
+    }
 
       this.stats.showBlock(match.blockchain[match.current.turn]);
       this.updateStats(match.current, meta);

@@ -221,7 +221,7 @@ export default class Renderer {
     const minY = world.minCorner.y;
     const maxY = world.maxCorner.y -1;
 
-    let nextXs: Int32Array, nextYs: Int32Array, realXs: Int32Array, realYs: Int32Array;
+    let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array;
     if (nextStep && lerpAmount) {
       // Interpolated (not going to happen in 2019)
       nextXs = nextStep.bodies.arrays.x;
@@ -235,14 +235,15 @@ export default class Renderer {
     }
 
     // Calculate the real xs and ys
-    realXs = new Int32Array(length)
-    realYs = new Int32Array(length)
+    realXs = new Float32Array(length)
+    realYs = new Float32Array(length)
     for (let i = 0; i < length; i++) {
-      if (nextStep && lerpAmount && false) {
+      if (nextStep && lerpAmount) {
         // Interpolated
-        console.log("This should not be executed");
-        // realXs[i] = xs[i] + (nextXs[i] - xs[i]) * lerpAmount;
-        // realYs[i] = this.flip(ys[i] + (nextYs[i] - ys[i]) * lerpAmount, minY, maxY);
+        // @ts-ignore
+        realXs[i] = xs[i] + (nextXs[i] - xs[i]) * lerpAmount;
+        // @ts-ignore
+        realYs[i] = this.flip(ys[i] + (nextYs[i] - ys[i]) * lerpAmount, minY, maxY);
       } else {
         // Not interpolated
         realXs[i] = xs[i];
