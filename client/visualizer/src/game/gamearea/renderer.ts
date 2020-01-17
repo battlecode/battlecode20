@@ -26,9 +26,6 @@ export default class Renderer {
   // For rendering robot information on click
   private lastSelectedID: number;
 
-  // other cached useful values
-  readonly bgPattern: CanvasPattern;
-
   constructor(canvas: HTMLCanvasElement, imgs: AllImages, conf: config.Config, metadata: Metadata,
     onRobotSelected: (id: number) => void,
     onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number, soup: number) => void) {
@@ -48,8 +45,6 @@ export default class Renderer {
 
     this.ctx['imageSmoothingEnabled'] = false;
 
-    // TODO: can this be null???
-    this.bgPattern = this.ctx.createPattern(imgs.background, 'repeat')!;
   }
 
   /**
@@ -169,7 +164,7 @@ export default class Renderer {
 
       if (waterLayer && (map.flooded[idxVal] > 0)){
         // water should always be the same color
-        this.ctx.fillStyle = 'rgba(0,0,255,1.0)';
+        this.ctx.fillStyle = 'rgb(10,100,240)';
       }
 
       // water covers dirt; we can fill only once
