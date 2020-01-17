@@ -106,14 +106,11 @@ export default class Renderer {
 
     // TODO use color pacakge for nicer manipulation?
     const getDirtColor = (x: number): string => {
-      /*
-      // -inf > 'rgba(89,156,28,1)'
-      // inf -> 'rgba(156,28,28,1)'
-      */
-      // -inf-> 'rgba(0,255,0,0.7)'
-      // inf -> 'rgba(255,0,0,0.7)'
 
-      const lo = [0,255,0], hi = [255,0,0];
+      /*
+      I'm thinking the following:
+      - A gradient following the rainbow of the following colors. Defined in cst.DIRT_COLORS
+      */
 
       
 
@@ -122,9 +119,27 @@ export default class Renderer {
       // const ex = Math.exp(x / 10);
       // const t = ex / (5 + ex);
 
-      const mx = 20;
-      const mn = -3;
-      // convert -3 to 40 into a range, then truncate
+      // iterate and find the two colors
+      let lo: number[] = [0,0,0];
+      let hi: number[] = [0,0,0];
+      let mx: number = -1000;
+      let mn: number = -1000;
+      for (let entry of Array.from(cst.DIRT_COLORS)) {
+        lo = hi;
+        hi = entry[1];
+        mn = mx;
+        mx = entry[0];
+        if (x <= entry[0]) {
+          break;
+        }
+      }
+      if (mn === -1000) {
+        lo = hi;
+        mn = mx;
+        mx += 1;
+      }
+
+      // convert into range and truncate
       let t = (x - mn) / (mx - mn);
       if (x <= mn) {
         t = 0;
@@ -136,7 +151,7 @@ export default class Renderer {
       let now = [0,0,0];
       for(let i=0; i<3; i++) now[i] = (hi[i]-lo[i]) * t + lo[i];
 
-      return `rgba(${now[0]},${now[1]},${now[2]},0.7)`;
+      return `rgb(${now[0]},${now[1]},${now[2]})`;
     }
     
     const getSoupColor = (s: number): string => {
