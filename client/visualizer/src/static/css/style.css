@@ -49,6 +49,10 @@ p {
     font-family: Tahoma, sans-serif;
 }
 
+.robotSpriteStats img {
+    width: 30px;
+}
+
 #matchRunner {
     font-family: Tahoma;
 }
@@ -257,12 +261,17 @@ input {
     display: inline-block;
 }
 
+h4 {
+    margin: 10px;
+}
+
 #helpDiv {
     text-align: left;
     font-family: Tahoma, sans-serif;
     font-size: 14px;
     padding: 10px;
 }
+
 
 #sidebar {
     /* Positioning */
@@ -278,7 +287,7 @@ input {
     background-color: white;
     color: rgb(39, 39, 39);
     text-align: center;
-    font-size: 16px;
+    font-size: 14px;
     font-family: sans-serif;
 
     /* Inner formatting */

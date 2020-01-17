@@ -342,6 +342,8 @@ export default class Client {
       this.stats.setSoups(teamID, (teamStats as TeamStats).soup);
       if(teamStats.soup < 0){ console.log("Soup is negative!!!"); }
 
+      this.stats.setWaterLevel(cst.waterLevel(world.turn));
+
       // Update each robot count
       this.stats.robots.forEach((type: schema.BodyType) => {
         this.stats.setRobotCount(teamID, type, (teamStats as TeamStats).robots[type]);

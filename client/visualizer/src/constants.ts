@@ -25,6 +25,9 @@ export const DIRT_COLORS: Map<number, Array<number>> = new Map<number, Array<num
     [500, [255, 0, 0]], // red
     [2000, [242, 0, 252]] // pink
 ]);
+export const WATER_COLOR = [10,100,240];
+
+
 
 // TODO: Old constants
 // Game canvas rendering sizes
@@ -126,4 +129,8 @@ export function radiusFromBodyType(bodyType: schema.BodyType) {
     case FULFILLMENT_CENTER: return 1;
     default: throw new Error("invalid body type");
   }
+}
+
+export function waterLevel(x: number) {
+  return (Math.exp(0.0028*x-1.38*Math.sin(0.00157*x-1.73)+1.38*Math.sin(-1.73))-1)
 }

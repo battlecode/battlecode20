@@ -37,6 +37,9 @@ export default class Stats {
 
   private blockchain: HTMLDivElement;
 
+  private waterLabel: HTMLHeadingElement;
+  private waterHorizontalSlider: HTMLDivElement;
+
   private conf: Config;
 
   // Note: robot types and number of teams are currently fixed regardless of
@@ -88,6 +91,7 @@ export default class Stats {
     for (let robot of this.robots) {
       let robotName: string = cst.bodyTypeToString(robot);
       let tdRobot: HTMLTableCellElement = document.createElement("td");
+      tdRobot.className = "robotSpriteStats";
 
       if(robotName === "drone"){
         // tdRobot.appendChild(this.images.robot[robotName]['carry'][inGameID]);
@@ -99,10 +103,10 @@ export default class Stats {
 
       if(robotName === 'vaporator'){
         // Wrap around
-        table.appendChild(robotImages);
-        robotImages = document.createElement("tr");
-        table.appendChild(robotCounts);
-        robotCounts = document.createElement("tr");
+        // table.appendChild(robotImages);
+        // robotImages = document.createElement("tr");
+        // table.appendChild(robotCounts);
+        // robotCounts = document.createElement("tr");
       }
       robotImages.appendChild(tdRobot);
 
@@ -156,7 +160,10 @@ export default class Stats {
     // Label for soup
     const labelSoups = document.createElement("td");
     labelSoups.colSpan = 2;
-    labelSoups.innerText = "Soup";
+    let ll = document.createElement('h4');
+    ll.innerText = 'Soup';
+    labelSoups.appendChild(ll);
+    // labelSoups.innerText = "Soup";
 
     table.appendChild(bars);
     table.appendChild(counts);
@@ -226,22 +233,24 @@ export default class Stats {
       // Add the team name banner and the robot count table
       teamDiv.appendChild(this.teamHeaderNode(teamName, inGameID));
       teamDiv.appendChild(this.robotTable(teamID, inGameID));
-      teamDiv.appendChild(document.createElement("br"));
+      // teamDiv.appendChild(document.createElement("br"));
 
       this.div.appendChild(teamDiv);
     }
+
+
+
+    this.div.appendChild(this.waterLevel());
 
     // Add stats table
     this.statsTableElement.remove();
     this.statsTableElement = this.statsTable(teamIDs);
     this.div.appendChild(this.statsTableElement);
     
-    this.div.appendChild(document.createElement('br'));
 
-    const bl = document.createElement("span");
+    const bl = document.createElement("h4");
     bl.innerText = "Blockchain";
     this.div.appendChild(bl);
-    this.div.appendChild(document.createElement('br'));
     this.div.appendChild(this.blockchainViewer());
   }
 
@@ -254,6 +263,56 @@ export default class Stats {
     this.blockchain.className = "console";
 
     return this.blockchain;
+  }
+
+  waterLevel(): HTMLDivElement {
+    // a div
+    let waterDiv = document.createElement('div');
+
+    // add a label
+    this.waterLabel = document.createElement('h4');
+    this.waterLabel.innerText = 'Water Level: 0';
+    
+
+    // just take the log of it, after adding 10
+
+    // add an elevation gradient
+    let gradient = document.createElement('div');
+    gradient.style.height = '10px';
+    gradient.style.width = '100%';
+    gradient.className = 'waterGradient';
+    let gradString = 'linear-gradient(90deg, ';
+    // rgba(0,147,83,1) 0%, rgba(29,201,2,1) 10%, rgba(254,205,54,1) 27%, rgba(222,145,1,1) 46%, rgba(255,0,0,1) 71%, rgba(242,0,252,1) 96%);'
+    // add from cst.DIRT
+    let i = 0;
+    for (let entry of Array.from(cst.DIRT_COLORS)) {
+      gradString += 'rgb(' + entry[1][0] + ',' + entry[1][1] + ',' + entry[1][2] + ') ';
+      gradString += '' + (i * 100 / cst.DIRT_COLORS.size) + '%';
+      if (i !== cst.DIRT_COLORS.size-1) {
+        gradString += ', ';
+      }
+      i += 1;
+    }
+    gradString += ');';
+    console.log(gradString);
+    // gradient.style.background = 'linear-gradient(90deg, rgba(0,147,83,1) 0%, rgba(29,201,2,1) 10%, rgba(254,205,54,1) 27%, rgba(222,145,1,1) 46%, rgba(255,0,0,1) 71%, rgba(242,0,252,1) 96%);';
+    var sheet = document.createElement('style')
+    sheet.innerHTML = ".waterGradient {background: " + gradString + "}";
+    document.body.appendChild(sheet);
+
+
+    this.waterHorizontalSlider = document.createElement('div');
+    this.waterHorizontalSlider.style.height = '20px';
+    this.waterHorizontalSlider.style.background = 'rgb(' + cst.WATER_COLOR.join(',') + ')';
+    this.setWaterLevel(0);
+
+
+    waterDiv.appendChild(this.waterLabel);
+    waterDiv.appendChild(this.waterHorizontalSlider);
+    waterDiv.appendChild(gradient);
+    waterDiv.style.marginBottom = '20px';
+
+    return waterDiv;
   }
 
   public showBlock(block: Block): void {
@@ -333,6 +392,39 @@ export default class Stats {
     viewOptionForm.appendChild(dirtLabel);
 
     return viewOptionForm;
+  }
+
+  /**
+   * set the water level
+   */
+  setWaterLevel(waterLevel: number) {
+      let mx: number = -1000;
+      let mn: number = -1000;
+      let i = -1;
+      for (let entry of Array.from(cst.DIRT_COLORS)) {
+        mn = mx;
+        mx = entry[0];
+        if (waterLevel <= entry[0]) {
+          break;
+        }
+        i += 1;
+      }
+      if (mn === -1000) {
+        mn = mx;
+        mx += 1;
+        i = 0;
+      }
+
+      // convert into range and truncate
+      let t = (waterLevel - mn) / (mx - mn);
+      if (waterLevel <= mn) {
+        t = 0;
+      }
+      if (waterLevel >= mx) {
+        t = 1;
+      }
+    this.waterHorizontalSlider.style.width = ((i+t) * 100 / cst.DIRT_COLORS.size) + '%';
+    this.waterLabel.innerText = 'Water Level: ' + waterLevel.toFixed(3);
   }
 
   /**

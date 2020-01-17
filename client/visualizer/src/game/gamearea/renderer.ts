@@ -179,7 +179,7 @@ export default class Renderer {
 
       if (waterLayer && (map.flooded[idxVal] > 0)){
         // water should always be the same color
-        this.ctx.fillStyle = 'rgb(10,100,240)';
+        this.ctx.fillStyle = 'rgb(' + cst.WATER_COLOR.join(',') + ')';
       }
 
       // water covers dirt; we can fill only once
