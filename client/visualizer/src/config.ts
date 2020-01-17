@@ -106,7 +106,8 @@ export enum Mode {
   LOGS,
   RUNNER,
   QUEUE,
-  MAPEDITOR
+  MAPEDITOR,
+  PROFILER
 }
 
 /**

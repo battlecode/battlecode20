@@ -38,10 +38,11 @@ export default class MatchRunner {
   // Match information
   private teamA: HTMLSelectElement;
   private teamB: HTMLSelectElement;
+  private profilerEnabled: HTMLInputElement;
   private selectAllMaps: HTMLButtonElement;
   private deselectAllMaps: HTMLButtonElement;
   private runMatch: HTMLButtonElement;
-  private refreshButton: HTMLButtonElement
+  private refreshButton: HTMLButtonElement;
   private runMatchWithoutViewing: HTMLButtonElement;
 
   constructor(conf: Config, cb: () => void, runCb: () => void) {
@@ -116,6 +117,13 @@ export default class MatchRunner {
     this.deselectAllMaps = document.createElement("button");
     this.runMatchWithoutViewing = document.createElement("button");
 
+    this.profilerEnabled = document.createElement("input");
+    this.profilerEnabled.type = 'checkbox';
+    this.profilerEnabled.id = 'profiler-enabled';
+
+    const profilerLabel = document.createElement('label');
+    profilerLabel.setAttribute('for', 'profiler-enabled');
+    profilerLabel.innerText = 'Profiler enabled';
 
     div.appendChild(document.createElement("br"));
     // Team A selector
@@ -131,6 +139,13 @@ export default class MatchRunner {
     divB.appendChild(this.teamB);
     divB.appendChild(document.createElement("br"));
     div.appendChild(divB);
+
+    // Profiler enabled checkbox
+    const divProfiler = document.createElement("div");
+    divProfiler.appendChild(this.profilerEnabled);
+    divProfiler.appendChild(profilerLabel);
+    divProfiler.appendChild(document.createElement("br"));
+    div.appendChild(divProfiler);
 
     // Map selector
     div.appendChild(document.createElement("br"));
@@ -280,6 +295,7 @@ export default class MatchRunner {
       this.getTeamA(),
       this.getTeamB(),
       this.getMaps(),
+      this.isProfilerEnabled(),
       (err) => {
         console.log(err.stack);
         this.isLoadingMatch = false;
@@ -333,5 +349,9 @@ export default class MatchRunner {
 
   private getMaps(): string[] {
     return this.maps.getMaps();
+  }
+
+  private isProfilerEnabled(): boolean {
+    return this.profilerEnabled.checked;
   }
 }

@@ -54,7 +54,7 @@ $ npm run prod
 This will bundle up all of the assets you want in the `bc20` folder. You can then embed the client in any web page you want:
 
 - Mount the assets in `bc20` at `/bc20/` on your webserver.
-- `<script src="/bc20/bundle.js"></script>`
+- `<script src="/bc20/app.js"></script>`
 - `<script>window.battlecode.mount(document.getElementById('battlecode-div'))</script>`
 
 You now have a copy of the battlecode client running on your web page. See `src/app.ts` and `src/config.ts` to learn about the client's API.
