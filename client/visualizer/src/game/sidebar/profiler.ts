@@ -67,9 +67,9 @@ export default class Profiler {
       }
     };
 
-    base.appendChild(document.createTextNode('If no teams are visible, make sure to run a game with profiling enabled by ticking the checkbox on the Runner tab or to load a replay of a game that had profiling enabled.'));
-    base.appendChild(document.createElement('br'));
-    base.appendChild(document.createElement('br'));
+    let p = document.createElement('p');
+    p.innerText = 'If no teams are visible, make sure to run a game with profiling enabled by ticking the checkbox on the Runner tab or to load a replay of a game that had profiling enabled.';
+    base.appendChild(p);
 
     base.appendChild(this.createSidebarFormItem('Team', this.teamSelector));
     base.appendChild(this.createSidebarFormItem('Robot', this.robotSelector));
