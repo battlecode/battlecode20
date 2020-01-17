@@ -240,46 +240,52 @@ export default class Renderer {
       }
     }
 
-    // Render the trees
-    for (let i = 0; i < length; i++) {
-      const team = teams[i];
-      const type = types[i];
-      const radius = 1;
-      const x = realXs[i];
-      const y = realYs[i];
-
-      if (type === cst.COW) {
-        const img = this.imgs.cow;
-        // this.drawCircleBot(x, y, radius);
-        // this.drawImage(img, x, y, radius);
-        this.drawBot(img, x, y);
-      }
-
-    }
-
     // Render the robots
+    // render drones last to have them be on top of other units.
+    let droneIndices = new Array<number>();
     for (let i = 0; i < length; i++) {
       const team = teams[i];
       const type = types[i];
       const x = realXs[i];
       const y = realYs[i];
+
+      let img = this.imgs.cow;
 
       if (type !== cst.COW) {
         let tmp = this.imgs.robot[cst.bodyTypeToString(type)];
         // TODO how to change drone?
         if(type == cst.DRONE){
-          tmp = (cargo[i]!=0 ? tmp.carry : tmp.empty);
+          // tmp = (cargo[i]!=0 ? tmp.carry : tmp.empty);
+          droneIndices.push(i);
+          continue;
         }
+        img = tmp[team];
+      }
+      // this.drawCircleBot(x, y, radius);
+      // this.drawImage(img, x, y, radius);
+      this.drawBot(img, x, y);
+      
+      // Draw the sight radius if the robot is selected
+      if (type !== cst.COW && (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID)) {
+        this.drawSightRadii(x, y, type, ids[i] === this.lastSelectedID);
+      }
+    }
+    // draw all drones last
+    for (let j = 0; j < droneIndices.length; j++) {
+      let i = droneIndices[j];
+      const team = teams[i];
+      const type = types[i];
+      const x = realXs[i];
+      const y = realYs[i];
 
-        const img = tmp[team];
-        // this.drawCircleBot(x, y, radius);
-        // this.drawImage(img, x, y, radius);
-        this.drawBot(img, x, y);
-        
-        // Draw the sight radius if the robot is selected
-        if (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID) {
-          this.drawSightRadii(x, y, type, ids[i] === this.lastSelectedID);
-        }
+      let tmp = this.imgs.robot[cst.bodyTypeToString(type)].empty;
+
+      const img = tmp[team];
+      this.drawBot(img, x, y);
+      
+      // Draw the sight radius if the robot is selected
+      if (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID) {
+        this.drawSightRadii(x, y, type, ids[i] === this.lastSelectedID);
       }
     }
 

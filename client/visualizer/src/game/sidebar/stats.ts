@@ -90,7 +90,7 @@ export default class Stats {
       let tdRobot: HTMLTableCellElement = document.createElement("td");
 
       if(robotName === "drone"){
-        tdRobot.appendChild(this.images.robot[robotName]['carry'][inGameID]);
+        // tdRobot.appendChild(this.images.robot[robotName]['carry'][inGameID]);
         tdRobot.appendChild(this.images.robot[robotName]['empty'][inGameID]);
       }
       else{
