@@ -166,6 +166,10 @@ export default class Sidebar {
     Make sure to add the "profilerEnabled" property to your
     <a href="https://github.com/battlecode/battlecode20-scaffold/blob/master/gradle.properties" target="_blank">gradle.properties</a>
     file as well.
+
+    Note that for games with a large number of units, it might be impossible
+    to run the profiler successfully (you might get an <code>OutOfMemoryError</code>).
+    <br>
     <br>
     <!---
     <b class="blue">How to Use the Map Editor</b><br>
