@@ -20,6 +20,22 @@ export type Block = {
   round: number
 }
 
+export type ProfilerEvent = {
+  type: string,
+  at: number,
+  frame: number
+}
+
+export type ProfilerProfile = {
+  name: string,
+  events: Array<ProfilerEvent>
+}
+
+export type ProfilerFile = {
+  frames: Array<string>,
+  profiles: Array<ProfilerProfile>
+}
+
 // Return a timestamp representing the _current time in ms, not necessarily from
 // any particular epoch.
 const timeMS: () => number = typeof window !== 'undefined' && window.performance && window.performance.now?
@@ -71,6 +87,12 @@ export default class Match {
    * The blockchain, an array of blocks per round.
    */
   readonly blockchain: Array<Block>;
+
+  /**
+   * The profiler files belong to this match.
+   * Contains 2 items (team A and team B) if profiling was enabled, empty otherwise.
+   */
+  readonly profilerFiles: Array<ProfilerFile>;
 
   /**
    * The current game world.
@@ -128,12 +150,13 @@ export default class Match {
     this._current = new GameWorld(meta);
     this._current.loadFromMatchHeader(header);
     this._farthest = this._current;
-    this.snapshots = new Array();
+    this.snapshots = [];
     this.snapshotEvery = 64;
     this.snapshots.push(this._current.copy());
     this.deltas = new Array(1);
     this.logs = new Array(1);
     this.blockchain = new Array(1);
+    this.profilerFiles = [];
     this.maxTurn = header.maxRounds();
     this._lastTurn = null;
     this._seekTo = 0;
@@ -325,8 +348,41 @@ export default class Match {
     if (footer.totalRounds() !== this.deltas.length - 1) {
       throw new Error(`Wrong total round count: is ${footer.totalRounds()}, should be ${this.deltas.length - 1}`);
     }
+
     this._lastTurn = footer.totalRounds();
     this._winner = footer.winner();
+
+    for (let i = 0, iMax = footer.profilerFilesLength(); i < iMax; i++) {
+      const file = footer.profilerFiles(i);
+
+      const frames: string[] = [];
+      for (let j = 0, jMax = file.framesLength(); j < jMax; j++) {
+        frames.push(file.frames(j));
+      }
+
+      const profiles: ProfilerProfile[] = [];
+      for (let j = 0, jMax = file.profilesLength(); j < jMax; j++) {
+        const profile = file.profiles(j);
+
+        const events: ProfilerEvent[] = [];
+        for (let k = 0, kMax = profile.eventsLength(); k < kMax; k++) {
+          const event = profile.events(k);
+
+          events.push({
+            type: event.isOpen() ? 'O' : 'C',
+            at: event.at(),
+            frame: event.frame(),
+          });
+        }
+
+        profiles.push({
+          name: profile.name(),
+          events,
+        });
+      }
+
+      this.profilerFiles.push({ frames, profiles });
+    }
   }
 
   /**

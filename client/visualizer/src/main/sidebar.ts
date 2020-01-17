@@ -5,6 +5,7 @@ import Stats from '../game/sidebar/stats';
 import Console from '../game/sidebar/console';
 import MatchRunner from '../game/sidebar/matchrunner';
 import MatchQueue from '../game/sidebar/matchqueue';
+import Profiler from '../game/sidebar/profiler';
 import MapEditor from '../mapeditor/mapeditor';
 import ScaffoldCommunicator from '../scaffold';
 
@@ -25,6 +26,7 @@ export default class Sidebar {
   readonly mapeditor: MapEditor;
   readonly matchrunner: MatchRunner;
   readonly matchqueue: MatchQueue;
+  readonly profiler: Profiler;
   private readonly help: HTMLDivElement;
 
   // Options
@@ -70,16 +72,17 @@ export default class Sidebar {
       // set callback for running a game, which should trigger the update check
       this.updateUpdate();
     });
-    this.matchqueue = new MatchQueue(conf, images);
+    this.profiler = new Profiler();
+    this.matchqueue = new MatchQueue(conf, images, this.profiler);
     this.help = this.initializeHelp();
     this.conf = conf;
-    this.onkeydownControls = onkeydownControls
+    this.onkeydownControls = onkeydownControls;
 
     // Initialize div structure
     this.loadStyles();
     this.div.appendChild(this.screamForUpdate());
     this.div.appendChild(this.battlecodeLogo());
-    
+
     const modePanel = document.createElement('table');
     modePanel.className = 'modepanel';
     const modePanelRow = document.createElement('tr');
@@ -88,6 +91,7 @@ export default class Sidebar {
     modePanelRow.appendChild(this.modeButton(Mode.LOGS, "Logs"));
     modePanelRow.appendChild(this.modeButton(Mode.QUEUE, "Queue"));
     modePanelRow.appendChild(this.modeButton(Mode.RUNNER, "Runner"));
+    modePanelRow.appendChild(this.modeButton(Mode.PROFILER, "Profiler"));
     // modePanelRow.appendChild(this.modeButton(Mode.MAPEDITOR, "Map Editor"));
     modePanelRow.appendChild(this.modeButton(Mode.HELP, "Help"));
     modePanel.appendChild(modePanelRow);
@@ -152,6 +156,21 @@ export default class Sidebar {
     input box. (WARNING: If you want to, say, suddenly display 3000 rounds
     of data on round 2999, pause the client first to prevent freezing.)<br>
     <br>
+    <b class="red">How to Use the Profiler</b><br>
+    The profiler can be used to find out which methods are using a lot of
+    bytecodes. To use it, tick the "Profiler enabled" checkbox in the
+    Runner before running the game. Make sure that the runFromClient
+    Gradle task sets bc.engine.enable-profiler to the value of the
+    "profilerEnabled" property, as can be seen in the
+    <a href="https://github.com/battlecode/battlecode20-scaffold/blob/master/build.gradle" target="_blank">scaffold player</a>.
+    Make sure to add the "profilerEnabled" property to your
+    <a href="https://github.com/battlecode/battlecode20-scaffold/blob/master/gradle.properties" target="_blank">gradle.properties</a>
+    file as well.
+
+    Note that for games with a large number of units, it might be impossible
+    to run the profiler successfully (you might get an <code>OutOfMemoryError</code>).
+    <br>
+    <br>
     <!---
     <b class="blue">How to Use the Map Editor</b><br>
     Select the initial map settings: name, width, height, symmetry. Add trees
@@ -196,14 +215,14 @@ export default class Sidebar {
     this.updateText.id = "updateText";
 
     this.updateUpdate();
-    
+
     return this.updateText;
   }
   private updateUpdate() {
     this.updateText.style.display = "none";
     if (process.env.ELECTRON) {
       (async function (splashDiv, version) {
-      
+
         var options = {
           host: '2020.battlecode.org',
           path: '/version.txt'
@@ -214,7 +233,7 @@ export default class Sidebar {
           res.on('data', function(chunk) {
             data += chunk
           }).on('end', function() {
-            
+
             var latest = data;
 
             if(latest.trim() != version.trim()) {
@@ -239,7 +258,7 @@ export default class Sidebar {
   private battlecodeLogo(): HTMLDivElement {
     let logo: HTMLDivElement = document.createElement("div");
     logo.id = "logo";
-    
+
     let boldText = document.createElement("b");
     boldText.innerHTML = "Battlecode 2020";
     logo.appendChild(boldText);
@@ -286,8 +305,6 @@ export default class Sidebar {
     switch (this.conf.mode) {
       case Mode.GAME:
         this.innerDiv.appendChild(this.stats.div);
-        
-        
         break;
       case Mode.HELP:
         this.innerDiv.appendChild(this.help);
@@ -301,8 +318,13 @@ export default class Sidebar {
       case Mode.QUEUE:
         this.innerDiv.appendChild(this.matchqueue.div);
         break;
+      case Mode.PROFILER:
+        this.innerDiv.append(this.profiler.div);
+        break;
     }
 
-    // this.cb();
+    if (this.cb !== undefined) {
+      this.cb();
+    }
   }
 }

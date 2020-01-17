@@ -143,7 +143,8 @@ export default class ScaffoldCommunicator {
    *
    * TODO what if the server hangs?
    */
-  runMatch(teamA: string, teamB: string, maps: string[], onErr: (err: Error) => void, onExitNoError: () => void,
+  runMatch(teamA: string, teamB: string, maps: string[], enableProfiler: boolean,
+           onErr: (err: Error) => void, onExitNoError: () => void,
            onStdout: (data: string) => void, onStderr: (data: string) => void) {
     const proc = child_process.spawn(
       this.wrapperPath,
@@ -154,6 +155,7 @@ export default class ScaffoldCommunicator {
         `-PteamA=${teamA}`,
         `-PteamB=${teamB}`,
         `-Pmaps=${maps.join(',')}`,
+        `-PprofilerEnabled=${enableProfiler}`,
       ],
       {cwd: this.scaffoldPath}
     );

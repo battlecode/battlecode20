@@ -55,7 +55,7 @@ public final class BodyTypeMetadata extends Table {
   /**
    * The fraction that the local pollution is multiplied by around vaporators.
    */
-  public float localPollutionMultiplicativeEffect() { int o = __offset(22); return o != 0 ? bb.getFloat(o + bb_pos) : 0; }
+  public float localPollutionMultiplicativeEffect() { int o = __offset(22); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
   /**
    * The amount of global pollution this type creates.
    */

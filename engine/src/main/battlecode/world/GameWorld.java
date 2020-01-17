@@ -1,6 +1,7 @@
 package battlecode.world;
 
 import battlecode.common.*;
+import battlecode.instrumenter.profiler.ProfilerCollection;
 import battlecode.schema.Action;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
@@ -66,6 +67,8 @@ public strictfp class GameWorld {
     // associate all transactions with team IDs
     private HashMap<Transaction, Team> transactionToTeam;
 
+    private Map<Team, ProfilerCollection> profilerCollections;
+
     private final GameMaker.MatchMaker matchMaker;
 
     @SuppressWarnings("unchecked")
@@ -99,6 +102,8 @@ public strictfp class GameWorld {
         this.blockchain = new ArrayList<ArrayList<Transaction>>();
         this.transactionToTeam = new HashMap<Transaction, Team>();
 
+        this.profilerCollections = new HashMap<>();
+
         this.matchMaker = matchMaker;
 
         controlProvider.matchStarted(this);
@@ -119,8 +124,14 @@ public strictfp class GameWorld {
      */
     public synchronized GameState runRound() {
         if (!this.isRunning()) {
+            List<ProfilerCollection> profilers = new ArrayList<>(2);
+            if (!profilerCollections.isEmpty()) {
+                profilers.add(profilerCollections.get(Team.A));
+                profilers.add(profilerCollections.get(Team.B));
+            }
+
             // Write match footer if game is done
-            matchMaker.makeMatchFooter(gameStats.getWinner(), currentRound);
+            matchMaker.makeMatchFooter(gameStats.getWinner(), currentRound, profilers);
             return GameState.DONE;
         }
 
@@ -746,6 +757,18 @@ public strictfp class GameWorld {
         objectInfo.destroyRobot(id);
 
         matchMaker.addDied(id);
+    }
+
+    // *********************************
+    // *******  PROFILER  **************
+    // *********************************
+
+    public void setProfilerCollection(Team team, ProfilerCollection profilerCollection) {
+        if (profilerCollections == null) {
+            profilerCollections = new HashMap<>();
+        }
+
+        profilerCollections.put(team, profilerCollection);
     }
 }
 

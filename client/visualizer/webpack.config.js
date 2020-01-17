@@ -10,11 +10,12 @@ var conf = {
   context: path.resolve(__dirname, 'src'),
   entry: {
     app: './app.ts',
+    profiler: './profiler.ts'
   },
   output: {
     path: path.resolve(__dirname, 'bc20'),
     publicPath: '/bc20/',
-    filename: 'bundle.js'
+    filename: '[name].js'
   },
   resolve: {
     // add `.ts` as a resolvable extension.
@@ -26,6 +27,26 @@ var conf = {
       { test: /\.(png|jpg)$/, loader: 'url-loader?limit=10000&name=[name]-[hash:base64:7].[ext]' },
       { test: /\.css$/, loader: "style-loader!css-loader" }
     ]
+  },
+  plugins: [
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, 'node_modules/speedscope/dist/release'),
+        to: path.resolve(__dirname, 'bc20/speedscope'),
+        transform: (content, filePath) => {
+          // Make speedscope's localProfilePath hash parameter support relative paths
+          if (filePath.endsWith('.js')) {
+            return content.toString().replace('file:///', '');
+          }
+
+          return content;
+        }
+      }
+    ])
+  ],
+  devServer: {
+    // Required to ensure the files copied by the CopyWebpackPlugin are copied when running the dev server
+    writeToDisk: filePath => filePath.includes('speedscope/')
   },
   node: {
     fs: "empty"

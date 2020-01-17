@@ -26,6 +26,7 @@
   "homepage": "https://github.com/battlecode/battlecode20#battlecode-2020",
   "dependencies": {
     "battlecode-playback": "file:../playback",
+    "speedscope": "^1.5.2",
     "victor": "^1.1.0"
   },
   "devDependencies": {
@@ -57,7 +58,7 @@
     "productName": "Battlecode Client",
     "compression": "maximum",
     "files": [
-      "bc20/*",
+      "bc20/**/*",
       "index.html",
       "electron-main.js",
       "node_modules/electron"
