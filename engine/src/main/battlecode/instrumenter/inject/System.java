@@ -124,9 +124,9 @@ public final class System {
     }
 
     public static void arraycopy(Object src, int srcPos, Object dest, int destPos, int length) {
-        java.lang.System.arraycopy(src, srcPos, dest, destPos, length);
         if (length > 0)
             RobotMonitor.incrementBytecodes(length);
+        java.lang.System.arraycopy(src, srcPos, dest, destPos, length);
     }
 
     public static int identityHashCode(Object x) {
