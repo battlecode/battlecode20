@@ -42,6 +42,20 @@ public class BuildMaps {
         Volcano.main(args);
         WaterBot.main(args);
         WateredDown.main(args);
+        AMaze.main(args);
+        BeachFrontProperty.main(args);
+        Egg.main(args);
+        Hourglass.main(args);
+        MtDoom.main(args);
+        Sheet4.main(args);
+        Showerhead.main(args);
+        Spiral.main(args);
+        Swirl.main(args);
+        TheHighGround.main(args);
+        Toothpaste.main(args);
+        WhyDidntTheyUseEagles.main(args);
+        NoU.main(args);
+        MoreCowbell.main(args);
     }
 
 }
