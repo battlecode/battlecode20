@@ -57,7 +57,10 @@ export enum MapType {
   DEFAULT,
   SPRINT,
   SEEDING,
-  QUALIFYING,
+  INTL_QUALIFYING,
+  US_QUALIFYING,
+  HS,
+  NEWBIE,
   FINAL,
   CUSTOM
 };
