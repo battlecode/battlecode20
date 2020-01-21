@@ -122,20 +122,21 @@ class Team(models.Model):
     # scrimmages
     mu                   = models.FloatField(default=25)
     sigma                = models.FloatField(default=8.333)
-    score                = models.FloatField(default=0.001)
+    score                = models.FloatField(default=settings.ELO_NULL)
     auto_accept_ranked   = models.BooleanField(default=False)
     auto_accept_unranked = models.BooleanField(default=False)
     wins                 = models.IntegerField(default=0)
     losses               = models.IntegerField(default=0)
     draws                = models.IntegerField(default=0)
     
+    #eligibility
+    student = models.BooleanField(default=False)
+    mit = models.BooleanField(default=False)
+    high_school = models.BooleanField(default=False)
+    international = models.BooleanField(default=False)
+
     # metadata
     deleted = models.BooleanField(default=False)
-
-    def save(self, *args, **kwargs):
-        # update score
-        self.score = self.mu - 3*self.sigma
-        super(Team, self).save(*args, **kwargs)
 
     def __str__(self):
         return '{}: (#{}) {}'.format(self.league, self.id, self.name)

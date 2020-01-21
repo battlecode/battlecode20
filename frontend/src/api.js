@@ -108,7 +108,11 @@ class Api {
   }
 
   static getTeamWinStats(callback) {
-    this.getOwnTeamMuHistory((data) => {
+    return Api.getOtherTeamWinStats(Cookies.get('team_id'), callback)
+  }
+
+  static getOtherTeamWinStats(team, callback) {
+    this.getTeamMuHistory(team, (data) => {
       let wins = 0
       let losses = 0
       data.forEach(entry => {
@@ -529,23 +533,23 @@ class Api {
 
   static getNextTournament(callback) {
     // TODO: actually use real API for this
-    // callback({
-    //   "est_date_str": '7 PM EST on January 12, 2020',
-    //   "seconds_until": (Date.parse(new Date('January 12, 2020 19:00:00')) - Date.parse(new Date())) / 1000,
-    //   "tournament_name": "Sprint Tournament"
-    // });
     callback({
-      "est_date_str": '7 PM EST on January 6, 2020',
-      "seconds_until": (Date.parse(new Date('January 6, 2020 19:00:00')) - Date.parse(new Date())) / 1000,
-      "tournament_name": "START"
+      "est_date_str": '7 PM EST on January 20, 2020',
+      "seconds_until": (Date.parse(new Date('January 20, 2020 19:00:00')) - Date.parse(new Date())) / 1000,
+      "tournament_name": "Seeding Tournament"
     });
+    // callback({
+    //   "est_date_str": '7 PM EST on January 6, 2020',
+    //   "seconds_until": (Date.parse(new Date('January 6, 2020 19:00:00')) - Date.parse(new Date())) / 1000,
+    //   "tournament_name": "START"
+    // });
   }
 
   static getTournaments(callback) {
-    // const tournaments = [
-    //   { name: 'final', challonge: 'bc_19_finals' },
-    // ];
-    const tournaments = [];
+    const tournaments = [
+      { name: 'sprint', challonge: 'bc20_sprint', blurb: 'Congrats to <a href="rankings/1158">Bruteforcer</a> for winning the Sprint tournament!'},
+      { name: 'seeding', challonge: 'bc20_seeding', blurb: 'Join us on <a href="https://twitch.tv/mitbattlecode">Twitch</a> starting at 3 pm for a livestream starting from the winners round of 32!'},
+    ];
 
     callback(tournaments);
   }

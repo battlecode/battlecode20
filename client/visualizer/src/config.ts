@@ -106,7 +106,8 @@ export enum Mode {
   LOGS,
   RUNNER,
   QUEUE,
-  MAPEDITOR
+  MAPEDITOR,
+  PROFILER
 }
 
 /**
@@ -115,7 +116,7 @@ export enum Mode {
 export function defaults(supplied?: any): Config {
   supplied = supplied || {};
   return {
-    gameVersion: supplied.gameVersion || "2020.1.1.1", //TODO: Change this on each release!
+    gameVersion: supplied.gameVersion || "2020.2.0.1", //TODO: Change this on each release!
     fullscreen: supplied.fullscreen || false,
     width: supplied.width || 600,
     height: supplied.height || 600,
@@ -123,9 +124,9 @@ export function defaults(supplied?: any): Config {
     websocketURL: supplied.websocketURL || null,
     matchFileURL: supplied.matchFileURL || null,
     pollEvery: supplied.pollEvery || 500,
-    interpolate: supplied.interpolate || false,
+    interpolate: supplied.interpolate || true,
     circleBots: supplied.circleBots || false,
-    indicators: supplied.indicators || true,
+    indicators: supplied.indicators || false,
     mode: supplied.mode || Mode.QUEUE,
     splash: supplied.splash || supplied.matchFileURL == null || true,
     sightRadius: supplied.sightRadius || false,

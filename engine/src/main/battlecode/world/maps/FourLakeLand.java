@@ -47,7 +47,8 @@ public class FourLakeLand {
         addSoup(mapBuilder, 10, 30, 4, 12);
 
         // add some team soup
-        addSoup(mapBuilder, 16, 10, 1, 9);
+        addSoup(mapBuilder, 16, 10, 1, 10);
+        mapBuilder.setSymmetricSoup(16, 10, 120);
 
 
         for(int i = 0; i < mapBuilder.width; i++) {

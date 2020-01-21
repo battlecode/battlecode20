@@ -1,6 +1,7 @@
 package battlecode.world;
 
 import battlecode.common.*;
+import battlecode.instrumenter.profiler.ProfilerCollection;
 import battlecode.schema.Action;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
@@ -30,7 +31,8 @@ public strictfp class GameWorld {
     private int[] soup;
     private int globalPollution;
     private int[] pollution;
-    private boolean pollutionNeedsUpdate;
+    private int[] localAdditivePollution;
+    private float[] localMultiplicativePollution;
     // the local pollution effects that are currently active, mapped from
     // robot ID to pollution effect
     private class LocalPollutionEffect {
@@ -65,6 +67,8 @@ public strictfp class GameWorld {
     // associate all transactions with team IDs
     private HashMap<Transaction, Team> transactionToTeam;
 
+    private Map<Team, ProfilerCollection> profilerCollections;
+
     private final GameMaker.MatchMaker matchMaker;
 
     @SuppressWarnings("unchecked")
@@ -73,8 +77,10 @@ public strictfp class GameWorld {
         this.soup = gm.getSoupArray();
         this.globalPollution = 0;
         this.pollution = gm.getPollutionArray();
-        this.pollutionNeedsUpdate = false;
         this.localPollutions = new HashMap<>();
+        this.localAdditivePollution = new int[gm.getWidth() * gm.getHeight()];
+        this.localMultiplicativePollution = new float[gm.getWidth() * gm.getHeight()];
+        Arrays.fill(this.localMultiplicativePollution, 1);
         this.dirt = gm.getDirtArray();
         this.initialWaterLevel = gm.getWaterLevel();
         this.waterLevel = this.initialWaterLevel;
@@ -96,6 +102,8 @@ public strictfp class GameWorld {
         this.blockchain = new ArrayList<ArrayList<Transaction>>();
         this.transactionToTeam = new HashMap<Transaction, Team>();
 
+        this.profilerCollections = new HashMap<>();
+
         this.matchMaker = matchMaker;
 
         controlProvider.matchStarted(this);
@@ -116,8 +124,14 @@ public strictfp class GameWorld {
      */
     public synchronized GameState runRound() {
         if (!this.isRunning()) {
+            List<ProfilerCollection> profilers = new ArrayList<>(2);
+            if (!profilerCollections.isEmpty()) {
+                profilers.add(profilerCollections.get(Team.A));
+                profilers.add(profilerCollections.get(Team.B));
+            }
+
             // Write match footer if game is done
-            matchMaker.makeMatchFooter(gameStats.getWinner(), currentRound);
+            matchMaker.makeMatchFooter(gameStats.getWinner(), currentRound, profilers);
             return GameState.DONE;
         }
 
@@ -221,7 +235,7 @@ public strictfp class GameWorld {
 
     /**
      * Helper method that converts a location into an index.
-     * 
+     *
      * @param loc the MapLocation
      */
     public int locationToIndex(MapLocation loc) {
@@ -230,7 +244,7 @@ public strictfp class GameWorld {
 
     /**
      * Helper method that converts an index into a location.
-     * 
+     *
      * @param idx the index
      */
     public MapLocation indexToLocation(int idx) {
@@ -264,49 +278,39 @@ public strictfp class GameWorld {
     // ***********************************
 
     public int getPollution(MapLocation loc) {
-        if (pollutionNeedsUpdate)
-            calculatePollution();
-        return this.gameMap.onTheMap(loc) ? this.pollution[locationToIndex(loc)] : 0;
+        if (!this.gameMap.onTheMap(loc))
+            return 0;
+        int thisPollution = Math.round((globalPollution + this.localAdditivePollution[locationToIndex(loc)]) * this.localMultiplicativePollution[locationToIndex(loc)]);
+        return thisPollution;
     }
 
     public void addLocalPollution(int robotID, MapLocation loc, int radiusSquared, int additive, float multiplicative) {
         LocalPollutionEffect pE = new LocalPollutionEffect(loc, radiusSquared, additive, multiplicative);
         localPollutions.put(robotID, pE);
         getMatchMaker().addLocalPollution(loc, radiusSquared, additive, multiplicative);
-        pollutionNeedsUpdate = true;
+        // iterate over all locations affected by this robot
+        for (MapLocation affectedLoc : getAllLocationsWithinRadiusSquared(loc, radiusSquared)) {
+            this.localAdditivePollution[locationToIndex(affectedLoc)] += additive;
+            this.localMultiplicativePollution[locationToIndex(affectedLoc)] *= multiplicative;
+        }
     }
 
     public void resetPollutionForRobot(int robotID) {
+        if (!localPollutions.containsKey(robotID))
+            return;
+        // iterate over all locations affected by this robot
+        LocalPollutionEffect pE = localPollutions.get(robotID);
+        for (MapLocation affectedLoc : getAllLocationsWithinRadiusSquared(pE.loc, pE.radiusSquared)) {
+            this.localAdditivePollution[locationToIndex(affectedLoc)] -= pE.additiveEffect;
+            this.localMultiplicativePollution[locationToIndex(affectedLoc)] /= pE.multiplicativeEffect;
+        }
         // reset the pollution caused by this robot
         // i.e. remove it from the local pollution hash map
         localPollutions.remove(robotID);
-        pollutionNeedsUpdate = true;
     }
 
     public void addGlobalPollution(int amount) {
         this.globalPollution = Math.max(this.globalPollution + amount, 0);
-        pollutionNeedsUpdate = true;
-    }
-
-    private void calculatePollution() {
-        // calculates pollution based on pollution effects
-        // this has annoying time complexity but I think it'll be fine
-        for (int x = 0; x < this.gameMap.getWidth(); x++) {
-            for (int y = 0; y < this.gameMap.getHeight(); y++) {
-                MapLocation loc = new MapLocation(x, y);
-                int idx = locationToIndex(loc);
-                pollution[idx] = globalPollution;
-                float multiplier = 1;
-                for (LocalPollutionEffect localPollution : localPollutions.values()) {
-                    if (loc.isWithinDistanceSquared(localPollution.loc, localPollution.radiusSquared)) {
-                        pollution[idx] += localPollution.additiveEffect;
-                        multiplier *= localPollution.multiplicativeEffect;
-                    }
-                }
-                pollution[idx] = Math.round(pollution[idx] * multiplier);
-            }
-        }
-        pollutionNeedsUpdate = false;
     }
 
     // ***********************************
@@ -528,10 +532,10 @@ public strictfp class GameWorld {
     public boolean setWinnerIfQuantity() {
         int robotCountA = objectInfo.getRobotCount(Team.A);
         int robotCountB = objectInfo.getRobotCount(Team.B);
-        if (robotCountA == 0 && robotCountB > 0) {
+        if (robotCountB > robotCountA) {
             setWinner(Team.B, DominationFactor.QUANTITY_OVER_QUALITY);
             return true;
-        } else if (robotCountB == 0 && robotCountA > 0) {
+        } else if (robotCountA > robotCountB) {
             setWinner(Team.A, DominationFactor.QUANTITY_OVER_QUALITY);
             return true;
         }
@@ -570,12 +574,13 @@ public strictfp class GameWorld {
     public boolean setWinnerIfMoreBroadcasts() {
         if (teamInfo.getBlockchainsSent(Team.A) > teamInfo.getBlockchainsSent(Team.B)) {
             setWinner(Team.A, DominationFactor.GOSSIP_GIRL);
+            return true;
         }
         else if (teamInfo.getBlockchainsSent(Team.A) < teamInfo.getBlockchainsSent(Team.B)) {
             setWinner(Team.B, DominationFactor.GOSSIP_GIRL);
+            return true;
         }
-        else return false;
-        return true;
+        return false;
     }
 
     /**
@@ -752,6 +757,18 @@ public strictfp class GameWorld {
         objectInfo.destroyRobot(id);
 
         matchMaker.addDied(id);
+    }
+
+    // *********************************
+    // *******  PROFILER  **************
+    // *********************************
+
+    public void setProfilerCollection(Team team, ProfilerCollection profilerCollection) {
+        if (profilerCollections == null) {
+            profilerCollections = new HashMap<>();
+        }
+
+        profilerCollections.put(team, profilerCollection);
     }
 }
 

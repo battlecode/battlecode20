@@ -40,8 +40,34 @@ SERVER_MAPS = [
   "SoupOnTheSide",
   "TwoForOneAndTwoForAll",
   "WaterBot",
-  "CentralSoup"
+  "CentralSoup",
+  "ChristmasInJuly",
+  "CosmicBackgroundRadiation",
+  "ClearlyTwelveHorsesInASalad",
+  "CowFarm",
+  "DidAMonkeyMakeThis",
+  "GSF",
+  "Hills",
+  "InADitch",
+  "Infinity",
+  "Islands",
+  "IsThisProcedural",
+  "OmgThisIsProcedural",
+  "ProceduralConfirmed",
+  "RandomSoup1",
+  "RandomSoup2",
+  "Soup",
+  "Volcano",
+  "WateredDown",
 ]
+
+# this is the constant used in the ELO calculation
+ELO_K = 32
+# this is the start rating, after 1 submission
+ELO_START = 1200
+# this is the null rating
+# real elo will more or less never get to 0 so this is fine
+ELO_NULL = -1000000
 
 
 # Application definition

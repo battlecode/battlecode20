@@ -26,9 +26,6 @@ export default class Renderer {
   // For rendering robot information on click
   private lastSelectedID: number;
 
-  // other cached useful values
-  readonly bgPattern: CanvasPattern;
-
   constructor(canvas: HTMLCanvasElement, imgs: AllImages, conf: config.Config, metadata: Metadata,
     onRobotSelected: (id: number) => void,
     onMouseover: (x: number, y: number, dirt: number, water: number, pollution: number, soup: number) => void) {
@@ -48,8 +45,6 @@ export default class Renderer {
 
     this.ctx['imageSmoothingEnabled'] = false;
 
-    // TODO: can this be null???
-    this.bgPattern = this.ctx.createPattern(imgs.background, 'repeat')!;
   }
 
   /**
@@ -73,6 +68,7 @@ export default class Renderer {
     this.renderBodies(world, nextStep, lerpAmount);
 
     this.renderIndicatorDotsLines(world);
+    this.renderNetGunShots(world);
     this.setMouseoverEvent(world);
 
     // restore default rendering
@@ -111,14 +107,11 @@ export default class Renderer {
 
     // TODO use color pacakge for nicer manipulation?
     const getDirtColor = (x: number): string => {
-      /*
-      // -inf > 'rgba(89,156,28,1)'
-      // inf -> 'rgba(156,28,28,1)'
-      */
-      // -inf-> 'rgba(0,255,0,0.7)'
-      // inf -> 'rgba(255,0,0,0.7)'
 
-      const lo = [0,255,0], hi = [255,0,0];
+      /*
+      I'm thinking the following:
+      - A gradient following the rainbow of the following colors. Defined in cst.DIRT_COLORS
+      */
 
       
 
@@ -127,9 +120,27 @@ export default class Renderer {
       // const ex = Math.exp(x / 10);
       // const t = ex / (5 + ex);
 
-      const mx = 20;
-      const mn = -3;
-      // convert -3 to 40 into a range, then truncate
+      // iterate and find the two colors
+      let lo: number[] = [0,0,0];
+      let hi: number[] = [0,0,0];
+      let mx: number = -1000;
+      let mn: number = -1000;
+      for (let entry of Array.from(cst.DIRT_COLORS)) {
+        lo = hi;
+        hi = entry[1];
+        mn = mx;
+        mx = entry[0];
+        if (x <= entry[0]) {
+          break;
+        }
+      }
+      if (mn === -1000) {
+        lo = hi;
+        mn = mx;
+        mx += 1;
+      }
+
+      // convert into range and truncate
       let t = (x - mn) / (mx - mn);
       if (x <= mn) {
         t = 0;
@@ -141,7 +152,7 @@ export default class Renderer {
       let now = [0,0,0];
       for(let i=0; i<3; i++) now[i] = (hi[i]-lo[i]) * t + lo[i];
 
-      return `rgba(${now[0]},${now[1]},${now[2]},0.7)`;
+      return `rgb(${now[0]},${now[1]},${now[2]})`;
     }
     
     const getSoupColor = (s: number): string => {
@@ -169,7 +180,7 @@ export default class Renderer {
 
       if (waterLayer && (map.flooded[idxVal] > 0)){
         // water should always be the same color
-        this.ctx.fillStyle = 'rgba(0,0,255,1.0)';
+        this.ctx.fillStyle = 'rgb(' + cst.WATER_COLOR.join(',') + ')';
       }
 
       // water covers dirt; we can fill only once
@@ -211,7 +222,7 @@ export default class Renderer {
     const minY = world.minCorner.y;
     const maxY = world.maxCorner.y -1;
 
-    let nextXs: Int32Array, nextYs: Int32Array, realXs: Int32Array, realYs: Int32Array;
+    let nextXs: Int32Array, nextYs: Int32Array, realXs: Float32Array, realYs: Float32Array;
     if (nextStep && lerpAmount) {
       // Interpolated (not going to happen in 2019)
       nextXs = nextStep.bodies.arrays.x;
@@ -225,14 +236,15 @@ export default class Renderer {
     }
 
     // Calculate the real xs and ys
-    realXs = new Int32Array(length)
-    realYs = new Int32Array(length)
+    realXs = new Float32Array(length)
+    realYs = new Float32Array(length)
     for (let i = 0; i < length; i++) {
-      if (nextStep && lerpAmount && false) {
+      if (nextStep && lerpAmount) {
         // Interpolated
-        console.log("This should not be executed");
-        // realXs[i] = xs[i] + (nextXs[i] - xs[i]) * lerpAmount;
-        // realYs[i] = this.flip(ys[i] + (nextYs[i] - ys[i]) * lerpAmount, minY, maxY);
+        // @ts-ignore
+        realXs[i] = xs[i] + (nextXs[i] - xs[i]) * lerpAmount;
+        // @ts-ignore
+        realYs[i] = this.flip(ys[i] + (nextYs[i] - ys[i]) * lerpAmount, minY, maxY);
       } else {
         // Not interpolated
         realXs[i] = xs[i];
@@ -240,46 +252,52 @@ export default class Renderer {
       }
     }
 
-    // Render the trees
-    for (let i = 0; i < length; i++) {
-      const team = teams[i];
-      const type = types[i];
-      const radius = 1;
-      const x = realXs[i];
-      const y = realYs[i];
-
-      if (type === cst.COW) {
-        const img = this.imgs.cow;
-        // this.drawCircleBot(x, y, radius);
-        // this.drawImage(img, x, y, radius);
-        this.drawBot(img, x, y);
-      }
-
-    }
-
     // Render the robots
+    // render drones last to have them be on top of other units.
+    let droneIndices = new Array<number>();
     for (let i = 0; i < length; i++) {
       const team = teams[i];
       const type = types[i];
       const x = realXs[i];
       const y = realYs[i];
+
+      let img = this.imgs.cow;
 
       if (type !== cst.COW) {
         let tmp = this.imgs.robot[cst.bodyTypeToString(type)];
         // TODO how to change drone?
         if(type == cst.DRONE){
-          tmp = (cargo[i]!=0 ? tmp.carry : tmp.empty);
+          // tmp = (cargo[i]!=0 ? tmp.carry : tmp.empty);
+          droneIndices.push(i);
+          continue;
         }
+        img = tmp[team];
+      }
+      // this.drawCircleBot(x, y, radius);
+      // this.drawImage(img, x, y, radius);
+      this.drawBot(img, x, y);
+      
+      // Draw the sight radius if the robot is selected
+      if (type !== cst.COW && (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID)) {
+        this.drawSightRadii(x, y, type, ids[i] === this.lastSelectedID);
+      }
+    }
+    // draw all drones last
+    for (let j = 0; j < droneIndices.length; j++) {
+      let i = droneIndices[j];
+      const team = teams[i];
+      const type = types[i];
+      const x = realXs[i];
+      const y = realYs[i];
 
-        const img = tmp[team];
-        // this.drawCircleBot(x, y, radius);
-        // this.drawImage(img, x, y, radius);
-        this.drawBot(img, x, y);
-        
-        // Draw the sight radius if the robot is selected
-        if (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID) {
-          this.drawSightRadii(x, y, type, ids[i] === this.lastSelectedID);
-        }
+      let tmp = this.imgs.robot[cst.bodyTypeToString(type)].empty;
+
+      const img = tmp[team];
+      this.drawBot(img, x, y);
+      
+      // Draw the sight radius if the robot is selected
+      if (this.lastSelectedID === undefined || ids[i] === this.lastSelectedID) {
+        this.drawSightRadii(x, y, type, ids[i] === this.lastSelectedID);
       }
     }
 
@@ -409,6 +427,34 @@ export default class Renderer {
     const _y = height * event.offsetY / this.canvas.offsetHeight + world.minCorner.y;
     const y = this.flip(_y, minY, maxY)
     return {x: Math.floor(x), y: Math.floor(y+1)};
+  }
+
+  private renderNetGunShots(world: GameWorld) {
+    const lines = world.netGunShots;
+    const minY = world.minCorner.y;
+    const maxY = world.maxCorner.y - 1;
+    
+    const linesID = lines.arrays.id;
+    const linesStartX = lines.arrays.startX;
+    const linesStartY = lines.arrays.startY;
+    const linesEndX = lines.arrays.endX;
+    const linesEndY = lines.arrays.endY;
+    this.ctx.lineWidth = 0.2;
+
+    for (let i = 0; i < lines.length; i++) {
+      if (this.lastSelectedID === undefined || linesID[i] === this.lastSelectedID) {
+        const startX = linesStartX[i]+0.5;
+        const startY = this.flip(linesStartY[i], minY, maxY)+0.5;
+        const endX = linesEndX[i]+0.5;
+        const endY = this.flip(linesEndY[i], minY, maxY)+0.5;
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(startX, startY);
+        this.ctx.lineTo(endX, endY);
+        this.ctx.strokeStyle = `rgb(0,247,255)`;
+        this.ctx.stroke();
+      }
+    }
   }
 
   private renderIndicatorDotsLines(world: GameWorld) {

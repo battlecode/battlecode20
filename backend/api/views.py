@@ -16,9 +16,8 @@ from api.permissions import *
 from google.cloud import storage
 from google.cloud import pubsub_v1
 from google.oauth2 import service_account
-import trueskill
 
-import os, tempfile, datetime, argparse, time, json, random, binascii, threading
+import os, tempfile, datetime, argparse, time, json, random, binascii, threading, math
 
 GCLOUD_PROJECT = "battlecode18" #not nessecary???
 GCLOUD_SUB_BUCKET = "bc20-submissions"
@@ -42,39 +41,48 @@ def get_callback(api_future, data, ref):
             raise
     return callback
 
-def pub(project_id, topic_name, data=""):
+def pub(project_id, topic_name, data="", num_retries=5):
     """Publishes a message to a Pub/Sub topic."""
 
-    # Initialize a Publisher client.
-    # credentials must be loaded from a file, so we temporarily create ibe 
-    with open('gcloud-key.json', 'w') as outfile:
-        outfile.write(settings.GOOGLE_APPLICATION_CREDENTIALS)
-        outfile.close()
-    credentials = service_account.Credentials. from_service_account_file('gcloud-key.json')
-    client = pubsub_v1.PublisherClient(credentials=credentials)
-    os.remove('gcloud-key.json') # important!!!
+    # Repeat while this fails, because the data is already in the
+    # database. The pub/sub message needs to be enqueued to ensure the
+    # request is complete.
+    for i in range(num_retries):
+        try:
+            # Initialize a Publisher client.
+            # credentials must be loaded from a file, so we temporarily create ibe 
+            with open('gcloud-key.json', 'w') as outfile:
+                outfile.write(settings.GOOGLE_APPLICATION_CREDENTIALS)
+                outfile.close()
+            credentials = service_account.Credentials. from_service_account_file('gcloud-key.json')
+            client = pubsub_v1.PublisherClient(credentials=credentials)
+            os.remove('gcloud-key.json') # important!!!
 
-    # Create a fully qualified identifier in the form of
-    # `projects/{project_id}/topics/{topic_name}`
-    topic_path = client.topic_path(project_id, topic_name)
+            # Create a fully qualified identifier in the form of
+            # `projects/{project_id}/topics/{topic_name}`
+            topic_path = client.topic_path(project_id, topic_name)
 
-    # Data sent to Cloud Pub/Sub must be a bytestring.
-    #data = b"examplefuncs"
-    if data == "":
-        data = b"sample pub/sub message"
+            # Data sent to Cloud Pub/Sub must be a bytestring.
+            #data = b"examplefuncs"
+            if data == "":
+                data = b"sample pub/sub message"
 
-    # Keep track of the number of published messages.
-    ref = dict({"num_messages": 0})
+            # Keep track of the number of published messages.
+            ref = dict({"num_messages": 0})
 
-    # When you publish a message, the client returns a future.
-    api_future = client.publish(topic_path, data=data)
-    api_future.add_done_callback(get_callback(api_future, data, ref))
+            # When you publish a message, the client returns a future.
+            api_future = client.publish(topic_path, data=data)
+            api_future.add_done_callback(get_callback(api_future, data, ref))
 
-    # Keep the main thread from exiting while the message future
-    # gets resolved in the background.
-    while api_future.running():
-        time.sleep(0.5)
-        # print("Published {} message(s).".format(ref["num_messages"]))
+            # Keep the main thread from exiting while the message future
+            # gets resolved in the background.
+            while api_future.running():
+                time.sleep(0.5)
+                # print("Published {} message(s).".format(ref["num_messages"]))
+        except:
+            pass
+        else:
+            break
 
 def scrimmage_pub_sub_call(red_submission_id, blue_submission_id, red_team_name, blue_team_name, scrimmage_id, scrimmage_replay, map_ids=None):
 
@@ -245,9 +253,9 @@ class MatchmakingViewSet(viewsets.GenericViewSet):
                 if team_sub.last_1_id is not None:
                     has_sub.add(team_sub.team_id)
             for team in teams:
-                if team.id in has_sub:
+                if team.id in has_sub and not team.deleted:
                     # The uniform random number prevents a sort from using a non-existent team comparator.
-                    ratings.append((trueskill.Rating(mu=team.mu, sigma=team.sigma), random.uniform(0, 1), team))
+                    ratings.append((team.score, random.uniform(0, 1), team))
             ratings.sort()
 
             # Partition into blocks, and round robin in each block
@@ -267,6 +275,18 @@ class MatchmakingViewSet(viewsets.GenericViewSet):
                             "player2": ratings[already_matched+j][2].id
                         })
                 already_matched += size
+
+            # add some scatter
+            # specifically, match team 1 with team 11, team 2 with team 12, etc
+            # where the offset is randomly determined between 5 and 15
+            scatter_step = random.randint(5,15)
+            for i in range(len(ratings)-scatter_step):
+                scrim_list.append({
+                    "player1": ratings[i][2].id,
+                    "player2": ratings[i+scatter_step][2].id
+                })
+
+
             return Response({'matches': scrim_list}, status.HTTP_200_OK)
         else:
             return Response({'message': 'make this request from server account'}, status.HTTP_401_UNAUTHORIZED)
@@ -534,10 +554,10 @@ class TeamViewSet(viewsets.GenericViewSet,
         return_data = []
 
         # loop through all scrimmages involving this team
-        # only add ranked scriammges
+        # only add ranked scriammges, and scrimmages with no tournament ID
         # add entry to result array defining whether or not this team won and time of scrimmage
         for scrimmage in scrimmages:
-            if (scrimmage.ranked):
+            if (scrimmage.ranked and scrimmage.tournament_id is None):
                 won_as_red = (scrimmage.status == 'redwon' and scrimmage.red_team_id == team_id)
                 won_as_blue = (scrimmage.status == 'bluewon' and scrimmage.blue_team_id == team_id)
                 team_mu = scrimmage.red_mu if scrimmage.red_team_id == team_id else scrimmage.blue_mu 
@@ -634,9 +654,11 @@ class SubmissionViewSet(viewsets.GenericViewSet,
         team_sub.compiling_id = Submission.objects.all().get(pk=serializer.data['id'])
         team_sub.save()
 
-        team.sigma = 8.333
-        team.score = team.mu - 3 * team.sigma
-        team.save()
+        # set ELO score to 1200
+        # if there has not been any submission yet, then we should start at the start ELO
+        if team_sub.last_1_id is None:
+            team.score = settings.ELO_START
+            team.save()
 
         upload_url = GCloudUploadDownload.signed_upload_url(SUBMISSION_FILENAME(serializer.data['id']), GCLOUD_SUB_BUCKET)
 
@@ -959,33 +981,34 @@ class ScrimmageViewSet(viewsets.GenericViewSet,
                 if sc_status == "redwon" or sc_status == "bluewon":
                     scrimmage.status = sc_status
 
-                    # update rankings based on trueskill algoirthm
+                    # if tournament, then return here
+                    if scrimmage.tournament_id is not None:
+                        scrimmage.save()
+                        return Response({'status': sc_status}, status.HTTP_200_OK)
+
+                    # update rankings using elo
                     # get team info
                     rteam = self.get_team(league_id, scrimmage.red_team_id)
                     bteam = self.get_team(league_id, scrimmage.blue_team_id)
                     won = rteam if sc_status == "redwon" else bteam
                     lost = rteam if sc_status == "bluewon" else bteam
                         
-                    if scrimmage.ranked: # TODO check if ranked
-                        # store previous mu in scrimmage
-                        scrimmage.blue_mu = bteam.mu
-                        scrimmage.red_mu = rteam.mu
+                    if scrimmage.ranked: 
+                        # store previous score in scrimmage. NOTE: fields are called blue_mu and red_mu but they actually represent score
+                        scrimmage.blue_mu = bteam.score
+                        scrimmage.red_mu = rteam.score
 
-                        # get mu and sigma
-                        muW = won.mu
-                        sdW = won.sigma
-                        muL = lost.mu
-                        sdL = lost.sigma
+                        # ELO; see https://en.wikipedia.org/wiki/Elo_rating_system#Mathematical_details
+                        # get score
+                        sW = won.score
+                        sL = lost.score
 
-                        winner = trueskill.Rating(mu=muW, sigma=sdW)
-                        loser = trueskill.Rating(mu=muL, sigma=sdL)
+                        probW = 1.0 * 1.0 / (1 + 1.0 * math.pow(10, 1.0 * (sL - sW) / 400))  # the probability that W would win
+                        probL = 1 - probW   # the probability that L would win
 
-                        # applies trueskill algorithm & update teams with new scores
-                        wScore, lScore = trueskill.rate_1vs1(winner, loser)
-                        won.mu = wScore.mu
-                        won.sigma = wScore.sigma
-                        lost.mu = lScore.mu
-                        lost.sigma = lScore.sigma
+                        # update W's score
+                        won.score = won.score + settings.ELO_K * (1 - probW)
+                        lost.score = lost.score + settings.ELO_K * (0 - probL)
 
                     # update wins and losses
                     won.wins = won.wins + 1

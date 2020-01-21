@@ -1,7 +1,7 @@
 # Battlecode 2020
 
 _The formal specification of this year's game._
-Current version: 2020.1.1.1
+Current version: 2020.2.0.1
 
 _Warning: This document and the game it describes will be tweaked as the competition progresses.
 We'll try to keep changes to a minimum, but will likely have to make modifications to keep the game balanced.
@@ -56,7 +56,7 @@ These four important characteristics of each map tile,
 **elevation**, **flood** status, **pollution**, and **soup** content,
 are only visible to robots which are nearby.
 A robot can **sense** these characteristics if the tile is within its **sensor radius** (a trait which varies by robot type),
-using the functions `rc.senseElevation()`, `rc.senseFlooded()`, `rc.sensePollution()`, and `rc.senseSoup()`, respectively.
+using the functions `rc.senseElevation()`, `rc.senseFlooding()`, `rc.sensePollution()`, and `rc.senseSoup()`, respectively.
 
 At the beginning of the game, these characteristics and the two starting **HQ**s are guaranteed to be horizontally, vertically, or rotationally symmetric.
 
@@ -192,9 +192,9 @@ The temporary local increase in pollution starts immediately and is in effect fo
 **Vaporator**: condenses soup from the air, reducing pollution. Clean energy!
 
 - Built by **miners**
-- Produces 7 soup (`RobotType.VAPORATOR.maxSoupProduced`) per turn for free
+- Produces 2 soup (`RobotType.VAPORATOR.maxSoupProduced`) per turn for free
 - Reduces **global pollution** by 1 per turn (`RobotType.VAPORATOR.globalPollutionAmount`)
-- Pollution on tiles within radius squared 35 (`RobotType.VAPORATOR.pollutionRadiusSquared`) temporarily decreases by a factor of 0.67 (`RobotType.VAPORATOR.localPollutionMultiplicativeEffect`).
+- Pollution on tiles within radius squared 35 (`RobotType.VAPORATOR.pollutionRadiusSquared`) temporarily decreases by a factor of 0.2 (`1 - RobotType.VAPORATOR.localPollutionMultiplicativeEffect`).
 
 **Design School**: a creative institution for training talented **landscapers**.
 
@@ -223,7 +223,7 @@ The temporary local increase in pollution starts immediately and is in effect fo
 | --- | --- | --- | --- | --- |
 | HQ | n/a | 50 | 48 | Miner |
 | Refinery | 200 | 15 | 24 | soup |
-| Vaporator | 1000 | 15 | 24 | soup |
+| Vaporator | 500 | 15 | 24 | soup |
 | Design School | 150 | 15 | 24 | Landscapers |
 | Fulfillment Center | 150 | 15 | 24 | Delivery Drones |
 | Net Gun | 250 | 15 | 24 | failed deliveries |
@@ -299,6 +299,7 @@ Therefore, we make the following promises about all maps:
 (so its elevation may be lower, but due to the topology would not flood until the water level exceeds 2-5).
 - The HQ will not start adjacent to deep water (e.g. to make it impossible to protect from floods).
 - There will always be a large negative elevation water tile (no games that never end).
+- Maps will always have at least 1k soup near the HQ, reachable by miners.
 
 ## Tiebreakers
 
@@ -400,6 +401,47 @@ We'll update this spec as the competition progresses.
 
 # Changelog
 
+- 2020.2.0.1 (1/17/20)
+    - spec changes:
+        - change `rc.senseFlooded` (incorrect) to `rc.senseFlooding` (correct)
+    - client changes:
+        - add visualization of net gun shots
+        - add visualization of water level
+        - change colors: elevation is now a rainbow gradient
+        - add interpolation (makes watching games much more fun!)
+        - update the drone sprite to be more clear (thanks @programjames)
+        - add profiler tab (thanks @jmerle)
+    - engine changes:
+        - calculate pollution in a much faster way, dramatically reducing the time to run games with lots of vaporators
+        - make `disintegrate` actually work
+        - clarify docs: `senseNearbyRobots` does not return in order of increasing distance
+        - instrument `indexOf`, `contains` and `lastIndexOf` for `String`s, `StringBuffer`s and `StringBuilder`s — they now cost bytecode proportional to their actual running time
+        - add a `profilerEnabled` option to the engine, which if set to true causes the engine to dump profiling data into the replay file (thanks @jmerle!)
+        - note: these are the LAST MAJOR CHANGES to the engine and the specs. we are aware that the instrumented bytecode cost does not correspond to the actual runtime in all cases, even after these changes — however, as long as you aren't exploiting that in a malicious way (e.g., trying to kill our servers with infinite loops), you're free to take advantage of it. we still appreciate if you message us when finding unexpected bytecode costs, but we probably won't patch it at this point unless it's a really big problem.
+- 2020.2.0.0 (1/15/20)
+    - spec changes:
+        - vaporators cost 500 and yield 2 soup/turn (down from 1000 and 7)
+        - vaporators decrease nearby pollution by 20% (down from 33%)
+        - maps will always have 1k soup near the HQ (reachable by miners)
+    - client changes: none
+    - engine changes:
+        - messages submitted to the blockchain must now be exactly length 7 (`GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH` has been renamed to `GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH`)
+        - add more fields to `RobotInfo`, including: unit carried by drone (`currentlyHoldingUnit` and `heldUnitID`), dirt carried by landscaper (`dirtCarrying`), dirt on building (`dirtCarrying`), soup carried by miner (`soupCarrying`), cooldown of every unit (`cooldownTurns`)
+        - change `onTheMap` to do what you expect (return true if on the map and false if not, regardless of whether the location is within sensor range)
+        - add a `disintegrate` function (instead of just throwing an uncaught error)
+        - add `senseNearbySoup` (like `senseNearbyRobots`)
+        - remove `getRobotCount`
+        - fix bug where `senseNearbyRobots` would not work for query locations that are far away with a large query radius
+- 2020.1.1.2 (1/14/20)
+    - spec changes: none
+    - client changes:
+        - add sprint maps
+        - possibly make log viewing slightly faster
+    - engine changes:
+        - add sprint maps
+        - (note: GSF is slightly different from GSF in the tournament; slightly more soup was added close to the HQ)
+        - fix "greater number of units" tiebreak
+        - make mapbuilder slightly more restrictive
 - 2020.1.1.1 (1/13/20)
     - spec changes:
         - clarify that map elevation is between `Integer.MIN_VALUE` and `Integer.MAX_VALUE`, not actually $-\infty$ and $\infty$

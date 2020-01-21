@@ -101,6 +101,8 @@ export default class Console {
     this.console.className = "console";
     div.appendChild(this.console);
 
+    this.updateLogHeader();
+
 
     return div;
   }
@@ -215,7 +217,6 @@ export default class Console {
           this.pushLine(log);
         }
       });
-    this.updateLogHeader();
 
       // Update the scroll height
       this.console.scrollTop = this.console.scrollHeight;

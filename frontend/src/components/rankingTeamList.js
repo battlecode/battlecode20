@@ -12,8 +12,9 @@ class RankingTeamList extends TeamList {
     showTeamPage = (teamID) => {
         //this.props.history.push(`${process.env.PUBLIC_URL}/rankings/${teamID}`)
         //this.setState({showTeamID: teamID});
-        console.log(this)
-        this.props.history.push(`${process.env.PUBLIC_URL}/rankings/${teamID}`)
+        if (!this.props.canRequest) {
+            this.props.history.push(`${process.env.PUBLIC_URL}/rankings/${teamID}`);
+        }
         //this.router.transitionTo('/')
     }
 
@@ -46,10 +47,12 @@ class RankingTeamList extends TeamList {
                 }
                 return (
                     <tr key={ team.id } onClick={() => this.showTeamPage(team.id) }>
-                            <td>{ (Math.round((team.mu - 3*team.sigma) * 100) / 100).toFixed(2) }</td>
+                            <td>{ team.score === -1000000 ? "N/A" : Math.round(team.score) }</td>
                             <td>{ team.name }</td>
                             <td>{ team.users.join(", ") }</td>
                             <td>{ team.bio }</td>
+                            <td>{ team.student ? "✅" : "🛑"}{team.student && (team.international ? "🌍" : "🇺🇸")}{(team.student && team.mit) ? "🐮" : ""}{(team.student && team.high_school) ? "HS" : ""}</td>
+                            <td>{ team.auto_accept_unranked ? "Yes" : "No"}</td>
                             {props.canRequest && (
                                 <td><button className="btn btn-xs" onClick={() => this.onTeamRequest(team.id)}>{buttonContent}</button>  </td>
                             )}
@@ -71,6 +74,8 @@ class RankingTeamList extends TeamList {
                                     <th>Team</th>
                                     <th>Users</th>
                                     <th>Bio</th>
+                                    <th>Eligibility</th>
+                                    <th>Auto-Accept</th>
                                 </tr>
                                 </thead>
                                 <tbody>

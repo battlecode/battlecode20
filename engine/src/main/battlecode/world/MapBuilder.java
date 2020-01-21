@@ -68,12 +68,9 @@ public class MapBuilder {
                 throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
             }
         }
-        bodies.add(new RobotInfo(
-                id,
-                team,
-                type,
-                loc
-        ));
+        bodies.add(new RobotInfo(id, team, type, 0, false, -1,
+                0, GameConstants.INITIAL_COOLDOWN_TURNS, loc));
+        // ^^ note that only id, team, type and loc will be saved in the actual map file
     }
 
     public void addHQ(int x, int y, Team team) {

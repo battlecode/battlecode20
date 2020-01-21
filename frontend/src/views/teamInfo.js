@@ -41,8 +41,7 @@ class RankCard extends Component {
 					</div>
 					<br></br>
 					<p style={{textAlign: 'center'}}>
-						μ: {this.props.team.mu.toFixed(2)},
-						σ: {this.props.team.sigma.toFixed(2)}
+						Score: {this.props.team.score === -1000000 ? "N/A" : Math.round(this.props.team.score)}
 					</p>
 				</div>
 			</div>
@@ -89,18 +88,8 @@ class TeamInfo extends Component {
 		//get team info by id
 		Api.getTeamById(teamId, this.setTeam)
 
-		Api.getOwnTeamMuHistory((data) => {
-	    	let wins = 0
-	    	let losses = 0
-	    	data.forEach(entry => {
-	        	if (entry.won) {
-	          		wins++
-	       		} else {
-	          		losses++
-	        	}
-	      	})
-
-	      	this.setState({wins: wins, losses: losses})
+		Api.getOtherTeamWinStats(teamId, (data) => {
+	      	this.setState({wins: data[0], losses: data[1]})
     	})
 	}
 

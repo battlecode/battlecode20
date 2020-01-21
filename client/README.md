@@ -9,7 +9,7 @@ Trivial wrapping folder for `playback` and `visualizer`. It handles universal co
 * `package.json`
 
 ### NPM config
-Look at `pacakges.json`.
+Look at `package.json`.
 
 This NPM module does not have any dependencies or meaningful output, but it is for wrapping scripts of `playback` and `visualizer` in one place.
 

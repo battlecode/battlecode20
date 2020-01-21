@@ -8,7 +8,7 @@ import * as imageloader from './imageloader';
 import Sidebar from './main/sidebar';
 import Controls from './main/controls';
 
-import {Stats, Console, MatchQueue, GameArea, Renderer, NextStep, TickCounter} from './game/index';
+import {Stats, Console, MatchQueue, GameArea, Renderer, NextStep, TickCounter, Profiler} from './game/index';
 import {MapEditor} from './mapeditor/index';
 
 import WebSocketListener from './websocket';
@@ -65,6 +65,7 @@ export default class Client {
   mapeditor: MapEditor;
   gamearea: GameArea; // Inner game area
   console: Console; // Console to display logs
+  profiler: Profiler;
   gamecanvas: HTMLCanvasElement;
   mapcanvas: HTMLCanvasElement;
   matchqueue: MatchQueue; // Match queue
@@ -163,6 +164,7 @@ export default class Client {
     this.console = this.sidebar.console;
     this.mapeditor = this.sidebar.mapeditor;
     this.matchqueue = this.sidebar.matchqueue;
+    this.profiler = this.sidebar.profiler;
     return this.sidebar.div;
   }
 
@@ -170,7 +172,7 @@ export default class Client {
    * Loads canvas to display game world.
    */
   loadGameArea() {
-    this.gamearea = new GameArea(this.conf, this.imgs, this.mapeditor.canvas);
+    this.gamearea = new GameArea(this.conf, this.imgs, this.mapeditor.canvas, this.profiler.iframe);
     this.sidebar.cb = () => {
       this.gamearea.setCanvas();
       this.controls.setControls();
@@ -346,6 +348,8 @@ export default class Client {
       // Update the Soup
       this.stats.setSoups(teamID, (teamStats as TeamStats).soup);
       if(teamStats.soup < 0){ console.log("Soup is negative!!!"); }
+
+      this.stats.setWaterLevel(cst.waterLevel(world.turn));
 
       // Update each robot count
       this.stats.robots.forEach((type: schema.BodyType) => {
@@ -687,7 +691,28 @@ export default class Client {
       lastTurn = match.current.turn;
 
       // @ts-ignore
+      // renderer.render(match.current, match.current.minCorner, match.current.maxCorner);
+      if (this.conf.interpolate &&
+        match.current.turn + 1 < match.deltas.length &&
+        goalUPS < rendersPerSecond.tps) {
+
+          console.log('interpolating!!');
+
+      nextStep.loadNextStep(
+        match.current,
+        match.deltas[match.current.turn + 1]
+      );
+
+      let lerp = Math.min(interpGameTime - match.current.turn, 1);
+
+      // @ts-ignore
+      renderer.render(match.current, match.current.minCorner, match.current.maxCorner, nextStep, lerp);
+    } else {
+          console.log('not interpolating!!');
+      // interpGameTime might be incorrect if we haven't computed fast enough
+      // @ts-ignore
       renderer.render(match.current, match.current.minCorner, match.current.maxCorner);
+    }
 
       this.stats.showBlock(match.blockchain[match.current.turn]);
       this.updateStats(match.current, meta);

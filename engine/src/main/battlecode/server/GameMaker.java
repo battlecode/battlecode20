@@ -4,20 +4,26 @@ import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotType;
 import battlecode.common.Team;
+import battlecode.instrumenter.profiler.Profiler;
+import battlecode.instrumenter.profiler.ProfilerCollection;
+import battlecode.instrumenter.profiler.ProfilerEventType;
 import battlecode.schema.*;
 import battlecode.util.FlatHelpers;
 import battlecode.util.TeamMapping;
-import battlecode.world.*;
+import battlecode.world.GameMapIO;
+import battlecode.world.InternalRobot;
+import battlecode.world.LiveMap;
 import com.google.flatbuffers.FlatBufferBuilder;
 import gnu.trove.list.array.TByteArrayList;
+import gnu.trove.list.array.TCharArrayList;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.list.array.TCharArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.function.ToIntFunction;
 import java.util.zip.GZIPOutputStream;
 
@@ -50,6 +56,7 @@ public strictfp class GameMaker {
          */
         DONE
     }
+
     private State state;
 
     // this un-separation-of-concerns makes me uncomfortable
@@ -98,10 +105,10 @@ public strictfp class GameMaker {
     private final MatchMaker matchMaker;
 
     /**
-     * @param gameInfo the mapping of teams to bytes
+     * @param gameInfo   the mapping of teams to bytes
      * @param packetSink the NetServer to send packets to
      */
-    public GameMaker(final GameInfo gameInfo, final NetServer packetSink){
+    public GameMaker(final GameInfo gameInfo, final NetServer packetSink) {
         this.state = State.GAME_HEADER;
 
         this.gameInfo = gameInfo;
@@ -127,8 +134,8 @@ public strictfp class GameMaker {
      */
     private void assertState(State state) {
         if (this.state != state) {
-            throw new RuntimeException("Incorrect GameMaker state: should be "+
-                    state+", but is: "+this.state);
+            throw new RuntimeException("Incorrect GameMaker state: should be " +
+                    state + ", but is: " + this.state);
         }
     }
 
@@ -184,7 +191,7 @@ public strictfp class GameMaker {
      * @param saveFile the file to save to
      */
     public void writeGame(File saveFile) {
-        if(saveFile == null) {
+        if (saveFile == null) {
             throw new RuntimeException("Null file provided to writeGame");
         }
 
@@ -223,7 +230,7 @@ public strictfp class GameMaker {
         return this.matchMaker;
     }
 
-    public void makeGameHeader(){
+    public void makeGameHeader() {
 
         changeState(State.GAME_HEADER, State.IN_GAME);
 
@@ -260,7 +267,7 @@ public strictfp class GameMaker {
         });
     }
 
-    public int makeBodyTypeMetadata(FlatBufferBuilder builder){
+    public int makeBodyTypeMetadata(FlatBufferBuilder builder) {
         TIntArrayList bodyTypeMetadataOffsets = new TIntArrayList();
 
         // Add robot metadata
@@ -285,7 +292,7 @@ public strictfp class GameMaker {
         return offsetVector(builder, bodyTypeMetadataOffsets, GameHeader::startBodyTypeMetadataVector);
     }
 
-    private byte robotTypeToBodyType(RobotType type){
+    private byte robotTypeToBodyType(RobotType type) {
         if (type == RobotType.HQ) return BodyType.HQ;
         if (type == RobotType.MINER) return BodyType.MINER;
         if (type == RobotType.REFINERY) return BodyType.REFINERY;
@@ -299,7 +306,7 @@ public strictfp class GameMaker {
         return Byte.MIN_VALUE;
     }
 
-    public void makeGameFooter(Team winner){
+    public void makeGameFooter(Team winner) {
         changeState(State.IN_GAME, State.DONE);
 
         createEvent((builder) -> EventWrapper.createEventWrapper(builder, Event.GameFooter,
@@ -308,10 +315,10 @@ public strictfp class GameMaker {
 
     /**
      * Writes events from match to one or multiple flatbuffers.
-     *
+     * <p>
      * One of the rare cases where we want a non-static inner class in Java:
      * this basically just provides a restricted interface to GameMaker.
-     *
+     * <p>
      * There is only one of these per GameMaker.
      */
     public class MatchMaker {
@@ -454,11 +461,51 @@ public strictfp class GameMaker {
             clearData();
         }
 
-        public void makeMatchFooter(Team winTeam, int totalRounds) {
+        public void makeMatchFooter(Team winTeam, int totalRounds, List<ProfilerCollection> profilerCollections) {
             changeState(State.IN_MATCH, State.IN_GAME);
 
-            createEvent((builder) -> EventWrapper.createEventWrapper(builder, Event.MatchFooter,
-                    MatchFooter.createMatchFooter(builder, TeamMapping.id(winTeam), totalRounds)));
+            createEvent((builder) -> {
+                TIntArrayList profilerFiles = new TIntArrayList();
+
+                for (ProfilerCollection profilerCollection : profilerCollections) {
+                    TIntArrayList frames = new TIntArrayList();
+                    TIntArrayList profiles = new TIntArrayList();
+
+                    for (String frame : profilerCollection.getFrames()) {
+                        frames.add(builder.createString(frame));
+                    }
+
+                    for (Profiler profiler : profilerCollection.getProfilers()) {
+                        TIntArrayList events = new TIntArrayList();
+
+                        for (battlecode.instrumenter.profiler.ProfilerEvent event : profiler.getEvents()) {
+                            ProfilerEvent.startProfilerEvent(builder);
+                            ProfilerEvent.addIsOpen(builder, event.getType() == ProfilerEventType.OPEN);
+                            ProfilerEvent.addAt(builder, event.getAt());
+                            ProfilerEvent.addFrame(builder, event.getFrameId());
+                            events.add(ProfilerEvent.endProfilerEvent(builder));
+                        }
+
+                        int nameOffset = builder.createString(profiler.getName());
+                        int eventsOffset = offsetVector(builder, events, ProfilerProfile::startEventsVector);
+
+                        ProfilerProfile.startProfilerProfile(builder);
+                        ProfilerProfile.addName(builder, nameOffset);
+                        ProfilerProfile.addEvents(builder, eventsOffset);
+                        profiles.add(ProfilerProfile.endProfilerProfile(builder));
+                    }
+
+                    int framesOffset = offsetVector(builder, frames, ProfilerFile::startFramesVector);
+                    int profilesOffset = offsetVector(builder, profiles, ProfilerFile::startProfilesVector);
+
+                    profilerFiles.add(ProfilerFile.createProfilerFile(builder, framesOffset, profilesOffset));
+                }
+
+                int profilerFilesOffset = offsetVector(builder, profilerFiles, MatchFooter::startProfilerFilesVector);
+
+                return EventWrapper.createEventWrapper(builder, Event.MatchFooter,
+                        MatchFooter.createMatchFooter(builder, TeamMapping.id(winTeam), totalRounds, profilerFilesOffset));
+            });
 
             matchFooters.add(events.size() - 1);
         }
@@ -529,7 +576,7 @@ public strictfp class GameMaker {
                 // New message requests
                 int newMessagesCostsP = intVector(builder, newMessagesCosts, Round::startNewMessagesCostsVector);
                 int newMessagesP = charVector(builder, newMessages, Round::startNewMessagesVector);
-                
+
                 // Broadcasted messages
                 int broadcastedMessagesCostsP = intVector(builder, broadcastedMessagesCosts, Round::startBroadcastedMessagesCostsVector);
                 int broadcastedMessagesP = charVector(builder, broadcastedMessages, Round::startBroadcastedMessagesVector);

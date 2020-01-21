@@ -15,6 +15,20 @@ export const DESIGN_SCHOOL = schema.BodyType.DESIGN_SCHOOL;
 export const FULFILLMENT_CENTER = schema.BodyType.FULFILLMENT_CENTER;
 
 
+// map colors
+// maps elevation to rgb values
+export const DIRT_COLORS: Map<number, Array<number>> = new Map<number, Array<number>>([
+    [-5, [0, 147, 83]], // turquoise
+    [3, [29, 201, 2]], // green
+    [10, [254,205,54]], // yellow
+    [90, [222, 145, 1]], // brown
+    [500, [255, 0, 0]], // red
+    [2000, [242, 0, 252]] // pink
+]);
+export const WATER_COLOR = [10,100,240];
+
+
+
 // TODO: Old constants
 // Game canvas rendering sizes
 export const INDICATOR_DOT_SIZE = .3;
@@ -32,7 +46,6 @@ export const MAX_DIMENSION = 100;
 
 // Server settings
 export const NUMBER_OF_TEAMS = 2;
-export const MAX_ROUND_NUM = 3000;
 // export const VICTORY_POINT_THRESH = 1000;
 
 // Other constants
@@ -55,7 +68,25 @@ export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
   ["SoupOnTheSide", MapType.DEFAULT],
   ["TwoForOneAndTwoForAll", MapType.DEFAULT],
   ["WaterBot", MapType.DEFAULT],
-  ["CentralSoup", MapType.DEFAULT]
+  ["CentralSoup", MapType.DEFAULT],
+  ["ChristmasInJuly", MapType.SPRINT],
+  ["CosmicBackgroundRadiation", MapType.SPRINT],
+  ["ClearlyTwelveHorsesInASalad", MapType.SPRINT],
+  ["CowFarm", MapType.SPRINT],
+  ["DidAMonkeyMakeThis", MapType.SPRINT],
+  ["GSF", MapType.SPRINT],
+  ["Hills", MapType.SPRINT],
+  ["InADitch", MapType.SPRINT],
+  ["Infinity", MapType.SPRINT],
+  ["Islands", MapType.SPRINT],
+  ["IsThisProcedural", MapType.SPRINT],
+  ["OmgThisIsProcedural", MapType.SPRINT],
+  ["ProceduralConfirmed", MapType.SPRINT],
+  ["RandomSoup1", MapType.SPRINT],
+  ["RandomSoup2", MapType.SPRINT],
+  ["Soup", MapType.SPRINT],
+  ["Volcano", MapType.SPRINT],
+  ["WateredDown", MapType.SPRINT]
 ]);
 
 export function bodyTypeToString(bodyType: schema.BodyType) {
@@ -98,4 +129,8 @@ export function radiusFromBodyType(bodyType: schema.BodyType) {
     case FULFILLMENT_CENTER: return 1;
     default: throw new Error("invalid body type");
   }
+}
+
+export function waterLevel(x: number) {
+  return (Math.exp(0.0028*x-1.38*Math.sin(0.00157*x-1.73)+1.38*Math.sin(-1.73))-1)
 }

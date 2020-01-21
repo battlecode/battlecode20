@@ -8,7 +8,7 @@ from google.cloud import pubsub_v1
 
 shutdown_requested = False # Whether this program should shut down due to SIGINT/SIGTERM
 
-def subscribe(subscription_name, worker):
+def subscribe(subscription_name, worker, give_up=False):
     """Receives and spawns threads to handle jobs received in Pub/Sub"""
     global shutdown_requested
 
@@ -25,8 +25,8 @@ def subscribe(subscription_name, worker):
                     client.modify_ack_deadline(subscription_path, [message.ack_id], ack_deadline_seconds=SUB_ACK_DEADLINE)
                     logging.debug('Reset ack deadline for {} for {}s'.format(message.message.data.decode(), SUB_ACK_DEADLINE))
                     time.sleep(SUB_SLEEP_TIME)
-                except:
-                    logging.warning('Could not reset ack deadline')
+                except Exception as e:
+                    logging.warning('Could not reset ack deadline', exc_info=e)
     watcher = threading.Thread(target=renew_deadline)
     watcher.start()
 
@@ -51,11 +51,14 @@ def subscribe(subscription_name, worker):
             process.start()
             process.join()
 
-            give_up = (int(time.time()) - message.message.publish_time.seconds) > 600
-            if process.exitcode == 0 or give_up:
+            if process.exitcode == 0:
                 # Success; acknowledge and return
                 client.acknowledge(subscription_path, [message.ack_id])
                 logging.info('Ending and acknowledged: {}'.format(message.message.data.decode()))
+            elif give_up and (int(time.time()) - message.message.publish_time.seconds) > 600:
+                # Failure; give up and acknowledge
+                client.acknowledge(subscription_path, [message.ack_id])
+                logging.info('Failed but acknowledged: {}'.format(message.message.data.decode()))
             else:
                 # Failure; refuse to acknowledge
                 logging.error('Failed, not acknowledged: {}'.format(message.message.data.decode()))
