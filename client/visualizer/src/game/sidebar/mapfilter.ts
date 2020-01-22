@@ -21,7 +21,7 @@ export default class MapFilter {
   private readonly filterType: Map<MapType, HTMLInputElement>;
 
   // Map types available (NOTE: Update after each tournament)
-  private readonly types: MapType[] = [MapType.DEFAULT, MapType.CUSTOM, MapType.SPRINT];
+  private readonly types: MapType[] = [MapType.DEFAULT, MapType.CUSTOM, MapType.SPRINT, MapType.SEEDING];
 
   // All the maps displayed on the client
   private maps: Array<MapSchema>;
@@ -147,7 +147,10 @@ export default class MapFilter {
       case MapType.DEFAULT: return "Default";
       case MapType.SPRINT: return "Sprint";
       case MapType.SEEDING: return "Seeding";
-      case MapType.QUALIFYING: return "Qualifying";
+      case MapType.INTL_QUALIFYING: return "Intl Quals";
+      case MapType.US_QUALIFYING: return "US Quals";
+      case MapType.HS: return "HS";
+      case MapType.NEWBIE: return "Newbie";
       case MapType.FINAL: return "Final";
       default: return "Custom";
     }
