@@ -65,6 +65,20 @@ export enum MapType {
   CUSTOM
 };
 export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
+  ["AMaze", MapType.SEEDING],
+  ["BeachFrontProperty", MapType.SEEDING],
+  ["Egg", MapType.SEEDING],
+  ["Hourglass", MapType.SEEDING],
+  ["MtDoom", MapType.SEEDING],
+  ["Sheet4", MapType.SEEDING],
+  ["Showerhead", MapType.SEEDING],
+  ["Spiral", MapType.SEEDING],
+  ["Swirl", MapType.SEEDING],
+  ["TheHighGround", MapType.SEEDING],
+  ["Toothpaste", MapType.SEEDING],
+  ["WhyDidntTheyUseEagles", MapType.SEEDING],
+  ["NoU", MapType.SEEDING],
+  ["MoreCowbell", MapType.SEEDING],
   ["FourLakeLand", MapType.DEFAULT],
   ["CentralLake", MapType.DEFAULT],
   ["ALandDivided", MapType.DEFAULT],
