@@ -29,7 +29,7 @@ TODO: deploy BACKEND??????
     - If new maps have been added, run `./pre_release.py $version --maps True`, and make sure to have the names of the maps copied to your clipboard.
         - This will update `SERVER_MAPS` in `client/visualizer/src/constants.ts` and in `backend/settings.py` and copy the maps over from the internal scaffold.
     - If a new tournament has been released, add the flag `--tournament SPRINT`. (Options are `INTL_QUALIFYING`, `US_QUALIFYING`, `HS`, `NEWBIE`, `FINAL`.)
-        - This will update `MapFilter.types` in `client/visualizer/game/sidebar/mapfilter.ts`.
+        - This will update `MapFilter.types` in `client/visualizer/src/game/sidebar/mapfilter.ts`.
 - Review the changes, and commit and push (message e.g. "preparing for release 2020.1.32.2").
 - `./gradlew clean`
 - `./gradlew test`
