@@ -29,7 +29,7 @@ class TournamentManager:
                 self.player1_pk, self.player1_name,
                 self.player2_pk, self.player2_name)
 
-    def __init__(self, bracket, team_pk, team_names):
+    def __init__(self, bracket, team_pk, team_names, maps):
         """
         Initialises this tournament bracket. Requires the following
         parameters:
@@ -46,10 +46,13 @@ class TournamentManager:
         self.bracket = bracket
         self.team_pk = team_pk
         self.team_names = team_names
-        self.remaining_games = len(self.bracket.matches)
         self.external_ids = [[] for match in self.bracket.matches]
         self.replays = [None for match in self.bracket.matches]
         self.lock = threading.Lock()
+
+        # Delete matches that have been nullified in the map spec
+        self.bracket.matches = list(filter(lambda x: maps[x.round_str] != None, self.bracket.matches))
+        self.remaining_games = len(self.bracket.matches)
 
         self.match_is_prerequisite_of = []
         for idx, match in enumerate(self.bracket.matches):
@@ -136,7 +139,7 @@ def run_tournament(num_players, tournament_id, team_pk, maps, team_names):
     """Generates the tournament bracket and publishes it to the queue"""
     tournament = bracketlib.DoubleEliminationTournament(num_players)
     tournament.generate_bracket()
-    manager = TournamentManager(tournament, team_pk, team_names)
+    manager = TournamentManager(tournament, team_pk, team_names, maps)
 
     ready = queue.Queue()   # A list of matches ready to be queued
     monitor = queue.Queue() # A list of matches to monitor results on
@@ -163,8 +166,8 @@ def run_tournament(num_players, tournament_id, team_pk, maps, team_names):
                         manager.external_ids[match.internal_id][index] = util.enqueue({
                             'type': 'tour_scrimmage',
                             'tournament_id': tournament_id,
-                            'player1': match.player1_pk if index != 1 else match.player2_pk,
-                            'player2': match.player2_pk if index != 1 else match.player1_pk,
+                            'player1': match.player1_pk if index % 2 == 0 else match.player2_pk,
+                            'player2': match.player2_pk if index % 2 == 0 else match.player1_pk,
                             'map_ids': one_map
                         })
                         assert (manager.external_ids[match.internal_id][index] != None)
@@ -197,7 +200,7 @@ def run_tournament(num_players, tournament_id, team_pk, maps, team_names):
                         monitor.put(match)
                         break
                     else:
-                        if index != 1:
+                        if index % 2 == 0:
                             wins[winner] += 1
                         else:
                             wins[3-winner] += 1
