@@ -21,7 +21,7 @@ export default class MapFilter {
   private readonly filterType: Map<MapType, HTMLInputElement>;
 
   // Map types available (NOTE: Update after each tournament)
-  private readonly types: MapType[] = [MapType.DEFAULT, MapType.CUSTOM, MapType.SPRINT, MapType.SEEDING];
+  private readonly types: MapType[] = [MapType.DEFAULT, MapType.CUSTOM, MapType.SPRINT, MapType.SEEDING, MapType.INTL_QUALIFYING];
 
   // All the maps displayed on the client
   private maps: Array<MapSchema>;
