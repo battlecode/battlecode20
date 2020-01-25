@@ -133,6 +133,7 @@ export default class MapFilter {
 
     this.filterType.forEach((checkbox: HTMLInputElement, type: MapType) => {
       const span = document.createElement("span");
+      span.style.display = "inline-block";
       span.appendChild(checkbox);
       span.appendChild(document.createTextNode(this.mapTypeToString(type)));
       this.filterDiv.appendChild(span);
