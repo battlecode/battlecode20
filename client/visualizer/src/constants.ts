@@ -65,6 +65,18 @@ export enum MapType {
   CUSTOM
 };
 export const SERVER_MAPS: Map<string, MapType> = new Map<string, MapType>([
+  ["Maze", MapType.INTL_QUALIFYING],
+  ["Squares", MapType.INTL_QUALIFYING],
+  ["RealArt", MapType.INTL_QUALIFYING],
+  ["DoesNotExist", MapType.INTL_QUALIFYING],
+  ["IceCream", MapType.INTL_QUALIFYING],
+  ["Constriction", MapType.INTL_QUALIFYING],
+  ["Islands2", MapType.INTL_QUALIFYING],
+  ["Prison", MapType.INTL_QUALIFYING],
+  ["DisproportionatelySmallGap", MapType.INTL_QUALIFYING],
+  ["Climb", MapType.INTL_QUALIFYING],
+  ["TwoLakeLand", MapType.INTL_QUALIFYING],
+  ["Europe", MapType.INTL_QUALIFYING],
   ["AMaze", MapType.SEEDING],
   ["BeachFrontProperty", MapType.SEEDING],
   ["Egg", MapType.SEEDING],
