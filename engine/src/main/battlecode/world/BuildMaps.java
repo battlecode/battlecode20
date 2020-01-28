@@ -18,6 +18,18 @@ public class BuildMaps {
      * @param args unused
      */
     public static void main(String[] args) {
+        Maze.main(args);
+        Squares.main(args);
+        RealArt.main(args);
+        DoesNotExist.main(args);
+        IceCream.main(args);
+        Constriction.main(args);
+        Islands2.main(args);
+        Prison.main(args);
+        DisproportionatelySmallGap.main(args);
+        Climb.main(args);
+        TwoLakeLand.main(args);
+        Europe.main(args);
         AMaze.main(args);
         BeachFrontProperty.main(args);
         Egg.main(args);
