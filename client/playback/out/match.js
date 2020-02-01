@@ -28,7 +28,7 @@ class Match {
         this._current.loadFromMatchHeader(header);
         this._farthest = this._current;
         this.snapshots = [];
-        this.snapshotEvery = 256;
+        this.snapshotEvery = 64;
         this.snapshots.push(this._current.copy());
         this.deltas = new Array(1);
         this.logs = new Array(1);
