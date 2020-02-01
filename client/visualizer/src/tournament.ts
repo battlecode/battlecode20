@@ -75,6 +75,24 @@ export class Tournament {
     }
   }
 
+  getAvatar(name: string) {
+    // convert the name into an ID
+    // TODO: speed this up
+    for (var i = 0; i < this.desc.teams.length; i++) {
+      if (this.desc.teams[i].name === name) {
+        return 'file://' + path.join(this.dir, this.desc.teams[i].avatarPath);
+      }
+    }
+    return "not found :((";
+  }
+
+  isLastGameInMatch(): boolean {
+    return this.gameIndex === this.matchLengths[this.matchIndex]-1;
+  }
+  isFirstGameInMatch(): boolean {
+    return this.gameIndex === 0;
+  }
+
   hasPrev(): boolean {
     return this.matchIndex > 0 || this.gameIndex > 0;
   }
@@ -86,7 +104,7 @@ export class Tournament {
     this.gameIndex--;
     if (this.gameIndex < 0) {
       this.matchIndex--;
-      this.gameIndex = this.matchLengths[this.matchIndex];
+      this.gameIndex = this.matchLengths[this.matchIndex]-1;
     }
   }
 
@@ -98,6 +116,16 @@ export class Tournament {
       throw new Error("Undefined match?? "+this.matchIndex);
     }
     return this.desc.matches[this.matchIndex].games[this.gameIndex];
+  }
+
+  currentMatch(): TournamentMatch {
+    if (this.matchIndex > this.matches) {
+      throw new Error(`match out of bounds: ${this.matchIndex}`);
+    }
+    if (this.desc.matches[this.matchIndex] == undefined) {
+      throw new Error("Undefined match?? "+this.matchIndex);
+    }
+    return this.desc.matches[this.matchIndex];
   }
 
   readCurrent(cb: (err: Error | null, match: ArrayBuffer | null) => void) {
@@ -118,12 +146,9 @@ export interface TournamentGame {
   id: number,
   match_file: string, // relative path
 
-  // team1_id: number,
-  // team1_name: string,
-  // team2_id: number,
-  // team2_name: string,
 
-  winner_id: number, // ids are just easier
+  // winner_id: number, // ids are just easier
+  // winner_name: string, // jkjk
 
 
   // cumulative score BEFORE this game
@@ -144,7 +169,12 @@ export interface TournamentMatch {
   games: [TournamentGame],
   // e.g. "round 1 (losers)"
   description: string,
-  winner_id: number // the grand winner
+  winner_id: number, // the grand winner
+  winner_name: string,
+  team1_id: number,
+  team1_name: string,
+  team2_id: number,
+  team2_name: string
 }
 
 export interface TournamentTeams {

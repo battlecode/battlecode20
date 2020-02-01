@@ -7,6 +7,7 @@ import * as imageloader from './imageloader';
 
 import Sidebar from './main/sidebar';
 import Controls from './main/controls';
+import Splash from './main/splash';
 
 import {Stats, Console, MatchQueue, GameArea, Renderer, NextStep, TickCounter, Profiler} from './game/index';
 import {MapEditor} from './mapeditor/index';
@@ -24,6 +25,7 @@ import {Tournament, readTournament} from './tournament';
 // webpack magic
 // this loads the stylesheet and injects it into the dom
 require('./static/css/style.css');
+require('./static/css/tournament.css');
 
 // open devtools on f12
 document.addEventListener("keydown", function (e) {
@@ -76,6 +78,9 @@ export default class Client {
   listener: WebSocketListener | null;
 
   games: Game[];
+
+  tournament?: Tournament;
+  tournamentState: TournamentState;
 
   currentGame: number | null;
   currentMatch: number | null;
@@ -324,6 +329,55 @@ export default class Client {
       );
     }
 
+    this.stats.seekTournament = (num: number) => {
+      console.log('seek tournament');
+      this.tournament?.seek(num, 0);
+      this.updateTournamentState();
+    };
+
+    this.stats.onTournamentLoaded = (jsonFile: File) => {
+      // if (!process.env.ELECTRON) {
+      //   console.error("Can't load tournament outside of electron!");
+      //   return;
+      // }
+      readTournament(jsonFile, (err, tournament) => {
+        if (err) {
+          console.error(`Can't load tournament: ${err}`);
+          return;
+        }
+        if (tournament) {
+          this.tournament = tournament;
+          const t = this;
+          document.onkeydown = function(event) {
+            // TODO: figure out what this is???
+            if (document.activeElement == null) {
+              throw new Error('idk?????? i dont know what im doing document.actievElement is null??');
+            }
+            let input = document.activeElement.nodeName == "INPUT";
+            if(!input) {
+              // TODO after touching viewoption buttons, the input (at least arrow keys) does not work
+              console.log(event.keyCode);
+              switch (event.keyCode) {
+                case 65: // "a" - previous tournament Match
+                  t.previousTournamentThing();
+                  t.updateTournamentState();
+                  break;
+                case 68: // 'd' - next tournament match
+                  console.log('next tournament d!');
+                  t.nextTournamentThing();
+                  t.updateTournamentState();
+                  break;
+              }
+            }
+            
+          };
+          // CHOOSE STARTING ROUND?
+          tournament.seek(0, 0);
+          this.tournamentState = TournamentState.START_SPLASH;
+          this.updateTournamentState();
+        }
+      });
+    };
     this.matchqueue.onTournamentLoaded = (jsonFile: File) => {
       // if (!process.env.ELECTRON) {
       //   console.error("Can't load tournament outside of electron!");
@@ -334,12 +388,37 @@ export default class Client {
           console.error(`Can't load tournament: ${err}`);
           return;
         }
-        // if (tournament) {
-        //   this.tournament = tournament;
-        //   // CHOOSE STARTING ROUND?
-        //   tournament.seek(0, 0);
-        //   this.tournamentGameStart();
-        // }
+        if (tournament) {
+          this.tournament = tournament;
+          const t = this;
+          document.onkeydown = function(event) {
+            // TODO: figure out what this is???
+            if (document.activeElement == null) {
+              throw new Error('idk?????? i dont know what im doing document.actievElement is null??');
+            }
+            let input = document.activeElement.nodeName == "INPUT";
+            if(!input) {
+              // TODO after touching viewoption buttons, the input (at least arrow keys) does not work
+              console.log(event.keyCode);
+              switch (event.keyCode) {
+                case 65: // "a" - previous tournament Match
+                  t.previousTournamentThing();
+                  t.updateTournamentState();
+                  break;
+                case 68: // 'd' - next tournament match
+                  console.log('next tournament d!');
+                  t.nextTournamentThing();
+                  t.updateTournamentState();
+                  break;
+              }
+            }
+            
+          };
+          // CHOOSE STARTING ROUND?
+          tournament.seek(0, 0);
+          this.tournamentState = TournamentState.START_SPLASH;
+          this.updateTournamentState();
+        }
       });
     };
   }
@@ -378,6 +457,153 @@ export default class Client {
       });
     }
   }
+
+
+  private nextTournamentThing() {
+    console.log('actually next tournament thing!');
+    // either displays a splash screen with who won, or displays the next game
+    // activated by some sort of hotkey, ideally
+    // so, we can be in a couple of different states
+    // either a splash screen is showing, in which case we should display the next game,
+    // or a game is showing, in which case we should display either a next game or a splash screen
+
+    if (this.tournament) {
+      if (this.tournamentState === TournamentState.START_SPLASH) {
+        // transition to mid game
+        this.tournamentState = TournamentState.MID_GAME;
+      } else if (this.tournamentState === TournamentState.MID_GAME) {
+        // go to the next game
+        if (this.tournament.hasNext() && !this.tournament.isLastGameInMatch()) {
+          this.tournament.next();
+        } else {
+          // go to end splash
+          this.tournamentState = TournamentState.END_SPLASH;
+        }
+      } else if (this.tournamentState === TournamentState.END_SPLASH) {
+        // go to start splash
+        // if not ended
+        if (this.tournament.hasNext()) {
+          this.tournamentState = TournamentState.START_SPLASH;
+          this.tournament.next();
+        } else {
+          console.log("No more tournament games!");
+        }
+      }
+    }
+  }
+  private previousTournamentThing() {
+    // either displays a splash screen with who won, or displays the next game
+    // activated by some sort of hotkey, ideally
+    // so, we can be in a couple of different states
+    // either a splash screen is showing, in which case we should display the next game,
+    // or a game is showing, in which case we should display either a next game or a splash screen
+
+    if (this.tournament) {
+      if (this.tournamentState === TournamentState.START_SPLASH) {
+        // transition to mid game
+        if (this.tournament.hasPrev()) {
+          this.tournamentState = TournamentState.END_SPLASH;
+          this.tournament.prev();
+        } else {
+          console.log("No previous tournament games!");
+        }
+      } else if (this.tournamentState === TournamentState.MID_GAME) {
+        // go to the previous game
+        if (this.tournament.hasPrev() && !this.tournament.isFirstGameInMatch()) {
+          this.tournament.prev();
+        } else {
+          // go to start splash
+          this.tournamentState = TournamentState.START_SPLASH;
+        }
+      } else if (this.tournamentState === TournamentState.END_SPLASH) {
+        // go to mid game
+        // if not ended
+        this.tournamentState = TournamentState.MID_GAME;
+      }
+    }
+  }
+
+  private updateTournamentState() {
+    console.log('update tour state!');
+    if (this.tournament) {
+      console.log('real update tour state!');
+      // clear things
+      Splash.removeScreen();
+      this.clearScreen();
+      // simply updates according to the current tournament state
+      if (this.tournamentState === TournamentState.START_SPLASH) {
+        console.log('go from splash real update tour state!');
+        Splash.addScreen(this.conf, this.root, this.tournament.current(), this.tournament.currentMatch(), this.tournament);
+      } else if (this.tournamentState === TournamentState.END_SPLASH) {
+        Splash.addWinnerScreen(this.conf, this.root, this.tournament, this.tournament.currentMatch());
+      } else if (this.tournamentState === TournamentState.MID_GAME) {
+        this.tournament.readCurrent((err, data) => {
+          if (err) throw err;
+          if (!data) throw new Error("No match loaded from tournament?");
+
+          // reset all games so as to save memory
+          // because things can be rough otherwise
+          this.games.pop();
+          this.games = [new Game()];
+          this.games[0].loadFullGameRaw(data);
+          this.setGame(0);
+          this.setMatch(0);
+        });
+      }
+    }
+  }
+
+
+  // private tournamentGameStart() {
+  //   if (this.tournament) {
+
+  //     this.stats.resetScore();
+
+  //     Splash.addScreen(this.conf, this.root, this.tournament.current(), this.tournament.currentMatch(), this.tournament);
+
+  //     setTimeout(() => {
+  //       Splash.removeScreen();
+  //       if (!this.tournament) throw new Error("What?");
+        
+  //       if (this.tournament.current().team2_name == "BYE") {
+  //         this.tournamentGameEnd();
+  //         return;
+  //       }
+
+  //       this.tournament.readCurrent((err, data) => {
+  //         if (err) throw err;
+  //         if (!data) throw new Error("No match loaded from tournament?");
+
+  //         this.games = [new Game()];
+  //         this.games[0].loadFullGameRaw(data);
+  //         this.setGame(0);
+  //         this.setMatch(0);
+  //       });
+  //     }, 5000);
+  //   }
+  // }
+
+  // private tournamentGameEnd() {
+  //   if (this.tournament) {
+  //     const current = this.tournament.currentMatch();
+  //     console.log("Finished game "+current.id);
+  //     if (this.conf.tournamentOnGameDone) {
+  //       this.conf.tournamentOnGameDone(current.id);
+  //     }
+  //     Splash.addWinnerScreen(this.conf, this.root, current);
+
+  //     setTimeout(() => {
+  //       Splash.removeScreen();
+  //       if (!this.tournament) throw new Error("What?");
+
+  //       if (this.tournament.hasNext()) {
+  //         this.clearScreen();
+  //         this.tournament.next();
+  //         this.tournamentGameStart();
+  //       }
+  //     }, 3000);
+  //   }
+  // }
 
   private runMatch() {
     console.log('Running match.');
@@ -578,6 +804,7 @@ export default class Client {
 
     // set key options
     const conf = this.conf;
+    const t = this;
     document.onkeydown = function(event) {
 
       // TODO: figure out what this is???
@@ -629,6 +856,14 @@ export default class Client {
           case 72: // "h" - Toggle short log header
             conf.shorterLogHeader = !conf.shorterLogHeader;
             cconsole.updateLogHeader();
+            break;
+          case 65: // "a" - previous tournament Match
+            t.previousTournamentThing();
+            t.updateTournamentState();
+            break;
+          case 68: // 'd' - next tournament match
+            t.nextTournamentThing();
+            t.updateTournamentState();
             break;
         }
       }
@@ -743,3 +978,9 @@ export default class Client {
     this.loopID = window.requestAnimationFrame(loop);
   }
 }
+
+export enum TournamentState {
+  START_SPLASH,
+  MID_GAME,
+  END_SPLASH
+};

@@ -28,12 +28,17 @@ export default class Stats {
   readonly div: HTMLDivElement;
   private readonly images: AllImages;
 
+  private readonly tourIndexJump: HTMLInputElement;
+
   // Key is the team ID
   private robotTds: Object = {}; // Secondary key is robot type
   private statBars: Map<number, { soups: StatBar }>;
   private statsTableElement: HTMLTableElement;
 
   private robotConsole: HTMLDivElement;
+
+  seekTournament: (match: number) => void;
+  onTournamentLoaded: (path: File) => void;
 
   private blockchain: HTMLDivElement;
 
@@ -54,6 +59,7 @@ export default class Stats {
     this.conf = conf;
     this.images = images;
     this.div = document.createElement("div");
+    this.tourIndexJump = document.createElement("input");
 
     let teamNames: Array<string> = ["?????", "?????"];
     let teamIDs: Array<number> = [1, 2];
@@ -190,8 +196,13 @@ export default class Stats {
     tempdiv.appendChild(uploadButton);
     this.div.appendChild(tempdiv);
 
-    // Add view toggles
-    this.div.append(this.addViewOptions());
+    // // Add view toggles
+    // this.div.append(this.addViewOptions());
+    // add text input field
+    this.tourIndexJump.type = "text";
+    this.tourIndexJump.onkeyup = (e) => { this.tourIndexJumpFun(e) };
+    this.tourIndexJump.onchange = (e) => { this.tourIndexJumpFun(e) };
+    this.div.appendChild(this.tourIndexJump);
     
     // Populate with new info
     // Add a section to the stats bar for each team in the match
@@ -270,6 +281,13 @@ export default class Stats {
     this.blockchain.className = "console";
 
     return this.blockchain;
+  }
+
+  tourIndexJumpFun(e) {
+    if (e.keyCode === 13){
+        var h = +this.tourIndexJump.value.trim().toLowerCase();
+        this.seekTournament(h-1);
+    }
   }
 
   waterLevel(): HTMLDivElement {
@@ -417,7 +435,7 @@ export default class Stats {
     upload.textContent = 'upload';
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
-    upload.accept = '.bc20';
+    upload.accept = '.bc20,.json';
     upload.onchange = () => this.loadMatch(upload.files as FileList);
     uploadLabel.appendChild(upload);
 
@@ -427,11 +445,15 @@ export default class Stats {
   loadMatch(files: FileList) {
     const file = files[0];
     console.log(file);
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.onGameLoaded(<ArrayBuffer>reader.result);
-    };
-    reader.readAsArrayBuffer(file);
+    if (file.name.endsWith('.json')) {
+      this.onTournamentLoaded(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.onGameLoaded(<ArrayBuffer>reader.result);
+      };
+      reader.readAsArrayBuffer(file);
+    }
   }
 
   /**
