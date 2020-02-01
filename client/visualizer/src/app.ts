@@ -17,6 +17,8 @@ import ScaffoldCommunicator from './scaffold';
 import { electron } from './electron-modules';
 import { TeamStats } from 'battlecode-playback/out/gameworld';
 
+import {Tournament, readTournament} from './tournament';
+
 // import TeamStats = gameworld.TeamStats;
 
 // webpack magic
@@ -321,6 +323,25 @@ export default class Client {
         }
       );
     }
+
+    this.matchqueue.onTournamentLoaded = (jsonFile: File) => {
+      // if (!process.env.ELECTRON) {
+      //   console.error("Can't load tournament outside of electron!");
+      //   return;
+      // }
+      readTournament(jsonFile, (err, tournament) => {
+        if (err) {
+          console.error(`Can't load tournament: ${err}`);
+          return;
+        }
+        // if (tournament) {
+        //   this.tournament = tournament;
+        //   // CHOOSE STARTING ROUND?
+        //   tournament.seek(0, 0);
+        //   this.tournamentGameStart();
+        // }
+      });
+    };
   }
 
   clearScreen() {
