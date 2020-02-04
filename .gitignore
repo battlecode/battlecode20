@@ -13,6 +13,9 @@ access.txt
 ## Frontend
 frontend/build
 
+## Backend
+backend/resumes/files/
+
 ### Gradle ###
 .gradle
 /build/
