@@ -24,7 +24,6 @@ with open(USERS_ALL_PATH, 'r') as csvfile:
             key = users_all_header[i]
             row_dict[key] = row[i]
         users_all.append(row_dict)
-# print(users_all[:3])
 
 users_teams = []
 users_teams_header = []
@@ -41,7 +40,6 @@ with open(USERS_TEAMS_PATH, 'r') as csvfile:
             else:
                 row_dict[key] = row[i]
         users_teams.append(row_dict)
-# print(users_teams[:3])
 
 # initialize google bucket things
 with open('gcloud-key.json', 'w') as outfile:
@@ -82,14 +80,35 @@ def download(user_id, file_name, bucket, files_dir):
         print("Could not retrieve source file from bucket, user id", user_id)
         print("Exception:", e)
 
-# actually download resumes
-# download first from users_teams
-# figure out which folder to use programatically
-# file name: "0ELO-FirstLast" (elo left padded, min 0)
+# actually download resumes, first from users_teams
+def download_user(user, bucket, files_dir):
+    if user['student']:
+        if user['high_school']:
+            if user['international']:
+                subfolder = 'hs-intl'
+            else: #domestic 
+                subfolder = 'hs-us'
+        else: # college
+            if user['international']:
+                subfolder = 'hs-intl'
+            else:
+                subfolder = 'hs-us'
+    else:
+        subfolder = 'other'
+    user_id = user["id"]
+    # file name: "0ELO-FirstLast" (elo left padded, min 0)
+    elo_str_padded = str(min(0, int(user[score]))).zfill(4)
+    short_file_name = elo_str_padded
+    full_file_name = subfolder + '/' + file_name +'.pdf'
+
+    # TODO check if file exists already
+    # if exists, note that we're skipping it
+    download(user_id, full_file_name, bucket, files_dir)
+
 # for user in users_teams:
 
 
 # if a user is in users_all but not users_teams, dl them to "other"
 user_id = 1706
-file_name = 'subfolder/' + str(user_id)+'.pdf'
+file_name = 'hs-us/' + str(user_id)+'.pdf'
 download(user_id, file_name, bucket, files_dir)
