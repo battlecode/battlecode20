@@ -45,7 +45,7 @@ with open(USERS_TEAMS_PATH, 'r') as csvfile:
 with open('gcloud-key.json', 'w') as outfile:
     outfile.write(GOOGLE_APPLICATION_CREDENTIALS)
     outfile.close()
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(os.path.join(os.path.dirname(__file__), '../../gcloud-key.json'))
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(os.path.join(FILE_PATH, 'gcloud-key.json'))
 client = storage.client.Client()
 os.remove('gcloud-key.json') # important!!!
 bucket = client.get_bucket(GCLOUD_BUCKET_RESUMES)
@@ -64,8 +64,9 @@ col_us_dir = os.path.join(files_dir, 'col-us')
 safe_makedirs(col_us_dir)
 col_intl_dir = os.path.join(files_dir, 'col-intl')
 safe_makedirs(col_intl_dir)
-others_dir = os.path.join(files_dir, 'others')
-safe_makedirs(others_dir)
+other_dir = os.path.join(files_dir, 'other')
+safe_makedirs(other_dir)
+os.chmod(files_dir, 0o777)
 
 # download helper!
 def download(user_id, file_name, bucket, files_dir):
@@ -82,33 +83,41 @@ def download(user_id, file_name, bucket, files_dir):
 
 # actually download resumes, first from users_teams
 def download_user(user, bucket, files_dir):
-    if user['student']:
-        if user['high_school']:
-            if user['international']:
-                subfolder = 'hs-intl'
-            else: #domestic 
-                subfolder = 'hs-us'
-        else: # college
-            if user['international']:
-                subfolder = 'hs-intl'
-            else:
-                subfolder = 'hs-us'
-    else:
+    if 'student' in user: # user comes from users_teams
+        if user['student']:
+            if user['high_school']:
+                if user['international']:
+                    subfolder = 'hs-intl'
+                else: #domestic 
+                    subfolder = 'hs-us'
+            else: # college
+                if user['international']:
+                    subfolder = 'col-intl'
+                else:
+                    subfolder = 'col-us'
+        else:
+            subfolder = 'other'
+    else: # user comes from users_all
         subfolder = 'other'
     user_id = user["id"]
     # file name: "0ELO-FirstLast" (elo left padded, min 0)
-    elo_str_padded = str(min(0, int(user[score]))).zfill(4)
-    short_file_name = elo_str_padded
-    full_file_name = subfolder + '/' + file_name +'.pdf'
+    if "student" in user:
+        elo_int = int(float(user['score']))
+        elo_str_padded = str(max(0, elo_int)).zfill(4)
+        short_file_name = elo_str_padded + "-" + user["first_name"] + user["last_name"]
+    else:
+        short_file_name = user["first_name"] + user["last_name"]
+    full_file_name = subfolder + '/' + short_file_name +'.pdf'
 
     # TODO check if file exists already
     # if exists, note that we're skipping it
     download(user_id, full_file_name, bucket, files_dir)
 
-# for user in users_teams:
-
-
-# if a user is in users_all but not users_teams, dl them to "other"
-user_id = 1706
-file_name = 'hs-us/' + str(user_id)+'.pdf'
-download(user_id, file_name, bucket, files_dir)
+ids_users_downloaded = set()
+for user in users_teams:
+    download_user(user, bucket, files_dir)
+    ids_users_downloaded.add(user["id"])
+for user in users_all:
+    if user["id"] not in ids_users_downloaded:
+        download_user(user, bucket, files_dir)
+        ids_users_downloaded.add(user["id"])
