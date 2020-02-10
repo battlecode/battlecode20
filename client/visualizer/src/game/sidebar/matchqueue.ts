@@ -18,6 +18,7 @@ export default class MatchQueue {
   // Callbacks initialized from outside Stats
   onNextMatch: () => void;
   onPreviousMatch: () => void;
+  onTournamentLoaded: (path: File) => void;
   gotoMatch: (game: number, match: number) => void;
   onGameLoaded: (data: ArrayBuffer) => void;
   removeGame: (game: number) => void;
@@ -92,6 +93,9 @@ export default class MatchQueue {
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
     upload.accept = '.bc20';
+    if (this.conf.tournamentMode) {
+      upload.accept = '.bc20,.json';
+    }
     upload.onchange = () => this.loadMatch(upload.files as FileList);
     uploadLabel.appendChild(upload);
 
@@ -101,21 +105,27 @@ export default class MatchQueue {
   loadMatch(files: FileList) {
     const file = files[0];
     console.log(file);
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.onGameLoaded(<ArrayBuffer>reader.result);
-    };
-    reader.readAsArrayBuffer(file);
+    if (file.name.endsWith('.json')) {
+      this.onTournamentLoaded(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.onGameLoaded(<ArrayBuffer>reader.result);
+      };
+      reader.readAsArrayBuffer(file);
+    }
   }
 
 
 
   refreshGameList(gameList: Array<Game>, activeGame: number, activeMatch: number) {
     // Initialize the profiler with the active match
-    if (gameList[activeGame]) {
-      this.profiler.load(gameList[activeGame].getMatch(activeMatch));
-    } else {
-      this.profiler.load(undefined);
+    if (!this.conf.tournamentMode) { // disable the profiler in tournaments out of memory concerns
+      if (gameList[activeGame]) {	
+        this.profiler.load(gameList[activeGame].getMatch(activeMatch));	
+      } else {	
+        this.profiler.load(undefined);	
+      }
     }
 
     // Remove all games from the list
