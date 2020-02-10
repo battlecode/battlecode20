@@ -41,6 +41,11 @@ export interface Config {
   readonly pollEvery: number;
 
   /**
+   * Whether tournament mode is enabled.
+   */
+  readonly tournamentMode: boolean;
+
+  /**
    * Whether or not to interpolate between frames.
    */
   interpolate: boolean;
@@ -124,6 +129,7 @@ export function defaults(supplied?: any): Config {
     websocketURL: supplied.websocketURL || null,
     matchFileURL: supplied.matchFileURL || null,
     pollEvery: supplied.pollEvery || 500,
+    tournamentMode: supplied.tournamentMode || false,
     interpolate: supplied.interpolate || true,
     circleBots: supplied.circleBots || false,
     indicators: supplied.indicators || false,

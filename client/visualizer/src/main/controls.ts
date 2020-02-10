@@ -95,7 +95,10 @@ export default class Controls {
     timeline.appendChild(this.timeReadout);
     timeline.appendChild(this.speedReadout);
 
-    this.curUPS = 8; // for tournament!!!
+    this.curUPS = 16;
+    if (this.conf.tournamentMode) {
+      this.curUPS = 8; // for tournament!!!
+    }
 
     // create the button controls
     let buttons = document.createElement("td");
@@ -192,7 +195,9 @@ export default class Controls {
     this.ctx = canvas.getContext("2d");
     this.ctx.fillStyle = "white";
     this.canvas = canvas;
-    canvas.style.display = 'none';
+    if (this.conf.tournamentMode) {
+      canvas.style.display = 'none'; // we don't wanna reveal how many rounds there are!
+    }
     return canvas;
   }
 
@@ -290,7 +295,7 @@ export default class Controls {
   doubleUPS() {
     if (Math.abs(this.curUPS) < 128){
       this.curUPS = this.curUPS * 2;
-}
+    }
     this.onToggleUPS();
   }
 
@@ -317,8 +322,10 @@ export default class Controls {
    */
   onFinish(game: Game) {
     if (!this.isPaused()) this.pause();
-    // also update the winner text
-    this.setWinner(game);
+    if (this.conf.tournamentMode) {
+      // also update the winner text
+      this.setWinner(game);
+    }
   }
 
   setWinner(game: Game) {
@@ -352,11 +359,16 @@ export default class Controls {
    */
   // TODO scale should be constant; should not depend on loadedTime
   setTime(time: number, loadedTime: number, ups: number, fps: number, lagging: Boolean) {
-    let speedText = (lagging ? '(Lagging) ' : '') + `UPS: ${ups | 0} FPS: ${fps | 0}`;
-    speedText = speedText.padStart(32);
-    this.speedReadout.textContent = speedText;
-    this.timeReadout.textContent = `Round: ${time}`;
-    return; // TOURNAMENT
+
+    if (this.conf.tournamentMode) {
+      // TOURNAMENT MODE
+      let speedText = (lagging ? '(Lagging) ' : '') + `UPS: ${ups | 0} FPS: ${fps | 0}`;
+      speedText = speedText.padStart(32);
+      this.speedReadout.textContent = speedText;
+      this.timeReadout.textContent = `Round: ${time}`;
+      return;
+    }
+
     // Redraw the timeline
     const scale = this.canvas.width / loadedTime;
     // const scale = this.canvas.width / cst.MAX_ROUND_NUM;
@@ -372,11 +384,11 @@ export default class Controls {
     this.ctx.fillRect(time * scale, 0, 2, this.canvas.height);
 
     // Edit the text
-    // this.timeReadout.textContent = `Round: ${time}/${loadedTime}`;
+    this.timeReadout.textContent = `Round: ${time}/${loadedTime}`;
 
-    // let speedText = (lagging ? '(Lagging) ' : '') + `UPS: ${ups | 0} FPS: ${fps | 0}`;
-    // speedText = speedText.padStart(32);
-    // this.speedReadout.textContent = speedText;
+    let speedText = (lagging ? '(Lagging) ' : '') + `UPS: ${ups | 0} FPS: ${fps | 0}`;
+    speedText = speedText.padStart(32);
+    this.speedReadout.textContent = speedText;
   }
 
   /**

@@ -189,20 +189,22 @@ export default class Stats {
     this.robotTds = {};
     this.statBars = new Map<number, { soups: StatBar }>();
 
-    // FOR TOURNAMENT
-    let uploadButton = this.addUploadButton();
-    let tempdiv = document.createElement("div");
-    tempdiv.className = "upload-button-div";
-    tempdiv.appendChild(uploadButton);
-    this.div.appendChild(tempdiv);
+    if (!this.conf.tournamentMode) {
+      this.div.append(this.addViewOptions());
+    } else {
+      // FOR TOURNAMENT
+      let uploadButton = this.addUploadButton();
+      let tempdiv = document.createElement("div");
+      tempdiv.className = "upload-button-div";
+      tempdiv.appendChild(uploadButton);
+      this.div.appendChild(tempdiv);
 
-    // // Add view toggles
-    // this.div.append(this.addViewOptions());
-    // add text input field
-    this.tourIndexJump.type = "text";
-    this.tourIndexJump.onkeyup = (e) => { this.tourIndexJumpFun(e) };
-    this.tourIndexJump.onchange = (e) => { this.tourIndexJumpFun(e) };
-    this.div.appendChild(this.tourIndexJump);
+      // add text input field
+      this.tourIndexJump.type = "text";
+      this.tourIndexJump.onkeyup = (e) => { this.tourIndexJumpFun(e) };
+      this.tourIndexJump.onchange = (e) => { this.tourIndexJumpFun(e) };
+      this.div.appendChild(this.tourIndexJump);
+    }
     
     // Populate with new info
     // Add a section to the stats bar for each team in the match
@@ -435,7 +437,10 @@ export default class Stats {
     upload.textContent = 'upload';
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
-    upload.accept = '.bc20,.json';
+    upload.accept = '.bc20';
+    if (this.conf.tournamentMode) {
+      upload.accept = '.bc20,.json';
+    }
     upload.onchange = () => this.loadMatch(upload.files as FileList);
     uploadLabel.appendChild(upload);
 

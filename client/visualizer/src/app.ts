@@ -336,10 +336,10 @@ export default class Client {
     };
 
     this.stats.onTournamentLoaded = (jsonFile: File) => {
-      // if (!process.env.ELECTRON) {
-      //   console.error("Can't load tournament outside of electron!");
-      //   return;
-      // }
+      if (!process.env.ELECTRON) {
+        console.error("Can't load tournament outside of electron!");
+        return;
+      }
       readTournament(jsonFile, (err, tournament) => {
         if (err) {
           console.error(`Can't load tournament: ${err}`);
@@ -379,10 +379,10 @@ export default class Client {
       });
     };
     this.matchqueue.onTournamentLoaded = (jsonFile: File) => {
-      // if (!process.env.ELECTRON) {
-      //   console.error("Can't load tournament outside of electron!");
-      //   return;
-      // }
+      if (!process.env.ELECTRON) {
+        console.error("Can't load tournament outside of electron!");
+        return;
+      }
       readTournament(jsonFile, (err, tournament) => {
         if (err) {
           console.error(`Can't load tournament: ${err}`);
@@ -554,56 +554,6 @@ export default class Client {
   }
 
 
-  // private tournamentGameStart() {
-  //   if (this.tournament) {
-
-  //     this.stats.resetScore();
-
-  //     Splash.addScreen(this.conf, this.root, this.tournament.current(), this.tournament.currentMatch(), this.tournament);
-
-  //     setTimeout(() => {
-  //       Splash.removeScreen();
-  //       if (!this.tournament) throw new Error("What?");
-        
-  //       if (this.tournament.current().team2_name == "BYE") {
-  //         this.tournamentGameEnd();
-  //         return;
-  //       }
-
-  //       this.tournament.readCurrent((err, data) => {
-  //         if (err) throw err;
-  //         if (!data) throw new Error("No match loaded from tournament?");
-
-  //         this.games = [new Game()];
-  //         this.games[0].loadFullGameRaw(data);
-  //         this.setGame(0);
-  //         this.setMatch(0);
-  //       });
-  //     }, 5000);
-  //   }
-  // }
-
-  // private tournamentGameEnd() {
-  //   if (this.tournament) {
-  //     const current = this.tournament.currentMatch();
-  //     console.log("Finished game "+current.id);
-  //     if (this.conf.tournamentOnGameDone) {
-  //       this.conf.tournamentOnGameDone(current.id);
-  //     }
-  //     Splash.addWinnerScreen(this.conf, this.root, current);
-
-  //     setTimeout(() => {
-  //       Splash.removeScreen();
-  //       if (!this.tournament) throw new Error("What?");
-
-  //       if (this.tournament.hasNext()) {
-  //         this.clearScreen();
-  //         this.tournament.next();
-  //         this.tournamentGameStart();
-  //       }
-  //     }, 3000);
-  //   }
-  // }
 
   private runMatch() {
     console.log('Running match.');
@@ -665,8 +615,10 @@ export default class Client {
       this.conf, meta as Metadata, onRobotSelected, onMouseover);
 
     // How fast the simulation should progress
-    // let goalUPS = this.controls.getUPS();
-    let goalUPS = 0; // FOR TOURNAMENT
+    let goalUPS = this.controls.getUPS();
+    if (this.conf.tournamentMode) {
+      goalUPS = 0; // FOR TOURNAMENT
+    }
 
     // A variety of stuff to track how fast the simulation is going
     let rendersPerSecond = new TickCounter(.5, 100);
@@ -891,10 +843,6 @@ export default class Client {
         match.seek(interpGameTime | 0);
       } if (match['_farthest'].winner !== null && match.current.turn === match['_farthest'].turn && match.current.turn !== 0){
         // Match have ended
-        console.log("finishing game!!1");
-        console.log(match.current.turn);
-        console.log(match['_farthest'].turn);
-        console.log("finishing game!!");
         this.controls.onFinish(game);
       }
 

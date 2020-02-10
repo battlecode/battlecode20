@@ -92,7 +92,10 @@ export default class MatchQueue {
     upload.textContent = 'upload';
     upload.id = "file-upload";
     upload.setAttribute('type', 'file');
-    upload.accept = '.bc20,.json';
+    upload.accept = '.bc20';
+    if (this.conf.tournamentMode) {
+      upload.accept = '.bc20,.json';
+    }
     upload.onchange = () => this.loadMatch(upload.files as FileList);
     uploadLabel.appendChild(upload);
 
@@ -117,6 +120,13 @@ export default class MatchQueue {
 
   refreshGameList(gameList: Array<Game>, activeGame: number, activeMatch: number) {
     // Initialize the profiler with the active match
+    if (!this.conf.tournamentMode) { // disable the profiler in tournaments out of memory concerns
+      if (gameList[activeGame]) {	
+        this.profiler.load(gameList[activeGame].getMatch(activeMatch));	
+      } else {	
+        this.profiler.load(undefined);	
+      }
+    }
 
     // Remove all games from the list
     // TODO: this assumes there are exactly 3 HTML elements before the first match. that's bad
