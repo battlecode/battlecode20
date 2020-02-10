@@ -12,6 +12,13 @@ If you're a competitor and not interested in *developing* the client, you should
  * `npm run prod-test`: Test just for local platform.
  * `npm run clean`
 
+
+### Tournament Mode
+
+Change the value of `tournamentMode` in `visualizer/config.ts` from `false` to `true` to enable the tournament mode. The client will in tournament accept JSON files of a format specified in `visualizer/tournament.ts` and automatically step through the replays.
+
+Step forward and backward in the tournament mode using hotkeys 'A' and 'D'.
+
 ### Developing
 
 To get started:

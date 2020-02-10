@@ -87,10 +87,14 @@ export default class Controls {
 
     // create the timeline
     let timeline = document.createElement("td");
-    timeline.style.width = '400px';
+    if (this.conf.tournamentMode) {
+      timeline.style.width = '400px';
+    }
     timeline.appendChild(this.timeline());
-    this.winnerDiv = document.createElement("div");
-    timeline.append(this.winnerDiv);
+    if (this.conf.tournamentMode) {
+      this.winnerDiv = document.createElement("div");
+      timeline.append(this.winnerDiv);
+    }
     timeline.appendChild(document.createElement("br"));
     timeline.appendChild(this.timeReadout);
     timeline.appendChild(this.speedReadout);
