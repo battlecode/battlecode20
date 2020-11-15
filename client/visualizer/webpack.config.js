@@ -49,7 +49,9 @@ var conf = {
     writeToDisk: filePath => filePath.includes('speedscope/')
   },
   node: {
-    fs: "empty"
+    fs: "empty",
+    Buffer: false,
+    process: false
   }
 };
 

@@ -3,7 +3,8 @@ import {SERVER_MAPS} from './constants';
 
 // Code that talks to the scaffold.
 
-const WINDOWS = process.platform === 'win32';
+// not need gradle when not in electron
+const WINDOWS = process.env.ELECTRON && process.platform === "win32";
 
 const GRADLE_WRAPPER = WINDOWS ? 'gradlew.bat' : 'gradlew';
 
