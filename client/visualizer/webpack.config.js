@@ -18,14 +18,13 @@ var conf = {
     filename: '[name].js'
   },
   resolve: {
-    // add `.ts` as a resolvable extension.
     extensions: ['.ts', '.js', '.png', '.jpg']
   },
   module: {
     rules: [
-      { test: /\.ts$/, loader: 'awesome-typescript-loader' },
-      { test: /\.(png|jpg)$/, loader: 'url-loader?limit=10000&name=[name]-[hash:base64:7].[ext]' },
-      { test: /\.css$/, loader: "style-loader!css-loader" }
+      { test: /\.ts$/, use: 'awesome-typescript-loader' },
+      { test: /\.(png|jpg)$/, use: 'url-loader?limit=50000&name=[name]-[hash:base64:7].[ext]' },
+      { test: /\.css$/, use: ['style-loader', 'css-loader'] }
     ]
   },
   plugins: [
@@ -47,11 +46,6 @@ var conf = {
   devServer: {
     // Required to ensure the files copied by the CopyWebpackPlugin are copied when running the dev server
     writeToDisk: filePath => filePath.includes('speedscope/')
-  },
-  node: {
-    fs: "empty",
-    Buffer: false,
-    process: false
   }
 };
 
