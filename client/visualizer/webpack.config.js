@@ -59,6 +59,7 @@ module.exports = function(env) {
   if (env.dev) {
     // we're in dev
     conf = merge(conf, {
+      mode: "development",
       devtool: 'source-map',
       plugins: [
         new webpack.HotModuleReplacementPlugin(),
@@ -71,6 +72,7 @@ module.exports = function(env) {
   } else {
     // we're compiling for prod
     conf = merge(conf, {
+      mode: "production",
       plugins: [
         // new webpack.optimize.UglifyJsPlugin(),
         new webpack.LoaderOptionsPlugin({
