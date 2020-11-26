@@ -7,7 +7,8 @@ import Sidebar from './main/sidebar';
 import Controls from './main/controls';
 import Splash from './main/splash';
 
-import {Stats, Console, MatchQueue, GameArea, Renderer, NextStep, TickCounter, Profiler} from './game/index';
+import {Stats, Console, MatchQueue, NextStep, TickCounter, Profiler} from './game/index';
+import {GameArea, Renderer} from './gamearea/index';
 import {MapEditor} from './mapeditor/index';
 
 import WebSocketListener from './websocket';
