@@ -1,7 +1,7 @@
-import {Config} from '../../config';
+import {Config} from '../config';
 
-import ScaffoldCommunicator from '../../scaffold';
-import {MapFilter} from '../index';
+import ScaffoldCommunicator from '../scaffold';
+import {MapFilter} from './index';
 
 /**
  * The interface to run matches from the scaffold.

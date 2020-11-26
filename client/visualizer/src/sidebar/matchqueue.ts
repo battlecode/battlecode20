@@ -1,8 +1,8 @@
-import {Config} from '../../config';
-import {AllImages} from '../../imageloader';
+import {Config} from '../config';
+import {AllImages} from '../imageloader';
 
 import {Game} from 'battlecode-playback';
-import { Profiler } from "../index";
+import { Profiler } from "./index";
 
 export default class MatchQueue {
 

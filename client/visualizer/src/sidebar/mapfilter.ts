@@ -1,6 +1,6 @@
-import ScaffoldCommunicator from '../../scaffold';
-import * as cst from '../../constants';
-import {MapType} from '../../constants';
+import ScaffoldCommunicator from '../scaffold';
+import * as cst from '../constants';
+import {MapType} from '../constants';
 
 
 export type MapSchema = {

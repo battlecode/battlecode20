@@ -1,11 +1,11 @@
 import {Config, Mode} from '../config';
 import {AllImages} from '../imageloader';
 
-import Stats from '../game/sidebar/stats';
-import Console from '../game/sidebar/console';
-import MatchRunner from '../game/sidebar/matchrunner';
-import MatchQueue from '../game/sidebar/matchqueue';
-import Profiler from '../game/sidebar/profiler';
+import Stats from '../sidebar/stats';
+import Console from '../sidebar/console';
+import MatchRunner from '../sidebar/matchrunner';
+import MatchQueue from '../sidebar/matchqueue';
+import Profiler from '../sidebar/profiler';
 import MapEditor from '../mapeditor/mapeditor';
 import ScaffoldCommunicator from '../scaffold';
 
