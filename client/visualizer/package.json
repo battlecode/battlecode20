@@ -26,13 +26,15 @@
   "homepage": "https://github.com/battlecode/battlecode20#battlecode-2020",
   "dependencies": {
     "battlecode-playback": "file:../playback",
-    "speedscope": "^1.5.2",
+    "minimist": "^1.2.5",
+    "mkdirp": "^1.0.4",
+    "speedscope": "^1.9.0",
     "victor": "^1.1.0"
   },
   "devDependencies": {
     "@types/blue-tape": "^0.1.33",
     "@types/electron": "^1.6.10",
-    "@types/node": "^12.12.14",
+    "@types/node": "^14.6.0",
     "@types/victor": "^1.1.0",
     "awesome-typescript-loader": "^5.2.1",
     "copy-webpack-plugin": "^5.0.5",
