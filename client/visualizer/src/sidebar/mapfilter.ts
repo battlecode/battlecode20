@@ -1,4 +1,4 @@
-import ScaffoldCommunicator from '../scaffold';
+import ScaffoldCommunicator from '../main/scaffold';
 import * as cst from '../constants';
 import {MapType} from '../constants';
 

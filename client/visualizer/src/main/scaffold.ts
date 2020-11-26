@@ -1,5 +1,5 @@
 import {electron, os, fs, path, child_process} from './electron-modules';
-import {SERVER_MAPS} from './constants';
+import {SERVER_MAPS} from '../constants';
 
 // Code that talks to the scaffold.
 

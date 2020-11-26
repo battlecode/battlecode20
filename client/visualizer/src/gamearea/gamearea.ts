@@ -1,10 +1,10 @@
 import {Config, Mode} from '../config';
-import {AllImages} from '../imageloader';
+import {AllImages} from '../main/imageloader';
 import Client from '../app';
 
 import {GameWorld} from 'battlecode-playback';
 
-import {http} from '../electron-modules';
+import {http} from '../main/electron-modules';
 
 export default class GameArea {
 

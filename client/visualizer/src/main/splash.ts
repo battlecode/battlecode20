@@ -1,5 +1,5 @@
 import {Config} from '../config';
-import {Tournament, TournamentGame, TournamentMatch} from '../tournament';
+import {Tournament, TournamentGame, TournamentMatch} from './tournament';
 
 /**
  * The splash screen for tournaments. Appears between every match

@@ -1,5 +1,5 @@
 import {Game, schema, flatbuffers} from 'battlecode-playback';
-import {Config} from './config';
+import {Config} from '../config';
 
 /**
  * Listens for incoming data on a websocket.

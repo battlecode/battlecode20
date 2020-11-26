@@ -1,5 +1,5 @@
 import {Config, Mode} from '../config';
-import {AllImages} from '../imageloader';
+import {AllImages} from './imageloader';
 
 import Stats from '../sidebar/stats';
 import Console from '../sidebar/console';
@@ -7,9 +7,9 @@ import MatchRunner from '../sidebar/matchrunner';
 import MatchQueue from '../sidebar/matchqueue';
 import Profiler from '../sidebar/profiler';
 import MapEditor from '../mapeditor/mapeditor';
-import ScaffoldCommunicator from '../scaffold';
+import ScaffoldCommunicator from './scaffold';
 
-import {http,electron} from '../electron-modules';
+import {http,electron} from './electron-modules';
 
 
 export default class Sidebar {

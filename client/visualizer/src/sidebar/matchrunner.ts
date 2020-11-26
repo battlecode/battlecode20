@@ -1,6 +1,6 @@
 import {Config} from '../config';
 
-import ScaffoldCommunicator from '../scaffold';
+import ScaffoldCommunicator from '../main/scaffold';
 import {MapFilter} from './index';
 
 /**

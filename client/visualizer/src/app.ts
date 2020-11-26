@@ -1,24 +1,23 @@
 import {Game, GameWorld, Match, Metadata, schema, flatbuffers} from 'battlecode-playback';
 import * as cst from './constants';
 import * as config from './config';
-import * as imageloader from './imageloader';
+import * as imageloader from './main/imageloader';
 
 import Sidebar from './main/sidebar';
 import Controls from './main/controls';
 import Splash from './main/splash';
 
 import {Stats, Console, MatchQueue, Profiler} from './sidebar/index';
-import {NextStep, TickCounter} from './game/index'
-import {GameArea, Renderer} from './gamearea/index';
+import {GameArea, Renderer, NextStep, TickCounter} from './gamearea/index';
 import {MapEditor} from './mapeditor/index';
 
-import WebSocketListener from './websocket';
-import ScaffoldCommunicator from './scaffold';
+import WebSocketListener from './main/websocket';
+import ScaffoldCommunicator from './main/scaffold';
 
-import { electron } from './electron-modules';
+import { electron } from './main/electron-modules';
 import { TeamStats } from 'battlecode-playback/out/gameworld';
 
-import {Tournament, readTournament} from './tournament';
+import {Tournament, readTournament} from './main/tournament';
 
 // import TeamStats = gameworld.TeamStats;
 
