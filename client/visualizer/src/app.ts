@@ -1,5 +1,3 @@
-import * as _fs from 'fs';
-
 import {Game, GameWorld, Match, Metadata, schema, flatbuffers} from 'battlecode-playback';
 import * as cst from './constants';
 import * as config from './config';
@@ -260,31 +258,32 @@ export default class Client {
 
       req.send();
     }
-    else {
-      console.log('Starting with a default match file (/client/default.bc20)');
-      if(_fs.readFile){
-        _fs.readFile('../default.bc20', (err, data: ArrayBuffer) => {
-          if(err){
-            console.log('Error while loading default local file!');
-            console.log(err);
-            console.log('Starting without any match files. Please upload via upload button in queue tab of sidebar');
-            return;
-          }
+    // not loading default match file
+    // else {
+    //   console.log('Starting with a default match file (/client/default.bc20)');
+    //   if(_fs.readFile){
+    //     _fs.readFile('../default.bc20', (err, data: ArrayBuffer) => {
+    //       if(err){
+    //         console.log('Error while loading default local file!');
+    //         console.log(err);
+    //         console.log('Starting without any match files. Please upload via upload button in queue tab of sidebar');
+    //         return;
+    //       }
 
-          let lastGame = this.games.length
-          this.games[lastGame] = new Game();
-          // lastGame should be 0?
-          try {
-            this.games[lastGame].loadFullGameRaw(data);
-          } catch (error) {
-            console.log(`Error occurred! ${error}`);
-          }
+    //       let lastGame = this.games.length
+    //       this.games[lastGame] = new Game();
+    //       // lastGame should be 0?
+    //       try {
+    //         this.games[lastGame].loadFullGameRaw(data);
+    //       } catch (error) {
+    //         console.log(`Error occurred! ${error}`);
+    //       }
 
-          console.log('Running game!');
-          startGame();
-        });
-      }
-    }
+    //       console.log('Running game!');
+    //       startGame();
+    //     });
+    //   }
+    // }
     
     this.controls.onGameLoaded = (data: ArrayBuffer) => {
       let lastGame = this.games.length
