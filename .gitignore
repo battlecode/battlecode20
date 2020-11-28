@@ -14,7 +14,6 @@ access.txt
 frontend/build
 
 ## Backend
-backend/dev_settings.py
 backend/resumes/files/
 
 ### Gradle ###
